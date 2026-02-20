@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { RotateCcw } from "lucide-react";
 import { DisposableIncome } from "./DisposableIncome";
 import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
@@ -15,63 +16,68 @@ interface Props {
 }
 
 const tabs = [
-  { id: "nu", label: "Nu", emoji: "📊" },
-  { id: "fremad", label: "Fremad", emoji: "🔮" },
-  { id: "optimering", label: "Optimering", emoji: "✨" },
-  { id: "naboeffekt", label: "Naboer", emoji: "📍" },
+  { id: "nu", label: "Nu", icon: "📊" },
+  { id: "fremad", label: "Fremad", icon: "🔮" },
+  { id: "optimering", label: "Optimering", icon: "✨" },
+  { id: "naboeffekt", label: "Naboer", icon: "📍" },
 ];
 
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const [activeTab, setActiveTab] = useState("nu");
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto px-4 py-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <span className="font-display font-black text-2xl gradient-text-green">Kassen</span>
-        <button onClick={onReset} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-          Start forfra
-        </button>
-      </div>
-
-      {/* Disposable income – always visible */}
-      <div className="mb-6">
-        <DisposableIncome amount={budget.disposableIncome} />
-      </div>
-
-      {/* Tab bar */}
-      <div className="flex gap-1 p-1 rounded-xl bg-muted/40 mb-6">
-        {tabs.map((tab) => (
+    <div className="min-h-screen">
+      {/* Sticky header */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          <span className="font-display font-black text-xl gradient-text-green">Kassen</span>
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex flex-col items-center py-2 px-1 rounded-lg text-xs font-semibold transition-all ${
-              activeTab === tab.id
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            onClick={onReset}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted/50"
           >
-            <span className="text-base mb-0.5">{tab.emoji}</span>
-            {tab.label}
+            <RotateCcw className="w-3 h-3" /> Start forfra
           </button>
-        ))}
-      </div>
+        </div>
+      </header>
 
-      {/* Tab content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
-        >
-          {activeTab === "nu" && <NuView budget={budget} />}
-          {activeTab === "fremad" && <FremadView profile={profile} budget={budget} />}
-          {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
-          {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
-        </motion.div>
-      </AnimatePresence>
+      <main className="max-w-2xl mx-auto px-4 py-6 pb-8 space-y-6">
+        {/* Disposable income – always visible */}
+        <DisposableIncome amount={budget.disposableIncome} />
+
+        {/* Tab bar */}
+        <div className="flex gap-1 p-1 rounded-2xl bg-card border border-border/60">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === tab.id
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <span className="text-sm">{tab.icon}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Tab content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {activeTab === "nu" && <NuView budget={budget} profile={profile} />}
+            {activeTab === "fremad" && <FremadView profile={profile} budget={budget} />}
+            {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
+            {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
+          </motion.div>
+        </AnimatePresence>
+      </main>
     </div>
   );
 }

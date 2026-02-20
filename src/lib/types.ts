@@ -1,6 +1,11 @@
 export type HouseholdType = "solo" | "par";
 export type HousingType = "lejer" | "ejer";
 
+export interface CustomExpense {
+  label: string;
+  amount: number;
+}
+
 export interface BudgetProfile {
   householdType: HouseholdType;
   income: number;
@@ -8,6 +13,8 @@ export interface BudgetProfile {
   postalCode: string;
   housingType: HousingType;
   hasMortgage: boolean;
+  rentAmount: number; // editable rent
+  mortgageAmount: number; // editable mortgage estimate
   hasChildren: boolean;
   childrenAges: number[];
   // Subscriptions
@@ -16,8 +23,22 @@ export interface BudgetProfile {
   hasHBO: boolean;
   hasViaplay: boolean;
   hasAppleTV: boolean;
+  hasDisney: boolean;
+  hasAmazonPrime: boolean;
+  // Transport
   hasCar: boolean;
+  carAmount: number;
+  // Utilities
   hasInternet: boolean;
+  // Insurance, union, fitness
+  hasInsurance: boolean;
+  insuranceAmount: number;
+  hasUnion: boolean;
+  unionAmount: number;
+  hasFitness: boolean;
+  fitnessAmount: number;
+  // Custom
+  customExpenses: CustomExpense[];
 }
 
 export interface ExpenseItem {
@@ -49,11 +70,7 @@ export type OnboardingStep =
   | "welcome"
   | "household"
   | "income"
-  | "partnerIncome"
   | "housing"
-  | "mortgage"
   | "children"
-  | "childAges"
-  | "subscriptions"
-  | "car"
-  | "done";
+  | "expenses"
+  | "review";

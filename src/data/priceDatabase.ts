@@ -50,6 +50,20 @@ export const UTILITIES = {
   },
 };
 
+export const INSURANCE = {
+  solo: { label: "Forsikring (indbo + ulykke)", price: 650 },
+  par: { label: "Forsikring (indbo + ulykke + bil)", price: 1200 },
+  family: { label: "Forsikring (familie)", price: 1600 },
+};
+
+export const UNION = {
+  default: { label: "Fagforening + A-kasse", price: 550 },
+};
+
+export const FITNESS = {
+  default: { label: "Fitness", price: 299 },
+};
+
 export const FOOD = {
   solo: 4500,
   par: 7500,
@@ -65,7 +79,7 @@ export const CHILDCARE = {
   age_15_plus: { label: "Ingen institutionsudgift (15+ år)", price: 0 },
 };
 
-// Gennemsnitlig boligudgift til eje pr. region (Stor-Aarhus postnumre)
+// Gennemsnitlig boligudgift til eje pr. region
 export const MORTGAGE_ESTIMATES: Record<string, number> = {
   default: 8500,
   "1000": 16000, "1100": 15500, "1200": 14500, "1300": 13000,
@@ -83,8 +97,23 @@ export const MORTGAGE_ESTIMATES: Record<string, number> = {
   "9800": 6200, "9900": 6000,
 };
 
+export const RENT_ESTIMATES: Record<string, { solo: number; par: number }> = {
+  default: { solo: 7000, par: 9500 },
+  "1000": { solo: 11000, par: 14000 },
+  "2000": { solo: 9000, par: 12000 },
+  "5000": { solo: 7000, par: 9500 },
+  "8000": { solo: 7500, par: 10000 },
+  "9000": { solo: 6500, par: 8500 },
+};
+
 export function getMortgageEstimate(postalCode: string): number {
   return MORTGAGE_ESTIMATES[postalCode] ?? MORTGAGE_ESTIMATES.default;
+}
+
+export function getRentEstimate(postalCode: string, isPar: boolean): number {
+  const prefix = postalCode.substring(0, 1) + "000";
+  const entry = RENT_ESTIMATES[prefix] ?? RENT_ESTIMATES.default;
+  return isPar ? entry.par : entry.solo;
 }
 
 export function getChildcarePrice(age: number): { label: string; price: number } {
