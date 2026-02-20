@@ -4,14 +4,13 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
-const STORAGE_KEY = "kassen_profile_v1";
+const STORAGE_KEY = "kassen_profile_v2";
 
 const Index = () => {
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
   const [budget, setBudget] = useState<ComputedBudget | null>(null);
   const [optimizations, setOptimizations] = useState<OptimizingAction[]>([]);
 
-  // Load saved profile
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -23,9 +22,7 @@ const Index = () => {
         setBudget(b);
         setOptimizations(opts);
       }
-    } catch {
-      // ignore
-    }
+    } catch { /* ignore */ }
   }, []);
 
   const handleComplete = (p: BudgetProfile) => {

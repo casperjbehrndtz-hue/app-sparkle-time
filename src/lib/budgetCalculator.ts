@@ -3,7 +3,6 @@ import {
   TRANSPORT,
   UTILITIES,
   FOOD,
-  getMortgageEstimate,
   getChildcarePrice,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
@@ -15,20 +14,18 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
   const variableExpenses: ExpenseItem[] = [];
 
   // Housing
-  if (profile.housingType === "ejer" && profile.hasMortgage) {
-    const mortgageAmt = getMortgageEstimate(profile.postalCode);
+  if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
     fixedExpenses.push({
       category: "Bolig",
-      label: "Boliglån (estimat)",
-      amount: mortgageAmt,
+      label: "Boliglån",
+      amount: profile.mortgageAmount,
       colorVar: "--kassen-blue",
     });
-  } else if (profile.housingType === "lejer") {
-    const rentAmt = isPar ? 9500 : 7000; // default estimate
+  } else if (profile.housingType === "lejer" && profile.rentAmount > 0) {
     fixedExpenses.push({
       category: "Bolig",
-      label: "Husleje (estimat)",
-      amount: rentAmt,
+      label: "Husleje",
+      amount: profile.rentAmount,
       colorVar: "--kassen-blue",
     });
   }
@@ -60,54 +57,58 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
   });
 
   // Subscriptions
-  if (profile.hasNetflix) {
-    fixedExpenses.push({
-      category: "Abonnementer",
-      label: "Netflix",
-      amount: SUBSCRIPTIONS.netflix.price,
-      colorVar: "--kassen-green",
-    });
-  }
-  if (profile.hasSpotify) {
-    fixedExpenses.push({
-      category: "Abonnementer",
-      label: "Spotify",
-      amount: isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo,
-      colorVar: "--kassen-green",
-    });
-  }
-  if (profile.hasHBO) {
-    fixedExpenses.push({
-      category: "Abonnementer",
-      label: "HBO Max",
-      amount: SUBSCRIPTIONS.hbo.price,
-      colorVar: "--kassen-green",
-    });
-  }
-  if (profile.hasViaplay) {
-    fixedExpenses.push({
-      category: "Abonnementer",
-      label: "Viaplay",
-      amount: SUBSCRIPTIONS.viaplay.price,
-      colorVar: "--kassen-green",
-    });
-  }
-  if (profile.hasAppleTV) {
-    fixedExpenses.push({
-      category: "Abonnementer",
-      label: "Apple TV+",
-      amount: SUBSCRIPTIONS.appleTV.price,
-      colorVar: "--kassen-green",
-    });
-  }
+  const subMap: { key: keyof BudgetProfile; label: string; amount: number }[] = [
+    { key: "hasNetflix", label: "Netflix", amount: SUBSCRIPTIONS.netflix.price },
+    { key: "hasSpotify", label: "Spotify", amount: isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo },
+    { key: "hasHBO", label: "HBO Max", amount: SUBSCRIPTIONS.hbo.price },
+    { key: "hasViaplay", label: "Viaplay", amount: SUBSCRIPTIONS.viaplay.price },
+    { key: "hasAppleTV", label: "Apple TV+", amount: SUBSCRIPTIONS.appleTV.price },
+    { key: "hasDisney", label: "Disney+", amount: SUBSCRIPTIONS.disney.price },
+    { key: "hasAmazonPrime", label: "Amazon Prime", amount: SUBSCRIPTIONS.amazonPrime.price },
+  ];
+  subMap.forEach(({ key, label, amount }) => {
+    if (profile[key]) {
+      fixedExpenses.push({ category: "Abonnementer", label, amount, colorVar: "--kassen-green" });
+    }
+  });
 
   // Transport
   if (profile.hasCar) {
     fixedExpenses.push({
       category: "Transport",
-      label: "Bil (total gennemsnit)",
-      amount: TRANSPORT.car.price,
+      label: "Bil (samlet)",
+      amount: profile.carAmount || TRANSPORT.car.price,
       colorVar: "--kassen-gold",
+    });
+  }
+
+  // Insurance
+  if (profile.hasInsurance) {
+    fixedExpenses.push({
+      category: "Forsikring",
+      label: "Forsikringer",
+      amount: profile.insuranceAmount,
+      colorVar: "--kassen-blue",
+    });
+  }
+
+  // Union
+  if (profile.hasUnion) {
+    fixedExpenses.push({
+      category: "Fagforening",
+      label: "Fagforening & A-kasse",
+      amount: profile.unionAmount,
+      colorVar: "--kassen-blue",
+    });
+  }
+
+  // Fitness
+  if (profile.hasFitness) {
+    fixedExpenses.push({
+      category: "Fitness",
+      label: "Fitness / sport",
+      amount: profile.fitnessAmount,
+      colorVar: "--kassen-green",
     });
   }
 
@@ -126,6 +127,18 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     });
   }
 
+  // Custom expenses
+  if (profile.customExpenses?.length > 0) {
+    profile.customExpenses.forEach((ce) => {
+      fixedExpenses.push({
+        category: "Andet",
+        label: ce.label,
+        amount: ce.amount,
+        colorVar: "--kassen-blue",
+      });
+    });
+  }
+
   // Variable expenses
   const foodAmount =
     FOOD[isPar ? "par" : "solo"] +
@@ -136,14 +149,12 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     amount: foodAmount,
     colorVar: "--kassen-red",
   });
-
   variableExpenses.push({
     category: "Fritid",
     label: "Fritid & oplevelser",
     amount: isPar ? 2500 : 1500,
     colorVar: "--kassen-red",
   });
-
   variableExpenses.push({
     category: "Tøj",
     label: "Tøj & personlig pleje",
@@ -155,13 +166,7 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
   const totalExpenses = allExpenses.reduce((sum, e) => sum + e.amount, 0);
   const disposableIncome = totalIncome - totalExpenses;
 
-  return {
-    totalIncome,
-    fixedExpenses,
-    variableExpenses,
-    totalExpenses,
-    disposableIncome,
-  };
+  return { totalIncome, fixedExpenses, variableExpenses, totalExpenses, disposableIncome };
 }
 
 export function generateOptimizations(
@@ -176,77 +181,58 @@ export function generateOptimizations(
   const cheapMobile = isPar ? 258 : 129;
   if (currentMobile > cheapMobile) {
     actions.push({
-      rank: 0,
-      handling: `Skift til billigere mobilabonnement`,
+      rank: 0, handling: "Skift til billigere mobilabonnement",
       beskrivelse: isPar
-        ? "Oister eller Lebara tilbyder samme dækning til 129 kr./md. per linje – en besparelse på over 5.000 kr./år."
+        ? "Oister eller Lebara tilbyder samme dækning til 129 kr./md. per linje."
         : "Oister tilbyder fuld dækning til 129 kr./md.",
       besparelse_kr: currentMobile - cheapMobile,
-      cta_tekst: "Se Oister →",
-      cta_url: "https://oister.dk",
-      category: "Forsyning",
+      cta_tekst: "Se Oister →", cta_url: "https://oister.dk", category: "Forsyning",
     });
   }
 
   // Streaming overlap
-  const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV].filter(Boolean).length;
+  const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
   if (streamingCount >= 3) {
     actions.push({
-      rank: 0,
-      handling: "Skær én streamingtjeneste",
-      beskrivelse: `I har ${streamingCount} streamingtjenester. De fleste serier overlapper. Skær den mindst brugte fra og spar ${149} kr./md. – 1.788 kr. om året.`,
+      rank: 0, handling: "Skær én streamingtjeneste",
+      beskrivelse: `I har ${streamingCount} streamingtjenester. Skær den mindst brugte og spar ~149 kr./md.`,
       besparelse_kr: 149,
-      cta_tekst: "Sammenlign tjenester →",
-      cta_url: "https://www.tjekdette.dk/streaming",
-      category: "Abonnementer",
+      cta_tekst: "Sammenlign →", cta_url: "https://www.tjekdette.dk/streaming", category: "Abonnementer",
     });
   }
 
-  // Food budget optimization
+  // Food
   const foodExpense = budget.variableExpenses.find((e) => e.category === "Mad & dagligvarer");
   if (foodExpense) {
-    const potentialSaving = Math.round(foodExpense.amount * 0.12);
+    const saving = Math.round(foodExpense.amount * 0.12);
     actions.push({
-      rank: 0,
-      handling: "Reducer madbudgettet med 12%",
-      beskrivelse: `Familier med samme profil som jer bruger i gennemsnit 12% mindre på mad ved at handle mere på tilbud og planlægge aftensmad. Det svarer til ${potentialSaving} kr. om måneden.`,
-      besparelse_kr: potentialSaving,
-      cta_tekst: "Se madplan-guide →",
-      cta_url: "https://www.nemlig.com",
-      category: "Mad",
+      rank: 0, handling: "Reducer madbudgettet med 12%",
+      beskrivelse: `Familier med samme profil bruger 12% mindre ved at handle tilbud og planlægge. Spar ${saving} kr./md.`,
+      besparelse_kr: saving, cta_tekst: "Se madplan-guide →", cta_url: "https://www.nemlig.com", category: "Mad",
     });
   }
 
-  // Mortgage refinancing
-  if (profile.housingType === "ejer" && profile.hasMortgage) {
+  // Mortgage
+  if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
     actions.push({
-      rank: 0,
-      handling: "Refinansier boliglånet",
-      beskrivelse:
-        "Med de nuværende renter kan mange familier spare 1.000-2.000 kr./md. ved at omlægge deres lån. Parfinans beregner gratis hvad I kan spare.",
-      besparelse_kr: 1580,
-      cta_tekst: "Se hvad I kan spare →",
-      cta_url: "https://parfinans.dk",
-      category: "Bolig",
+      rank: 0, handling: "Refinansier boliglånet",
+      beskrivelse: "Mange familier kan spare 1.000–2.000 kr./md. ved at omlægge deres lån.",
+      besparelse_kr: 1580, cta_tekst: "Se besparelse →", cta_url: "https://parfinans.dk", category: "Bolig",
     });
   }
 
-  // Insurance check
-  actions.push({
-    rank: 0,
-    handling: "Tjek jeres forsikringer",
-    beskrivelse:
-      "Familier der sammenligner forsikringer hvert 2. år sparer i gennemsnit 2.400 kr./år. Brug en uafhængig sammenligning.",
-    besparelse_kr: 200,
-    cta_tekst: "Sammenlign forsikringer →",
-    cta_url: "https://www.forsikringsguiden.dk",
-    category: "Forsikring",
-  });
+  // Insurance
+  if (profile.hasInsurance) {
+    actions.push({
+      rank: 0, handling: "Tjek jeres forsikringer",
+      beskrivelse: "Familier der sammenligner forsikringer hvert 2. år sparer i gennemsnit 200 kr./md.",
+      besparelse_kr: 200, cta_tekst: "Sammenlign →", cta_url: "https://www.forsikringsguiden.dk", category: "Forsikring",
+    });
+  }
 
-  // Sort by savings
   return actions
     .sort((a, b) => b.besparelse_kr - a.besparelse_kr)
-    .slice(0, 4)
+    .slice(0, 5)
     .map((a, i) => ({ ...a, rank: i + 1 }));
 }
 
