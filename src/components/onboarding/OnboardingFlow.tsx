@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Plus, X, Check } from "lucide-react";
+import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, TrendingUp, PiggyBank, Clock } from "lucide-react";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import {
   SUBSCRIPTIONS,
@@ -57,13 +57,14 @@ const defaultProfile: BudgetProfile = {
 
 function ProgressBar({ step }: { step: OnboardingStep }) {
   const idx = getStepIndex(step);
-  const total = STEPS.length - 1; // exclude welcome
+  const total = STEPS.length - 1;
   if (idx <= 0) return null;
-  const pct = ((idx) / (total)) * 100;
+  const pct = (idx / total) * 100;
   return (
-    <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+    <div className="w-full h-1.5 bg-muted/50 rounded-full overflow-hidden">
       <motion.div
-        className="h-full bg-primary rounded-full"
+        className="h-full rounded-full"
+        style={{ background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)))" }}
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
         transition={{ duration: 0.4, ease: "easeOut" }}
@@ -87,8 +88,7 @@ function StepShell({
 }) {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Top bar */}
-      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50 px-4 pt-4 pb-3 space-y-3">
+      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 pt-4 pb-3 space-y-3">
         <div className="flex items-center justify-between max-w-xl mx-auto">
           {onBack ? (
             <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -100,7 +100,6 @@ function StepShell({
         <div className="max-w-xl mx-auto"><ProgressBar step={step} /></div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 px-4 py-8 max-w-xl mx-auto w-full">
         <AnimatePresence mode="wait">
           <motion.div
@@ -128,9 +127,9 @@ function ContinueButton({ onClick, disabled, label = "Fortsæt" }: { onClick: ()
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       disabled={disabled}
-      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all"
+      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
     >
-      {label}
+      {label} <ArrowRight className="w-5 h-5" />
     </motion.button>
   );
 }
@@ -154,10 +153,10 @@ function ToggleCard({
 }) {
   return (
     <div
-      className={`relative rounded-2xl border-2 transition-all duration-200 ${
+      className={`relative rounded-2xl border transition-all duration-200 ${
         active
-          ? "border-primary bg-primary/8"
-          : "border-border/60 bg-card/50 hover:border-border"
+          ? "border-primary/40 bg-primary/5 shadow-sm shadow-primary/10"
+          : "border-border/40 bg-card/30 hover:border-border/80 hover:bg-card/50"
       }`}
     >
       <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
@@ -178,7 +177,7 @@ function ToggleCard({
           animate={{ height: "auto", opacity: 1 }}
           className="px-4 pb-3 overflow-hidden"
         >
-          <div className="flex items-center gap-2 bg-muted/60 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-muted/40 rounded-xl px-3 py-2">
             <input
               type="number"
               value={amount}
@@ -212,7 +211,7 @@ function AmountInput({
     <div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm text-muted-foreground">{label}</span>
-        <div className="flex items-center gap-1 bg-card border border-border rounded-xl px-3 py-1.5">
+        <div className="flex items-center gap-1 bg-card border border-border/60 rounded-xl px-3 py-1.5">
           <input
             type="number"
             value={value}
@@ -229,7 +228,7 @@ function AmountInput({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 appearance-none bg-muted rounded-full cursor-pointer accent-primary"
+        className="w-full h-2 appearance-none bg-muted/50 rounded-full cursor-pointer accent-primary"
         style={{ accentColor: "hsl(var(--primary))" }}
       />
       <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -240,12 +239,67 @@ function AmountInput({
   );
 }
 
+// ─── Insight card for welcome ──────────────────────────────
+
+function InsightCard({
+  emoji,
+  category,
+  badge,
+  badgeColor,
+  headline,
+  description,
+  stat,
+  statLabel,
+  delay,
+}: {
+  emoji: string;
+  category: string;
+  badge: string;
+  badgeColor: "destructive" | "kassen-gold" | "primary";
+  headline: string;
+  description: string;
+  stat: string;
+  statLabel: string;
+  delay: number;
+}) {
+  const badgeClasses = {
+    destructive: "bg-destructive/10 text-destructive border-destructive/20",
+    "kassen-gold": "bg-kassen-gold/10 text-kassen-gold border-kassen-gold/20",
+    primary: "bg-primary/10 text-primary border-primary/20",
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-sm p-5 hover:border-border/80 transition-all"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{emoji}</span>
+          <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{category}</span>
+        </div>
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badgeClasses[badgeColor]}`}>
+          ⚠️ {badge}
+        </span>
+      </div>
+      <h3 className="font-display font-bold text-base mb-2 leading-snug">{headline}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-3">{description}</p>
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-muted-foreground/70 uppercase font-semibold tracking-wider">Typisk:</span>
+        <span className="text-xs font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md">{stat}</span>
+        <span className="text-[10px] text-muted-foreground">{statLabel}</span>
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── Main component ────────────────────────────────────────
 
 export function OnboardingFlow({ onComplete }: Props) {
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
-  const [childCountInput, setChildCountInput] = useState(1);
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
@@ -257,7 +311,6 @@ export function OnboardingFlow({ onComplete }: Props) {
     setProfile((p) => ({ ...p, ...partial }));
   }, []);
 
-  // Live disposable calculation
   useEffect(() => {
     if (getStepIndex(step) >= 3) {
       const b = computeBudget(profile);
@@ -277,35 +330,98 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── Welcome ──────────────────────────
   if (step === "welcome") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-md"
-        >
-          <div className="mb-8">
-            <span className="font-display font-black text-6xl gradient-text-green tracking-tight">Kassen</span>
-          </div>
-          <h1 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-3 leading-tight">
-            Dit fulde økonomiske overblik<br />
-            <span className="text-muted-foreground font-normal text-xl">— på under 3 minutter</span>
-          </h1>
-          <p className="text-muted-foreground text-base leading-relaxed mb-10 max-w-sm mx-auto">
-            Vi præudfylder alt vi kan. Du justerer det der skal justeres. Ingen regneark, ingen stress.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setStep("household")}
-            className="w-full max-w-xs mx-auto py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+      <div className="min-h-screen px-4 py-12 md:py-20">
+        <div className="max-w-xl mx-auto">
+          {/* Trust badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="flex justify-center mb-8"
           >
-            Kom i gang →
-          </motion.button>
-          <p className="text-xs text-muted-foreground mt-6 opacity-60">
-            Alt gemmes lokalt på din enhed · Ingen login nødvendigt
-          </p>
-        </motion.div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/40 bg-card/40 backdrop-blur-sm">
+              <Shield className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs text-muted-foreground">Beregnet på danske skatte- og forbrugstal</span>
+            </div>
+          </motion.div>
+
+          {/* Hero headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center mb-12"
+          >
+            <h1 className="font-display font-black text-4xl md:text-5xl leading-tight mb-3">
+              Ved du hvad der<br />
+              <span className="gradient-text-green">egentlig er tilbage?</span>
+            </h1>
+            <p className="text-muted-foreground text-base md:text-lg max-w-md mx-auto leading-relaxed">
+              De fleste familier har 2.000–5.000 kr. mindre til rådighed end de tror. Find dit reelle tal på under 3 minutter.
+            </p>
+          </motion.div>
+
+          {/* Insight cards – Parfinans style */}
+          <div className="space-y-3 mb-10">
+            <InsightCard
+              emoji="💰"
+              category="Rådighedsbeløb"
+              badge="Skjult underskud"
+              badgeColor="destructive"
+              headline="Har du styr på hvad der reelt er til overs?"
+              description="Mange familier overvurderer deres rådighedsbeløb fordi de glemmer streamingtjenester, forsikringer og småudgifter der lurer i baggrunden."
+              stat="2.000–5.000 kr./md."
+              statLabel="i skjulte udgifter"
+              delay={0.3}
+            />
+            <InsightCard
+              emoji="📈"
+              category="Optimering"
+              badge="Uforløst potentiale"
+              badgeColor="kassen-gold"
+              headline="Sparer du for lidt – uden at vide det?"
+              description="Familier der gennemgår deres budget systematisk sparer i gennemsnit 2.400 kr. mere om måneden ved enkle justeringer."
+              stat="Op til 28.800 kr./år"
+              statLabel="i sparet potentiale"
+              delay={0.45}
+            />
+            <InsightCard
+              emoji="🏡"
+              category="Bolig & Lån"
+              badge="Renteeksponering"
+              badgeColor="primary"
+              headline="Hvad sker der med dit budget hvis renten stiger?"
+              description="Kassen simulerer rentechok og viser præcis hvor sårbar din økonomi er – og hvad du kan gøre ved det."
+              stat="1.500–4.000 kr./md."
+              statLabel="i ekstra ydelse ved 2% stigning"
+              delay={0.6}
+            />
+          </div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.5 }}
+            className="text-center"
+          >
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setStep("household")}
+              className="w-full max-w-sm mx-auto py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-lg hover:brightness-110 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+            >
+              Beregn dit rådighedsbeløb <ArrowRight className="w-5 h-5" />
+            </motion.button>
+            <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground/50">
+              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Under 3 min.</span>
+              <span>·</span>
+              <span>Ingen login</span>
+              <span>·</span>
+              <span>100% privat</span>
+            </div>
+          </motion.div>
+        </div>
       </div>
     );
   }
@@ -331,10 +447,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                 });
                 setStep("income");
               }}
-              className={`p-6 rounded-2xl border-2 transition-all text-center ${
+              className={`p-6 rounded-2xl border transition-all text-center ${
                 profile.householdType === opt.type
-                  ? "border-primary bg-primary/8"
-                  : "border-border/60 bg-card/50 hover:border-primary/30"
+                  ? "border-primary/40 bg-primary/5 shadow-sm shadow-primary/10"
+                  : "border-border/40 bg-card/30 hover:border-primary/20"
               }`}
             >
               <div className="text-4xl mb-3">{opt.emoji}</div>
@@ -371,8 +487,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             />
           )}
 
-          {/* Summary */}
-          <div className="rounded-2xl bg-card border border-border p-4">
+          <div className="rounded-2xl bg-card/60 border border-border/40 p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Samlet månedlig indkomst</span>
               <span className="font-display font-bold text-xl text-primary">
@@ -404,7 +519,6 @@ export function OnboardingFlow({ onComplete }: Props) {
     return (
       <StepShell step={step} title="Boligsituation" subtitle="Vi estimerer boligudgiften – du kan altid justere." onBack={goBack}>
         <div className="space-y-6">
-          {/* Housing type */}
           <div className="grid grid-cols-2 gap-3">
             {[
               { type: "lejer" as const, emoji: "🏢", label: "Lejer" },
@@ -422,10 +536,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                     }
                   }
                 }}
-                className={`p-4 rounded-2xl border-2 transition-all text-center ${
+                className={`p-4 rounded-2xl border transition-all text-center ${
                   profile.housingType === opt.type
-                    ? "border-primary bg-primary/8"
-                    : "border-border/60 bg-card/50"
+                    ? "border-primary/40 bg-primary/5"
+                    : "border-border/40 bg-card/30"
                 }`}
               >
                 <span className="text-2xl">{opt.emoji}</span>
@@ -434,7 +548,6 @@ export function OnboardingFlow({ onComplete }: Props) {
             ))}
           </div>
 
-          {/* Postal code */}
           <div>
             <label className="text-sm text-muted-foreground block mb-2">Postnummer</label>
             <input
@@ -444,11 +557,10 @@ export function OnboardingFlow({ onComplete }: Props) {
               value={profile.postalCode}
               onChange={(e) => handlePostalChange(e.target.value)}
               placeholder="F.eks. 8000"
-              className="w-full bg-card border-2 border-border rounded-2xl px-4 py-3.5 text-base font-semibold focus:outline-none focus:border-primary/60 transition-all placeholder:text-muted-foreground/40"
+              className="w-full bg-card/60 border border-border/40 rounded-2xl px-4 py-3.5 text-base font-semibold focus:outline-none focus:border-primary/40 transition-all placeholder:text-muted-foreground/40"
             />
           </div>
 
-          {/* Amount - editable */}
           {profile.housingType === "lejer" && (
             <AmountInput
               value={profile.rentAmount}
@@ -487,8 +599,8 @@ export function OnboardingFlow({ onComplete }: Props) {
                 update({ hasChildren: false, childrenAges: [] });
                 setChildAgeInputs([]);
               }}
-              className={`p-5 rounded-2xl border-2 text-center transition-all ${
-                !profile.hasChildren ? "border-primary bg-primary/8" : "border-border/60 bg-card/50"
+              className={`p-5 rounded-2xl border text-center transition-all ${
+                !profile.hasChildren ? "border-primary/40 bg-primary/5" : "border-border/40 bg-card/30"
               }`}
             >
               <span className="font-display font-bold">Ingen børn</span>
@@ -498,8 +610,8 @@ export function OnboardingFlow({ onComplete }: Props) {
                 update({ hasChildren: true });
                 if (childAgeInputs.length === 0) setChildAgeInputs([3]);
               }}
-              className={`p-5 rounded-2xl border-2 text-center transition-all ${
-                profile.hasChildren ? "border-primary bg-primary/8" : "border-border/60 bg-card/50"
+              className={`p-5 rounded-2xl border text-center transition-all ${
+                profile.hasChildren ? "border-primary/40 bg-primary/5" : "border-border/40 bg-card/30"
               }`}
             >
               <span className="font-display font-bold">Ja, vi har børn</span>
@@ -524,7 +636,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                       setChildAgeInputs(newAges);
                       update({ childrenAges: newAges });
                     }}
-                    className="flex-1 bg-card border-2 border-border rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-primary/60 transition-all"
+                    className="flex-1 bg-card/60 border border-border/40 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-primary/40 transition-all"
                   >
                     {Array.from({ length: 18 }, (_, j) => (
                       <option key={j} value={j}>{j} år</option>
@@ -537,7 +649,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                         setChildAgeInputs(newAges);
                         update({ childrenAges: newAges });
                       }}
-                      className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -661,7 +773,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             {profile.customExpenses.length > 0 && (
               <div className="space-y-2 mb-3">
                 {profile.customExpenses.map((ce, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-2xl border-2 border-primary/30 bg-primary/5 px-4 py-3">
+                  <div key={i} className="flex items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3">
                     <span className="text-sm font-medium">{ce.label}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">{formatKr(ce.amount)} kr.</span>
@@ -670,7 +782,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                           const newCustom = profile.customExpenses.filter((_, idx) => idx !== i);
                           update({ customExpenses: newCustom });
                         }}
-                        className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground"
+                        className="w-6 h-6 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -685,19 +797,19 @@ export function OnboardingFlow({ onComplete }: Props) {
                 value={customLabel}
                 onChange={(e) => setCustomLabel(e.target.value)}
                 placeholder="F.eks. Børnesko, Kontaktlinser..."
-                className="flex-1 bg-card border-2 border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/60 transition-all placeholder:text-muted-foreground/40"
+                className="flex-1 bg-card/60 border border-border/40 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 transition-all placeholder:text-muted-foreground/40"
               />
               <input
                 type="number"
                 value={customAmount || ""}
                 onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
                 placeholder="Kr."
-                className="w-24 bg-card border-2 border-border rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-primary/60 transition-all placeholder:text-muted-foreground/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-24 bg-card/60 border border-border/40 rounded-xl px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-primary/40 transition-all placeholder:text-muted-foreground/40 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
               <button
                 onClick={addCustomExpense}
                 disabled={!customLabel.trim() || customAmount <= 0}
-                className="w-10 h-10 rounded-xl bg-primary/15 text-primary flex items-center justify-center disabled:opacity-30 hover:bg-primary/25 transition-all flex-shrink-0"
+                className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center disabled:opacity-30 hover:bg-primary/20 transition-all flex-shrink-0"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -706,7 +818,11 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Live summary */}
           {liveDisposable !== null && (
-            <div className="rounded-2xl border-2 border-border bg-card p-4">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl border border-border/40 bg-card/60 p-4"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Estimeret rådighedsbeløb</span>
                 <span className={`font-display font-bold text-xl ${
@@ -715,10 +831,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                   {formatKr(liveDisposable)} kr.
                 </span>
               </div>
-            </div>
+            </motion.div>
           )}
 
-          <ContinueButton onClick={goNext} label="Se overblik →" />
+          <ContinueButton onClick={goNext} label="Se overblik" />
         </div>
       </StepShell>
     );
@@ -728,46 +844,89 @@ export function OnboardingFlow({ onComplete }: Props) {
   if (step === "review") {
     const budget = computeBudget(profile);
     const allExpenses = [...budget.fixedExpenses, ...budget.variableExpenses];
+    const expenseRatio = Math.round((budget.totalExpenses / budget.totalIncome) * 100);
 
     return (
       <StepShell step={step} title="Dit overblik" subtitle="Tjek at alt ser rigtigt ud – du kan altid ændre bagefter." onBack={goBack}>
         <div className="space-y-6">
-          {/* Big number */}
-          <div className="text-center py-6">
-            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">Rådighedsbeløb pr. måned</p>
-            <span className={`font-display font-black text-5xl ${
-              budget.disposableIncome > 5000 ? "text-primary" : budget.disposableIncome > 0 ? "text-kassen-gold" : "text-destructive"
-            }`}>
-              {formatKr(budget.disposableIncome)}
-            </span>
-            <span className="text-muted-foreground font-display text-xl ml-2">kr.</span>
-          </div>
+          {/* Big number with context */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center py-8 rounded-2xl border border-border/30 bg-card/40 relative overflow-hidden"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.06, 1], opacity: [0.1, 0.2, 0.1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className={`absolute inset-0 rounded-2xl ${
+                budget.disposableIncome > 5000 ? "bg-primary" : budget.disposableIncome > 0 ? "bg-kassen-gold" : "bg-destructive"
+              }`}
+              style={{ filter: "blur(60px)" }}
+            />
+            <div className="relative z-10">
+              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rådighedsbeløb pr. måned</p>
+              <span className={`font-display font-black text-5xl md:text-6xl ${
+                budget.disposableIncome > 5000 ? "text-primary" : budget.disposableIncome > 0 ? "text-kassen-gold" : "text-destructive"
+              }`}>
+                {formatKr(budget.disposableIncome)}
+              </span>
+              <span className="text-muted-foreground font-display text-xl ml-2">kr.</span>
+              <p className="text-sm text-muted-foreground mt-3">
+                {expenseRatio}% af indkomsten går til faste udgifter
+              </p>
+            </div>
+          </motion.div>
 
           {/* Income vs expenses */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-card border border-border p-4 text-center">
+            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl bg-card/60 border border-border/40 p-4 text-center">
               <p className="text-xs text-muted-foreground mb-1">Indkomst</p>
               <p className="font-display font-bold text-lg text-primary">{formatKr(budget.totalIncome)}</p>
-            </div>
-            <div className="rounded-2xl bg-card border border-border p-4 text-center">
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl bg-card/60 border border-border/40 p-4 text-center">
               <p className="text-xs text-muted-foreground mb-1">Udgifter</p>
               <p className="font-display font-bold text-lg text-destructive">{formatKr(budget.totalExpenses)}</p>
-            </div>
+            </motion.div>
           </div>
 
+          {/* Expense flow bar */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="rounded-2xl bg-card/60 border border-border/40 p-4">
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Udgiftsfordeling</p>
+            <div className="h-3 rounded-full overflow-hidden flex bg-muted/30">
+              {Object.entries(
+                allExpenses.reduce((acc, e) => {
+                  acc[e.category] = (acc[e.category] || 0) + e.amount;
+                  return acc;
+                }, {} as Record<string, number>)
+              ).map(([cat, amount], i) => (
+                <div
+                  key={cat}
+                  className="h-full first:rounded-l-full last:rounded-r-full"
+                  style={{
+                    width: `${(amount / budget.totalExpenses) * 100}%`,
+                    backgroundColor: `hsl(${150 + i * 35}, 70%, 55%)`,
+                  }}
+                  title={`${cat}: ${formatKr(amount)} kr.`}
+                />
+              ))}
+            </div>
+          </motion.div>
+
           {/* Expense list */}
-          <div className="rounded-2xl bg-card border border-border p-4 space-y-2">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="rounded-2xl bg-card/60 border border-border/40 p-4 space-y-2">
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">Alle udgifter</p>
             {allExpenses.map((e, i) => (
-              <div key={i} className="flex items-center justify-between py-1.5">
+              <div key={i} className="flex items-center justify-between py-1.5 border-b border-border/20 last:border-0">
                 <span className="text-sm text-muted-foreground">{e.label}</span>
                 <span className="text-sm font-medium">{formatKr(e.amount)} kr.</span>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           <ContinueButton
             onClick={() => onComplete(profile)}
-            label="Se dit dashboard →"
+            label="Se dit dashboard"
           />
         </div>
       </StepShell>
