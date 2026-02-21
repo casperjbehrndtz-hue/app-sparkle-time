@@ -14,10 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      price_observations: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          household_type: string
+          id: string
+          postal_code: string | null
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          household_type: string
+          id?: string
+          postal_code?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          household_type?: string
+          id?: string
+          postal_code?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      price_averages: {
+        Row: {
+          avg_amount: number | null
+          category: string | null
+          household_type: string | null
+          median_amount: number | null
+          observation_count: number | null
+          postal_code: string | null
+          stddev_amount: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
