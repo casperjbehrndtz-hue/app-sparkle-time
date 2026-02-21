@@ -259,135 +259,176 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── WELCOME ─────────────────────────────
   if (step === "welcome") {
     return (
-      <div className="min-h-screen flex flex-col">
-        {/* Nav */}
-        <nav className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto w-full">
-          <span className="font-display font-black text-xl text-primary">{config.brandName}</span>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Shield className="w-3.5 h-3.5 text-primary/60" />
-            <span>Beregnet på danske skattetal</span>
+      <div className="min-h-screen flex flex-col bg-background">
+        {/* Nav — dark */}
+        <nav className="bg-hero-navy px-6 py-4">
+          <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
+            <span className="font-display font-black text-xl text-white">{config.brandName}</span>
+            <div className="flex items-center gap-6">
+              <span className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-default">Produkter</span>
+              <span className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-default">Sådan virker det</span>
+              <button
+                onClick={() => setStep("household")}
+                className="px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors"
+              >
+                {config.hero.ctaLabel}
+              </button>
+            </div>
           </div>
         </nav>
 
-        {/* Hero */}
-        <div className="flex-1 flex items-center justify-center px-6 py-12">
-          <div className="max-w-2xl mx-auto w-full">
+        {/* Hero — dark navy */}
+        <section className="bg-hero-navy">
+          <div className="max-w-5xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="text-center mb-12"
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-xs font-medium text-primary mb-6">
-                <Sparkles className="w-3 h-3" /> {config.brandTagline || "AI-drevet budgetanalyse"}
-              </div>
-
-              <h1 className="font-display font-black text-[2.5rem] md:text-[3.25rem] leading-[1.1] tracking-tight mb-4">
+              <h1 className="font-display font-black text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-5">
                 {config.hero.title}<br />
-                <span className="text-primary">{config.hero.titleHighlight}</span>
+                <span className="text-white">{config.hero.titleHighlight}</span>
               </h1>
-
-              <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-md mx-auto">
+              <p className="text-white/60 text-base md:text-lg leading-relaxed mb-8 max-w-md">
                 {config.hero.subtitle}
               </p>
-            </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="grid grid-cols-3 gap-4 mb-10 max-w-lg mx-auto"
-            >
-              {config.hero.stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="font-display font-bold text-lg text-foreground">{stat.value}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
-
-            {/* CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-              className="max-w-sm mx-auto"
-            >
               <button
                 onClick={() => setStep("household")}
-                className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/15"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-white/30 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
               >
                 {config.hero.ctaLabel} <ArrowRight className="w-4 h-4" />
               </button>
-              <p className="text-center text-[11px] text-muted-foreground mt-4">
-                Ingen login · Ingen data deles · Alt gemmes lokalt
-              </p>
             </motion.div>
 
-            {/* Feature cards */}
+            {/* Right side — abstract visual block */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="hidden md:block"
+            >
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-hero-navy-light">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center space-y-3">
+                    <div className="text-6xl">📊</div>
+                    <p className="text-white/50 text-sm font-medium">AI-drevet budgetanalyse</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Trust badges bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="border-b border-border bg-background"
+        >
+          <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+            {[
+              { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: "Bygget til dansk finanslovgivning" },
+              { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: "Udfyldt på 3 minutter" },
+              { icon: <Sparkles className="w-4 h-4 text-muted-foreground" />, text: "100% privat · Data gemmes lokalt" },
+            ].map((badge) => (
+              <div key={badge.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                {badge.icon}
+                <span>{badge.text}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Stats section — white background */}
+        <section className="bg-background py-16">
+          <div className="max-w-3xl mx-auto px-6 text-center">
+            <h2 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-3">
+              Få overblik over din økonomi
+            </h2>
+            <p className="text-muted-foreground text-base mb-12 max-w-md mx-auto">
+              Få hjælp til din økonomi og det, der er vigtigt for dig, din familie og din bolig.
+            </p>
+
+            <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+              {config.hero.stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="font-display font-bold text-2xl text-foreground">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Feature cards — white */}
+        <section className="bg-muted/30 py-16">
+          <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="grid md:grid-cols-3 gap-3 mt-16"
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="grid md:grid-cols-3 gap-4"
             >
               {[
-                {
-                  emoji: "🔍",
-                  title: "Find skjulte udgifter",
-                  desc: "Vi gennemgår streaming, forsikring, transport og mere — og viser præcis hvad der æder dit budget.",
-                },
-                {
-                  emoji: "🤖",
-                  title: "AI-rådgivning",
-                  desc: "Få personlige sparetips baseret på din unikke situation — ikke generiske råd fra et regneark.",
-                },
-                {
-                  emoji: "📊",
-                  title: "Sammenlign med andre",
-                  desc: "Se hvordan din økonomi ligger i forhold til lignende familier i dit område via Danmarks Statistik.",
-                },
+                { emoji: "🔍", title: "Find skjulte udgifter", desc: "Vi gennemgår streaming, forsikring, transport og mere — og viser præcis hvad der æder dit budget." },
+                { emoji: "🤖", title: "AI-rådgivning", desc: "Få personlige sparetips baseret på din unikke situation — ikke generiske råd fra et regneark." },
+                { emoji: "📊", title: "Sammenlign med andre", desc: "Se hvordan din økonomi ligger i forhold til lignende familier i dit område via Danmarks Statistik." },
               ].map((feat) => (
-                <div key={feat.title} className="rounded-xl border border-border p-5 hover:border-primary/20 transition-colors">
-                  <span className="text-2xl">{feat.emoji}</span>
-                  <h3 className="font-semibold text-[14px] mt-3 mb-1">{feat.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{feat.desc}</p>
+                <div key={feat.title} className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+                  <span className="text-3xl">{feat.emoji}</span>
+                  <h3 className="font-semibold text-[15px] mt-4 mb-2 text-foreground">{feat.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
                 </div>
               ))}
             </motion.div>
-
-            {/* Social proof */}
-            {config.testimonials && config.testimonials.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.65, duration: 0.5 }}
-                className="mt-12 text-center"
-              >
-                <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-5">Hvad andre siger</p>
-                <div className="grid md:grid-cols-3 gap-3">
-                  {config.testimonials.map((t) => (
-                    <div key={t.name} className="rounded-xl border border-border p-4 text-left">
-                      <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
-                      <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* Footer */}
-            {config.footer && (
-              <div className="mt-12 text-center space-y-2">
-                {config.footer.disclaimerText && (
-                  <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
-                )}
-                <p className="text-[10px] text-muted-foreground">{config.footer.text}</p>
-              </div>
-            )}
           </div>
-        </div>
+        </section>
+
+        {/* Social proof */}
+        {config.testimonials && config.testimonials.length > 0 && (
+          <section className="bg-background py-16">
+            <div className="max-w-5xl mx-auto px-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6 text-center">Hvad andre siger</p>
+              <div className="grid md:grid-cols-3 gap-4">
+                {config.testimonials.map((t) => (
+                  <div key={t.name} className="rounded-2xl border border-border p-5">
+                    <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
+                    <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Bottom CTA */}
+        <section className="bg-hero-navy py-16">
+          <div className="max-w-lg mx-auto px-6 text-center">
+            <h2 className="font-display font-bold text-2xl text-white mb-3">Klar til at komme i gang?</h2>
+            <p className="text-white/60 text-sm mb-8">Det tager kun 3 minutter — og koster ingenting.</p>
+            <button
+              onClick={() => setStep("household")}
+              className="px-8 py-3.5 rounded-xl bg-white text-hero-navy font-semibold text-base hover:bg-white/90 transition-colors shadow-lg"
+            >
+              {config.hero.ctaLabel} <ArrowRight className="w-4 h-4 inline ml-1" />
+            </button>
+            <p className="text-white/40 text-[11px] mt-4">Ingen login · Ingen data deles · Alt gemmes lokalt</p>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-background border-t border-border py-6">
+          <div className="max-w-5xl mx-auto px-6 text-center space-y-2">
+            {config.footer?.disclaimerText && (
+              <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
+            )}
+            <p className="text-[10px] text-muted-foreground">
+              {config.footer?.text || `© 2026 ${config.brandName}`}
+            </p>
+          </div>
+        </footer>
       </div>
     );
   }
