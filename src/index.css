@@ -42,9 +42,9 @@
     --kassen-surface: 150 8% 98%;
     --kassen-surface-2: 150 8% 96%;
 
-    /* Hero navy */
-    --hero-navy: 215 50% 14%;
-    --hero-navy-light: 215 30% 22%;
+    /* Hero navy — matched to ParFinans blue */
+    --hero-navy: 216 56% 18%;
+    --hero-navy-light: 216 40% 26%;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 160 15% 10%;
