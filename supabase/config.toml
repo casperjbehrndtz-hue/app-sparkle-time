@@ -1,0 +1,4 @@
+project_id = "xgyhmwjaxmbdiplfjrdq"
+
+[functions.budget-ai]
+verify_jwt = false
