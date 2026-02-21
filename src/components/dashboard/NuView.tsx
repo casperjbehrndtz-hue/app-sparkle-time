@@ -3,7 +3,7 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ExternalLink, AlertTriangle, TrendingUp, Zap } from "lucide-react";
 
 interface Props {
   budget: ComputedBudget;
@@ -32,6 +32,16 @@ const BUCKET_LABELS = {
   risiko: { label: "Risiko", emoji: "🛡️", sub: "Forsikring & buffer" },
 };
 
+// Smart action links based on step content
+function getSmartAction(step: { icon: string; text: string; priority: "high" | "medium" | "low" }): { label: string; url: string } | null {
+  if (step.text.includes("streaming")) return { label: "Sammenlign streaming", url: "https://www.telepriser.dk/streaming" };
+  if (step.text.includes("Forsikring") || step.text.includes("forsikring")) return { label: "Sammenlign forsikring", url: "https://www.forbrugerrådet.dk/forsikring" };
+  if (step.text.includes("Bolig") || step.text.includes("refinansier")) return { label: "Tjek boliglån", url: "https://www.mybanker.dk/boliglaan/" };
+  if (step.text.includes("opsparing") || step.text.includes("Opsparingsrate")) return { label: "Start opsparing", url: "https://www.nordnet.dk/dk/tjenester/maanedsopsparing" };
+  if (step.text.includes("buffer") || step.text.includes("Buffer")) return { label: "Opret bufferkonto", url: "https://www.mybanker.dk/opsparing/" };
+  return null;
+}
+
 export function NuView({ budget, profile, health, smartSteps }: Props) {
   const isPar = profile.householdType === "par";
 
@@ -46,29 +56,88 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
   const bucketEntries = Object.entries(health.buckets) as [keyof typeof BUCKET_LABELS, number][];
 
+  // Proactive alerts
+  const alerts = generateAlerts(profile, budget, health);
+
   return (
     <div className="space-y-4">
-      {/* 3 Next Steps */}
-      {smartSteps.length > 0 && (
-        <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
-          <div className="px-4 py-2.5">
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Næste skridt</span>
-          </div>
-          {smartSteps.map((step, i) => (
+
+      {/* Proactive Alerts */}
+      {alerts.length > 0 && (
+        <div className="space-y-2">
+          {alerts.map((alert, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 + 0.2 }}
-              className="px-4 py-3 flex items-start gap-3"
+              transition={{ delay: i * 0.08 }}
+              className={`rounded-xl p-3.5 flex items-start gap-3 border ${
+                alert.level === "critical"
+                  ? "bg-destructive/5 border-destructive/20"
+                  : alert.level === "warning"
+                  ? "bg-kassen-gold/5 border-kassen-gold/20"
+                  : "bg-primary/5 border-primary/20"
+              }`}
             >
-              <span className="text-base flex-shrink-0 mt-0.5">{step.icon}</span>
-              <p className="text-xs text-muted-foreground leading-relaxed flex-1">{step.text}</p>
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2 ${
-                step.priority === "high" ? "bg-destructive" : step.priority === "medium" ? "bg-kassen-gold" : "bg-primary"
-              }`} />
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                alert.level === "critical" ? "bg-destructive/10" : alert.level === "warning" ? "bg-kassen-gold/10" : "bg-primary/10"
+              }`}>
+                {alert.level === "critical" ? (
+                  <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
+                ) : alert.level === "warning" ? (
+                  <Zap className="w-3.5 h-3.5 text-kassen-gold" />
+                ) : (
+                  <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-foreground leading-relaxed">{alert.message}</p>
+                {alert.detail && <p className="text-[11px] text-muted-foreground mt-0.5">{alert.detail}</p>}
+              </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* 3 Next Steps with Smart Actions */}
+      {smartSteps.length > 0 && (
+        <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
+          <div className="px-4 py-2.5 flex items-center justify-between">
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Næste skridt</span>
+            <span className="text-[10px] text-muted-foreground">AI-anbefalet</span>
+          </div>
+          {smartSteps.map((step, i) => {
+            const action = getSmartAction(step);
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 + 0.2 }}
+                className="px-4 py-3"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-base flex-shrink-0 mt-0.5">{step.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground leading-relaxed">{step.text}</p>
+                    {action && (
+                      <a
+                        href={action.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-[11px] font-semibold hover:bg-primary/15 transition-all"
+                      >
+                        {action.label} <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
+                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2 ${
+                    step.priority === "high" ? "bg-destructive" : step.priority === "medium" ? "bg-kassen-gold" : "bg-primary"
+                  }`} />
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -169,4 +238,59 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
       </div>
     </div>
   );
+}
+
+// Proactive alerts engine
+interface Alert {
+  level: "critical" | "warning" | "insight";
+  message: string;
+  detail?: string;
+}
+
+function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: HealthMetrics): Alert[] {
+  const alerts: Alert[] = [];
+
+  // Critical: negative cash flow
+  if (budget.disposableIncome < 0) {
+    alerts.push({
+      level: "critical",
+      message: `Du bruger ${formatKr(Math.abs(budget.disposableIncome))} kr. mere end du tjener`,
+      detail: "Skær ned på variable udgifter eller øg indkomsten for at undgå gæld.",
+    });
+  }
+
+  // Warning: high housing ratio
+  if (health.debtRatio > 35) {
+    alerts.push({
+      level: "warning",
+      message: `Bolig udgør ${health.debtRatio}% af indkomsten — over anbefalede 35%`,
+      detail: "Overvej refinansiering eller ekstra indkomstkilder.",
+    });
+  }
+
+  // Warning: too many subscriptions
+  const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
+  if (streamCount >= 4) {
+    alerts.push({
+      level: "warning",
+      message: `${streamCount} streamingtjenester aktive — gennemsnitsdansker har 2`,
+      detail: `Spar op til ${formatKr(streamCount * 99 - 2 * 99)} kr./md. ved at skære ${streamCount - 2} fra.`,
+    });
+  }
+
+  // Insight: savings potential
+  if (health.savingsRate >= 20 && budget.disposableIncome > 3000) {
+    alerts.push({
+      level: "insight",
+      message: `Stærk opsparingsrate på ${health.savingsRate}% — du bygger formue`,
+      detail: `Med ${formatKr(budget.disposableIncome * 0.5)} kr./md. investeret når du ${formatKr(budget.disposableIncome * 0.5 * 12 * 5)} kr. på 5 år.`,
+    });
+  } else if (health.savingsRate < 10 && budget.disposableIncome > 0) {
+    alerts.push({
+      level: "warning",
+      message: `Opsparingsrate kun ${health.savingsRate}% — mål: minimum 15%`,
+    });
+  }
+
+  return alerts.slice(0, 3);
 }
