@@ -268,8 +268,8 @@ export function OnboardingFlow({ onComplete }: Props) {
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
             <span className="font-display font-black text-xl text-white">{config.brandName}</span>
             <div className="flex items-center gap-6">
-              <span className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-default">Produkter</span>
-              <span className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-default">Sådan virker det</span>
+              <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Produkter</button>
+              <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Sådan virker det</button>
               <button
                 onClick={() => setStep("household")}
                 className="px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors"
@@ -338,8 +338,8 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         </motion.div>
 
-        {/* Stats section — white background with animated numbers */}
-        <section className="bg-background py-16">
+        {/* Stats section — "Sådan virker det" */}
+        <section id="saadan-virker-det" className="bg-background py-16 scroll-mt-16">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <h2 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-3">
               Få overblik over din økonomi
@@ -366,8 +366,8 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         </section>
 
-        {/* Feature cards — clean grid with shadows */}
-        <section className="bg-muted/30 py-16">
+        {/* Feature cards — "Produkter" */}
+        <section id="produkter" className="bg-muted/30 py-16 scroll-mt-16">
           <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
