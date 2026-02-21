@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -216,14 +216,36 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
         </div>
       )}
 
-      {/* Donut */}
+      {/* Expense Donut + Bar Chart */}
       <div className="rounded-xl border border-border p-5">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-4">Udgiftsoverblik</h3>
+        
+        {/* Bar chart — category breakdown */}
+        <div className="h-48 mb-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={donutData.sort((a, b) => b.value - a.value).slice(0, 8)} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(150,8%,91%)" />
+              <XAxis type="number" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} axisLine={false} tickLine={false} />
+              <Tooltip
+                formatter={(val: number) => [`${formatKr(val)} kr./md.`, ""]}
+                contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
+              />
+              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={20}>
+                {donutData.sort((a, b) => b.value - a.value).slice(0, 8).map((_, idx) => (
+                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Donut — compact */}
         <div className="flex gap-6 items-center">
-          <div className="h-44 w-44 flex-shrink-0">
+          <div className="h-36 w-36 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={donutData} cx="50%" cy="50%" innerRadius={46} outerRadius={68} paddingAngle={2} dataKey="value" strokeWidth={0}>
+                <Pie data={donutData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={2} dataKey="value" strokeWidth={0}>
                   {donutData.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
                 </Pie>
                 <Tooltip
@@ -233,7 +255,7 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 space-y-1.5">
             {donutData.map((entry, i) => (
               <div key={entry.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { TrendingUp, Target, PiggyBank, ShieldCheck } from "lucide-react";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -122,6 +123,22 @@ export function FremadView({ profile, budget, health }: Props) {
               <p className="text-[9px] text-muted-foreground">kr.</p>
             </motion.div>
           ))}
+        </div>
+
+        {/* Bar chart visualization */}
+        <div className="h-40 mb-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={projections} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(150,8%,91%)" />
+              <XAxis dataKey="years" tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${v} år`} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} axisLine={false} tickLine={false} width={40} />
+              <Tooltip
+                formatter={(val: number) => [`${formatKr(val)} kr.`, "Forventet formue"]}
+                contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
+              />
+              <Bar dataKey="amount" fill="hsl(152, 55%, 40%)" radius={[6, 6, 0, 0]} maxBarSize={40} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
