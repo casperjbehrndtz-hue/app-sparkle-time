@@ -81,7 +81,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         {/* Health Score Hero */}
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-border p-6 flex items-center gap-6"
+          className="rounded-2xl border border-border p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6"
         >
           <div className="relative flex-shrink-0">
             <svg width="88" height="88" viewBox="0 0 88 88">
@@ -102,7 +102,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
           </div>
           <div className="flex-1 space-y-3">
             <h2 className="font-display font-bold text-lg">Økonomisk sundhed</h2>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <StatBox icon={<Wallet className="w-3 h-3" />} label="Frihedstal" value={`${formatKr(health.truths.freeCashFlow)} kr.`} />
               <StatBox icon={<Activity className="w-3 h-3" />} label="Baseline" value={`${formatKr(health.truths.monthlyBaseline)} kr.`} />
               <StatBox icon={<Shield className="w-3 h-3" />} label="Buffer" value={`${health.bufferMonths} md.`} />

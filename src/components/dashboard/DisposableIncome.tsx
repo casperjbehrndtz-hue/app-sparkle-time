@@ -21,7 +21,7 @@ export function DisposableIncome({ health }: Props) {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
       {/* Health Score + 3 Truths */}
       <div className="rounded-2xl border border-border p-5 relative overflow-hidden">
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
           {/* Score ring */}
           <div className="relative flex-shrink-0">
             <svg width="96" height="96" viewBox="0 0 96 96">

@@ -109,7 +109,7 @@ export function FremadView({ profile, budget, health }: Props) {
           </div>
         </div>
         
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
           {projections.map((p) => (
             <motion.div
               key={p.years}
