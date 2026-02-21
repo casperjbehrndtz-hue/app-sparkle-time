@@ -6,6 +6,7 @@ import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
 import { NaboeffektView } from "./NaboeffektView";
+import { AIChatPanel } from "./AIChatPanel";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
@@ -181,6 +182,9 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
           Beregnet på danske gennemsnitstal · Data gemmes lokalt på din enhed
         </p>
       </footer>
+
+      {/* AI Chat */}
+      <AIChatPanel profile={profile} budget={budget} />
     </div>
   );
 }
