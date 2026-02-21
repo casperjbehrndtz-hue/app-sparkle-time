@@ -1,133 +1,99 @@
 import { motion } from "framer-motion";
-import {
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-} from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 
-interface Props {
-  budget: ComputedBudget;
-  profile: BudgetProfile;
-}
+interface Props { budget: ComputedBudget; profile: BudgetProfile; }
 
 const COLORS = [
-  "hsl(152, 69%, 38%)",
-  "hsl(213, 80%, 50%)",
-  "hsl(38, 92%, 50%)",
-  "hsl(280, 60%, 55%)",
-  "hsl(190, 65%, 45%)",
-  "hsl(320, 60%, 50%)",
-  "hsl(30, 80%, 50%)",
-  "hsl(160, 55%, 40%)",
+  "hsl(152, 55%, 40%)", "hsl(213, 70%, 50%)", "hsl(38, 85%, 50%)",
+  "hsl(280, 50%, 55%)", "hsl(190, 55%, 45%)", "hsl(320, 50%, 50%)",
+  "hsl(30, 70%, 50%)", "hsl(160, 45%, 40%)",
 ];
-
-const fadeUp = (i: number) => ({
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.35, ease: "easeOut" as const } },
-});
 
 export function NuView({ budget, profile }: Props) {
   const isPar = profile.householdType === "par";
-
-  // Group for donut
   const grouped: Record<string, number> = {};
   [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
     grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
   });
   const donutData = Object.entries(grouped).map(([name, value]) => ({ name, value }));
-  const fixedTotal = budget.fixedExpenses.reduce((s, e) => s + e.amount, 0);
-  const varTotal = budget.variableExpenses.reduce((s, e) => s + e.amount, 0);
 
   return (
     <div className="space-y-4">
-      {/* Summary cards */}
+      {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Indkomst", amount: budget.totalIncome, cls: "text-primary" },
-          { label: "Udgifter", amount: budget.totalExpenses, cls: "text-destructive" },
-          { label: "Tilbage", amount: budget.disposableIncome, cls: budget.disposableIncome > 0 ? "text-kassen-gold" : "text-destructive" },
-        ].map((item, i) => (
-          <motion.div key={item.label} variants={fadeUp(i)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">{item.label}</p>
-            <p className={`font-display font-bold text-lg ${item.cls}`}>{formatKr(item.amount)}</p>
-            <p className="text-xs text-muted-foreground">kr./md.</p>
-          </motion.div>
+          { label: "Indkomst", amount: budget.totalIncome, color: "text-primary" },
+          { label: "Udgifter", amount: budget.totalExpenses, color: "text-destructive" },
+          { label: "Til overs", amount: budget.disposableIncome, color: budget.disposableIncome > 0 ? "text-primary" : "text-destructive" },
+        ].map((item) => (
+          <div key={item.label} className="rounded-xl border border-border p-3.5 text-center">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{item.label}</p>
+            <p className={`font-display font-bold text-base ${item.color}`}>{formatKr(item.amount)}</p>
+          </div>
         ))}
       </div>
 
-      {/* Par split */}
+      {/* Income split for couples */}
       {isPar && (
-        <motion.div variants={fadeUp(3)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-4">
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Indkomstfordeling</p>
-          <div className="h-3 rounded-full overflow-hidden bg-muted flex">
+        <div className="rounded-xl border border-border p-4">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Indkomstfordeling</p>
+          <div className="h-2.5 rounded-full overflow-hidden bg-muted flex">
             <div className="h-full bg-primary rounded-l-full" style={{ width: `${(profile.income / budget.totalIncome) * 100}%` }} />
-            <div className="h-full bg-secondary rounded-r-full" style={{ width: `${(profile.partnerIncome / budget.totalIncome) * 100}%` }} />
+            <div className="h-full bg-kassen-blue rounded-r-full" style={{ width: `${(profile.partnerIncome / budget.totalIncome) * 100}%` }} />
           </div>
-          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+          <div className="flex justify-between text-[11px] text-muted-foreground mt-2">
             <span>Dig: {formatKr(profile.income)} ({Math.round((profile.income / budget.totalIncome) * 100)}%)</span>
             <span>Partner: {formatKr(profile.partnerIncome)} ({Math.round((profile.partnerIncome / budget.totalIncome) * 100)}%)</span>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Donut */}
-      <motion.div variants={fadeUp(4)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
-        <h3 className="font-display font-bold text-base mb-4">Udgiftsoverblik</h3>
+      <div className="rounded-xl border border-border p-5">
+        <h3 className="font-semibold text-sm mb-4">Udgiftsoverblik</h3>
         <div className="flex gap-6 items-center">
-          <div className="h-48 w-48 flex-shrink-0">
+          <div className="h-44 w-44 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={donutData} cx="50%" cy="50%" innerRadius={48} outerRadius={72} paddingAngle={3} dataKey="value">
-                  {donutData.map((_, idx) => (
-                    <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                  ))}
+                <Pie data={donutData} cx="50%" cy="50%" innerRadius={46} outerRadius={68} paddingAngle={2} dataKey="value" strokeWidth={0}>
+                  {donutData.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
                 </Pie>
                 <Tooltip
                   formatter={(val: number) => [`${formatKr(val)} kr.`, ""]}
-                  contentStyle={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(150, 10%, 90%)", borderRadius: "12px", color: "hsl(160, 10%, 12%)", boxShadow: "0 4px 20px hsl(0 0% 0% / 0.08)" }}
+                  contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <div className="flex-1 space-y-2">
-            {donutData.map((entry, i) => {
-              const pct = Math.round((entry.value / budget.totalExpenses) * 100);
-              return (
-                <div key={entry.name} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-muted-foreground text-xs">{entry.name}</span>
-                  </div>
-                  <span className="font-medium text-xs">{formatKr(entry.value)} <span className="text-muted-foreground">({pct}%)</span></span>
+            {donutData.map((entry, i) => (
+              <div key={entry.name} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                  <span className="text-muted-foreground text-xs">{entry.name}</span>
                 </div>
-              );
-            })}
+                <span className="font-medium text-xs tabular-nums">{formatKr(entry.value)}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Expense list */}
-      <motion.div variants={fadeUp(5)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold text-base">Alle udgifter</h3>
+      <div className="rounded-xl border border-border divide-y divide-border">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <h3 className="font-semibold text-sm">Alle udgifter</h3>
           <span className="text-sm font-display font-bold text-destructive">{formatKr(budget.totalExpenses)} kr.</span>
         </div>
-        <div className="space-y-1.5">
-          {[...budget.fixedExpenses, ...budget.variableExpenses].map((exp, i) => (
-            <div key={`${exp.label}-${i}`} className="flex items-center justify-between py-1.5 border-b border-border/30 last:border-0">
-              <div className="flex items-center gap-2.5">
-                <div className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: `hsl(var(${exp.colorVar}))` }} />
-                <span className="text-sm text-muted-foreground">{exp.label}</span>
-              </div>
-              <span className="text-sm font-medium">{formatKr(exp.amount)} kr.</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+        {[...budget.fixedExpenses, ...budget.variableExpenses].map((exp, i) => (
+          <div key={`${exp.label}-${i}`} className="px-4 py-2.5 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">{exp.label}</span>
+            <span className="text-sm font-medium tabular-nums">{formatKr(exp.amount)} kr.</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
