@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { AnimatedNumber } from "./AnimatedNumber";
+import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
 interface Props {
   amount: number;
@@ -11,30 +12,37 @@ export function DisposableIncome({ amount }: Props) {
   const isDanger = amount <= 3000;
 
   const colorClass = isHealthy
-    ? "text-kassen-green"
+    ? "text-primary"
     : isWarning
     ? "text-kassen-gold"
-    : "text-kassen-red";
+    : "text-destructive";
+
+  const Icon = isHealthy ? TrendingUp : isWarning ? AlertTriangle : TrendingDown;
 
   const label = isHealthy
-    ? "God økonomi – I har luft 🎉"
+    ? "God økonomi – I har luft"
     : isWarning
     ? "Pas på – marginen er slank"
     : "Advarsel – under Finanstilsynets anbefaling";
 
   return (
-    <div className="relative px-6 py-8 rounded-2xl glass-card overflow-hidden">
-      {/* Pulse glow */}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="relative px-6 py-8 rounded-2xl border border-border/30 bg-card/40 overflow-hidden"
+    >
+      {/* Subtle glow */}
       <motion.div
         animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.15, 0.25, 0.15],
+          scale: [1, 1.06, 1],
+          opacity: [0.08, 0.15, 0.08],
         }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className={`absolute inset-0 rounded-2xl ${
-          isHealthy ? "bg-kassen-green" : isWarning ? "bg-kassen-gold" : "bg-kassen-red"
+          isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"
         }`}
-        style={{ filter: "blur(40px)" }}
+        style={{ filter: "blur(60px)" }}
       />
 
       <div className="relative z-10">
@@ -47,13 +55,16 @@ export function DisposableIncome({ amount }: Props) {
           </span>
           <span className="text-muted-foreground font-display text-xl mb-1">kr.</span>
         </div>
-        <p className={`mt-3 text-sm font-medium ${colorClass}`}>{label}</p>
+        <div className="flex items-center gap-2 mt-3">
+          <Icon className={`w-4 h-4 ${colorClass}`} />
+          <p className={`text-sm font-medium ${colorClass}`}>{label}</p>
+        </div>
         {isDanger && (
-          <p className="mt-1 text-xs text-kassen-red/70">
+          <p className="mt-2 text-xs text-muted-foreground/70">
             Finanstilsynet anbefaler minimum 5.000–7.000 kr./md. efter alle udgifter.
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
