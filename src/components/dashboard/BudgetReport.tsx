@@ -3,6 +3,7 @@ import { Shield, Wallet, Activity, TrendingUp, ArrowLeft, Printer, Share2 } from
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useWhiteLabel } from "@/lib/whiteLabel";
 
 interface Props {
   profile: BudgetProfile;
@@ -26,6 +27,7 @@ const BUCKET_LABELS: Record<string, { label: string; emoji: string }> = {
 };
 
 export function BudgetReport({ profile, budget, health, onBack }: Props) {
+  const config = useWhiteLabel();
   const isPar = profile.householdType === "par";
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
   const bucketEntries = Object.entries(health.buckets) as [string, number][];
@@ -51,7 +53,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
             <button
               onClick={() => {
                 if (navigator.share) {
-                  navigator.share({ title: "Kassen – Min økonomirapport", text: `Health Score: ${health.score}/100 | Frihedstal: ${formatKr(health.truths.freeCashFlow)} kr./md.`, url: window.location.href });
+                  navigator.share({ title: `${config.brandName} – Min økonomirapport`, text: `Health Score: ${health.score}/100 | Frihedstal: ${formatKr(health.truths.freeCashFlow)} kr./md.`, url: window.location.href });
                 }
               }}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
@@ -71,7 +73,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
       <main className="max-w-2xl mx-auto px-5 py-8 space-y-6 print:py-4 print:space-y-4">
         {/* Report Header */}
         <div className="text-center space-y-1">
-          <span className="font-display font-black text-2xl text-primary">Kassen</span>
+          <span className="font-display font-black text-2xl text-primary">{config.brandName}</span>
           <p className="text-xs text-muted-foreground">Økonomirapport · {dateStr}</p>
           <p className="text-[11px] text-muted-foreground/60">{isPar ? "Parbudget" : "Solobudget"} · Postnr. {profile.postalCode || "—"}</p>
         </div>
@@ -190,9 +192,9 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
 
         {/* Footer */}
         <div className="text-center pt-4 border-t border-border space-y-1">
-          <span className="font-display font-black text-sm text-primary">Kassen</span>
+          <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
           <p className="text-[10px] text-muted-foreground">Genereret {dateStr} · Beregnet på danske gennemsnitstal 2026</p>
-          <p className="text-[10px] text-muted-foreground/50">kassen.dk · AI-drevet budgetanalyse</p>
+          <p className="text-[10px] text-muted-foreground/50">{config.footer?.text || "AI-drevet budgetanalyse"}</p>
         </div>
       </main>
     </div>

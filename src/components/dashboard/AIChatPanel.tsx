@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Send, X, MessageCircle, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
+import { useWhiteLabel } from "@/lib/whiteLabel";
 
 interface Props {
   profile: BudgetProfile;
@@ -97,6 +98,7 @@ async function streamAI({
 }
 
 export function AIChatPanel({ profile, budget }: Props) {
+  const config = useWhiteLabel();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -216,7 +218,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="font-display font-bold text-sm">Kassen AI</p>
+                  <p className="font-display font-bold text-sm">{config.brandName} AI</p>
                   <p className="text-[10px] text-muted-foreground">Din personlige rådgiver</p>
                 </div>
               </div>

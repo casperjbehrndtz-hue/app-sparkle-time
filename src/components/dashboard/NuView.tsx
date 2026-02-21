@@ -4,6 +4,7 @@ import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 import { ArrowRight, ExternalLink, AlertTriangle, TrendingUp, Zap } from "lucide-react";
+import { useWhiteLabel } from "@/lib/whiteLabel";
 
 interface Props {
   budget: ComputedBudget;
@@ -32,17 +33,21 @@ const BUCKET_LABELS = {
   risiko: { label: "Risiko", emoji: "🛡️", sub: "Forsikring & buffer" },
 };
 
-// Smart action links based on step content
-function getSmartAction(step: { icon: string; text: string; priority: "high" | "medium" | "low" }): { label: string; url: string } | null {
+// Smart action links based on step content + white-label config
+function getSmartAction(
+  step: { icon: string; text: string; priority: "high" | "medium" | "low" },
+  ctaLinks: Record<string, { label: string; url: string } | undefined>
+): { label: string; url: string } | null {
   if (step.text.includes("streaming")) return { label: "Sammenlign streaming", url: "https://www.telepriser.dk/streaming" };
-  if (step.text.includes("Forsikring") || step.text.includes("forsikring")) return { label: "Sammenlign forsikring", url: "https://www.forbrugerrådet.dk/forsikring" };
-  if (step.text.includes("Bolig") || step.text.includes("refinansier")) return { label: "Tjek boliglån", url: "https://www.mybanker.dk/boliglaan/" };
-  if (step.text.includes("opsparing") || step.text.includes("Opsparingsrate")) return { label: "Start opsparing", url: "https://www.nordnet.dk/dk/tjenester/maanedsopsparing" };
-  if (step.text.includes("buffer") || step.text.includes("Buffer")) return { label: "Opret bufferkonto", url: "https://www.mybanker.dk/opsparing/" };
+  if (step.text.includes("Forsikring") || step.text.includes("forsikring")) return ctaLinks.insurance ?? { label: "Sammenlign forsikring", url: "https://www.forbrugerrådet.dk/forsikring" };
+  if (step.text.includes("Bolig") || step.text.includes("refinansier")) return ctaLinks.mortgage ?? { label: "Tjek boliglån", url: "https://www.mybanker.dk/boliglaan/" };
+  if (step.text.includes("opsparing") || step.text.includes("Opsparingsrate")) return ctaLinks.savings ?? { label: "Start opsparing", url: "https://www.nordnet.dk/dk/tjenester/maanedsopsparing" };
+  if (step.text.includes("buffer") || step.text.includes("Buffer")) return ctaLinks.savings ?? { label: "Opret bufferkonto", url: "https://www.mybanker.dk/opsparing/" };
   return null;
 }
 
 export function NuView({ budget, profile, health, smartSteps }: Props) {
+  const config = useWhiteLabel();
   const isPar = profile.householdType === "par";
 
   // Category grouping for donut
@@ -126,7 +131,7 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
             <span className="text-[10px] text-muted-foreground">AI-anbefalet</span>
           </div>
           {smartSteps.map((step, i) => {
-            const action = getSmartAction(step);
+            const action = getSmartAction(step, config.ctaLinks);
             return (
               <motion.div
                 key={i}
