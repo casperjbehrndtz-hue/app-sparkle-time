@@ -80,6 +80,10 @@ export const HOMEOWNER_ASSOCIATION = {
   default: { label: "Grundejerforening / ejerforening", price: 1500 },
 };
 
+export const PROPERTY_TAX = {
+  default: { label: "Ejendomsskat", price: 800 },
+};
+
 export const FOOD = {
   solo: 4500,
   par: 7500,

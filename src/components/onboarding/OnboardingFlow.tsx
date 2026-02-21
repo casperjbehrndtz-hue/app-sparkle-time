@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
+import { useWhiteLabel } from "@/lib/whiteLabel";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import {
   SUBSCRIPTIONS,
@@ -64,6 +65,7 @@ function ProgressBar({ step }: { step: OnboardingStep }) {
 function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
   step: OnboardingStep; title: string; subtitle?: string; onBack?: () => void; children: React.ReactNode; liveAmount?: number | null;
 }) {
+  const config = useWhiteLabel();
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border px-5 pt-4 pb-3">
@@ -74,7 +76,7 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
                 <ChevronLeft className="w-4 h-4" /> Tilbage
               </button>
             ) : <div />}
-            <span className="font-display font-black text-base text-primary">Kassen</span>
+            <span className="font-display font-black text-base text-primary">{config.brandName}</span>
             {liveAmount != null ? (
               <div className="flex items-center gap-1.5">
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Tilbage</span>
@@ -227,6 +229,7 @@ function AiTip({ text }: { text: string }) {
 // ─── Main ──────────────────────────────────────────────────
 
 export function OnboardingFlow({ onComplete }: Props) {
+  const config = useWhiteLabel();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
@@ -255,7 +258,7 @@ export function OnboardingFlow({ onComplete }: Props) {
       <div className="min-h-screen flex flex-col">
         {/* Nav */}
         <nav className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto w-full">
-          <span className="font-display font-black text-xl text-primary">Kassen</span>
+          <span className="font-display font-black text-xl text-primary">{config.brandName}</span>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="w-3.5 h-3.5 text-primary/60" />
             <span>Beregnet på danske skattetal</span>
@@ -272,16 +275,16 @@ export function OnboardingFlow({ onComplete }: Props) {
               className="text-center mb-12"
             >
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-xs font-medium text-primary mb-6">
-                <Sparkles className="w-3 h-3" /> AI-drevet budgetanalyse
+                <Sparkles className="w-3 h-3" /> {config.brandTagline || "AI-drevet budgetanalyse"}
               </div>
 
               <h1 className="font-display font-black text-[2.5rem] md:text-[3.25rem] leading-[1.1] tracking-tight mb-4">
-                Find ud af hvad du<br />
-                <span className="text-primary">reelt har til overs.</span>
+                {config.hero.title}<br />
+                <span className="text-primary">{config.hero.titleHighlight}</span>
               </h1>
 
               <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-md mx-auto">
-                De fleste familier har tusindvis af kroner i skjulte udgifter. Vi finder dem på 3 minutter.
+                {config.hero.subtitle}
               </p>
             </motion.div>
 
@@ -292,11 +295,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="grid grid-cols-3 gap-4 mb-10 max-w-lg mx-auto"
             >
-              {[
-                { value: "3 min", label: "At udfylde" },
-                { value: "2.400 kr.", label: "Gns. besparelse/md." },
-                { value: "100%", label: "Privat & gratis" },
-              ].map((stat) => (
+              {config.hero.stats.map((stat) => (
                 <div key={stat.label} className="text-center">
                   <div className="font-display font-bold text-lg text-foreground">{stat.value}</div>
                   <div className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</div>
@@ -315,7 +314,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                 onClick={() => setStep("household")}
                 className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-primary/15"
               >
-                Beregn dit rådighedsbeløb <ArrowRight className="w-4 h-4" />
+                {config.hero.ctaLabel} <ArrowRight className="w-4 h-4" />
               </button>
               <p className="text-center text-[11px] text-muted-foreground mt-4">
                 Ingen login · Ingen data deles · Alt gemmes lokalt
@@ -355,26 +354,34 @@ export function OnboardingFlow({ onComplete }: Props) {
             </motion.div>
 
             {/* Social proof */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.65, duration: 0.5 }}
-              className="mt-12 text-center"
-            >
-              <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-5">Hvad andre siger</p>
-              <div className="grid md:grid-cols-3 gap-3">
-                {[
-                  { quote: "Jeg fandt 3.200 kr. jeg ikke vidste jeg brugte. På 3 minutter.", name: "Line, 34", location: "Aarhus" },
-                  { quote: "Vi tog rapporten med til banken. Rådgiveren var imponeret.", name: "Mikkel & Sarah", location: "København" },
-                  { quote: "Endelig et budget-værktøj der ikke kræver et regneark-kursus.", name: "Thomas, 28", location: "Odense" },
-                ].map((t) => (
-                  <div key={t.name} className="rounded-xl border border-border p-4 text-left">
-                    <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
-                    <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
-                  </div>
-                ))}
+            {config.testimonials && config.testimonials.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.65, duration: 0.5 }}
+                className="mt-12 text-center"
+              >
+                <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-5">Hvad andre siger</p>
+                <div className="grid md:grid-cols-3 gap-3">
+                  {config.testimonials.map((t) => (
+                    <div key={t.name} className="rounded-xl border border-border p-4 text-left">
+                      <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
+                      <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Footer */}
+            {config.footer && (
+              <div className="mt-12 text-center space-y-2">
+                {config.footer.disclaimerText && (
+                  <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
+                )}
+                <p className="text-[10px] text-muted-foreground">{config.footer.text}</p>
               </div>
-            </motion.div>
+            )}
           </div>
         </div>
       </div>

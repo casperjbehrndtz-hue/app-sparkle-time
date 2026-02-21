@@ -6,6 +6,7 @@ import {
   PUBLIC_TRANSPORT,
   HEALTH,
   HOMEOWNER_ASSOCIATION,
+  PROPERTY_TAX,
   getChildcarePrice,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
@@ -110,12 +111,18 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     });
   }
 
-  // Grundejerforening (auto for ejere)
+  // Grundejerforening + ejendomsskat (auto for ejere)
   if (profile.housingType === "ejer") {
     fixedExpenses.push({
       category: "Bolig",
       label: "Grundejerforening / ejerforening",
       amount: HOMEOWNER_ASSOCIATION.default.price,
+      colorVar: "--kassen-blue",
+    });
+    fixedExpenses.push({
+      category: "Bolig",
+      label: "Ejendomsskat",
+      amount: PROPERTY_TAX.default.price,
       colorVar: "--kassen-blue",
     });
   }

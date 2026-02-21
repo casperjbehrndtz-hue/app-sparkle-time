@@ -4,6 +4,7 @@ import { TrendingUp, Target, PiggyBank, ShieldCheck } from "lucide-react";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { HealthMetrics } from "@/lib/healthScore";
+import { useWhiteLabel } from "@/lib/whiteLabel";
 
 interface Props {
   profile: BudgetProfile;
@@ -61,6 +62,7 @@ const typeStyles = {
 };
 
 export function FremadView({ profile, budget, health }: Props) {
+  const config = useWhiteLabel();
   const [rentRate, setRentRate] = useState(profile.interestRate || 5.0);
   const events = generateEvents(profile);
 
@@ -241,8 +243,8 @@ export function FremadView({ profile, budget, health }: Props) {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">
               <p className="text-sm text-destructive font-semibold mb-1">⚠️ Sårbar økonomi</p>
               <p className="text-xs text-muted-foreground mb-2">Refinansiering kan reducere jeres eksponering.</p>
-              <a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
-                Se hvad refinansiering kan gøre →
+              <a href={config.ctaLinks.mortgage?.url || "https://parfinans.dk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
+                {config.ctaLinks.mortgage?.label || "Se hvad refinansiering kan gøre →"}
               </a>
             </motion.div>
           )}
