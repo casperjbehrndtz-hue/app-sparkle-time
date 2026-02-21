@@ -3,6 +3,7 @@ import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
@@ -56,6 +57,8 @@ const Index = () => {
     setProfile(p);
     setBudget(b);
     setOptimizations(opts);
+    // Submit anonymous price data to improve estimates for everyone
+    submitPriceObservations(p);
   };
 
   const handleReset = () => {
