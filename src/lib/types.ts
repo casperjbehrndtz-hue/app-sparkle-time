@@ -1,22 +1,31 @@
 export type HouseholdType = "solo" | "par";
 export type HousingType = "lejer" | "ejer" | "andel";
+export type PaymentFrequency = "monthly" | "quarterly" | "biannual" | "annual";
 
 export interface CustomExpense {
   label: string;
   amount: number;
+  frequency: PaymentFrequency;
+}
+
+export interface IncomeSource {
+  label: string;
+  amount: number;
+  frequency: PaymentFrequency;
 }
 
 export interface BudgetProfile {
   householdType: HouseholdType;
   income: number;
   partnerIncome: number;
+  additionalIncome: IncomeSource[];
   postalCode: string;
   housingType: HousingType;
   hasMortgage: boolean;
-  rentAmount: number; // editable rent
-  mortgageAmount: number; // editable mortgage estimate
-  propertyValue: number; // estimated property value for ejer
-  interestRate: number; // mortgage interest rate %
+  rentAmount: number;
+  mortgageAmount: number;
+  propertyValue: number;
+  interestRate: number;
   hasChildren: boolean;
   childrenAges: number[];
   // Subscriptions
@@ -27,9 +36,14 @@ export interface BudgetProfile {
   hasAppleTV: boolean;
   hasDisney: boolean;
   hasAmazonPrime: boolean;
-  // Transport
+  // Transport (detailed)
   hasCar: boolean;
-  carAmount: number;
+  carAmount: number; // kept for backward compat — total if not detailed
+  carLoan: number;
+  carFuel: number;
+  carInsurance: number; // annual
+  carTax: number; // annual
+  carService: number; // biannual
   // Utilities
   hasInternet: boolean;
   // Insurance, union, fitness
@@ -44,8 +58,29 @@ export interface BudgetProfile {
   petAmount: number;
   hasLoan: boolean;
   loanAmount: number;
+  // Savings
+  hasSavings: boolean;
+  savingsAmount: number;
   // Custom
   customExpenses: CustomExpense[];
+}
+
+export function frequencyToMonthly(amount: number, freq: PaymentFrequency): number {
+  switch (freq) {
+    case "monthly": return amount;
+    case "quarterly": return Math.round(amount / 3);
+    case "biannual": return Math.round(amount / 6);
+    case "annual": return Math.round(amount / 12);
+  }
+}
+
+export function frequencyLabel(freq: PaymentFrequency): string {
+  switch (freq) {
+    case "monthly": return "md.";
+    case "quarterly": return "kvartal";
+    case "biannual": return "halvår";
+    case "annual": return "år";
+  }
 }
 
 export interface ExpenseItem {

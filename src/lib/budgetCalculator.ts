@@ -10,10 +10,12 @@ import {
   getChildcarePrice,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
+import { frequencyToMonthly, frequencyLabel } from "./types";
 
 export function computeBudget(profile: BudgetProfile): ComputedBudget {
   const isPar = profile.householdType === "par";
-  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0);
+  const additionalMonthly = (profile.additionalIncome || []).reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
+  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly;
   const fixedExpenses: ExpenseItem[] = [];
   const variableExpenses: ExpenseItem[] = [];
 
@@ -93,21 +95,30 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     }
   });
 
-  // Transport
+  // Transport (detailed)
   if (profile.hasCar) {
-    fixedExpenses.push({
-      category: "Transport",
-      label: "Bil (samlet)",
-      amount: profile.carAmount || TRANSPORT.car.price,
-      colorVar: "--kassen-gold",
-    });
+    if (profile.carLoan > 0) {
+      fixedExpenses.push({ category: "Transport", label: "Billån / leasing", amount: profile.carLoan, colorVar: "--kassen-gold" });
+    }
+    if (profile.carFuel > 0) {
+      fixedExpenses.push({ category: "Transport", label: "Benzin / opladning", amount: profile.carFuel, colorVar: "--kassen-gold" });
+    }
+    if (profile.carInsurance > 0) {
+      const monthly = Math.round(profile.carInsurance / 12);
+      fixedExpenses.push({ category: "Transport", label: `Bilforsikring (${formatKr(profile.carInsurance)} kr./år)`, amount: monthly, colorVar: "--kassen-gold" });
+    }
+    if (profile.carTax > 0) {
+      const monthly = Math.round(profile.carTax / 12);
+      fixedExpenses.push({ category: "Transport", label: `Vægtafgift (${formatKr(profile.carTax)} kr./år)`, amount: monthly, colorVar: "--kassen-gold" });
+    }
+    if (profile.carService > 0) {
+      const monthly = Math.round(profile.carService / 6);
+      fixedExpenses.push({ category: "Transport", label: `Bilservice (${formatKr(profile.carService)} kr./halvår)`, amount: monthly, colorVar: "--kassen-gold" });
+    }
   } else {
-    // Auto-add public transport for non-car owners
     fixedExpenses.push({
-      category: "Transport",
-      label: "Offentlig transport",
-      amount: PUBLIC_TRANSPORT.default.price,
-      colorVar: "--kassen-gold",
+      category: "Transport", label: "Offentlig transport",
+      amount: PUBLIC_TRANSPORT.default.price, colorVar: "--kassen-gold",
     });
   }
 
@@ -192,15 +203,29 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     });
   }
 
-  // Custom expenses
+  // Custom expenses (with frequency)
   if (profile.customExpenses?.length > 0) {
     profile.customExpenses.forEach((ce) => {
+      const monthly = frequencyToMonthly(ce.amount, ce.frequency || "monthly");
+      const freqNote = ce.frequency && ce.frequency !== "monthly"
+        ? ` (${formatKr(ce.amount)} kr./${frequencyLabel(ce.frequency)})`
+        : "";
       fixedExpenses.push({
         category: "Andet",
-        label: ce.label,
-        amount: ce.amount,
+        label: `${ce.label}${freqNote}`,
+        amount: monthly,
         colorVar: "--kassen-blue",
       });
+    });
+  }
+
+  // Savings
+  if (profile.hasSavings && profile.savingsAmount > 0) {
+    fixedExpenses.push({
+      category: "Opsparing",
+      label: "Opsparing / investering",
+      amount: profile.savingsAmount,
+      colorVar: "--kassen-green",
     });
   }
 
