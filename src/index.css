@@ -13,24 +13,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 160 15% 10%;
 
-    --primary: 152 69% 32%;
+    --primary: 216 56% 22%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 150 20% 96%;
-    --secondary-foreground: 152 50% 25%;
+    --secondary: 216 20% 96%;
+    --secondary-foreground: 216 50% 25%;
 
     --muted: 150 8% 96%;
     --muted-foreground: 160 5% 50%;
 
-    --accent: 150 20% 96%;
-    --accent-foreground: 152 50% 25%;
+    --accent: 216 20% 96%;
+    --accent-foreground: 216 50% 25%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 150 8% 91%;
     --input: 150 8% 91%;
-    --ring: 152 69% 32%;
+    --ring: 216 56% 22%;
 
     --radius: 0.75rem;
 
@@ -48,12 +48,12 @@
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 160 15% 10%;
-    --sidebar-primary: 152 69% 32%;
+    --sidebar-primary: 216 56% 22%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 20% 96%;
-    --sidebar-accent-foreground: 152 50% 25%;
-    --sidebar-border: 150 8% 91%;
-    --sidebar-ring: 152 69% 32%;
+    --sidebar-accent: 216 20% 96%;
+    --sidebar-accent-foreground: 216 50% 25%;
+    --sidebar-border: 216 8% 91%;
+    --sidebar-ring: 216 56% 22%;
   }
 }
 
@@ -79,7 +79,7 @@
 
 /* Gradient text */
 .gradient-text-green {
-  background: linear-gradient(135deg, hsl(152 69% 32%), hsl(152 69% 22%));
+  background: linear-gradient(135deg, hsl(216 56% 22%), hsl(216 56% 16%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

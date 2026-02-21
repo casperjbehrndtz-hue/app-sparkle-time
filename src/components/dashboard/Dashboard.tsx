@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, FileText } from "lucide-react";
+import { RotateCcw, FileText, BarChart3 } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { DisposableIncome } from "./DisposableIncome";
 import { NuView } from "./NuView";
@@ -9,6 +9,7 @@ import { FremadView } from "./FremadView";
 import { NaboeffektView } from "./NaboeffektView";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
+import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
@@ -32,6 +33,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const config = useWhiteLabel();
   const [activeTab, setActiveTab] = useState("nu");
   const [showReport, setShowReport] = useState(false);
+  const [showCharts, setShowCharts] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
 
   const health = calculateHealth(profile, budget);
@@ -41,6 +43,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
   }
 
+  if (showCharts) {
+    return <ChartsView profile={profile} budget={budget} onBack={() => setShowCharts(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -48,6 +54,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
           <div className="flex items-center gap-1">
+            <button onClick={() => setShowCharts(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              <BarChart3 className="w-3 h-3" /> Diagrammer
+            </button>
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <FileText className="w-3 h-3" /> Rapport
