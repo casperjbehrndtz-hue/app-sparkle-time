@@ -34,6 +34,8 @@ const defaultProfile: BudgetProfile = {
   hasInsurance: false, insuranceAmount: INSURANCE.solo.price,
   hasUnion: false, unionAmount: UNION.default.price,
   hasFitness: false, fitnessAmount: FITNESS.default.price,
+  hasPet: false, petAmount: 800,
+  hasLoan: false, loanAmount: 1500,
   customExpenses: [],
 };
 
@@ -659,6 +661,19 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
+          {/* Kæledyr & lån */}
+          <div>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Kæledyr & lån</h3>
+            <div className="space-y-1.5">
+              <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
+                icon="🐕" label="Kæledyr" sublabel="Foder, dyrlæge, forsikring"
+                amount={profile.petAmount} onAmountChange={(v) => update({ petAmount: v })} />
+              <ToggleRow active={profile.hasLoan} onClick={() => update({ hasLoan: !profile.hasLoan })}
+                icon="💰" label="Lån" sublabel="SU-lån, forbrugslån, billån"
+                amount={profile.loanAmount} onAmountChange={(v) => update({ loanAmount: v })} />
+            </div>
+          </div>
+
           {/* Custom */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Egne udgifter</h3>
@@ -692,7 +707,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
-          <AiTip text="💡 Har du husket licens, kontaktlinser, medicin eller andre faste udgifter? Tilføj dem under 'Egne udgifter' ovenfor." />
+          <AiTip text={`💡 Vi har automatisk inkluderet sundhed (${isPar ? "500" : "350"} kr.), restaurant (${isPar ? "1.500" : "800"} kr.)${profile.housingType === "ejer" ? ", grundejerforening (1.500 kr.)" : ""}${!profile.hasCar ? " og offentlig transport (600 kr.)" : ""} baseret på jeres profil. Tilføj egne udgifter ovenfor hvis noget mangler.`} />
           <ContinueButton onClick={goNext} label="Se overblik" />
         </div>
       </StepShell>

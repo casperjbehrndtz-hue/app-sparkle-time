@@ -39,6 +39,11 @@ export interface BudgetProfile {
   unionAmount: number;
   hasFitness: boolean;
   fitnessAmount: number;
+  // Pets & loans
+  hasPet: boolean;
+  petAmount: number;
+  hasLoan: boolean;
+  loanAmount: number;
   // Custom
   customExpenses: CustomExpense[];
 }

@@ -64,6 +64,22 @@ export const FITNESS = {
   default: { label: "Fitness", price: 299 },
 };
 
+export const PET = {
+  default: { label: "Kæledyr (foder, forsikring, dyrlæge)", price: 800 },
+};
+
+export const PUBLIC_TRANSPORT = {
+  default: { label: "Offentlig transport", price: 600 },
+};
+
+export const HEALTH = {
+  default: { label: "Sundhed (læge, tandlæge, medicin)", price: 350 },
+};
+
+export const HOMEOWNER_ASSOCIATION = {
+  default: { label: "Grundejerforening / ejerforening", price: 1500 },
+};
+
 export const FOOD = {
   solo: 4500,
   par: 7500,
