@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { TrendingUp, Target, PiggyBank, ShieldCheck } from "lucide-react";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
+import type { HealthMetrics } from "@/lib/healthScore";
 
 interface Props {
   profile: BudgetProfile;
   budget: ComputedBudget;
+  health: HealthMetrics;
 }
 
 interface TimelineEvent {
@@ -57,7 +60,7 @@ const typeStyles = {
   ros: "text-primary border-primary/30 bg-primary/8",
 };
 
-export function FremadView({ profile, budget }: Props) {
+export function FremadView({ profile, budget, health }: Props) {
   const [rentRate, setRentRate] = useState(5.0);
   const events = generateEvents(profile);
 
@@ -65,11 +68,124 @@ export function FremadView({ profile, budget }: Props) {
   const rentImpact = mortgageBase > 0 ? Math.round(((rentRate - 5.0) * 0.005) * mortgageBase) : 0;
   const simulatedDisposable = budget.disposableIncome - rentImpact;
 
+  // Savings projections
+  const monthlySavings = Math.max(0, budget.disposableIncome * 0.3);
+  const yearlyReturn = 0.07; // 7% gennemsnit aktieafkast
+  const projections = [1, 3, 5, 10].map((years) => {
+    // FV of annuity: PMT × (((1 + r)^n - 1) / r)
+    const monthlyRate = yearlyReturn / 12;
+    const months = years * 12;
+    const fv = monthlySavings * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+    return { years, amount: Math.round(fv) };
+  });
+
+  // Goals
+  const bufferGoal = health.truths.monthlyBaseline * 3;
+  const currentBuffer = budget.totalIncome * 1; // estimated
+  const bufferProgress = Math.min(100, Math.round((currentBuffer / bufferGoal) * 100));
+  
+  const savingsGoal = budget.totalIncome * 12; // 1 year salary as goal
+  const savingsProgress = Math.min(100, Math.round((monthlySavings * 12 / savingsGoal) * 100));
+
   return (
     <div className="space-y-4">
+
+      {/* Savings Projection */}
+      <motion.div variants={fadeUp(0)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+            <TrendingUp className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Formue-projektion</p>
+            <p className="text-[10px] text-muted-foreground">Baseret på {formatKr(monthlySavings)} kr./md. investeret</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          {projections.map((p) => (
+            <motion.div
+              key={p.years}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: p.years * 0.05 + 0.1 }}
+              className="text-center p-3 rounded-xl bg-muted/50 border border-border"
+            >
+              <p className="text-[10px] text-muted-foreground mb-1">{p.years} år</p>
+              <p className="font-display font-bold text-sm text-primary">{formatKr(p.amount)}</p>
+              <p className="text-[9px] text-muted-foreground">kr.</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
+          <p className="text-xs text-muted-foreground">
+            💡 Med {formatKr(monthlySavings)} kr./md. i en global indeksfond (7% gns. afkast) 
+            bygger du <span className="font-semibold text-primary">{formatKr(projections[2].amount)} kr.</span> på 5 år 
+            og <span className="font-semibold text-primary">{formatKr(projections[3].amount)} kr.</span> på 10 år.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Goals / Mål */}
+      <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-7 h-7 rounded-lg bg-kassen-gold/10 flex items-center justify-center">
+            <Target className="w-3.5 h-3.5 text-kassen-gold" />
+          </div>
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Mål & fremskridt</p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Buffer goal */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-medium">Nødbuffer (3 mdr.)</span>
+              </div>
+              <span className="text-xs text-muted-foreground">{formatKr(currentBuffer)} / {formatKr(bufferGoal)} kr.</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${bufferProgress}%` }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                className="h-full rounded-full bg-primary"
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">{bufferProgress}% af mål</p>
+          </div>
+
+          {/* Savings rate goal */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <PiggyBank className="w-3.5 h-3.5 text-kassen-gold" />
+                <span className="text-xs font-medium">Opsparingsrate</span>
+              </div>
+              <span className="text-xs text-muted-foreground">{health.savingsRate}% / 20% mål</span>
+            </div>
+            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, (health.savingsRate / 20) * 100)}%` }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                className={`h-full rounded-full ${health.savingsRate >= 20 ? "bg-primary" : health.savingsRate >= 10 ? "bg-kassen-gold" : "bg-destructive"}`}
+              />
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {health.savingsRate >= 20 
+                ? "✅ Du overstiger anbefalingen!" 
+                : `Øg med ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome)} kr./md. for at nå 20%`}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Rate simulator */}
       {mortgageBase > 0 && (
-        <motion.div variants={fadeUp(0)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+        <motion.div variants={fadeUp(0.15)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rentechok-simulator</p>
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
@@ -99,7 +215,7 @@ export function FremadView({ profile, budget }: Props) {
       )}
 
       {/* Timeline */}
-      <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+      <motion.div variants={fadeUp(0.2)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
         <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">Tidslinje – næste 10 år</p>
         {events.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-6">Ingen store begivenheder fundet baseret på jeres profil.</p>
@@ -108,7 +224,7 @@ export function FremadView({ profile, budget }: Props) {
             <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
             <div className="space-y-3">
               {events.map((event, i) => (
-                <motion.div key={i} variants={fadeUp(0.15 + i * 0.06)} initial="hidden" animate="visible" className="flex gap-4 pl-10 relative">
+                <motion.div key={i} variants={fadeUp(0.25 + i * 0.06)} initial="hidden" animate="visible" className="flex gap-4 pl-10 relative">
                   <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full border-2 border-background bg-secondary" />
                   <div className={`flex-1 rounded-xl border p-3 ${typeStyles[event.type]}`}>
                     <div className="flex items-start justify-between gap-2">
