@@ -69,6 +69,10 @@ export default {
           surface: "hsl(var(--kassen-surface))",
           "surface-2": "hsl(var(--kassen-surface-2))",
         },
+        hero: {
+          navy: "hsl(var(--hero-navy))",
+          "navy-light": "hsl(var(--hero-navy-light))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

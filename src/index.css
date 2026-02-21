@@ -34,13 +34,17 @@
 
     --radius: 0.75rem;
 
-    /* Kassen tokens */
+/* Kassen tokens */
     --kassen-green: 152 69% 32%;
     --kassen-blue: 213 80% 50%;
     --kassen-gold: 38 92% 50%;
     --kassen-red: 0 72% 51%;
     --kassen-surface: 150 8% 98%;
     --kassen-surface-2: 150 8% 96%;
+
+    /* Hero navy */
+    --hero-navy: 215 50% 14%;
+    --hero-navy-light: 215 30% 22%;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 160 15% 10%;
