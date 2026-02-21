@@ -439,8 +439,8 @@ export function OnboardingFlow({ onComplete }: Props) {
         update({ housingType: type, hasMortgage: true });
         if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, mortgageAmount: getMortgageEstimate(profile.postalCode) });
       } else if (type === "andel") {
-        update({ housingType: type, hasMortgage: false });
-        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getAndelEstimate(profile.postalCode, isPar) });
+        update({ housingType: type, hasMortgage: true, mortgageAmount: profile.mortgageAmount || 3500 });
+        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, rentAmount: getAndelEstimate(profile.postalCode, isPar), mortgageAmount: profile.mortgageAmount || 3500 });
       } else {
         update({ housingType: type, hasMortgage: false });
         if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getRentEstimate(profile.postalCode, isPar) });
@@ -485,7 +485,10 @@ export function OnboardingFlow({ onComplete }: Props) {
             <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig husleje" min={2000} max={25000} step={250} />
           )}
           {profile.housingType === "andel" && (
-            <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig boligafgift" min={1500} max={20000} step={250} />
+            <div className="space-y-5">
+              <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig boligafgift" min={1000} max={15000} step={250} />
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Andelslån (afdrag + renter)" min={0} max={15000} step={250} />
+            </div>
           )}
           {profile.housingType === "ejer" && (
             <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
