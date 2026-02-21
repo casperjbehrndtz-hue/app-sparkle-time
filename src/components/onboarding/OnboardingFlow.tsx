@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
+import heroCouple from "@/assets/hero-couple.jpg";
+import featureAdvisor from "@/assets/feature-advisor.jpg";
+import featureFamily from "@/assets/feature-family.jpg";
 import {
   SUBSCRIPTIONS,
   TRANSPORT,
@@ -307,14 +310,8 @@ export function OnboardingFlow({ onComplete }: Props) {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="hidden md:block"
             >
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-hero-navy-light">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center space-y-3">
-                    <div className="text-6xl">📊</div>
-                    <p className="text-white/50 text-sm font-medium">AI-drevet budgetanalyse</p>
-                  </div>
-                </div>
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <img src={heroCouple} alt="Par der planlægger økonomi sammen" className="w-full h-full object-cover" />
               </div>
             </motion.div>
           </div>
@@ -362,26 +359,47 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         </section>
 
-        {/* Feature cards — white */}
+        {/* Feature cards — ParFinans grid style with images */}
         <section className="bg-muted/30 py-16">
           <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
-              className="grid md:grid-cols-3 gap-4"
+              className="grid md:grid-cols-4 grid-rows-2 gap-4"
             >
-              {[
-                { emoji: "🔍", title: "Find skjulte udgifter", desc: "Vi gennemgår streaming, forsikring, transport og mere — og viser præcis hvad der æder dit budget." },
-                { emoji: "🤖", title: "AI-rådgivning", desc: "Få personlige sparetips baseret på din unikke situation — ikke generiske råd fra et regneark." },
-                { emoji: "📊", title: "Sammenlign med andre", desc: "Se hvordan din økonomi ligger i forhold til lignende familier i dit område via Danmarks Statistik." },
-              ].map((feat) => (
-                <div key={feat.title} className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
-                  <span className="text-3xl">{feat.emoji}</span>
-                  <h3 className="font-semibold text-[15px] mt-4 mb-2 text-foreground">{feat.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{feat.desc}</p>
-                </div>
-              ))}
+              {/* Card 1 — image */}
+              <div className="rounded-2xl overflow-hidden md:row-span-2">
+                <img src={featureAdvisor} alt="Rådgivning" className="w-full h-full object-cover" />
+              </div>
+              {/* Card 2 — text */}
+              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+                <span className="text-2xl">🔍</span>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Find skjulte udgifter</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Vi gennemgår streaming, forsikring og transport — og viser hvad der æder dit budget.</p>
+              </div>
+              {/* Card 3 — image */}
+              <div className="rounded-2xl overflow-hidden md:row-span-2">
+                <img src={featureFamily} alt="Familie økonomi" className="w-full h-full object-cover" />
+              </div>
+              {/* Card 4 — text */}
+              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+                <span className="text-2xl">🤖</span>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">AI-rådgivning</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Personlige sparetips baseret på din unikke situation — ikke generiske råd.</p>
+              </div>
+              {/* Card 5 — text */}
+              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+                <span className="text-2xl">📊</span>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Sammenlign med andre</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Se din økonomi i forhold til lignende familier i dit område.</p>
+              </div>
+              {/* Card 6 — text */}
+              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+                <span className="text-2xl">🏦</span>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Bankmøde-rapport</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Tag en professionel rapport med til din bankrådgiver.</p>
+              </div>
             </motion.div>
           </div>
         </section>
