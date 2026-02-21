@@ -116,6 +116,28 @@ export const ANDEL_ESTIMATES: Record<string, { solo: number; par: number }> = {
   "9000": { solo: 5000, par: 6500 },
 };
 
+// Gennemsnitlig boligværdi pr. region (kilde: Boligsiden 2025)
+export const PROPERTY_VALUE_ESTIMATES: Record<string, number> = {
+  default: 2500000,
+  "1000": 5500000, "1100": 5200000, "1200": 4800000, "1300": 4200000,
+  "2000": 4500000, "2100": 4200000, "2200": 3800000, "2300": 3500000,
+  "2400": 3200000, "2500": 3000000, "2600": 2800000, "2700": 2900000,
+  "2800": 4500000, "2900": 5000000, "3000": 2800000,
+  "4000": 2600000, "4200": 1800000, "4400": 1600000, "4600": 2400000,
+  "5000": 2200000, "5200": 2000000, "5700": 1800000,
+  "6000": 2200000, "6400": 1600000, "6700": 1800000, "6800": 1500000,
+  "7000": 2000000, "7400": 1800000, "7500": 1600000,
+  "8000": 3500000, "8200": 3200000, "8210": 2800000, "8220": 2400000,
+  "8300": 2600000, "8400": 2000000, "8500": 1600000, "8600": 2400000,
+  "8700": 2200000, "8800": 2000000, "8900": 1800000,
+  "9000": 2800000, "9200": 2400000, "9400": 2200000, "9700": 1600000,
+  "9800": 1400000, "9900": 1300000,
+};
+
+export function getPropertyValueEstimate(postalCode: string): number {
+  return PROPERTY_VALUE_ESTIMATES[postalCode] ?? PROPERTY_VALUE_ESTIMATES.default;
+}
+
 // Postnummer → by-navn (udvalgte)
 export const POSTAL_NAMES: Record<string, string> = {
   "1000": "København K", "1100": "København K", "1200": "København K", "1300": "København K",
