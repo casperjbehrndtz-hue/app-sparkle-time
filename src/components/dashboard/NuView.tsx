@@ -14,16 +14,16 @@ interface Props {
 }
 
 const COLORS = [
-  "hsl(152, 55%, 40%)", "hsl(213, 70%, 50%)", "hsl(38, 85%, 50%)",
-  "hsl(280, 50%, 55%)", "hsl(190, 55%, 45%)", "hsl(320, 50%, 50%)",
-  "hsl(30, 70%, 50%)", "hsl(160, 45%, 40%)",
+  "#1e40af", "#2563eb", "#d97706", "#6366f1",
+  "#0ea5e9", "#14b8a6", "#f59e0b", "#ec4899",
+  "#64748b", "#dc2626",
 ];
 
 const BUCKET_COLORS = {
-  drift: "hsl(213, 70%, 50%)",
-  frihed: "hsl(38, 85%, 50%)",
-  fremtid: "hsl(152, 55%, 40%)",
-  risiko: "hsl(280, 50%, 55%)",
+  drift: "#1e40af",
+  frihed: "#d97706",
+  fremtid: "#059669",
+  risiko: "#6366f1",
 };
 
 const BUCKET_LABELS = {
@@ -221,17 +221,29 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-4">Udgiftsoverblik</h3>
         
         {/* Bar chart — category breakdown */}
-        <div className="h-48 mb-6">
+        <div className="h-52 mb-6">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={donutData.sort((a, b) => b.value - a.value).slice(0, 8)} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(150,8%,91%)" />
-              <XAxis type="number" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} axisLine={false} tickLine={false} />
+            <BarChart data={donutData.sort((a, b) => b.value - a.value).slice(0, 8)} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }} barCategoryGap="18%">
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.5} />
+              <XAxis type="number" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="name" width={105} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(val: number) => [`${formatKr(val)} kr./md.`, ""]}
-                contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null;
+                  const d = payload[0].payload;
+                  const pct = Math.round((d.value / budget.totalExpenses) * 100);
+                  return (
+                    <div className="rounded-xl border border-border/60 bg-background/95 backdrop-blur-sm px-4 py-3 shadow-xl shadow-black/8 text-xs">
+                      <p className="font-semibold text-foreground mb-1">{d.name}</p>
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-display font-bold text-sm">{formatKr(d.value)} kr./md.</span>
+                        <span className="text-muted-foreground">({pct}%)</span>
+                      </div>
+                    </div>
+                  );
+                }}
               />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={20}>
+              <Bar dataKey="value" radius={[0, 5, 5, 0]} maxBarSize={20}>
                 {donutData.sort((a, b) => b.value - a.value).slice(0, 8).map((_, idx) => (
                   <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
                 ))}
@@ -240,31 +252,46 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
           </ResponsiveContainer>
         </div>
 
-        {/* Donut — compact */}
+        {/* Donut — refined */}
         <div className="flex gap-6 items-center">
-          <div className="h-36 w-36 flex-shrink-0">
+          <div className="h-40 w-40 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={donutData} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={2} dataKey="value" strokeWidth={0}>
+                <Pie data={donutData} cx="50%" cy="50%" innerRadius={44} outerRadius={64} paddingAngle={2} dataKey="value" strokeWidth={0}>
                   {donutData.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
                 </Pie>
                 <Tooltip
-                  formatter={(val: number) => [`${formatKr(val)} kr.`, ""]}
-                  contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const d = payload[0].payload;
+                    const pct = Math.round((d.value / budget.totalExpenses) * 100);
+                    return (
+                      <div className="rounded-xl border border-border/60 bg-background/95 backdrop-blur-sm px-3 py-2 shadow-xl shadow-black/8 text-xs">
+                        <p className="font-semibold">{d.name}</p>
+                        <p className="text-muted-foreground">{formatKr(d.value)} kr. ({pct}%)</p>
+                      </div>
+                    );
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
           <div className="flex-1 space-y-1.5">
-            {donutData.map((entry, i) => (
-              <div key={entry.name} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                  <span className="text-muted-foreground text-xs">{entry.name}</span>
+            {donutData.map((entry, i) => {
+              const pct = Math.round((entry.value / budget.totalExpenses) * 100);
+              return (
+                <div key={entry.name} className="flex items-center justify-between text-sm group">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <span className="text-muted-foreground text-xs group-hover:text-foreground transition-colors">{entry.name}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-medium text-xs tabular-nums">{formatKr(entry.value)}</span>
+                    <span className="text-[10px] text-muted-foreground/50 tabular-nums">{pct}%</span>
+                  </div>
                 </div>
-                <span className="font-medium text-xs tabular-nums">{formatKr(entry.value)}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

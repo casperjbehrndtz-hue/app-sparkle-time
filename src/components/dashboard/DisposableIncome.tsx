@@ -15,7 +15,7 @@ export function DisposableIncome({ health }: Props) {
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const ringColor = score >= 75 ? "hsl(152, 55%, 40%)" : score >= 55 ? "hsl(38, 85%, 50%)" : "hsl(0, 72%, 51%)";
+  const ringColor = score >= 75 ? "#1e40af" : score >= 55 ? "#d97706" : "#dc2626";
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">

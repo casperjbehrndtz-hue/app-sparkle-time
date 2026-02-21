@@ -66,7 +66,7 @@ export const defaultConfig: WhiteLabelConfig = {
   brandName: "Kassen",
   brandTagline: "AI-drevet budgetanalyse",
   theme: {
-    primary: "152 69% 32%",
+    primary: "216 56% 22%",
     primaryForeground: "0 0% 100%",
   },
   ctaLinks: {

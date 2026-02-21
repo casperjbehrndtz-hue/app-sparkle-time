@@ -136,7 +136,7 @@ export function FremadView({ profile, budget, health }: Props) {
                 formatter={(val: number) => [`${formatKr(val)} kr.`, "Forventet formue"]}
                 contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
               />
-              <Bar dataKey="amount" fill="hsl(152, 55%, 40%)" radius={[6, 6, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="amount" fill="hsl(213, 80%, 50%)" radius={[6, 6, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
         </div>
