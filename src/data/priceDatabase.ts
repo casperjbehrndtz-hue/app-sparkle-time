@@ -106,6 +106,33 @@ export const RENT_ESTIMATES: Record<string, { solo: number; par: number }> = {
   "9000": { solo: 6500, par: 8500 },
 };
 
+// Andelsbolig-estimater (boligafgift) pr. region
+export const ANDEL_ESTIMATES: Record<string, { solo: number; par: number }> = {
+  default: { solo: 5500, par: 7000 },
+  "1000": { solo: 8500, par: 10500 },
+  "2000": { solo: 7000, par: 9000 },
+  "5000": { solo: 5500, par: 7000 },
+  "8000": { solo: 6000, par: 7500 },
+  "9000": { solo: 5000, par: 6500 },
+};
+
+// Postnummer → by-navn (udvalgte)
+export const POSTAL_NAMES: Record<string, string> = {
+  "1000": "København K", "1100": "København K", "1200": "København K", "1300": "København K",
+  "2000": "Frederiksberg", "2100": "København Ø", "2200": "København N", "2300": "København S",
+  "2400": "København NV", "2500": "Valby", "2600": "Glostrup", "2700": "Brønshøj",
+  "2800": "Kgs. Lyngby", "2900": "Hellerup", "3000": "Helsingør",
+  "4000": "Roskilde", "4200": "Slagelse", "4400": "Kalundborg", "4600": "Køge",
+  "5000": "Odense C", "5200": "Odense V", "5700": "Svendborg",
+  "6000": "Kolding", "6400": "Sønderborg", "6700": "Esbjerg", "6800": "Varde",
+  "7000": "Fredericia", "7400": "Herning", "7500": "Holstebro",
+  "8000": "Aarhus C", "8200": "Aarhus N", "8210": "Aarhus V", "8220": "Brabrand",
+  "8300": "Odder", "8400": "Ebeltoft", "8500": "Grenaa", "8600": "Silkeborg",
+  "8700": "Horsens", "8800": "Viborg", "8900": "Randers",
+  "9000": "Aalborg", "9200": "Aalborg SV", "9400": "Nørresundby", "9700": "Brønderslev",
+  "9800": "Hjørring", "9900": "Frederikshavn",
+};
+
 export function getMortgageEstimate(postalCode: string): number {
   return MORTGAGE_ESTIMATES[postalCode] ?? MORTGAGE_ESTIMATES.default;
 }
@@ -114,6 +141,22 @@ export function getRentEstimate(postalCode: string, isPar: boolean): number {
   const prefix = postalCode.substring(0, 1) + "000";
   const entry = RENT_ESTIMATES[prefix] ?? RENT_ESTIMATES.default;
   return isPar ? entry.par : entry.solo;
+}
+
+export function getAndelEstimate(postalCode: string, isPar: boolean): number {
+  const prefix = postalCode.substring(0, 1) + "000";
+  const entry = ANDEL_ESTIMATES[prefix] ?? ANDEL_ESTIMATES.default;
+  return isPar ? entry.par : entry.solo;
+}
+
+export function getPostalName(postalCode: string): string | null {
+  return POSTAL_NAMES[postalCode] ?? null;
+}
+
+export function getEstimateSource(housingType: string): string {
+  if (housingType === "ejer") return "Baseret på gennemsnitlig boligydelse for ejerboliger i området (kilde: Boligsiden/Finans Danmark 2025)";
+  if (housingType === "andel") return "Baseret på gennemsnitlig boligafgift for andelsboliger i området (kilde: ABF 2025)";
+  return "Baseret på gennemsnitlig husleje for lejeboliger i området (kilde: Danmarks Statistik 2025)";
 }
 
 export function getChildcarePrice(age: number): { label: string; price: number } {

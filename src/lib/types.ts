@@ -1,5 +1,5 @@
 export type HouseholdType = "solo" | "par";
-export type HousingType = "lejer" | "ejer";
+export type HousingType = "lejer" | "ejer" | "andel";
 
 export interface CustomExpense {
   label: string;

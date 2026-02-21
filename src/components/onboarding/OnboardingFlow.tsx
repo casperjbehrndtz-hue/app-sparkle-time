@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight } from "lucide-react";
+import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import {
   SUBSCRIPTIONS,
@@ -10,6 +10,9 @@ import {
   FITNESS,
   getMortgageEstimate,
   getRentEstimate,
+  getAndelEstimate,
+  getPostalName,
+  getEstimateSource,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, OnboardingStep, CustomExpense } from "@/lib/types";
 
@@ -205,6 +208,19 @@ function SliderInput({ value, onChange, label, min = 0, max = 100000, step = 500
   );
 }
 
+function AiTip({ text }: { text: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex gap-2.5 rounded-xl bg-primary/[0.04] border border-primary/10 px-4 py-3"
+    >
+      <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+      <p className="text-xs text-muted-foreground leading-relaxed">{text}</p>
+    </motion.div>
+  );
+}
+
 // ─── Main ──────────────────────────────────────────────────
 
 export function OnboardingFlow({ onComplete }: Props) {
@@ -371,7 +387,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── INCOME ──────────────────────────────
   if (step === "income") {
     return (
-      <StepShell step={step} title="Hvad er jeres indkomst?" subtitle="Månedlig udbetalt efter skat." onBack={goBack}>
+      <StepShell step={step} title={isPar ? "Hvad er jeres indkomst?" : "Hvad er din indkomst?"} subtitle="Månedlig udbetalt efter skat." onBack={goBack}>
         <div className="space-y-8">
           <SliderInput
             value={profile.income} onChange={(v) => update({ income: v })}
@@ -389,6 +405,10 @@ export function OnboardingFlow({ onComplete }: Props) {
               {formatKr(profile.income + (isPar ? profile.partnerIncome : 0))} kr.
             </span>
           </div>
+          <AiTip text={isPar 
+            ? `Gennemsnitlig husstandsindkomst for par i Danmark er ca. 52.000 kr./md. efter skat.`
+            : `Gennemsnitlig indkomst for enlige i Danmark er ca. 27.000 kr./md. efter skat.`
+          } />
           <ContinueButton onClick={goNext} disabled={profile.income < 1000} />
         </div>
       </StepShell>
@@ -397,36 +417,49 @@ export function OnboardingFlow({ onComplete }: Props) {
 
   // ─── HOUSING ─────────────────────────────
   if (step === "housing") {
+    const postalName = profile.postalCode.length === 4 ? getPostalName(profile.postalCode) : null;
+    const sourceNote = profile.postalCode.length === 4 ? getEstimateSource(profile.housingType) : null;
+
     const handlePostalChange = (val: string) => {
       const clean = val.replace(/\D/g, "").slice(0, 4);
       update({ postalCode: clean });
       if (clean.length === 4) {
         if (profile.housingType === "ejer") {
           update({ postalCode: clean, mortgageAmount: getMortgageEstimate(clean) });
+        } else if (profile.housingType === "andel") {
+          update({ postalCode: clean, rentAmount: getAndelEstimate(clean, isPar) });
         } else {
           update({ postalCode: clean, rentAmount: getRentEstimate(clean, isPar) });
         }
       }
     };
 
+    const handleHousingType = (type: "lejer" | "ejer" | "andel") => {
+      if (type === "ejer") {
+        update({ housingType: type, hasMortgage: true });
+        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, mortgageAmount: getMortgageEstimate(profile.postalCode) });
+      } else if (type === "andel") {
+        update({ housingType: type, hasMortgage: false });
+        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getAndelEstimate(profile.postalCode, isPar) });
+      } else {
+        update({ housingType: type, hasMortgage: false });
+        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getRentEstimate(profile.postalCode, isPar) });
+      }
+    };
+
     return (
       <StepShell step={step} title="Boligsituation" subtitle="Vi estimerer ud fra postnummer — justér frit." onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {[
               { type: "lejer" as const, emoji: "🏢", label: "Lejer" },
+              { type: "andel" as const, emoji: "🏘️", label: "Andel" },
               { type: "ejer" as const, emoji: "🏡", label: "Ejer" },
             ].map((opt) => (
               <OptionCard
                 key={opt.type}
                 active={profile.housingType === opt.type}
-                onClick={() => {
-                  update({ housingType: opt.type, hasMortgage: opt.type === "ejer" });
-                  if (profile.postalCode.length === 4) {
-                    if (opt.type === "ejer") update({ housingType: opt.type, hasMortgage: true, mortgageAmount: getMortgageEstimate(profile.postalCode) });
-                    else update({ housingType: opt.type, hasMortgage: false, rentAmount: getRentEstimate(profile.postalCode, isPar) });
-                  }
-                }}
+                onClick={() => handleHousingType(opt.type)}
                 icon={opt.emoji} label={opt.label}
               />
             ))}
@@ -441,14 +474,27 @@ export function OnboardingFlow({ onComplete }: Props) {
               placeholder="F.eks. 2100"
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30"
             />
+            {postalName && (
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary font-medium mt-1.5 ml-1">
+                📍 {postalName}
+              </motion.p>
+            )}
           </div>
 
           {profile.housingType === "lejer" && (
             <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig husleje" min={2000} max={25000} step={250} />
           )}
+          {profile.housingType === "andel" && (
+            <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig boligafgift" min={1500} max={20000} step={250} />
+          )}
           {profile.housingType === "ejer" && (
             <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
           )}
+
+          {sourceNote && (
+            <AiTip text={`${sourceNote}${postalName ? ` (${postalName})` : ""}. Ret beløbet ovenfor hvis det ikke passer.`} />
+          )}
+
           <ContinueButton onClick={goNext} />
         </div>
       </StepShell>
@@ -458,7 +504,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── CHILDREN ────────────────────────────
   if (step === "children") {
     return (
-      <StepShell step={step} title="Har I børn?" subtitle="Vi finder institutionspriser automatisk." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={isPar ? "Har I børn?" : "Har du børn?"} subtitle="Vi finder institutionspriser automatisk." onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
             <OptionCard active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label="Ingen børn" />
@@ -497,6 +543,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               )}
             </motion.div>
           )}
+          <AiTip text="Institutionspriser er hentet fra kommunale gennemsnit i Danmark 2025. Vuggestue ca. 3.800 kr., børnehave ca. 2.600 kr., SFO ca. 2.100 kr./md." />
           <ContinueButton onClick={() => { if (profile.hasChildren) update({ childrenAges: childAgeInputs }); goNext(); }} />
         </div>
       </StepShell>
@@ -597,6 +644,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
+          <AiTip text="💡 Har du husket licens, kontaktlinser, medicin eller andre faste udgifter? Tilføj dem under 'Egne udgifter' ovenfor." />
           <ContinueButton onClick={goNext} label="Se overblik" />
         </div>
       </StepShell>

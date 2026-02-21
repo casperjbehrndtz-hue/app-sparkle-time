@@ -21,6 +21,13 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
       amount: profile.mortgageAmount,
       colorVar: "--kassen-blue",
     });
+  } else if (profile.housingType === "andel" && profile.rentAmount > 0) {
+    fixedExpenses.push({
+      category: "Bolig",
+      label: "Boligafgift (andel)",
+      amount: profile.rentAmount,
+      colorVar: "--kassen-blue",
+    });
   } else if (profile.housingType === "lejer" && profile.rentAmount > 0) {
     fixedExpenses.push({
       category: "Bolig",
