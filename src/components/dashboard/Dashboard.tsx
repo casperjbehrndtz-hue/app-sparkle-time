@@ -82,7 +82,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}>
             {activeTab === "nu" && <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />}
-            {activeTab === "fremad" && <FremadView profile={profile} budget={budget} />}
+            {activeTab === "fremad" && <FremadView profile={profile} budget={budget} health={health} />}
             {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
           </motion.div>

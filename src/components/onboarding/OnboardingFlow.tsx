@@ -25,7 +25,7 @@ function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 const defaultProfile: BudgetProfile = {
   householdType: "solo", income: 30000, partnerIncome: 0, postalCode: "",
-  housingType: "lejer", hasMortgage: false, rentAmount: 0, mortgageAmount: 0,
+  housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0,
   hasChildren: false, childrenAges: [],
   hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
   hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
@@ -349,6 +349,28 @@ export function OnboardingFlow({ onComplete }: Props) {
                   <p className="text-xs text-muted-foreground leading-relaxed">{feat.desc}</p>
                 </div>
               ))}
+            </motion.div>
+
+            {/* Social proof */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.5 }}
+              className="mt-12 text-center"
+            >
+              <p className="text-[11px] text-muted-foreground uppercase tracking-widest mb-5">Hvad andre siger</p>
+              <div className="grid md:grid-cols-3 gap-3">
+                {[
+                  { quote: "Jeg fandt 3.200 kr. jeg ikke vidste jeg brugte. På 3 minutter.", name: "Line, 34", location: "Aarhus" },
+                  { quote: "Vi tog rapporten med til banken. Rådgiveren var imponeret.", name: "Mikkel & Sarah", location: "København" },
+                  { quote: "Endelig et budget-værktøj der ikke kræver et regneark-kursus.", name: "Thomas, 28", location: "Odense" },
+                ].map((t) => (
+                  <div key={t.name} className="rounded-xl border border-border p-4 text-left">
+                    <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
+                    <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
+                  </div>
+                ))}
+              </div>
             </motion.div>
           </div>
         </div>

@@ -62,6 +62,25 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
   return (
     <div className="space-y-4">
 
+      {/* AI Insight - Always visible at top */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-xl bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] border border-primary/15 p-4"
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Zap className="w-4 h-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-primary/70 mb-1">AI-indsigt</p>
+            <p className="text-sm text-foreground leading-relaxed">
+              {generatePersonalInsight(profile, budget, health)}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Proactive Alerts */}
       {alerts.length > 0 && (
         <div className="space-y-2">
@@ -250,7 +269,6 @@ interface Alert {
 function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: HealthMetrics): Alert[] {
   const alerts: Alert[] = [];
 
-  // Critical: negative cash flow
   if (budget.disposableIncome < 0) {
     alerts.push({
       level: "critical",
@@ -259,7 +277,6 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
     });
   }
 
-  // Warning: high housing ratio
   if (health.debtRatio > 35) {
     alerts.push({
       level: "warning",
@@ -268,7 +285,6 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
     });
   }
 
-  // Warning: too many subscriptions
   const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
   if (streamCount >= 4) {
     alerts.push({
@@ -278,7 +294,6 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
     });
   }
 
-  // Insight: savings potential
   if (health.savingsRate >= 20 && budget.disposableIncome > 3000) {
     alerts.push({
       level: "insight",
@@ -293,4 +308,34 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
   }
 
   return alerts.slice(0, 3);
+}
+
+// Personal AI insight generator
+function generatePersonalInsight(profile: BudgetProfile, budget: ComputedBudget, health: HealthMetrics): string {
+  const isPar = profile.householdType === "par";
+  const freeCash = budget.disposableIncome;
+  
+  if (freeCash < 0) {
+    return `${isPar ? "I" : "Du"} bruger mere end ${isPar ? "I" : "du"} tjener. Det vigtigste lige nu er at finde ${formatKr(Math.abs(freeCash))} kr. at skære — start med de variable udgifter.`;
+  }
+  
+  if (health.debtRatio > 40) {
+    return `${isPar ? "Jeres" : "Din"} boligudgift er ${health.debtRatio}% af indkomsten. Det er over grænsen. Overvej at refinansiere — det kan frigøre ${formatKr(Math.round(budget.totalIncome * (health.debtRatio - 30) / 100))} kr./md.`;
+  }
+  
+  if (health.savingsRate >= 25) {
+    const fiveYearProjection = Math.round(freeCash * 0.4 * 12 * 5 * 1.35); // 7% compounded rough
+    return `Med ${health.savingsRate}% opsparingsrate er ${isPar ? "I" : "du"} i top 15% af danske husstande. Investeret fornuftigt kan det blive ${formatKr(fiveYearProjection)} kr. på 5 år.`;
+  }
+  
+  if (health.savingsRate >= 15) {
+    return `${isPar ? "I" : "Du"} sparer ${health.savingsRate}% op — det er solidt. Næste mål: nå 20% ved at flytte ${formatKr(Math.round((0.20 - health.savingsRate / 100) * budget.totalIncome))} kr. mere til opsparing.`;
+  }
+
+  const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
+  if (streamCount >= 3) {
+    return `${streamCount} streamingtjenester koster ${formatKr(streamCount * 120)} kr./md. De fleste ser kun 1-2 regelmæssigt. Drop resten og flyt pengene til opsparing.`;
+  }
+
+  return `${isPar ? "Jeres" : "Dit"} frihedstal er ${formatKr(freeCash)} kr./md. — det er ${isPar ? "jeres" : "dit"} reelle økonomiske råderum efter alle faste udgifter.`;
 }

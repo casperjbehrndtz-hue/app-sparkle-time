@@ -69,17 +69,28 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   };
 
   // --- Health Score (0-100) ---
-  // Vægtet: buffer 25%, gældsgrad 25%, opsparingsrate 30%, stabilitet 20%
-  const bufferScore = Math.min(100, bufferMonths * 15); // 6+ mdr = 90+
-  const debtScore = debtRatio <= 25 ? 100 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
-  const savingsScore = Math.min(100, savingsRate * 4); // 25%+ = 100
+  // Vægtet: buffer 20%, gældsgrad 20%, opsparingsrate 25%, stabilitet 15%, diversitet 20%
+  const bufferScore = Math.min(100, bufferMonths * 12); // 8+ mdr = ~100
+  const debtScore = debtRatio <= 0 ? 40 : debtRatio <= 25 ? 90 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
+  // Note: debtRatio 0 = likely missing housing data → penalize
+  const savingsScore = savingsRate >= 30 ? 85 : savingsRate >= 20 ? 95 : savingsRate >= 15 ? 80 : Math.min(75, savingsRate * 5);
+  // Sweet spot is 15-25%. Over 30% may mean underreporting expenses.
   
-  const score = Math.round(
-    bufferScore * 0.25 +
-    debtScore * 0.25 +
-    savingsScore * 0.30 +
-    stabilityScore * 0.20
+  // Diversitet: straffer for manglende forsikring, opsparing, buffer
+  const hasInsuranceCheck = profile.hasInsurance ? 1 : 0;
+  const hasSavingsCheck = savingsRate >= 10 ? 1 : 0;
+  const hasBufferCheck = bufferMonths >= 3 ? 1 : 0;
+  const diversityScore = Math.round(((hasInsuranceCheck + hasSavingsCheck + hasBufferCheck) / 3) * 100);
+  
+  const rawScore = Math.round(
+    bufferScore * 0.20 +
+    debtScore * 0.20 +
+    savingsScore * 0.25 +
+    stabilityScore * 0.15 +
+    diversityScore * 0.20
   );
+  // Cap at 92 to avoid unrealistic "perfect" scores with estimated data
+  const score = Math.min(92, rawScore);
 
   const label = score >= 75 ? "Stærk" : score >= 55 ? "OK" : score >= 35 ? "Sårbar" : "Kritisk";
   const color = score >= 75 ? "text-primary" : score >= 55 ? "text-kassen-gold" : "text-destructive";
