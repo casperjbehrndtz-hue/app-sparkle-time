@@ -13,6 +13,7 @@ import {
   getAndelEstimate,
   getPostalName,
   getEstimateSource,
+  getPropertyValueEstimate,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, OnboardingStep, CustomExpense } from "@/lib/types";
 
@@ -25,7 +26,7 @@ function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 const defaultProfile: BudgetProfile = {
   householdType: "solo", income: 30000, partnerIncome: 0, postalCode: "",
-  housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0,
+  housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
   hasChildren: false, childrenAges: [],
   hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
   hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
@@ -447,7 +448,7 @@ export function OnboardingFlow({ onComplete }: Props) {
       update({ postalCode: clean });
       if (clean.length === 4) {
         if (profile.housingType === "ejer") {
-          update({ postalCode: clean, mortgageAmount: getMortgageEstimate(clean) });
+          update({ postalCode: clean, mortgageAmount: getMortgageEstimate(clean), propertyValue: getPropertyValueEstimate(clean) });
         } else if (profile.housingType === "andel") {
           update({ postalCode: clean, rentAmount: getAndelEstimate(clean, isPar) });
         } else {
@@ -458,13 +459,14 @@ export function OnboardingFlow({ onComplete }: Props) {
 
     const handleHousingType = (type: "lejer" | "ejer" | "andel") => {
       if (type === "ejer") {
-        update({ housingType: type, hasMortgage: true });
-        if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, mortgageAmount: getMortgageEstimate(profile.postalCode) });
+        const propVal = profile.postalCode.length === 4 ? getPropertyValueEstimate(profile.postalCode) : 2500000;
+        const mortVal = profile.postalCode.length === 4 ? getMortgageEstimate(profile.postalCode) : 8500;
+        update({ housingType: type, hasMortgage: true, mortgageAmount: mortVal, propertyValue: propVal, interestRate: 4.0 });
       } else if (type === "andel") {
-        update({ housingType: type, hasMortgage: true, mortgageAmount: profile.mortgageAmount || 3500 });
+        update({ housingType: type, hasMortgage: true, mortgageAmount: profile.mortgageAmount || 3500, propertyValue: 0, interestRate: 0 });
         if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, rentAmount: getAndelEstimate(profile.postalCode, isPar), mortgageAmount: profile.mortgageAmount || 3500 });
       } else {
-        update({ housingType: type, hasMortgage: false });
+        update({ housingType: type, hasMortgage: false, propertyValue: 0, interestRate: 0 });
         if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getRentEstimate(profile.postalCode, isPar) });
       }
     };
@@ -513,7 +515,28 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           )}
           {profile.housingType === "ejer" && (
-            <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
+            <div className="space-y-5">
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
+              <SliderInput value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label="Boligens estimerede værdi" min={500000} max={10000000} step={100000} />
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">Rente på lån</span>
+                  <div className="flex items-baseline gap-1 bg-muted rounded-lg px-3 py-1.5">
+                    <span className="font-display font-bold text-lg">{profile.interestRate.toFixed(1)}</span>
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
+                </div>
+                <input
+                  type="range" min={0.5} max={8} step={0.25} value={profile.interestRate}
+                  onChange={(e) => update({ interestRate: parseFloat(e.target.value) })}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
+                  <span>0,5%</span>
+                  <span>8%</span>
+                </div>
+              </div>
+            </div>
           )}
 
           {sourceNote && (

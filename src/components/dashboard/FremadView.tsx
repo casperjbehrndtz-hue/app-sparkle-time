@@ -61,12 +61,16 @@ const typeStyles = {
 };
 
 export function FremadView({ profile, budget, health }: Props) {
-  const [rentRate, setRentRate] = useState(5.0);
+  const [rentRate, setRentRate] = useState(profile.interestRate || 5.0);
   const events = generateEvents(profile);
 
   const mortgageBase = budget.fixedExpenses.find((e) => e.label.includes("oliglån"))?.amount ?? 0;
-  const rentImpact = mortgageBase > 0 ? Math.round(((rentRate - 5.0) * 0.005) * mortgageBase) : 0;
+  const rentImpact = mortgageBase > 0 ? Math.round(((rentRate - (profile.interestRate || 5.0)) * 0.005) * mortgageBase) : 0;
   const simulatedDisposable = budget.disposableIncome - rentImpact;
+
+  // Net worth estimate (for ejere)
+  const estimatedDebt = profile.propertyValue > 0 ? Math.round(profile.propertyValue * 0.7) : 0; // antag 70% belåning
+  const netWorth = profile.propertyValue > 0 ? profile.propertyValue - estimatedDebt : 0;
 
   // Savings projections
   const monthlySavings = Math.max(0, budget.disposableIncome * 0.3);
@@ -126,6 +130,37 @@ export function FremadView({ profile, budget, health }: Props) {
           </p>
         </div>
       </motion.div>
+
+      {/* Net Worth (for ejere) */}
+      {profile.propertyValue > 0 && (
+        <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-7 h-7 rounded-lg bg-kassen-gold/10 flex items-center justify-center">
+              <TrendingUp className="w-3.5 h-3.5 text-kassen-gold" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Estimeret formue (bolig)</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+              <p className="text-[10px] text-muted-foreground mb-1">Boligværdi</p>
+              <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue)} kr.</p>
+            </div>
+            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+              <p className="text-[10px] text-muted-foreground mb-1">Est. gæld (~70%)</p>
+              <p className="font-display font-bold text-sm text-destructive">{formatKr(estimatedDebt)} kr.</p>
+            </div>
+            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+              <p className="text-[10px] text-muted-foreground mb-1">Net worth</p>
+              <p className="font-display font-bold text-sm text-primary">{formatKr(netWorth)} kr.</p>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-3">
+            💡 Rente: {profile.interestRate.toFixed(1)}% · Boligværdi er et estimat — justér i din profil.
+          </p>
+        </motion.div>
+      )}
 
       {/* Goals / Mål */}
       <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
@@ -200,7 +235,7 @@ export function FremadView({ profile, budget, health }: Props) {
             style={{ accentColor: "hsl(var(--primary))" }}
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>1%</span><span>Aktuel ~5%</span><span>10%</span>
+            <span>1%</span><span>Aktuel ~{(profile.interestRate || 5.0).toFixed(1)}%</span><span>10%</span>
           </div>
           {simulatedDisposable < 3000 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">

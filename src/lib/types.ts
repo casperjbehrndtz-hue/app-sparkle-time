@@ -15,6 +15,8 @@ export interface BudgetProfile {
   hasMortgage: boolean;
   rentAmount: number; // editable rent
   mortgageAmount: number; // editable mortgage estimate
+  propertyValue: number; // estimated property value for ejer
+  interestRate: number; // mortgage interest rate %
   hasChildren: boolean;
   childrenAges: number[];
   // Subscriptions
