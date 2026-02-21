@@ -70,12 +70,12 @@ export const FOOD = {
   per_child: 1200,
 };
 
-// Kommunale institution takster (gennemsnit DK)
+// Kommunale institution takster (landsgennemsnit DK 2025, kilde: DST/KL)
 export const CHILDCARE = {
-  age_0_2: { label: "Vuggestue (0-2 år)", price: 3800 },
-  age_3_5: { label: "Børnehave (3-5 år)", price: 2600 },
-  age_6_9: { label: "SFO (6-9 år)", price: 2100 },
-  age_10_14: { label: "Fritidsklub (10-14 år)", price: 900 },
+  age_0_2: { label: "Vuggestue (0-2 år)", price: 4300 },
+  age_3_5: { label: "Børnehave (3-5 år)", price: 2450 },
+  age_6_9: { label: "SFO (6-9 år)", price: 2200 },
+  age_10_14: { label: "Fritidsklub (10-14 år)", price: 850 },
   age_15_plus: { label: "Ingen institutionsudgift (15+ år)", price: 0 },
 };
 

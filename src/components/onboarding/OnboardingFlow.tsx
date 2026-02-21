@@ -546,7 +546,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               )}
             </motion.div>
           )}
-          <AiTip text="Institutionspriser er hentet fra kommunale gennemsnit i Danmark 2025. Vuggestue ca. 3.800 kr., børnehave ca. 2.600 kr., SFO ca. 2.100 kr./md." />
+          <AiTip text="Institutionspriser er landsgennemsnit 2025 (kilde: KL/DST). Vuggestue ca. 4.300 kr., børnehave ca. 2.450 kr., SFO ca. 2.200 kr./md. Din kommune kan afvige — ret beløbet i dashboardet." />
           <ContinueButton onClick={() => { if (profile.hasChildren) update({ childrenAges: childAgeInputs }); goNext(); }} />
         </div>
       </StepShell>
