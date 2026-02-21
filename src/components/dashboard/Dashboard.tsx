@@ -53,18 +53,18 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <button onClick={() => setShowCharts(true)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <BarChart3 className="w-3 h-3" /> Diagrammer
+              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">Diagrammer</span><span className="sm:hidden">Grafer</span>
             </button>
             <button onClick={() => setShowReport(true)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <FileText className="w-3 h-3" /> Rapport
             </button>
             <button onClick={onReset}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <RotateCcw className="w-3 h-3" /> Ny beregning
+              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Ny beregning</span><span className="sm:hidden">Nulstil</span>
             </button>
           </div>
         </div>

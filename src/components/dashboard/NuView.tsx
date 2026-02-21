@@ -253,8 +253,8 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
         </div>
 
         {/* Donut — refined */}
-        <div className="flex gap-6 items-center">
-          <div className="h-40 w-40 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center">
+          <div className="h-36 w-36 sm:h-40 sm:w-40 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={donutData} cx="50%" cy="50%" innerRadius={44} outerRadius={64} paddingAngle={2} dataKey="value" strokeWidth={0}>

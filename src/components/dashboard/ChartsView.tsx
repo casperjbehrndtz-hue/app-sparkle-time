@@ -79,7 +79,7 @@ function SankeyChart({ budget }: { budget: ComputedBudget }) {
   return (
     <div className="space-y-4">
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {[
           { label: "Indkomst", value: budget.totalIncome, color: "text-kassen-blue" },
           { label: "Udgifter", value: budget.totalExpenses, color: "text-destructive" },
@@ -92,9 +92,9 @@ function SankeyChart({ budget }: { budget: ComputedBudget }) {
         ))}
       </div>
 
-      <div className="h-[380px]">
+      <div className="h-[320px] sm:h-[380px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }} barCategoryGap="20%">
+          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }} barCategoryGap="20%">
             <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
             <XAxis
               type="number"
@@ -106,7 +106,7 @@ function SankeyChart({ budget }: { budget: ComputedBudget }) {
             <YAxis
               type="category"
               dataKey="name"
-              width={105}
+              width={85}
               tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
               axisLine={false}
               tickLine={false}
@@ -189,9 +189,9 @@ function PlannedVsActualChart({ budget }: { budget: ComputedBudget }) {
         </div>
       )}
 
-      <div className="h-[380px]">
+      <div className="h-[320px] sm:h-[380px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ left: 0, right: 10, top: 5, bottom: 0 }} barGap={2} barCategoryGap="25%">
+          <BarChart data={data} margin={{ left: 0, right: 8, top: 5, bottom: 0 }} barGap={2} barCategoryGap="25%">
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
             <XAxis
               dataKey="name"
@@ -274,7 +274,7 @@ function DisposableOverTimeChart({ budget }: { budget: ComputedBudget }) {
   return (
     <div className="space-y-4">
       {/* Summary strip */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {[
           { label: "Gennemsnit", value: avg },
           { label: "Laveste (dec)", value: min },
@@ -287,7 +287,7 @@ function DisposableOverTimeChart({ budget }: { budget: ComputedBudget }) {
         ))}
       </div>
 
-      <div className="h-[340px]">
+      <div className="h-[280px] sm:h-[340px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ left: 0, right: 10, top: 10, bottom: 0 }}>
             <defs>
@@ -358,7 +358,7 @@ export function ChartsView({ profile, budget, onBack }: Props) {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5">
+      <main className="max-w-2xl mx-auto px-3 sm:px-5 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {/* Chart type selector */}
         <div className="flex gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border/50">
           {CHART_TABS.map((tab) => {
@@ -387,7 +387,7 @@ export function ChartsView({ profile, budget, onBack }: Props) {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-2xl border border-border/60 bg-background p-5 shadow-sm"
+          className="rounded-2xl border border-border/60 bg-background p-3 sm:p-5 shadow-sm"
         >
           <div className="flex items-center gap-2 mb-5">
             <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">

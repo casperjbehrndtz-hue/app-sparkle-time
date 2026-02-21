@@ -264,15 +264,15 @@ export function OnboardingFlow({ onComplete }: Props) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         {/* Nav — dark */}
-        <nav className="bg-hero-navy px-6 py-4">
+        <nav className="bg-hero-navy px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
-            <span className="font-display font-black text-xl text-white">{config.brandName}</span>
-            <div className="flex items-center gap-6">
-              <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Produkter</button>
-              <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden md:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Sådan virker det</button>
+            <span className="font-display font-black text-lg sm:text-xl text-white">{config.brandName}</span>
+            <div className="flex items-center gap-3 sm:gap-6">
+              <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Produkter</button>
+              <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Sådan virker det</button>
               <button
                 onClick={() => setStep("household")}
-                className="px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors"
+                className="px-4 sm:px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors"
               >
                 {config.hero.ctaLabel}
               </button>
@@ -282,17 +282,17 @@ export function OnboardingFlow({ onComplete }: Props) {
 
         {/* Hero — dark navy */}
         <section className="bg-hero-navy">
-          <div className="max-w-5xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
-              <h1 className="font-display font-black text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-5">
+              <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
                 {config.hero.title}<br />
                 <span className="text-white">{config.hero.titleHighlight}</span>
               </h1>
-              <p className="text-white/60 text-base md:text-lg leading-relaxed mb-8 max-w-md">
+              <p className="text-white/60 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-md">
                 {config.hero.subtitle}
               </p>
               <button
@@ -324,7 +324,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           transition={{ delay: 0.3, duration: 0.4 }}
           className="border-b border-border bg-background"
         >
-          <div className="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10">
             {[
               { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: "Bygget til dansk finanslovgivning" },
               { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: "Udfyldt på 3 minutter" },
@@ -339,16 +339,16 @@ export function OnboardingFlow({ onComplete }: Props) {
         </motion.div>
 
         {/* Stats section — "Sådan virker det" */}
-        <section id="saadan-virker-det" className="bg-background py-16 scroll-mt-16">
-          <div className="max-w-3xl mx-auto px-6 text-center">
-            <h2 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-3">
+        <section id="saadan-virker-det" className="bg-background py-10 sm:py-16 scroll-mt-16">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <h2 className="font-display font-bold text-xl sm:text-2xl md:text-3xl text-foreground mb-3">
               Få overblik over din økonomi
             </h2>
             <p className="text-muted-foreground text-base mb-12 max-w-md mx-auto">
               Få hjælp til din økonomi og det, der er vigtigt for dig, din familie og din bolig.
             </p>
 
-            <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto">
               {config.hero.stats.map((stat) => (
                 <motion.div
                   key={stat.label}
@@ -358,7 +358,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                   transition={{ duration: 0.5 }}
                   className="text-center"
                 >
-                  <div className="font-display font-bold text-3xl md:text-4xl text-foreground">{stat.value}</div>
+                  <div className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">{stat.value}</div>
                   <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
                 </motion.div>
               ))}
@@ -367,17 +367,17 @@ export function OnboardingFlow({ onComplete }: Props) {
         </section>
 
         {/* Feature cards — "Produkter" */}
-        <section id="produkter" className="bg-muted/30 py-16 scroll-mt-16">
-          <div className="max-w-5xl mx-auto px-6">
+        <section id="produkter" className="bg-muted/30 py-10 sm:py-16 scroll-mt-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="grid md:grid-cols-4 grid-rows-2 gap-5"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 sm:gap-5"
             >
               {/* Card 1 — image */}
-              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg">
+              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
                 <img src={featureAdvisor} alt="Rådgivning" className="w-full h-full object-cover" />
               </div>
               {/* Card 2 — text */}
@@ -387,7 +387,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                 <p className="text-sm text-muted-foreground leading-relaxed">Vi gennemgår streaming, forsikring og transport — og viser hvad der æder dit budget.</p>
               </div>
               {/* Card 3 — image */}
-              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg">
+              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
                 <img src={featureFamily} alt="Familie økonomi" className="w-full h-full object-cover" />
               </div>
               {/* Card 4 — text */}
@@ -415,9 +415,9 @@ export function OnboardingFlow({ onComplete }: Props) {
         {/* Social proof — with stars */}
         {config.testimonials && config.testimonials.length > 0 && (
           <section className="bg-background py-16">
-            <div className="max-w-5xl mx-auto px-6">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
               <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">Hvad andre siger</p>
-              <div className="grid md:grid-cols-3 gap-5">
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
                 {config.testimonials.map((t) => (
                   <motion.div
                     key={t.name}
@@ -464,8 +464,8 @@ export function OnboardingFlow({ onComplete }: Props) {
 
         {/* Footer — expanded */}
         <footer className="bg-foreground/[0.03] border-t border-border py-10">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
               <div>
                 <span className="font-display font-black text-base text-foreground">{config.brandName}</span>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
