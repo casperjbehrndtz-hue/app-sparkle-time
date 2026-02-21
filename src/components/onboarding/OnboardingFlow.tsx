@@ -260,7 +260,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   const goBack = () => { const idx = getStepIndex(step); if (idx > 1) setStep(STEPS[idx - 1]); };
 
   // ─── WELCOME ─────────────────────────────
-  if (step === "welcome") {
+   if (step === "welcome") {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         {/* Nav — dark */}
@@ -297,20 +297,20 @@ export function OnboardingFlow({ onComplete }: Props) {
               </p>
               <button
                 onClick={() => setStep("household")}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-white/30 text-white text-sm font-semibold hover:bg-white/10 transition-colors"
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-all shadow-lg shadow-black/20"
               >
                 {config.hero.ctaLabel} <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
 
-            {/* Right side — abstract visual block */}
+            {/* Right side — hero image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="hidden md:block"
             >
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/30">
                 <img src={heroCouple} alt="Par der planlægger økonomi sammen" className="w-full h-full object-cover" />
               </div>
             </motion.div>
@@ -338,7 +338,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         </motion.div>
 
-        {/* Stats section — white background */}
+        {/* Stats section — white background with animated numbers */}
         <section className="bg-background py-16">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <h2 className="font-display font-bold text-2xl md:text-3xl text-foreground mb-3">
@@ -350,52 +350,60 @@ export function OnboardingFlow({ onComplete }: Props) {
 
             <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
               {config.hero.stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="font-display font-bold text-2xl text-foreground">{stat.value}</div>
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5 }}
+                  className="text-center"
+                >
+                  <div className="font-display font-bold text-3xl md:text-4xl text-foreground">{stat.value}</div>
                   <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Feature cards — ParFinans grid style with images */}
+        {/* Feature cards — clean grid with shadows */}
         <section className="bg-muted/30 py-16">
           <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="grid md:grid-cols-4 grid-rows-2 gap-4"
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="grid md:grid-cols-4 grid-rows-2 gap-5"
             >
               {/* Card 1 — image */}
-              <div className="rounded-2xl overflow-hidden md:row-span-2">
+              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg">
                 <img src={featureAdvisor} alt="Rådgivning" className="w-full h-full object-cover" />
               </div>
               {/* Card 2 — text */}
-              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+              <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🔍</span>
                 <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Find skjulte udgifter</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">Vi gennemgår streaming, forsikring og transport — og viser hvad der æder dit budget.</p>
               </div>
               {/* Card 3 — image */}
-              <div className="rounded-2xl overflow-hidden md:row-span-2">
+              <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg">
                 <img src={featureFamily} alt="Familie økonomi" className="w-full h-full object-cover" />
               </div>
               {/* Card 4 — text */}
-              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+              <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🤖</span>
                 <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">AI-rådgivning</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">Personlige sparetips baseret på din unikke situation — ikke generiske råd.</p>
               </div>
               {/* Card 5 — text */}
-              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+              <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">📊</span>
                 <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Sammenlign med andre</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">Se din økonomi i forhold til lignende familier i dit område.</p>
               </div>
               {/* Card 6 — text */}
-              <div className="rounded-2xl bg-background border border-border p-6 hover:border-primary/20 transition-colors hover:shadow-sm">
+              <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🏦</span>
                 <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Bankmøde-rapport</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">Tag en professionel rapport med til din bankrådgiver.</p>
@@ -404,47 +412,92 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         </section>
 
-        {/* Social proof */}
+        {/* Social proof — with stars */}
         {config.testimonials && config.testimonials.length > 0 && (
           <section className="bg-background py-16">
             <div className="max-w-5xl mx-auto px-6">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6 text-center">Hvad andre siger</p>
-              <div className="grid md:grid-cols-3 gap-4">
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">Hvad andre siger</p>
+              <div className="grid md:grid-cols-3 gap-5">
                 {config.testimonials.map((t) => (
-                  <div key={t.name} className="rounded-2xl border border-border p-5">
-                    <p className="text-sm text-foreground leading-relaxed mb-3">"{t.quote}"</p>
-                    <p className="text-xs text-muted-foreground">— {t.name}, {t.location}</p>
-                  </div>
+                  <motion.div
+                    key={t.name}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
+                    className="rounded-2xl border border-border/60 p-6 bg-background shadow-sm"
+                  >
+                    <div className="flex gap-0.5 mb-3">
+                      {[1,2,3,4,5].map(s => <span key={s} className="text-kassen-gold text-sm">★</span>)}
+                    </div>
+                    <p className="text-sm text-foreground leading-relaxed mb-4">"{t.quote}"</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                        {t.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{t.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.location}</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </section>
         )}
 
-        {/* Bottom CTA */}
-        <section className="bg-hero-navy py-16">
+        {/* Bottom CTA — solid white button */}
+        <section className="bg-hero-navy py-20">
           <div className="max-w-lg mx-auto px-6 text-center">
-            <h2 className="font-display font-bold text-2xl text-white mb-3">Klar til at komme i gang?</h2>
+            <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">Klar til at komme i gang?</h2>
             <p className="text-white/60 text-sm mb-8">Det tager kun 3 minutter — og koster ingenting.</p>
             <button
               onClick={() => setStep("household")}
-              className="px-8 py-3.5 rounded-xl bg-white text-hero-navy font-semibold text-base hover:bg-white/90 transition-colors shadow-lg"
+              className="px-10 py-4 rounded-xl bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20"
             >
-              {config.hero.ctaLabel} <ArrowRight className="w-4 h-4 inline ml-1" />
+              {config.hero.ctaLabel} <ArrowRight className="w-4 h-4 inline ml-1.5" />
             </button>
-            <p className="text-white/40 text-[11px] mt-4">Ingen login · Ingen data deles · Alt gemmes lokalt</p>
+            <p className="text-white/40 text-[11px] mt-5">Ingen login · Ingen data deles · Alt gemmes lokalt</p>
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="bg-background border-t border-border py-6">
-          <div className="max-w-5xl mx-auto px-6 text-center space-y-2">
-            {config.footer?.disclaimerText && (
-              <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
-            )}
-            <p className="text-[10px] text-muted-foreground">
-              {config.footer?.text || `© 2026 ${config.brandName}`}
-            </p>
+        {/* Footer — expanded */}
+        <footer className="bg-foreground/[0.03] border-t border-border py-10">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid md:grid-cols-3 gap-8 mb-8">
+              <div>
+                <span className="font-display font-black text-base text-foreground">{config.brandName}</span>
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                  Få det fulde overblik over din økonomi. Gratis, privat og bygget til danske forhold.
+                </p>
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Produkt</h4>
+                <ul className="space-y-2 text-xs text-muted-foreground">
+                  <li className="hover:text-foreground transition-colors cursor-default">Budgetberegner</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">AI-rådgivning</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">Nabo-sammenligning</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">Bankmøde-rapport</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Information</h4>
+                <ul className="space-y-2 text-xs text-muted-foreground">
+                  <li className="hover:text-foreground transition-colors cursor-default">Privatlivspolitik</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">Vilkår & betingelser</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">Kontakt</li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-2">
+              {config.footer?.disclaimerText && (
+                <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                {config.footer?.text || `© 2026 ${config.brandName}. Alle rettigheder forbeholdes.`}
+              </p>
+            </div>
           </div>
         </footer>
       </div>
