@@ -15,14 +15,14 @@ interface Props {
 }
 
 const COLORS = [
-  "hsl(150, 100%, 65%)",
-  "hsl(213, 100%, 65%)",
-  "hsl(43, 100%, 71%)",
-  "hsl(280, 80%, 70%)",
-  "hsl(190, 80%, 60%)",
-  "hsl(320, 80%, 65%)",
-  "hsl(30, 90%, 65%)",
-  "hsl(160, 70%, 50%)",
+  "hsl(152, 69%, 38%)",
+  "hsl(213, 80%, 50%)",
+  "hsl(38, 92%, 50%)",
+  "hsl(280, 60%, 55%)",
+  "hsl(190, 65%, 45%)",
+  "hsl(320, 60%, 50%)",
+  "hsl(30, 80%, 50%)",
+  "hsl(160, 55%, 40%)",
 ];
 
 const fadeUp = (i: number) => ({
@@ -88,7 +88,7 @@ export function NuView({ budget, profile }: Props) {
                 </Pie>
                 <Tooltip
                   formatter={(val: number) => [`${formatKr(val)} kr.`, ""]}
-                  contentStyle={{ background: "hsl(222, 16%, 11%)", border: "1px solid hsl(222, 14%, 18%)", borderRadius: "12px", color: "hsl(220, 20%, 94%)" }}
+                  contentStyle={{ background: "hsl(0, 0%, 100%)", border: "1px solid hsl(150, 10%, 90%)", borderRadius: "12px", color: "hsl(160, 10%, 12%)", boxShadow: "0 4px 20px hsl(0 0% 0% / 0.08)" }}
                 />
               </PieChart>
             </ResponsiveContainer>
