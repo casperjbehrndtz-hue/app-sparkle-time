@@ -3,6 +3,9 @@ import {
   TRANSPORT,
   UTILITIES,
   FOOD,
+  PUBLIC_TRANSPORT,
+  HEALTH,
+  HOMEOWNER_ASSOCIATION,
   getChildcarePrice,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
@@ -97,6 +100,24 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
       amount: profile.carAmount || TRANSPORT.car.price,
       colorVar: "--kassen-gold",
     });
+  } else {
+    // Auto-add public transport for non-car owners
+    fixedExpenses.push({
+      category: "Transport",
+      label: "Offentlig transport",
+      amount: PUBLIC_TRANSPORT.default.price,
+      colorVar: "--kassen-gold",
+    });
+  }
+
+  // Grundejerforening (auto for ejere)
+  if (profile.housingType === "ejer") {
+    fixedExpenses.push({
+      category: "Bolig",
+      label: "Grundejerforening / ejerforening",
+      amount: HOMEOWNER_ASSOCIATION.default.price,
+      colorVar: "--kassen-blue",
+    });
   }
 
   // Insurance
@@ -115,6 +136,26 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
       category: "Fagforening",
       label: "Fagforening & A-kasse",
       amount: profile.unionAmount,
+      colorVar: "--kassen-blue",
+    });
+  }
+
+  // Pets
+  if (profile.hasPet) {
+    fixedExpenses.push({
+      category: "Kæledyr",
+      label: "Kæledyr (foder, dyrlæge, forsikring)",
+      amount: profile.petAmount,
+      colorVar: "--kassen-gold",
+    });
+  }
+
+  // Loans (SU-lån, billån etc.)
+  if (profile.hasLoan) {
+    fixedExpenses.push({
+      category: "Lån",
+      label: "Lån (SU-lån, forbrugslån etc.)",
+      amount: profile.loanAmount,
       colorVar: "--kassen-blue",
     });
   }
@@ -176,6 +217,20 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     category: "Tøj",
     label: "Tøj & personlig pleje",
     amount: isPar ? 1200 : 800,
+    colorVar: "--kassen-red",
+  });
+  // Auto: sundhed (alle har det)
+  variableExpenses.push({
+    category: "Sundhed",
+    label: "Læge, tandlæge & medicin",
+    amount: isPar ? 500 : 350,
+    colorVar: "--kassen-red",
+  });
+  // Auto: restaurant/takeaway
+  variableExpenses.push({
+    category: "Restaurant",
+    label: "Restaurant & takeaway",
+    amount: isPar ? 1500 : 800,
     colorVar: "--kassen-red",
   });
 
