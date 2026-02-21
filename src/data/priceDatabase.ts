@@ -131,18 +131,53 @@ export const MORTGAGE_ESTIMATES: Record<string, number> = {
 
 export const RENT_ESTIMATES: Record<string, { solo: number; par: number }> = {
   default: { solo: 7000, par: 9500 },
-  "1000": { solo: 11000, par: 14000 },
-  "2000": { solo: 9000, par: 12000 },
-  "5000": { solo: 7000, par: 9500 },
-  "8000": { solo: 7500, par: 10000 },
-  "9000": { solo: 6500, par: 8500 },
+  // København indre by
+  "1000": { solo: 11000, par: 14000 }, "1100": { solo: 10500, par: 13500 },
+  "1200": { solo: 10000, par: 13000 }, "1300": { solo: 9500, par: 12500 },
+  // Frederiksberg
+  "2000": { solo: 9500, par: 12500 },
+  // København bydele
+  "2100": { solo: 9000, par: 12000 },  // Østerbro
+  "2200": { solo: 8000, par: 10500 },  // Nørrebro
+  "2300": { solo: 7500, par: 10000 },  // Amager
+  "2400": { solo: 7000, par: 9500 },   // NV
+  "2500": { solo: 7000, par: 9500 },   // Valby
+  "2600": { solo: 6500, par: 9000 },   // Glostrup
+  "2700": { solo: 7000, par: 9500 },   // Brønshøj
+  "2800": { solo: 8500, par: 11000 },  // Kgs. Lyngby
+  "2900": { solo: 9500, par: 12500 },  // Hellerup
+  "3000": { solo: 6500, par: 8500 },   // Helsingør
+  // Sjælland
+  "4000": { solo: 7000, par: 9500 },   // Roskilde
+  "4200": { solo: 5500, par: 7500 }, "4400": { solo: 5000, par: 7000 },
+  "4600": { solo: 6500, par: 8500 },
+  // Fyn
+  "5000": { solo: 7000, par: 9500 }, "5200": { solo: 6000, par: 8000 },
+  "5700": { solo: 5500, par: 7500 },
+  // Jylland
+  "6000": { solo: 6500, par: 8500 }, "6700": { solo: 6000, par: 8000 },
+  "7000": { solo: 6000, par: 8000 }, "7400": { solo: 5500, par: 7500 },
+  // Aarhus
+  "8000": { solo: 8000, par: 10500 }, "8200": { solo: 7500, par: 10000 },
+  "8210": { solo: 6500, par: 9000 }, "8600": { solo: 6000, par: 8000 },
+  // Aalborg
+  "9000": { solo: 6500, par: 8500 }, "9200": { solo: 6000, par: 8000 },
 };
 
 // Andelsbolig-estimater (boligafgift) pr. region
 export const ANDEL_ESTIMATES: Record<string, { solo: number; par: number }> = {
   default: { solo: 5500, par: 7000 },
-  "1000": { solo: 8500, par: 10500 },
-  "2000": { solo: 7000, par: 9000 },
+  "1000": { solo: 8500, par: 10500 }, "1100": { solo: 8000, par: 10000 },
+  "1200": { solo: 7500, par: 9500 }, "1300": { solo: 7000, par: 9000 },
+  "2000": { solo: 7500, par: 9500 },   // Frederiksberg
+  "2100": { solo: 7000, par: 9000 },   // Østerbro
+  "2200": { solo: 6000, par: 8000 },   // Nørrebro
+  "2300": { solo: 5500, par: 7500 },   // Amager
+  "2400": { solo: 5500, par: 7000 },   // NV
+  "2500": { solo: 5500, par: 7000 },   // Valby
+  "2700": { solo: 5500, par: 7000 },   // Brønshøj
+  "2800": { solo: 6500, par: 8500 },   // Kgs. Lyngby
+  "2900": { solo: 7500, par: 9500 },   // Hellerup
   "5000": { solo: 5500, par: 7000 },
   "8000": { solo: 6000, par: 7500 },
   "9000": { solo: 5000, par: 6500 },
@@ -211,14 +246,17 @@ export function getMortgageEstimate(postalCode: string): number {
 }
 
 export function getRentEstimate(postalCode: string, isPar: boolean): number {
-  const prefix = postalCode.substring(0, 1) + "000";
-  const entry = RENT_ESTIMATES[prefix] ?? RENT_ESTIMATES.default;
+  // Try exact match first, then first-digit prefix, then default
+  const entry = RENT_ESTIMATES[postalCode]
+    ?? RENT_ESTIMATES[postalCode.substring(0, 1) + "000"]
+    ?? RENT_ESTIMATES.default;
   return isPar ? entry.par : entry.solo;
 }
 
 export function getAndelEstimate(postalCode: string, isPar: boolean): number {
-  const prefix = postalCode.substring(0, 1) + "000";
-  const entry = ANDEL_ESTIMATES[prefix] ?? ANDEL_ESTIMATES.default;
+  const entry = ANDEL_ESTIMATES[postalCode]
+    ?? ANDEL_ESTIMATES[postalCode.substring(0, 1) + "000"]
+    ?? ANDEL_ESTIMATES.default;
   return isPar ? entry.par : entry.solo;
 }
 
