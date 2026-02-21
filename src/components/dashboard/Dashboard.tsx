@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, FileText } from "lucide-react";
 import { DisposableIncome } from "./DisposableIncome";
 import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
 import { NaboeffektView } from "./NaboeffektView";
 import { AIChatPanel } from "./AIChatPanel";
+import { BudgetReport } from "./BudgetReport";
+import { ShareCard } from "./ShareCard";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
@@ -27,9 +29,15 @@ const tabs = [
 
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const [activeTab, setActiveTab] = useState("nu");
+  const [showReport, setShowReport] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
+
+  if (showReport) {
+    return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,10 +45,16 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">Kassen</span>
-          <button onClick={onReset}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
-            <RotateCcw className="w-3 h-3" /> Ny beregning
-          </button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setShowReport(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              <FileText className="w-3 h-3" /> Rapport
+            </button>
+            <button onClick={onReset}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg hover:bg-muted">
+              <RotateCcw className="w-3 h-3" /> Ny beregning
+            </button>
+          </div>
         </div>
       </header>
 
@@ -73,6 +87,17 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
           </motion.div>
         </AnimatePresence>
+
+        {/* Share Card Preview (toggleable) */}
+        {showShareCard && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Del dit resultat</h3>
+              <button onClick={() => setShowShareCard(false)} className="text-xs text-muted-foreground hover:text-foreground">Luk</button>
+            </div>
+            <ShareCard health={health} totalIncome={budget.totalIncome} totalExpenses={budget.totalExpenses} />
+          </motion.div>
+        )}
       </main>
 
       <footer className="border-t border-border py-6 text-center">
