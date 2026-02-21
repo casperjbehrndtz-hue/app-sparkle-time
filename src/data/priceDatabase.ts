@@ -129,58 +129,110 @@ export const MORTGAGE_ESTIMATES: Record<string, number> = {
   "9800": 5500, "9900": 5200,
 };
 
+// Realistiske huslejer for privat lejemarked (kilde: Boligportalen/BoligZonen 2025, typisk 55-70m² solo, 75-95m² par)
 export const RENT_ESTIMATES: Record<string, { solo: number; par: number }> = {
-  default: { solo: 7000, par: 9500 },
-  // København indre by
-  "1000": { solo: 11000, par: 14000 }, "1100": { solo: 10500, par: 13500 },
-  "1200": { solo: 10000, par: 13000 }, "1300": { solo: 9500, par: 12500 },
+  default: { solo: 8000, par: 11000 },
+  // København indre by (1000-1799)
+  "1000": { solo: 13500, par: 17000 }, "1100": { solo: 13000, par: 16500 },
+  "1200": { solo: 12500, par: 16000 }, "1300": { solo: 12000, par: 15500 },
+  "1500": { solo: 12000, par: 15000 }, // Vesterbro
+  "1600": { solo: 11500, par: 14500 }, "1700": { solo: 11500, par: 14500 },
   // Frederiksberg
-  "2000": { solo: 9500, par: 12500 },
+  "2000": { solo: 11500, par: 15000 },
   // København bydele
-  "2100": { solo: 9000, par: 12000 },  // Østerbro
-  "2200": { solo: 8000, par: 10500 },  // Nørrebro
-  "2300": { solo: 7500, par: 10000 },  // Amager
-  "2400": { solo: 7000, par: 9500 },   // NV
-  "2500": { solo: 7000, par: 9500 },   // Valby
-  "2600": { solo: 6500, par: 9000 },   // Glostrup
-  "2700": { solo: 7000, par: 9500 },   // Brønshøj
-  "2800": { solo: 8500, par: 11000 },  // Kgs. Lyngby
-  "2900": { solo: 9500, par: 12500 },  // Hellerup
-  "3000": { solo: 6500, par: 8500 },   // Helsingør
+  "2100": { solo: 11000, par: 14500 },  // Østerbro
+  "2200": { solo: 10000, par: 13000 },  // Nørrebro
+  "2300": { solo: 9500, par: 12500 },   // Amager Øst
+  "2400": { solo: 9000, par: 12000 },   // NV
+  "2450": { solo: 9500, par: 12500 },   // Sydhavn
+  "2500": { solo: 9000, par: 12000 },   // Valby
+  "2600": { solo: 8000, par: 10500 },   // Glostrup
+  "2605": { solo: 8000, par: 10500 },   // Brøndby
+  "2610": { solo: 8000, par: 10500 },   // Rødovre
+  "2620": { solo: 8500, par: 11000 },   // Albertslund
+  "2625": { solo: 8000, par: 10500 },   // Vallensbæk
+  "2630": { solo: 8000, par: 10500 },   // Taastrup
+  "2650": { solo: 8500, par: 11000 },   // Hvidovre
+  "2670": { solo: 8500, par: 11000 },   // Greve
+  "2700": { solo: 9000, par: 12000 },   // Brønshøj
+  "2720": { solo: 8500, par: 11000 },   // Vanløse
+  "2730": { solo: 8500, par: 11000 },   // Herlev
+  "2740": { solo: 8000, par: 10500 },   // Skovlunde
+  "2750": { solo: 8500, par: 11000 },   // Ballerup
+  "2800": { solo: 10500, par: 13500 },  // Kgs. Lyngby
+  "2820": { solo: 10000, par: 13000 },  // Gentofte
+  "2830": { solo: 9500, par: 12500 },   // Virum
+  "2840": { solo: 10000, par: 13000 },  // Holte
+  "2850": { solo: 9500, par: 12500 },   // Nærum
+  "2860": { solo: 9000, par: 12000 },   // Søborg
+  "2900": { solo: 12000, par: 15500 },  // Hellerup
+  "2920": { solo: 10000, par: 13000 },  // Charlottenlund
+  "2930": { solo: 8500, par: 11000 },   // Klampenborg
+  "2950": { solo: 8500, par: 11000 },   // Vedbæk
+  "2960": { solo: 8000, par: 10500 },   // Rungsted Kyst
+  "2970": { solo: 8500, par: 11000 },   // Hørsholm
+  "3000": { solo: 7500, par: 10000 },   // Helsingør
+  "3400": { solo: 8000, par: 10500 },   // Hillerød
+  "3460": { solo: 7500, par: 10000 },   // Birkerød
+  "3500": { solo: 7000, par: 9500 },    // Værløse
   // Sjælland
-  "4000": { solo: 7000, par: 9500 },   // Roskilde
-  "4200": { solo: 5500, par: 7500 }, "4400": { solo: 5000, par: 7000 },
-  "4600": { solo: 6500, par: 8500 },
+  "4000": { solo: 8000, par: 10500 },   // Roskilde
+  "4200": { solo: 6500, par: 8500 },    // Slagelse
+  "4400": { solo: 6000, par: 8000 },    // Kalundborg
+  "4600": { solo: 7500, par: 10000 },   // Køge
+  "4700": { solo: 6500, par: 8500 },    // Næstved
   // Fyn
-  "5000": { solo: 7000, par: 9500 }, "5200": { solo: 6000, par: 8000 },
-  "5700": { solo: 5500, par: 7500 },
-  // Jylland
-  "6000": { solo: 6500, par: 8500 }, "6700": { solo: 6000, par: 8000 },
-  "7000": { solo: 6000, par: 8000 }, "7400": { solo: 5500, par: 7500 },
+  "5000": { solo: 8000, par: 10500 },   // Odense C
+  "5200": { solo: 7000, par: 9500 },    // Odense V
+  "5700": { solo: 6500, par: 8500 },    // Svendborg
+  // Jylland syd/midt
+  "6000": { solo: 7500, par: 10000 },   // Kolding
+  "6400": { solo: 6000, par: 8000 },    // Sønderborg
+  "6700": { solo: 7000, par: 9500 },    // Esbjerg
+  "6800": { solo: 6000, par: 8000 },    // Varde
+  "7000": { solo: 7000, par: 9500 },    // Fredericia
+  "7100": { solo: 7500, par: 10000 },   // Vejle
+  "7400": { solo: 6500, par: 8500 },    // Herning
+  "7500": { solo: 6000, par: 8000 },    // Holstebro
   // Aarhus
-  "8000": { solo: 8000, par: 10500 }, "8200": { solo: 7500, par: 10000 },
-  "8210": { solo: 6500, par: 9000 }, "8600": { solo: 6000, par: 8000 },
-  // Aalborg
-  "9000": { solo: 6500, par: 8500 }, "9200": { solo: 6000, par: 8000 },
+  "8000": { solo: 9500, par: 12500 },   // Aarhus C
+  "8200": { solo: 9000, par: 12000 },   // Aarhus N
+  "8210": { solo: 8000, par: 10500 },   // Aarhus V
+  "8220": { solo: 7500, par: 10000 },   // Brabrand
+  "8300": { solo: 7000, par: 9500 },    // Odder
+  "8600": { solo: 7000, par: 9500 },    // Silkeborg
+  "8700": { solo: 7500, par: 10000 },   // Horsens
+  "8800": { solo: 7000, par: 9500 },    // Viborg
+  "8900": { solo: 7000, par: 9500 },    // Randers
+  // Nordjylland
+  "9000": { solo: 7500, par: 10000 },   // Aalborg
+  "9200": { solo: 7000, par: 9500 },    // Aalborg SV
+  "9400": { solo: 6500, par: 8500 },    // Nørresundby
+  "9700": { solo: 6000, par: 8000 },    // Brønderslev
+  "9800": { solo: 5500, par: 7500 },    // Hjørring
+  "9900": { solo: 5500, par: 7500 },    // Frederikshavn
 };
 
 // Andelsbolig-estimater (boligafgift) pr. region
+// Andelsbolig boligafgift (kilde: ABF 2025, typisk 55-70m² solo, 75-90m² par)
 export const ANDEL_ESTIMATES: Record<string, { solo: number; par: number }> = {
-  default: { solo: 5500, par: 7000 },
-  "1000": { solo: 8500, par: 10500 }, "1100": { solo: 8000, par: 10000 },
-  "1200": { solo: 7500, par: 9500 }, "1300": { solo: 7000, par: 9000 },
-  "2000": { solo: 7500, par: 9500 },   // Frederiksberg
-  "2100": { solo: 7000, par: 9000 },   // Østerbro
-  "2200": { solo: 6000, par: 8000 },   // Nørrebro
-  "2300": { solo: 5500, par: 7500 },   // Amager
-  "2400": { solo: 5500, par: 7000 },   // NV
-  "2500": { solo: 5500, par: 7000 },   // Valby
-  "2700": { solo: 5500, par: 7000 },   // Brønshøj
-  "2800": { solo: 6500, par: 8500 },   // Kgs. Lyngby
-  "2900": { solo: 7500, par: 9500 },   // Hellerup
-  "5000": { solo: 5500, par: 7000 },
-  "8000": { solo: 6000, par: 7500 },
-  "9000": { solo: 5000, par: 6500 },
+  default: { solo: 6000, par: 8000 },
+  "1000": { solo: 9000, par: 11500 }, "1100": { solo: 8500, par: 11000 },
+  "1200": { solo: 8000, par: 10500 }, "1300": { solo: 7500, par: 10000 },
+  "1500": { solo: 8000, par: 10000 }, // Vesterbro
+  "2000": { solo: 8000, par: 10500 },  // Frederiksberg
+  "2100": { solo: 7500, par: 10000 },  // Østerbro
+  "2200": { solo: 6500, par: 8500 },   // Nørrebro
+  "2300": { solo: 6000, par: 8000 },   // Amager
+  "2400": { solo: 6000, par: 7500 },   // NV
+  "2500": { solo: 6000, par: 7500 },   // Valby
+  "2700": { solo: 6000, par: 7500 },   // Brønshøj
+  "2800": { solo: 7000, par: 9000 },   // Kgs. Lyngby
+  "2900": { solo: 8000, par: 10500 },  // Hellerup
+  "5000": { solo: 5500, par: 7500 },   // Odense
+  "8000": { solo: 6500, par: 8500 },   // Aarhus C
+  "8200": { solo: 6000, par: 8000 },   // Aarhus N
+  "9000": { solo: 5500, par: 7000 },   // Aalborg
 };
 
 // Gennemsnitlig boligværdi pr. postnummer (kilde: Boliga/Boligsiden Q3 2025, blanding lejlighed/hus)
