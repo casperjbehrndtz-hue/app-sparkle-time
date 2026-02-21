@@ -16,7 +16,8 @@ import {
   getEstimateSource,
   getPropertyValueEstimate,
 } from "@/data/priceDatabase";
-import type { BudgetProfile, OnboardingStep, CustomExpense } from "@/lib/types";
+import type { BudgetProfile, OnboardingStep, CustomExpense, IncomeSource, PaymentFrequency } from "@/lib/types";
+import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 
 interface Props {
   onComplete: (profile: BudgetProfile) => void;
@@ -26,17 +27,19 @@ const STEPS: OnboardingStep[] = ["welcome", "household", "income", "housing", "c
 function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 const defaultProfile: BudgetProfile = {
-  householdType: "solo", income: 30000, partnerIncome: 0, postalCode: "",
+  householdType: "solo", income: 30000, partnerIncome: 0, additionalIncome: [], postalCode: "",
   housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
   hasChildren: false, childrenAges: [],
   hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
   hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
-  hasCar: false, carAmount: TRANSPORT.car.price, hasInternet: true,
+  hasCar: false, carAmount: TRANSPORT.car.price, carLoan: 2500, carFuel: 1500, carInsurance: 6000, carTax: 3600, carService: 4500,
+  hasInternet: true,
   hasInsurance: false, insuranceAmount: INSURANCE.solo.price,
   hasUnion: false, unionAmount: UNION.default.price,
   hasFitness: false, fitnessAmount: FITNESS.default.price,
   hasPet: false, petAmount: 800,
   hasLoan: false, loanAmount: 1500,
+  hasSavings: false, savingsAmount: 3000,
   customExpenses: [],
 };
 
@@ -235,6 +238,7 @@ export function OnboardingFlow({ onComplete }: Props) {
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
+  const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
   const [liveDisposable, setLiveDisposable] = useState<number | null>(null);
 
   const isPar = profile.householdType === "par";
@@ -418,6 +422,18 @@ export function OnboardingFlow({ onComplete }: Props) {
 
   // ─── INCOME ──────────────────────────────
   if (step === "income") {
+    const totalAdditional = profile.additionalIncome.reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
+    const addIncomeSource = () => {
+      update({ additionalIncome: [...profile.additionalIncome, { label: "", amount: 0, frequency: "monthly" }] });
+    };
+    const updateIncomeSource = (idx: number, partial: Partial<IncomeSource>) => {
+      const updated = profile.additionalIncome.map((s, i) => i === idx ? { ...s, ...partial } : s);
+      update({ additionalIncome: updated });
+    };
+    const removeIncomeSource = (idx: number) => {
+      update({ additionalIncome: profile.additionalIncome.filter((_, i) => i !== idx) });
+    };
+
     return (
       <StepShell step={step} title={isPar ? "Hvad er jeres indkomst?" : "Hvad er din indkomst?"} subtitle="Månedlig udbetalt efter skat." onBack={goBack}>
         <div className="space-y-8">
@@ -431,10 +447,55 @@ export function OnboardingFlow({ onComplete }: Props) {
               label="Partners indkomst" min={0} max={80000} step={500}
             />
           )}
+
+          {/* Additional income sources */}
+          <div>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Øvrig indkomst</h3>
+            {profile.additionalIncome.length > 0 && (
+              <div className="space-y-2 mb-3">
+                {profile.additionalIncome.map((src, i) => (
+                  <div key={i} className="rounded-xl border border-border p-3 space-y-2">
+                    <div className="flex gap-2">
+                      <input type="text" value={src.label} onChange={(e) => updateIncomeSource(i, { label: e.target.value })}
+                        placeholder="F.eks. Bonus, SU, børnepenge"
+                        className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
+                      <button onClick={() => removeIncomeSource(i)}
+                        className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-2 flex-1">
+                        <input type="number" value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Number(e.target.value) || 0 })}
+                          placeholder="Beløb"
+                          className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
+                        <span className="text-xs text-muted-foreground">kr.</span>
+                      </div>
+                      <select value={src.frequency} onChange={(e) => updateIncomeSource(i, { frequency: e.target.value as PaymentFrequency })}
+                        className="bg-background border border-border rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option value="monthly">Månedlig</option>
+                        <option value="quarterly">Kvartalsvis</option>
+                        <option value="biannual">Halvårlig</option>
+                        <option value="annual">Årlig</option>
+                      </select>
+                    </div>
+                    {src.frequency !== "monthly" && src.amount > 0 && (
+                      <p className="text-[11px] text-muted-foreground">= {formatKr(frequencyToMonthly(src.amount, src.frequency))} kr./md.</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={addIncomeSource}
+              className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
+              <Plus className="w-3.5 h-3.5" /> Tilføj indkomstkilde
+            </button>
+          </div>
+
           <div className="rounded-xl bg-muted/50 border border-border p-4 flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Samlet indkomst</span>
             <span className="font-display font-bold text-lg text-primary">
-              {formatKr(profile.income + (isPar ? profile.partnerIncome : 0))} kr.
+              {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} kr.
             </span>
           </div>
           <AiTip text={isPar 
@@ -611,8 +672,8 @@ export function OnboardingFlow({ onComplete }: Props) {
   if (step === "expenses") {
     const addCustom = () => {
       if (customLabel.trim() && customAmount > 0) {
-        update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount }] });
-        setCustomLabel(""); setCustomAmount(0);
+        update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount, frequency: customFreq }] });
+        setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
       }
     };
 
@@ -644,12 +705,55 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
-          {/* Transport */}
+          {/* Transport — detailed */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Transport</h3>
             <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
-              icon="🚗" label="Bil" sublabel="Forsikring, benzin, afgift"
-              amount={profile.carAmount} onAmountChange={(v) => update({ carAmount: v })} />
+              icon="🚗" label="Bil" sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} kr./md. samlet` : "Lån, benzin, forsikring, afgift"} />
+            {profile.hasCar && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-1.5 ml-2 border-l-2 border-primary/10 pl-4">
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Billån / leasing</span>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={profile.carLoan} onChange={(e) => update({ carLoan: Number(e.target.value) || 0 })}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
+                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Benzin / opladning</span>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={profile.carFuel} onChange={(e) => update({ carFuel: Number(e.target.value) || 0 })}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
+                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Bilforsikring</span>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={profile.carInsurance} onChange={(e) => update({ carInsurance: Number(e.target.value) || 0 })}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
+                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Vægtafgift / grøn ejerafgift</span>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={profile.carTax} onChange={(e) => update({ carTax: Number(e.target.value) || 0 })}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
+                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                  <span className="text-xs text-muted-foreground">Service / værksted</span>
+                  <div className="flex items-center gap-1">
+                    <input type="number" value={profile.carService} onChange={(e) => update({ carService: Number(e.target.value) || 0 })}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
+                    <span className="text-[10px] text-muted-foreground">kr./halvår</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
 
           {/* Insurance etc */}
@@ -668,9 +772,9 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
-          {/* Kæledyr & lån */}
+          {/* Kæledyr, lån & opsparing */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Kæledyr & lån</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Kæledyr, lån & opsparing</h3>
             <div className="space-y-1.5">
               <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
                 icon="🐕" label="Kæledyr" sublabel="Foder, dyrlæge, forsikring"
@@ -678,6 +782,9 @@ export function OnboardingFlow({ onComplete }: Props) {
               <ToggleRow active={profile.hasLoan} onClick={() => update({ hasLoan: !profile.hasLoan })}
                 icon="💰" label="Lån" sublabel="SU-lån, forbrugslån, billån"
                 amount={profile.loanAmount} onAmountChange={(v) => update({ loanAmount: v })} />
+              <ToggleRow active={profile.hasSavings} onClick={() => update({ hasSavings: !profile.hasSavings })}
+                icon="🏦" label="Opsparing / investering" sublabel="Fast opsparing pr. måned"
+                amount={profile.savingsAmount} onAmountChange={(v) => update({ savingsAmount: v })} />
             </div>
           </div>
 
@@ -688,9 +795,16 @@ export function OnboardingFlow({ onComplete }: Props) {
               <div className="space-y-1.5 mb-3">
                 {profile.customExpenses.map((ce, i) => (
                   <div key={i} className="flex items-center justify-between rounded-xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5">
-                    <span className="text-sm font-medium">{ce.label}</span>
+                    <div>
+                      <span className="text-sm font-medium">{ce.label}</span>
+                      {ce.frequency && ce.frequency !== "monthly" && (
+                        <span className="text-[10px] text-muted-foreground ml-1">({frequencyLabel(ce.frequency)})</span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">{formatKr(ce.amount)} kr.</span>
+                      <span className="text-sm font-semibold">
+                        {formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} kr./md.
+                      </span>
                       <button onClick={() => update({ customExpenses: profile.customExpenses.filter((_, idx) => idx !== i) })}
                         className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
                         <X className="w-3 h-3" />
@@ -707,6 +821,13 @@ export function OnboardingFlow({ onComplete }: Props) {
               <input type="number" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
                 placeholder="Kr."
                 className="w-20 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30 no-spin" />
+              <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
+                className="bg-background border border-border rounded-lg px-1.5 py-2.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/20">
+                <option value="monthly">Md.</option>
+                <option value="quarterly">Kvartal</option>
+                <option value="biannual">Halvår</option>
+                <option value="annual">År</option>
+              </select>
               <button onClick={addCustom} disabled={!customLabel.trim() || customAmount <= 0}
                 className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20 hover:bg-primary/15 transition-colors flex-shrink-0">
                 <Plus className="w-4 h-4" />
