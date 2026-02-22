@@ -8,6 +8,7 @@ import featureAdvisor from "@/assets/feature-advisor.jpg";
 import featureFamily from "@/assets/feature-family.jpg";
 import {
   SUBSCRIPTIONS,
+  FOOD,
   TRANSPORT,
   INSURANCE,
   UNION,
@@ -43,6 +44,7 @@ const defaultProfile: BudgetProfile = {
   hasPet: false, petAmount: 800,
   hasLoan: false, loanAmount: 1500,
   hasSavings: false, savingsAmount: 3000,
+  foodAmount: 3500, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
   customExpenses: [],
 };
 
@@ -192,6 +194,32 @@ function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAmountCha
 function SliderInput({ value, onChange, label, min = 0, max = 100000, step = 500 }: {
   value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number;
 }) {
+  const [localValue, setLocalValue] = useState<string>(String(value));
+  
+  useEffect(() => {
+    setLocalValue(String(value));
+  }, [value]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    setLocalValue(raw);
+    const num = Number(raw);
+    if (!isNaN(num) && raw !== "") {
+      onChange(Math.max(min, Math.min(max, num)));
+    }
+  };
+
+  const handleBlur = () => {
+    const num = Number(localValue);
+    if (isNaN(num) || localValue === "") {
+      setLocalValue(String(value));
+    } else {
+      const clamped = Math.max(min, Math.min(max, num));
+      onChange(clamped);
+      setLocalValue(String(clamped));
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
@@ -199,8 +227,9 @@ function SliderInput({ value, onChange, label, min = 0, max = 100000, step = 500
         <div className="flex items-baseline gap-1 bg-muted rounded-lg px-3 py-1.5">
           <input
             type="number"
-            value={value}
-            onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || 0)))}
+            value={localValue}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
             className="bg-transparent font-display font-bold text-lg w-[5.5rem] text-right focus:outline-none no-spin"
           />
           <span className="text-xs text-muted-foreground">kr.</span>
@@ -516,11 +545,17 @@ export function OnboardingFlow({ onComplete }: Props) {
             <OptionCard
               key={opt.type}
               active={profile.householdType === opt.type}
-              onClick={() => {
+             onClick={() => {
+                const isPairChoice = opt.type === "par";
                 update({
                   householdType: opt.type,
                   partnerIncome: opt.type === "solo" ? 0 : profile.partnerIncome || 28000,
-                  insuranceAmount: opt.type === "par" ? INSURANCE.par.price : INSURANCE.solo.price,
+                  insuranceAmount: isPairChoice ? INSURANCE.par.price : INSURANCE.solo.price,
+                  foodAmount: isPairChoice ? 6000 : 3500,
+                  leisureAmount: isPairChoice ? 2500 : 1500,
+                  clothingAmount: isPairChoice ? 1200 : 800,
+                  healthAmount: isPairChoice ? 500 : 350,
+                  restaurantAmount: isPairChoice ? 1500 : 800,
                 });
                 setTimeout(() => setStep("income"), 200);
               }}
@@ -774,7 +809,12 @@ export function OnboardingFlow({ onComplete }: Props) {
             </motion.div>
           )}
           <AiTip text="Institutionspriser er landsgennemsnit 2026 (kilde: KL/kommunerne). Vuggestue ca. 4.500 kr., børnehave ca. 2.600 kr., SFO ca. 2.300 kr./md. Din kommune kan afvige — ret beløbet i dashboardet." />
-          <ContinueButton onClick={() => { if (profile.hasChildren) update({ childrenAges: childAgeInputs }); goNext(); }} />
+          <ContinueButton onClick={() => {
+            if (profile.hasChildren) {
+              update({ childrenAges: childAgeInputs, foodAmount: profile.foodAmount + (FOOD.per_child * childAgeInputs.length) });
+            }
+            goNext();
+          }} />
         </div>
       </StepShell>
     );
@@ -962,32 +1002,40 @@ export function OnboardingFlow({ onComplete }: Props) {
     const isHealthy = budget.disposableIncome > 8000;
     const isWarning = budget.disposableIncome > 3000;
 
+    const variableFields: { key: keyof BudgetProfile; label: string; icon: string }[] = [
+      { key: "foodAmount", label: "Mad & dagligvarer", icon: "🛒" },
+      { key: "restaurantAmount", label: "Restaurant & takeaway", icon: "🍕" },
+      { key: "leisureAmount", label: "Fritid & oplevelser", icon: "🎭" },
+      { key: "clothingAmount", label: "Tøj & personlig pleje", icon: "👕" },
+      { key: "healthAmount", label: "Sundhed (læge, tandlæge)", icon: "🏥" },
+    ];
+
     return (
-      <StepShell step={step} title="Dit resultat" onBack={goBack}>
+      <StepShell step={step} title="Gennemse & justér" subtitle="Ret alle tal til inden du går videre." onBack={goBack}>
         <div className="space-y-6">
           {/* Hero number */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center py-10 rounded-2xl border border-border relative overflow-hidden"
+            className="text-center py-8 rounded-2xl border border-border relative overflow-hidden"
           >
             <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"}`} />
             <div className="relative">
               <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rådighedsbeløb pr. måned</p>
               <div className="flex items-baseline justify-center gap-1">
                 <motion.span
-                  initial={{ opacity: 0, y: 20 }}
+                  key={budget.disposableIncome}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className={`font-display font-black text-5xl md:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-kassen-gold" : "text-destructive"}`}
+                  className={`font-display font-black text-4xl md:text-5xl ${isHealthy ? "text-primary" : isWarning ? "text-kassen-gold" : "text-destructive"}`}
                 >
                   {formatKr(budget.disposableIncome)}
                 </motion.span>
                 <span className="text-muted-foreground font-display text-lg">kr.</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-3">
-                {isHealthy ? "✅ God økonomi — I har luft" : isWarning ? "⚠️ Marginen er slank" : "🚨 Under Finanstilsynets anbefaling"}
+              <p className="text-xs text-muted-foreground mt-2">
+                {isHealthy ? "✅ God økonomi" : isWarning ? "⚠️ Slank margin" : "🚨 Under anbefaling"}
               </p>
             </div>
           </motion.div>
@@ -1008,19 +1056,47 @@ export function OnboardingFlow({ onComplete }: Props) {
             ))}
           </div>
 
-          {/* Expense list */}
+          {/* Editable variable expenses */}
+          <div>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3 flex items-center gap-2">
+              <Info className="w-3.5 h-3.5" /> Variable udgifter — justér til dit forbrug
+            </h3>
+            <div className="space-y-1.5">
+              {variableFields.map(({ key, label, icon }) => (
+                <div key={key} className="flex items-center justify-between rounded-xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">{icon}</span>
+                    <span className="text-sm font-medium">{label}</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-1.5">
+                    <input
+                      type="number"
+                      value={profile[key] as number}
+                      onChange={(e) => update({ [key]: Number(e.target.value) || 0 } as any)}
+                      className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16"
+                    />
+                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Fixed expense list (read-only summary) */}
           <div className="rounded-xl border border-border divide-y divide-border">
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Alle udgifter</span>
-              <span className="text-sm font-display font-bold text-destructive">{formatKr(budget.totalExpenses)} kr.</span>
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Faste udgifter</span>
+              <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} kr.</span>
             </div>
-            {allExpenses.map((e, i) => (
-              <div key={i} className="px-4 py-2.5 flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">{e.label}</span>
-                <span className="text-sm font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
+            {budget.fixedExpenses.map((e, i) => (
+              <div key={i} className="px-4 py-2 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{e.label}</span>
+                <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
               </div>
             ))}
           </div>
+
+          <AiTip text="Ret de variable udgifter ovenfor så de passer til jeres reelle forbrug. Tallene opdateres live, og I kan altid justere i dashboardet bagefter." />
 
           <ContinueButton onClick={() => onComplete(profile)} label="Se fuldt dashboard" />
         </div>
