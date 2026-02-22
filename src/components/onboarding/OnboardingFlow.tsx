@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import heroCouple from "@/assets/hero-couple.jpg";
@@ -235,9 +236,12 @@ function SliderInput({ value, onChange, label, min = 0, max = 100000, step = 500
           <span className="text-xs text-muted-foreground">kr.</span>
         </div>
       </div>
-      <input
-        type="range" min={min} max={max} step={step} value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+      <Slider
+        min={min}
+        max={max}
+        step={step}
+        value={[value]}
+        onValueChange={([v]) => onChange(v)}
         className="w-full"
       />
       <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
