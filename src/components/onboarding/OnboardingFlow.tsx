@@ -551,11 +551,13 @@ export function OnboardingFlow({ onComplete }: Props) {
               active={profile.householdType === opt.type}
              onClick={() => {
                 const isPairChoice = opt.type === "par";
+                const baseFood = isPairChoice ? 6000 : 3500;
+                const childCount = profile.hasChildren ? profile.childrenAges.length : 0;
                 update({
                   householdType: opt.type,
                   partnerIncome: opt.type === "solo" ? 0 : profile.partnerIncome || 28000,
                   insuranceAmount: isPairChoice ? INSURANCE.par.price : INSURANCE.solo.price,
-                  foodAmount: isPairChoice ? 6000 : 3500,
+                  foodAmount: baseFood + (FOOD.per_child * childCount),
                   leisureAmount: isPairChoice ? 2500 : 1500,
                   clothingAmount: isPairChoice ? 1200 : 800,
                   healthAmount: isPairChoice ? 500 : 350,
@@ -747,9 +749,12 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <span className="text-xs text-muted-foreground">%</span>
                   </div>
                 </div>
-                <input
-                  type="range" min={0.5} max={8} step={0.25} value={profile.interestRate}
-                  onChange={(e) => update({ interestRate: parseFloat(e.target.value) })}
+                <Slider
+                  min={0.5}
+                  max={8}
+                  step={0.25}
+                  value={[profile.interestRate]}
+                  onValueChange={([v]) => update({ interestRate: v })}
                   className="w-full"
                 />
                 <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
@@ -814,8 +819,8 @@ export function OnboardingFlow({ onComplete }: Props) {
           )}
           <AiTip text="Institutionspriser er landsgennemsnit 2026 (kilde: KL/kommunerne). Vuggestue ca. 4.500 kr., børnehave ca. 2.600 kr., SFO ca. 2.300 kr./md. Din kommune kan afvige — ret beløbet i dashboardet." />
           <ContinueButton onClick={() => {
-            if (profile.hasChildren) {
-              update({ childrenAges: childAgeInputs, foodAmount: profile.foodAmount + (FOOD.per_child * childAgeInputs.length) });
+            if (profile.hasChildren && childAgeInputs.length > 0) {
+              update({ childrenAges: childAgeInputs });
             }
             goNext();
           }} />
