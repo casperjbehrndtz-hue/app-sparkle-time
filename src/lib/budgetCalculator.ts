@@ -229,40 +229,35 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     });
   }
 
-  // Variable expenses
-  const foodAmount =
-    FOOD[isPar ? "par" : "solo"] +
-    (profile.hasChildren ? FOOD.per_child * profile.childrenAges.length : 0);
+  // Variable expenses (use profile values — user can edit these)
   variableExpenses.push({
     category: "Mad & dagligvarer",
     label: "Mad & dagligvarer",
-    amount: foodAmount,
+    amount: profile.foodAmount,
     colorVar: "--kassen-red",
   });
   variableExpenses.push({
     category: "Fritid",
     label: "Fritid & oplevelser",
-    amount: isPar ? 2500 : 1500,
+    amount: profile.leisureAmount,
     colorVar: "--kassen-red",
   });
   variableExpenses.push({
     category: "Tøj",
     label: "Tøj & personlig pleje",
-    amount: isPar ? 1200 : 800,
+    amount: profile.clothingAmount,
     colorVar: "--kassen-red",
   });
-  // Auto: sundhed (alle har det)
   variableExpenses.push({
     category: "Sundhed",
     label: "Læge, tandlæge & medicin",
-    amount: isPar ? 500 : 350,
+    amount: profile.healthAmount,
     colorVar: "--kassen-red",
   });
-  // Auto: restaurant/takeaway
   variableExpenses.push({
     category: "Restaurant",
     label: "Restaurant & takeaway",
-    amount: isPar ? 1500 : 800,
+    amount: profile.restaurantAmount,
     colorVar: "--kassen-red",
   });
 

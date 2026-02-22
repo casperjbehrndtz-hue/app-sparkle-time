@@ -61,6 +61,12 @@ export interface BudgetProfile {
   // Savings
   hasSavings: boolean;
   savingsAmount: number;
+  // Variable expenses (user-editable)
+  foodAmount: number;
+  leisureAmount: number;
+  clothingAmount: number;
+  healthAmount: number;
+  restaurantAmount: number;
   // Custom
   customExpenses: CustomExpense[];
 }
