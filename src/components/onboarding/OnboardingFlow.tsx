@@ -426,8 +426,8 @@ export function OnboardingFlow({ onComplete }: Props) {
               {/* Card 4 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🤖</span>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">AI-rådgivning</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Personlige sparetips baseret på din unikke situation — ikke generiske råd.</p>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">AI-indsigt</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">Analyse af dine tal og udgiftsmønstre.</p>
               </div>
               {/* Card 5 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
@@ -509,7 +509,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                 <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Produkt</h4>
                 <ul className="space-y-2 text-xs text-muted-foreground">
                   <li className="hover:text-foreground transition-colors cursor-default">Budgetberegner</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">AI-rådgivning</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">AI-indsigt</li>
                   <li className="hover:text-foreground transition-colors cursor-default">Nabo-sammenligning</li>
                   <li className="hover:text-foreground transition-colors cursor-default">Bankmøde-rapport</li>
                 </ul>

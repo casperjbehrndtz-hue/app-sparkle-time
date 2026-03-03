@@ -128,7 +128,7 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
         <div className="rounded-xl border border-border divide-y divide-border overflow-hidden">
           <div className="px-4 py-2.5 flex items-center justify-between">
             <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Næste skridt</span>
-            <span className="text-[10px] text-muted-foreground">AI-anbefalet</span>
+            <span className="text-[10px] text-muted-foreground"></span>
           </div>
           {smartSteps.map((step, i) => {
             const action = getSmartAction(step, config.ctaLinks);
@@ -352,7 +352,7 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
     alerts.push({
       level: "insight",
       message: `Stærk opsparingsrate på ${health.savingsRate}% — du bygger formue`,
-      detail: `Med ${formatKr(budget.disposableIncome * 0.5)} kr./md. investeret når du ${formatKr(budget.disposableIncome * 0.5 * 12 * 5)} kr. på 5 år.`,
+      detail: `${formatKr(budget.disposableIncome * 0.5)} kr./md. investeret med 7% årligt afkast giver estimeret ca. ${formatKr(budget.disposableIncome * 0.5 * 12 * 5)} kr. på 5 år. Investering indebærer risiko.`,
     });
   } else if (health.savingsRate < 10 && budget.disposableIncome > 0) {
     alerts.push({
@@ -379,7 +379,7 @@ function generatePersonalInsight(profile: BudgetProfile, budget: ComputedBudget,
   
   if (health.savingsRate >= 25) {
     const fiveYearProjection = Math.round(freeCash * 0.4 * 12 * 5 * 1.35); // 7% compounded rough
-    return `Med ${health.savingsRate}% opsparingsrate er ${isPar ? "I" : "du"} i top 15% af danske husstande. Investeret fornuftigt kan det blive ${formatKr(fiveYearProjection)} kr. på 5 år.`;
+    return `Med ${health.savingsRate}% opsparingsrate er ${isPar ? "I" : "du"} i top 15% af danske husstande. Ved 7% årligt afkast kan det blive ca. ${formatKr(fiveYearProjection)} kr. på 5 år. Investering indebærer risiko.`;
   }
   
   if (health.savingsRate >= 15) {

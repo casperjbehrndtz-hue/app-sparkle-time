@@ -134,7 +134,7 @@ export function generateSmartSteps(
   if (health.bufferMonths < 3) {
     steps.push({
       icon: "🛡️",
-      text: `Din buffer dækker kun ~${health.bufferMonths} måned${health.bufferMonths !== 1 ? "er" : ""}. Mål: 3-6 måneder (${formatSimple(health.truths.monthlyBaseline * 3)} kr.)`,
+      text: `Din buffer dækker ca. ${health.bufferMonths} måned${health.bufferMonths !== 1 ? "er" : ""}. En udbredt tommelfingerregel er 3-6 måneders udgifter.`,
       priority: "high",
     });
   }

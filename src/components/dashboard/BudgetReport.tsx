@@ -194,7 +194,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         <div className="text-center pt-4 border-t border-border space-y-1">
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
           <p className="text-[10px] text-muted-foreground">Genereret {dateStr} · Beregnet på danske gennemsnitstal 2026</p>
-          <p className="text-[10px] text-muted-foreground/50">{config.footer?.text || "AI-drevet budgetanalyse"}</p>
+          <p className="text-[10px] text-muted-foreground/50">{config.footer?.text || "Budgetværktøj — ikke finansiel rådgivning"}</p>
         </div>
       </main>
     </div>
