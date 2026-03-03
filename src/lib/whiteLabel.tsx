@@ -64,7 +64,7 @@ export interface WhiteLabelConfig {
 
 export const defaultConfig: WhiteLabelConfig = {
   brandName: "Kassen",
-  brandTagline: "AI-drevet budgetanalyse",
+  brandTagline: "Smart budgetværktøj",
   theme: {
     primary: "216 56% 22%",
     primaryForeground: "0 0% 100%",
@@ -72,8 +72,8 @@ export const defaultConfig: WhiteLabelConfig = {
   ctaLinks: {
     mortgage: { label: "Se refinansiering →", url: "https://parfinans.dk" },
     insurance: { label: "Sammenlign forsikringer →", url: "https://www.forsikringsguiden.dk" },
-    savings: { label: "Åbn opsparingskonto →", url: "https://nordnet.dk" },
-    investment: { label: "Start investering →", url: "https://nordnet.dk" },
+    savings: { label: "Læs mere om nødopsparinger →", url: "https://www.raadtilpenge.dk/penge-og-pension/opsparing" },
+    investment: { label: "Læs mere om investering →", url: "https://www.raadtilpenge.dk/investering" },
   },
   features: {
     showAIChat: true,

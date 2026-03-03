@@ -112,8 +112,9 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-border py-6 text-center">
+      <footer className="border-t border-border py-6 text-center space-y-2">
         <p className="text-[11px] text-muted-foreground/60">Beregnet på danske gennemsnitstal 2026 · Data gemmes lokalt</p>
+        <p className="text-[10px] text-muted-foreground/50 max-w-md mx-auto">Kassen er et budgetværktøj og yder ikke finansiel rådgivning. Tal med din bank eller en rådgiver om konkrete økonomiske beslutninger.</p>
       </footer>
 
       <AIChatPanel profile={profile} budget={budget} />

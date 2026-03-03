@@ -143,9 +143,8 @@ export function FremadView({ profile, budget, health }: Props) {
 
         <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
           <p className="text-xs text-muted-foreground">
-            💡 Med {formatKr(monthlySavings)} kr./md. i en global indeksfond (7% gns. afkast) 
-            bygger du <span className="font-semibold text-primary">{formatKr(projections[2].amount)} kr.</span> på 5 år 
-            og <span className="font-semibold text-primary">{formatKr(projections[3].amount)} kr.</span> på 10 år.
+            💡 {formatKr(monthlySavings)} kr./md. med 7% årligt afkast giver estimeret ca. <span className="font-semibold text-primary">{formatKr(projections[2].amount)} kr.</span> på 5 år 
+            og ca. <span className="font-semibold text-primary">{formatKr(projections[3].amount)} kr.</span> på 10 år. Investering indebærer risiko.
           </p>
         </div>
       </motion.div>
