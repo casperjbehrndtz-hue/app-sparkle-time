@@ -953,7 +953,7 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Custom */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Egne udgifter</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
             {profile.customExpenses.length > 0 && (
               <div className="space-y-1.5 mb-3">
                 {profile.customExpenses.map((ce, i) => (
