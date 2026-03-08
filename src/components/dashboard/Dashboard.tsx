@@ -248,6 +248,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
           </SectionErrorBoundary>
         </StorySection>
 
+        <StorySection id="naboeffekt" title={t("tab.compare")} subtitle="Sammenlign med lignende husstande i dit område">
           <SectionErrorBoundary fallbackTitle="Naboeffekt">
             <NaboeffektView profile={profile} budget={budget} />
           </SectionErrorBoundary>
