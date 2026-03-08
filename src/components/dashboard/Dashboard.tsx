@@ -73,7 +73,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5">
+      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5 flex-1">
         <DisposableIncome health={health} />
 
         {/* Tabs */}
