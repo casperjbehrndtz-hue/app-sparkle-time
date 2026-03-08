@@ -85,6 +85,7 @@ function SectionNav({ sections, activeSection }: { sections: { id: string; label
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
+  const { user, signOut } = useAuth();
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
