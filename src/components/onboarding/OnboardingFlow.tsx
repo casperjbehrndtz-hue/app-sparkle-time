@@ -979,17 +979,17 @@ export function OnboardingFlow({ onComplete }: Props) {
             )}
             <div className="flex gap-2">
               <input type="text" value={customLabel} onChange={(e) => setCustomLabel(e.target.value)}
-                placeholder="F.eks. Kontaktlinser"
+                placeholder={t("step.expenses.customPlaceholder")}
                 className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
               <input type="number" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
-                placeholder="Kr."
+                placeholder={t("currency")}
                 className="w-20 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30 no-spin" />
               <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
                 className="bg-background border border-border rounded-lg px-1.5 py-2.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/20">
-                <option value="monthly">Md.</option>
-                <option value="quarterly">Kvartal</option>
-                <option value="biannual">Halvår</option>
-                <option value="annual">År</option>
+                <option value="monthly">{t("freq.monthlyShort")}</option>
+                <option value="quarterly">{t("freq.quarterShort")}</option>
+                <option value="biannual">{t("freq.halfYearShort")}</option>
+                <option value="annual">{t("freq.yearShort")}</option>
               </select>
               <button onClick={addCustom} disabled={!customLabel.trim() || customAmount <= 0}
                 className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20 hover:bg-primary/15 transition-colors flex-shrink-0">
