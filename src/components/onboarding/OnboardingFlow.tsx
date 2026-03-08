@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import heroCouple from "@/assets/hero-couple.jpg";
 import featureAdvisor from "@/assets/feature-advisor.jpg";
@@ -75,6 +77,7 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
   step: OnboardingStep; title: string; subtitle?: string; onBack?: () => void; children: React.ReactNode; liveAmount?: number | null;
 }) {
   const config = useWhiteLabel();
+  const { t } = useI18n();
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border px-5 pt-4 pb-3">
@@ -82,13 +85,13 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
           <div className="flex items-center justify-between">
             {onBack ? (
               <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 px-1">
-                <ChevronLeft className="w-4 h-4" /> Tilbage
+                <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
               </button>
             ) : <div />}
             <span className="font-display font-black text-base text-primary">{config.brandName}</span>
             {liveAmount != null ? (
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Tilbage</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("nav.back")}</span>
                 <span className={`font-display font-bold text-sm ${liveAmount > 5000 ? "text-primary" : liveAmount > 0 ? "text-kassen-gold" : "text-destructive"}`}>
                   {formatKr(liveAmount)}
                 </span>
@@ -269,6 +272,7 @@ function AiTip({ text }: { text: string }) {
 
 export function OnboardingFlow({ onComplete }: Props) {
   const config = useWhiteLabel();
+  const { t, lang } = useI18n();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
@@ -301,13 +305,14 @@ export function OnboardingFlow({ onComplete }: Props) {
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
             <span className="font-display font-black text-lg sm:text-xl text-white">{config.brandName}</span>
             <div className="flex items-center gap-3 sm:gap-6">
-              <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Produkter</button>
-              <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">Sådan virker det</button>
+              <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.products")}</button>
+              <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.howItWorks")}</button>
+              <LanguageToggle />
               <button
                 onClick={() => setStep("household")}
                 className="px-4 sm:px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors"
               >
-                {config.hero.ctaLabel}
+                {t("hero.cta")}
               </button>
             </div>
           </div>
@@ -322,17 +327,17 @@ export function OnboardingFlow({ onComplete }: Props) {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             >
               <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
-                {config.hero.title}<br />
-                <span className="text-white">{config.hero.titleHighlight}</span>
+                {t("hero.title")}<br />
+                <span className="text-white">{t("hero.titleHighlight")}</span>
               </h1>
               <p className="text-white/60 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-md">
-                {config.hero.subtitle}
+                {t("hero.subtitle")}
               </p>
               <button
                 onClick={() => setStep("household")}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-all shadow-lg shadow-black/20"
               >
-                {config.hero.ctaLabel} <ArrowRight className="w-4 h-4" />
+                {t("hero.cta")} <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>
 
@@ -344,7 +349,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               className="hidden md:block"
             >
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/30">
-                <img src={heroCouple} alt="Par der planlægger økonomi sammen" className="w-full h-full object-cover" />
+                <img src={heroCouple} alt={t("hero.imageAlt")} className="w-full h-full object-cover" />
               </div>
             </motion.div>
           </div>
@@ -359,9 +364,9 @@ export function OnboardingFlow({ onComplete }: Props) {
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10">
             {[
-              { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: "Bygget til dansk finanslovgivning" },
-              { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: "Udfyldt på 3 minutter" },
-              { icon: <Sparkles className="w-4 h-4 text-muted-foreground" />, text: "100% privat · Data gemmes lokalt" },
+              { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: t("trust.danish") },
+              { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: t("trust.time") },
+              { icon: <Sparkles className="w-4 h-4 text-muted-foreground" />, text: t("trust.private") },
             ].map((badge) => (
               <div key={badge.text} className="flex items-center gap-2 text-sm text-muted-foreground">
                 {badge.icon}
@@ -375,10 +380,10 @@ export function OnboardingFlow({ onComplete }: Props) {
         <section id="saadan-virker-det" className="bg-background py-10 sm:py-16 scroll-mt-16">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <h2 className="font-display font-bold text-xl sm:text-2xl md:text-3xl text-foreground mb-3">
-              Få overblik over din økonomi
+              {t("howItWorks.title")}
             </h2>
             <p className="text-muted-foreground text-base mb-12 max-w-md mx-auto">
-              Få hjælp til din økonomi og det, der er vigtigt for dig, din familie og din bolig.
+              {t("howItWorks.subtitle")}
             </p>
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto">
@@ -411,35 +416,35 @@ export function OnboardingFlow({ onComplete }: Props) {
             >
               {/* Card 1 — image */}
               <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
-                <img src={featureAdvisor} alt="Rådgivning" className="w-full h-full object-cover" />
+                <img src={featureAdvisor} alt={t("feature.bankReport")} className="w-full h-full object-cover" />
               </div>
               {/* Card 2 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🔍</span>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Find skjulte udgifter</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Vi gennemgår streaming, forsikring og transport — og viser hvad der æder dit budget.</p>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.findHidden")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.findHiddenDesc")}</p>
               </div>
               {/* Card 3 — image */}
               <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
-                <img src={featureFamily} alt="Familie økonomi" className="w-full h-full object-cover" />
+                <img src={featureFamily} alt={t("feature.compare")} className="w-full h-full object-cover" />
               </div>
               {/* Card 4 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🤖</span>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">AI-indsigt</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Analyse af dine tal og udgiftsmønstre.</p>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.aiInsight")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.aiInsightDesc")}</p>
               </div>
               {/* Card 5 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">📊</span>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Sammenlign med andre</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Se din økonomi i forhold til lignende familier i dit område.</p>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.compare")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.compareDesc")}</p>
               </div>
               {/* Card 6 — text */}
               <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <span className="text-2xl">🏦</span>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">Bankmøde-rapport</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Tag en professionel rapport med til din bankrådgiver.</p>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.bankReport")}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.bankReportDesc")}</p>
               </div>
             </motion.div>
           </div>
@@ -449,11 +454,11 @@ export function OnboardingFlow({ onComplete }: Props) {
         {config.testimonials && config.testimonials.length > 0 && (
           <section className="bg-background py-16">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">Hvad andre siger</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">{t("testimonials.title")}</p>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
-                {config.testimonials.map((t) => (
+                {config.testimonials.map((testimonial) => (
                   <motion.div
-                    key={t.name}
+                    key={testimonial.name}
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -463,14 +468,14 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <div className="flex gap-0.5 mb-3">
                       {[1,2,3,4,5].map(s => <span key={s} className="text-kassen-gold text-sm">★</span>)}
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed mb-4">"{t.quote}"</p>
+                    <p className="text-sm text-foreground leading-relaxed mb-4">"{testimonial.quote}"</p>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                        {t.name.charAt(0)}
+                        {testimonial.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-foreground">{t.name}</p>
-                        <p className="text-[11px] text-muted-foreground">{t.location}</p>
+                        <p className="text-xs font-semibold text-foreground">{testimonial.name}</p>
+                        <p className="text-[11px] text-muted-foreground">{testimonial.location}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -483,15 +488,15 @@ export function OnboardingFlow({ onComplete }: Props) {
         {/* Bottom CTA — solid white button */}
         <section className="bg-hero-navy py-20">
           <div className="max-w-lg mx-auto px-6 text-center">
-            <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">Klar til at komme i gang?</h2>
-            <p className="text-white/60 text-sm mb-8">Det tager kun 3 minutter — og koster ingenting.</p>
+            <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">{t("bottomCta.title")}</h2>
+            <p className="text-white/60 text-sm mb-8">{t("bottomCta.subtitle")}</p>
             <button
               onClick={() => setStep("household")}
               className="px-10 py-4 rounded-xl bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20"
             >
-              {config.hero.ctaLabel} <ArrowRight className="w-4 h-4 inline ml-1.5" />
+              {t("hero.cta")} <ArrowRight className="w-4 h-4 inline ml-1.5" />
             </button>
-            <p className="text-white/40 text-[11px] mt-5">Ingen login · Ingen data deles · Alt gemmes lokalt</p>
+            <p className="text-white/40 text-[11px] mt-5">{t("bottomCta.noLogin")}</p>
           </div>
         </section>
 
@@ -502,24 +507,24 @@ export function OnboardingFlow({ onComplete }: Props) {
               <div>
                 <span className="font-display font-black text-base text-foreground">{config.brandName}</span>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                  Få det fulde overblik over din økonomi. Gratis, privat og bygget til danske forhold.
+                  {t("footer.tagline")}
                 </p>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Produkt</h4>
+                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t("footer.product")}</h4>
                 <ul className="space-y-2 text-xs text-muted-foreground">
-                  <li className="hover:text-foreground transition-colors cursor-default">Budgetberegner</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">AI-indsigt</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">Nabo-sammenligning</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">Bankmøde-rapport</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("footer.budgetCalc")}</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("feature.aiInsight")}</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("footer.neighborComp")}</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("feature.bankReport")}</li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">Information</h4>
+                <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t("footer.info")}</h4>
                 <ul className="space-y-2 text-xs text-muted-foreground">
-                  <li className="hover:text-foreground transition-colors cursor-default">Privatlivspolitik</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">Vilkår & betingelser</li>
-                  <li className="hover:text-foreground transition-colors cursor-default">Kontakt</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("footer.privacy")}</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("footer.terms")}</li>
+                  <li className="hover:text-foreground transition-colors cursor-default">{t("footer.contact")}</li>
                 </ul>
               </div>
             </div>
@@ -528,7 +533,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                 <p className="text-[10px] text-muted-foreground">{config.footer.disclaimerText}</p>
               )}
               <p className="text-[10px] text-muted-foreground">
-                {config.footer?.text || `© 2026 ${config.brandName}. Alle rettigheder forbeholdes.`}
+                {config.footer?.text || `© 2026 ${config.brandName}. ${lang === "da" ? "Alle rettigheder forbeholdes." : "All rights reserved."}`}
               </p>
             </div>
           </div>
@@ -540,11 +545,11 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── HOUSEHOLD ───────────────────────────
   if (step === "household") {
     return (
-      <StepShell step={step} title="Hvem er med i husstanden?" subtitle="Vi tilpasser alle estimater til jeres situation.">
+      <StepShell step={step} title={t("step.household.title")} subtitle={t("step.household.subtitle")}>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { type: "solo" as const, emoji: "🧍", label: "Kun mig", sub: "Enlig husstand" },
-            { type: "par" as const, emoji: "👫", label: "Vi er to", sub: "Par / samboende" },
+            { type: "solo" as const, emoji: "🧍", label: t("step.household.solo"), sub: t("step.household.soloSub") },
+            { type: "par" as const, emoji: "👫", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
           ].map((opt) => (
             <OptionCard
               key={opt.type}
@@ -588,29 +593,29 @@ export function OnboardingFlow({ onComplete }: Props) {
     };
 
     return (
-      <StepShell step={step} title={isPar ? "Hvad er jeres indkomst?" : "Hvad er din indkomst?"} subtitle="Månedlig udbetalt efter skat." onBack={goBack}>
+      <StepShell step={step} title={isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")} subtitle={t("step.income.subtitle")} onBack={goBack}>
         <div className="space-y-8">
           <SliderInput
             value={profile.income} onChange={(v) => update({ income: v })}
-            label={isPar ? "Din indkomst" : "Månedlig indkomst"} min={10000} max={80000} step={500}
+            label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500}
           />
           {isPar && (
             <SliderInput
               value={profile.partnerIncome} onChange={(v) => update({ partnerIncome: v })}
-              label="Partners indkomst" min={0} max={80000} step={500}
+              label={t("step.income.partnerIncome")} min={0} max={80000} step={500}
             />
           )}
 
           {/* Additional income sources */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Øvrig indkomst</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
             {profile.additionalIncome.length > 0 && (
               <div className="space-y-2 mb-3">
                 {profile.additionalIncome.map((src, i) => (
                   <div key={i} className="rounded-xl border border-border p-3 space-y-2">
                     <div className="flex gap-2">
                       <input type="text" value={src.label} onChange={(e) => updateIncomeSource(i, { label: e.target.value })}
-                        placeholder="F.eks. Bonus, SU, børnepenge"
+                        placeholder={t("step.income.placeholder")}
                         className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
                       <button onClick={() => removeIncomeSource(i)}
                         className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
@@ -620,20 +625,20 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <div className="flex gap-2">
                       <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-2 flex-1">
                         <input type="number" value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Number(e.target.value) || 0 })}
-                          placeholder="Beløb"
+                          placeholder={t("step.income.amount")}
                           className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
-                        <span className="text-xs text-muted-foreground">kr.</span>
+                        <span className="text-xs text-muted-foreground">{t("currency")}</span>
                       </div>
                       <select value={src.frequency} onChange={(e) => updateIncomeSource(i, { frequency: e.target.value as PaymentFrequency })}
                         className="bg-background border border-border rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <option value="monthly">Månedlig</option>
-                        <option value="quarterly">Kvartalsvis</option>
-                        <option value="biannual">Halvårlig</option>
-                        <option value="annual">Årlig</option>
+                        <option value="monthly">{t("freq.monthly")}</option>
+                        <option value="quarterly">{t("freq.quarterly")}</option>
+                        <option value="biannual">{t("freq.biannual")}</option>
+                        <option value="annual">{t("freq.annual")}</option>
                       </select>
                     </div>
                     {src.frequency !== "monthly" && src.amount > 0 && (
-                      <p className="text-[11px] text-muted-foreground">= {formatKr(frequencyToMonthly(src.amount, src.frequency))} kr./md.</p>
+                      <p className="text-[11px] text-muted-foreground">= {formatKr(frequencyToMonthly(src.amount, src.frequency))} {t("perMonth")}</p>
                     )}
                   </div>
                 ))}
@@ -641,20 +646,17 @@ export function OnboardingFlow({ onComplete }: Props) {
             )}
             <button onClick={addIncomeSource}
               className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Tilføj indkomstkilde
+              <Plus className="w-3.5 h-3.5" /> {t("step.income.addSource")}
             </button>
           </div>
 
           <div className="rounded-xl bg-muted/50 border border-border p-4 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Samlet indkomst</span>
+            <span className="text-sm text-muted-foreground">{t("step.income.total")}</span>
             <span className="font-display font-bold text-lg text-primary">
-              {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} kr.
+              {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} {t("currency")}
             </span>
           </div>
-          <AiTip text={isPar 
-            ? `Gennemsnitlig husstandsindkomst for par i Danmark er ca. 52.000 kr./md. efter skat.`
-            : `Gennemsnitlig indkomst for enlige i Danmark er ca. 27.000 kr./md. efter skat.`
-          } />
+          <AiTip text={isPar ? t("step.income.tipCouple") : t("step.income.tipSolo")} />
           <ContinueButton onClick={goNext} disabled={profile.income < 1000} />
         </div>
       </StepShell>
@@ -695,13 +697,13 @@ export function OnboardingFlow({ onComplete }: Props) {
     };
 
     return (
-      <StepShell step={step} title="Boligsituation" subtitle="Vi estimerer ud fra postnummer — justér frit." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={t("step.housing.title")} subtitle={t("step.housing.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
             {[
-              { type: "lejer" as const, emoji: "🏢", label: "Lejer" },
-              { type: "andel" as const, emoji: "🏘️", label: "Andel" },
-              { type: "ejer" as const, emoji: "🏡", label: "Ejer" },
+              { type: "lejer" as const, emoji: "🏢", label: t("step.housing.renter") },
+              { type: "andel" as const, emoji: "🏘️", label: t("step.housing.coop") },
+              { type: "ejer" as const, emoji: "🏡", label: t("step.housing.owner") },
             ].map((opt) => (
               <OptionCard
                 key={opt.type}
@@ -713,12 +715,12 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           <div>
-            <label className="text-sm text-muted-foreground block mb-2">Postnummer</label>
+            <label className="text-sm text-muted-foreground block mb-2">{t("step.housing.postalCode")}</label>
             <input
               type="text" inputMode="numeric" maxLength={4}
               value={profile.postalCode}
               onChange={(e) => handlePostalChange(e.target.value)}
-              placeholder="F.eks. 2100"
+              placeholder={t("step.housing.postalPlaceholder")}
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30"
             />
             {postalName && (
@@ -729,21 +731,21 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           {profile.housingType === "lejer" && (
-            <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig husleje" min={2000} max={25000} step={250} />
+            <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label={t("step.housing.rent")} min={2000} max={25000} step={250} />
           )}
           {profile.housingType === "andel" && (
             <div className="space-y-5">
-              <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig boligafgift" min={1000} max={15000} step={250} />
-              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Andelslån (afdrag + renter)" min={0} max={15000} step={250} />
+              <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label={t("step.housing.coopFee")} min={1000} max={15000} step={250} />
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.coopLoan")} min={0} max={15000} step={250} />
             </div>
           )}
           {profile.housingType === "ejer" && (
             <div className="space-y-5">
-              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
-              <SliderInput value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label="Boligens estimerede værdi" min={500000} max={10000000} step={100000} />
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.mortgage")} min={2000} max={30000} step={250} />
+              <SliderInput value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label={t("step.housing.propertyValue")} min={500000} max={10000000} step={100000} />
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">Rente på lån</span>
+                  <span className="text-sm text-muted-foreground">{t("step.housing.interestRate")}</span>
                   <div className="flex items-baseline gap-1 bg-muted rounded-lg px-3 py-1.5">
                     <span className="font-display font-bold text-lg">{profile.interestRate.toFixed(1)}</span>
                     <span className="text-xs text-muted-foreground">%</span>
@@ -778,19 +780,19 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── CHILDREN ────────────────────────────
   if (step === "children") {
     return (
-      <StepShell step={step} title={isPar ? "Har I børn?" : "Har du børn?"} subtitle="Vi finder institutionspriser automatisk." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={isPar ? t("step.children.titleCouple") : t("step.children.titleSolo")} subtitle={t("step.children.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
-            <OptionCard active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label="Ingen børn" />
-            <OptionCard active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label="Ja, vi har børn" />
+            <OptionCard active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
+            <OptionCard active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
           </div>
 
           {profile.hasChildren && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
-              <p className="text-sm text-muted-foreground">Alder for hvert barn:</p>
+              <p className="text-sm text-muted-foreground">{t("step.children.age")}</p>
               {childAgeInputs.map((age, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-14">Barn {i + 1}</span>
+                  <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
                   <select
                     value={age}
                     onChange={(e) => {
@@ -799,7 +801,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     }}
                     className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
-                    {Array.from({ length: 18 }, (_, j) => <option key={j} value={j}>{j} år</option>)}
+                    {Array.from({ length: 18 }, (_, j) => <option key={j} value={j}>{j} {t("step.children.years")}</option>)}
                   </select>
                   {childAgeInputs.length > 1 && (
                     <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}
@@ -812,12 +814,12 @@ export function OnboardingFlow({ onComplete }: Props) {
               {childAgeInputs.length < 5 && (
                 <button onClick={() => { const na = [...childAgeInputs, 3]; setChildAgeInputs(na); update({ childrenAges: na }); }}
                   className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-                  <Plus className="w-3.5 h-3.5" /> Tilføj barn
+                  <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
                 </button>
               )}
             </motion.div>
           )}
-          <AiTip text="Institutionspriser er landsgennemsnit 2026 (kilde: KL/kommunerne). Vuggestue ca. 4.500 kr., børnehave ca. 2.600 kr., SFO ca. 2.300 kr./md. Din kommune kan afvige — ret beløbet i dashboardet." />
+          <AiTip text={t("step.children.tip")} />
           <ContinueButton onClick={() => {
             if (profile.hasChildren && childAgeInputs.length > 0) {
               update({ childrenAges: childAgeInputs });
@@ -841,23 +843,23 @@ export function OnboardingFlow({ onComplete }: Props) {
     const sections = [
       {
         title: "Streaming & musik", items: [
-          { key: "hasNetflix" as const, icon: "🎬", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} kr./md.` },
-          { key: "hasSpotify" as const, icon: "🎵", label: "Spotify", sub: `${isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo} kr./md.` },
-          { key: "hasHBO" as const, icon: "🎭", label: "HBO Max", sub: `${SUBSCRIPTIONS.hbo.price} kr./md.` },
-          { key: "hasViaplay" as const, icon: "⚽", label: "Viaplay", sub: `${SUBSCRIPTIONS.viaplay.price} kr./md.` },
-          { key: "hasDisney" as const, icon: "✨", label: "Disney+", sub: `${SUBSCRIPTIONS.disney.price} kr./md.` },
-          { key: "hasAppleTV" as const, icon: "🍎", label: "Apple TV+", sub: `${SUBSCRIPTIONS.appleTV.price} kr./md.` },
-          { key: "hasAmazonPrime" as const, icon: "📦", label: "Amazon Prime", sub: `${SUBSCRIPTIONS.amazonPrime.price} kr./md.` },
+          { key: "hasNetflix" as const, icon: "🎬", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} ${t("perMonth")}` },
+          { key: "hasSpotify" as const, icon: "🎵", label: "Spotify", sub: `${isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo} ${t("perMonth")}` },
+          { key: "hasHBO" as const, icon: "🎭", label: "HBO Max", sub: `${SUBSCRIPTIONS.hbo.price} ${t("perMonth")}` },
+          { key: "hasViaplay" as const, icon: "⚽", label: "Viaplay", sub: `${SUBSCRIPTIONS.viaplay.price} ${t("perMonth")}` },
+          { key: "hasDisney" as const, icon: "✨", label: "Disney+", sub: `${SUBSCRIPTIONS.disney.price} ${t("perMonth")}` },
+          { key: "hasAppleTV" as const, icon: "🍎", label: "Apple TV+", sub: `${SUBSCRIPTIONS.appleTV.price} ${t("perMonth")}` },
+          { key: "hasAmazonPrime" as const, icon: "📦", label: "Amazon Prime", sub: `${SUBSCRIPTIONS.amazonPrime.price} ${t("perMonth")}` },
         ],
       },
     ];
 
     return (
-      <StepShell step={step} title="Faste udgifter" subtitle="Vælg det der passer — vi præudfylder priserne." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={t("step.expenses.title")} subtitle={t("step.expenses.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-8">
           {/* Streaming */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Streaming & musik</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
             <div className="space-y-1.5">
               {sections[0].items.map((s) => (
                 <ToggleRow key={s.key} active={!!profile[s.key]} onClick={() => update({ [s.key]: !profile[s.key] } as any)}
@@ -868,49 +870,49 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Transport — detailed */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Transport</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
             <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
-              icon="🚗" label="Bil" sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} kr./md. samlet` : "Lån, benzin, forsikring, afgift"} />
+              icon="🚗" label={t("step.expenses.car")} sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} ${t("perMonth")}` : t("step.expenses.carLoan")} />
             {profile.hasCar && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-1.5 ml-2 border-l-2 border-primary/10 pl-4">
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Billån / leasing</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carLoan")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carLoan} onChange={(e) => update({ carLoan: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Benzin / opladning</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.fuel")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carFuel} onChange={(e) => update({ carFuel: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Bilforsikring</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carInsurance")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carInsurance} onChange={(e) => update({ carInsurance: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perYear")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Vægtafgift / grøn ejerafgift</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carTax")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carTax} onChange={(e) => update({ carTax: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perYear")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Service / værksted</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carService")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carService} onChange={(e) => update({ carService: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./halvår</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perHalfYear")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -919,39 +921,39 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Insurance etc */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Forsikring & fagforening</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
             <div className="space-y-1.5">
               <ToggleRow active={profile.hasInsurance} onClick={() => update({ hasInsurance: !profile.hasInsurance })}
-                icon="🛡️" label="Forsikringer" sublabel="Indbo, ulykke, etc."
+                icon="🛡️" label={t("step.expenses.insurance")} sublabel={t("step.expenses.insuranceSub")}
                 amount={profile.insuranceAmount} onAmountChange={(v) => update({ insuranceAmount: v })} />
               <ToggleRow active={profile.hasUnion} onClick={() => update({ hasUnion: !profile.hasUnion })}
-                icon="🏛️" label="Fagforening & A-kasse"
+                icon="🏛️" label={t("step.expenses.union")}
                 amount={profile.unionAmount} onAmountChange={(v) => update({ unionAmount: v })} />
               <ToggleRow active={profile.hasFitness} onClick={() => update({ hasFitness: !profile.hasFitness })}
-                icon="💪" label="Fitness / sport"
+                icon="💪" label={t("step.expenses.fitness")}
                 amount={profile.fitnessAmount} onAmountChange={(v) => update({ fitnessAmount: v })} />
             </div>
           </div>
 
           {/* Kæledyr, lån & opsparing */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Kæledyr, lån & opsparing</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.petsLoans")}</h3>
             <div className="space-y-1.5">
               <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
-                icon="🐕" label="Kæledyr" sublabel="Foder, dyrlæge, forsikring"
+                icon="🐕" label={t("step.expenses.pet")} sublabel={t("step.expenses.petSub")}
                 amount={profile.petAmount} onAmountChange={(v) => update({ petAmount: v })} />
               <ToggleRow active={profile.hasLoan} onClick={() => update({ hasLoan: !profile.hasLoan })}
-                icon="💰" label="Lån" sublabel="SU-lån, forbrugslån, billån"
+                icon="💰" label={t("step.expenses.loan")} sublabel={t("step.expenses.loanSub")}
                 amount={profile.loanAmount} onAmountChange={(v) => update({ loanAmount: v })} />
               <ToggleRow active={profile.hasSavings} onClick={() => update({ hasSavings: !profile.hasSavings })}
-                icon="🏦" label="Opsparing / investering" sublabel="Fast opsparing pr. måned"
+                icon="🏦" label={t("step.expenses.savings")} sublabel={t("step.expenses.savingsSub")}
                 amount={profile.savingsAmount} onAmountChange={(v) => update({ savingsAmount: v })} />
             </div>
           </div>
 
           {/* Custom */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Egne udgifter</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
             {profile.customExpenses.length > 0 && (
               <div className="space-y-1.5 mb-3">
                 {profile.customExpenses.map((ce, i) => (
@@ -964,7 +966,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">
-                        {formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} kr./md.
+                        {formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} {t("perMonth")}
                       </span>
                       <button onClick={() => update({ customExpenses: profile.customExpenses.filter((_, idx) => idx !== i) })}
                         className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
@@ -977,17 +979,17 @@ export function OnboardingFlow({ onComplete }: Props) {
             )}
             <div className="flex gap-2">
               <input type="text" value={customLabel} onChange={(e) => setCustomLabel(e.target.value)}
-                placeholder="F.eks. Kontaktlinser"
+                placeholder={t("step.expenses.customPlaceholder")}
                 className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
               <input type="number" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
-                placeholder="Kr."
+                placeholder={t("currency")}
                 className="w-20 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30 no-spin" />
               <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
                 className="bg-background border border-border rounded-lg px-1.5 py-2.5 text-[11px] focus:outline-none focus:ring-2 focus:ring-primary/20">
-                <option value="monthly">Md.</option>
-                <option value="quarterly">Kvartal</option>
-                <option value="biannual">Halvår</option>
-                <option value="annual">År</option>
+                <option value="monthly">{t("freq.monthlyShort")}</option>
+                <option value="quarterly">{t("freq.quarterShort")}</option>
+                <option value="biannual">{t("freq.halfYearShort")}</option>
+                <option value="annual">{t("freq.yearShort")}</option>
               </select>
               <button onClick={addCustom} disabled={!customLabel.trim() || customAmount <= 0}
                 className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20 hover:bg-primary/15 transition-colors flex-shrink-0">
@@ -997,7 +999,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           <AiTip text={`💡 Vi har automatisk inkluderet sundhed (${isPar ? "500" : "350"} kr.), restaurant (${isPar ? "1.500" : "800"} kr.)${profile.housingType === "ejer" ? ", grundejerforening (1.500 kr.)" : ""}${!profile.hasCar ? " og offentlig transport (600 kr.)" : ""} baseret på jeres profil. Tilføj egne udgifter ovenfor hvis noget mangler.`} />
-          <ContinueButton onClick={goNext} label="Se overblik" />
+          <ContinueButton onClick={goNext} label={t("step.expenses.seeOverview")} />
         </div>
       </StepShell>
     );
@@ -1012,15 +1014,15 @@ export function OnboardingFlow({ onComplete }: Props) {
     const isWarning = budget.disposableIncome > 3000;
 
     const variableFields: { key: keyof BudgetProfile; label: string; icon: string }[] = [
-      { key: "foodAmount", label: "Mad & dagligvarer", icon: "🛒" },
-      { key: "restaurantAmount", label: "Restaurant & takeaway", icon: "🍕" },
-      { key: "leisureAmount", label: "Fritid & oplevelser", icon: "🎭" },
-      { key: "clothingAmount", label: "Tøj & personlig pleje", icon: "👕" },
-      { key: "healthAmount", label: "Sundhed (læge, tandlæge)", icon: "🏥" },
+      { key: "foodAmount", label: t("step.review.food"), icon: "🛒" },
+      { key: "restaurantAmount", label: t("step.review.restaurant"), icon: "🍕" },
+      { key: "leisureAmount", label: t("step.review.leisure"), icon: "🎭" },
+      { key: "clothingAmount", label: t("step.review.clothing"), icon: "👕" },
+      { key: "healthAmount", label: t("step.review.health"), icon: "🏥" },
     ];
 
     return (
-      <StepShell step={step} title="Gennemse & justér" subtitle="Ret alle tal til inden du går videre." onBack={goBack}>
+      <StepShell step={step} title={t("step.review.title")} subtitle={t("step.review.subtitle")} onBack={goBack}>
         <div className="space-y-6">
           {/* Hero number */}
           <motion.div
@@ -1031,7 +1033,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           >
             <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"}`} />
             <div className="relative">
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rådighedsbeløb pr. måned</p>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
               <div className="flex items-baseline justify-center gap-1">
                 <motion.span
                   key={budget.disposableIncome}
@@ -1041,10 +1043,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                 >
                   {formatKr(budget.disposableIncome)}
                 </motion.span>
-                <span className="text-muted-foreground font-display text-lg">kr.</span>
+                <span className="text-muted-foreground font-display text-lg">{t("currency")}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {isHealthy ? "✅ God økonomi" : isWarning ? "⚠️ Slank margin" : "🚨 Under anbefaling"}
+                {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
               </p>
             </div>
           </motion.div>
@@ -1052,9 +1054,9 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Indkomst", amount: budget.totalIncome, color: "text-primary" },
-              { label: "Udgifter", amount: budget.totalExpenses, color: "text-destructive" },
-              { label: "Andel", amount: expenseRatio, color: "text-muted-foreground", suffix: "%" },
+              { label: t("step.review.income"), amount: budget.totalIncome, color: "text-primary" },
+              { label: t("step.review.expenses"), amount: budget.totalExpenses, color: "text-destructive" },
+              { label: t("step.review.share"), amount: expenseRatio, color: "text-muted-foreground", suffix: "%" },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-border p-3 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
@@ -1068,7 +1070,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Editable variable expenses */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5" /> Variable udgifter — justér til dit forbrug
+              <Info className="w-3.5 h-3.5" /> {t("step.review.variableExpenses")}
             </h3>
             <div className="space-y-1.5">
               {variableFields.map(({ key, label, icon }) => (
@@ -1084,7 +1086,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                       onChange={(e) => update({ [key]: Number(e.target.value) || 0 } as any)}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16"
                     />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
               ))}
@@ -1094,20 +1096,18 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Fixed expense list (read-only summary) */}
           <div className="rounded-xl border border-border divide-y divide-border">
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Faste udgifter</span>
-              <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} kr.</span>
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.review.fixedExpenses")}</span>
+              <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("currency")}</span>
             </div>
             {budget.fixedExpenses.map((e, i) => (
               <div key={i} className="px-4 py-2 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{e.label}</span>
-                <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
+                <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("currency")}</span>
               </div>
             ))}
           </div>
 
-          <AiTip text="Ret de variable udgifter ovenfor så de passer til jeres reelle forbrug. Tallene opdateres live, og I kan altid justere i dashboardet bagefter." />
-
-          <ContinueButton onClick={() => onComplete(profile)} label="Se fuldt dashboard" />
+          <ContinueButton onClick={() => onComplete(profile)} label={t("step.review.seeDashboard")} />
         </div>
       </StepShell>
     );

@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
 
 export function AppFooter() {
   const config = useWhiteLabel();
+  const { t } = useI18n();
 
   return (
     <footer className="border-t border-border bg-muted/30">
@@ -12,43 +14,43 @@ export function AppFooter() {
           <div className="col-span-2 md:col-span-1 space-y-2">
             <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {config.brandTagline || "Smart budgetværktøj for danske husstande."}
+              {config.brandTagline || t("footer.tagline")}
             </p>
           </div>
 
           {/* Værktøjer */}
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">Værktøjer</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">{t("footer.tools")}</h4>
             <ul className="space-y-1.5">
-              <li><Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Budgetberegner</Link></li>
-              <li><a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Parøkonomi</a></li>
-              <li><a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Børneskat</a></li>
+              <li><Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("footer.budgetCalc")}</Link></li>
+              <li><a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.coupleFinance")}</a></li>
+              <li><a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.childTax")}</a></li>
             </ul>
           </div>
 
           {/* Juridisk */}
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">Juridisk</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">{t("footer.legal")}</h4>
             <ul className="space-y-1.5">
-              <li><Link to="/privatliv" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privatlivspolitik</Link></li>
+              <li><Link to="/privatliv" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
             </ul>
           </div>
 
           {/* Om */}
           <div className="space-y-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">Om {config.brandName}</h4>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">{t("footer.about")} {config.brandName}</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              100% privat · Data gemmes lokalt
+              {t("footer.private")}
             </p>
           </div>
         </div>
 
         <div className="border-t border-border pt-6 space-y-2 text-center">
           <p className="text-[11px] text-muted-foreground/60">
-            {config.footer?.text || `© ${new Date().getFullYear()} ${config.brandName}`} · Beregnet på danske gennemsnitstal 2026 · Data gemmes lokalt
+            {config.footer?.text || `© ${new Date().getFullYear()} ${config.brandName}`} · {t("footer.based")}
           </p>
           <p className="text-[10px] text-muted-foreground/50 max-w-md mx-auto">
-            {config.footer?.disclaimerText || "Kassen er et budgetværktøj og yder ikke finansiel rådgivning. Tal med din bank eller en rådgiver om konkrete økonomiske beslutninger."}
+            {config.footer?.disclaimerText || t("footer.disclaimer")}
           </p>
         </div>
       </div>

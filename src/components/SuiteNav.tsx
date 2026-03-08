@@ -1,16 +1,18 @@
 import { useWhiteLabel } from "@/lib/whiteLabel";
-
-const suiteLinks = [
-  { label: "Budget", href: "/", current: true },
-  { label: "Parøkonomi", href: "https://parfinans.dk", current: false },
-  { label: "Børneskat", href: "https://boerneskat.dk", current: false },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function SuiteNav() {
   const config = useWhiteLabel();
+  const { t } = useI18n();
 
   // Only show for default Kassen brand
   if (config.brandName !== "Kassen") return null;
+
+  const suiteLinks = [
+    { label: t("nav.budget"), href: "/", current: true },
+    { label: t("nav.coupleFinance"), href: "https://parfinans.dk", current: false },
+    { label: t("nav.childTax"), href: "https://boerneskat.dk", current: false },
+  ];
 
   return (
     <div className="bg-primary text-primary-foreground">
