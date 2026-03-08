@@ -6,6 +6,7 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
+import { AILiveComment } from "./AILiveComment";
 import heroCouple from "@/assets/hero-couple.jpg";
 import featureAdvisor from "@/assets/feature-advisor.jpg";
 import featureFamily from "@/assets/feature-family.jpg";
