@@ -116,12 +116,16 @@ async function streamAI({
 
 export function AIChatPanel({ profile, budget }: Props) {
   const config = useWhiteLabel();
+  const { t, lang } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
+  const [hasProactiveNudge, setHasProactiveNudge] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const smartQuestions = useMemo(() => getSmartQuestions(profile, budget, lang), [profile, budget, lang]);
 
   useEffect(() => {
     if (scrollRef.current) {
