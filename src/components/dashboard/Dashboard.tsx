@@ -105,13 +105,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     : baseSections;
 
   // Track active section via IntersectionObserver
-  import("react").then(({ useEffect: _ue }) => {});
-  // Using useEffect for intersection observer
-  const sectionsRef = useRef(sections);
-  sectionsRef.current = sections;
-  
-  useState(() => {
-    if (typeof window === "undefined") return;
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -122,14 +116,14 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       },
       { rootMargin: "-120px 0px -60% 0px", threshold: 0.1 }
     );
-    setTimeout(() => {
-      sectionsRef.current.forEach((s) => {
+    const timer = setTimeout(() => {
+      sections.forEach((s) => {
         const el = document.getElementById(s.id);
         if (el) observer.observe(el);
       });
     }, 500);
-    return () => observer.disconnect();
-  });
+    return () => { clearTimeout(timer); observer.disconnect(); };
+  }, []);
 
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
