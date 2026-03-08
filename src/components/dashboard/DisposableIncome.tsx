@@ -25,8 +25,8 @@ export function DisposableIncome({ health }: Props) {
       <div className="rounded-2xl border border-border p-5 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
           {/* Score ring */}
-          <div className="relative flex-shrink-0">
-            <svg width="96" height="96" viewBox="0 0 96 96">
+          <div className="relative flex-shrink-0 glow-ring">
+            <svg width="96" height="96" viewBox="0 0 96 96" className="drop-shadow-sm">
               <circle cx="48" cy="48" r={radius} fill="none" stroke="hsl(150, 8%, 91%)" strokeWidth="6" />
               <motion.circle
                 cx="48" cy="48" r={radius}
