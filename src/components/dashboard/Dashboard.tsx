@@ -85,6 +85,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [confettiTriggered, setConfettiTriggered] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
   const scrollRef = useRef<HTMLDivElement>(null);
 
