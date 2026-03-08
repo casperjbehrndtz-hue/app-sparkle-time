@@ -41,6 +41,63 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          budget_profile: Json | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          budget_profile?: Json | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          budget_profile?: Json | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string | null
+          frequency: string
+          id: string
+          is_active: boolean
+          name: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       price_averages: {
