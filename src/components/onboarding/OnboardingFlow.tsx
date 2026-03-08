@@ -966,7 +966,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">
-                        {formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} kr./md.
+                        {formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} {t("perMonth")}
                       </span>
                       <button onClick={() => update({ customExpenses: profile.customExpenses.filter((_, idx) => idx !== i) })}
                         className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
