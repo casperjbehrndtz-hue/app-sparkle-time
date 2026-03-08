@@ -625,7 +625,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <div className="flex gap-2">
                       <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-2 flex-1">
                         <input type="number" value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Number(e.target.value) || 0 })}
-                          placeholder="Beløb"
+                          placeholder={t("step.income.amount")}
                           className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
                         <span className="text-xs text-muted-foreground">kr.</span>
                       </div>
