@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Shield, Clock, Sparkles, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
