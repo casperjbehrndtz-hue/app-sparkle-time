@@ -181,6 +181,7 @@ export function WelcomePage({ onStart }: Props) {
                 <li>{t("footer.privacy")}</li>
                 <li>{t("footer.terms")}</li>
                 <li>{t("footer.contact")}</li>
+                <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />Installér app</Link></li>
               </ul>
             </div>
           </div>
