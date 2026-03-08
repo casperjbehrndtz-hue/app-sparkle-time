@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, FileText, BarChart3 } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
 import { DisposableIncome } from "./DisposableIncome";
 import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
@@ -15,6 +16,7 @@ import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -28,17 +30,9 @@ interface Props {
   onReset: () => void;
 }
 
-const baseTabs = [
-  { id: "nu", label: "Cockpit" },
-  { id: "fremad", label: "Fremad" },
-  { id: "hvadvis", label: "Hvad hvis" },
-  { id: "optimering", label: "Optimering" },
-  { id: "naboeffekt", label: "Sammenlign" },
-  { id: "historik", label: "Historik" },
-];
-
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const config = useWhiteLabel();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState("nu");
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
@@ -47,8 +41,17 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
 
+  const baseTabs = [
+    { id: "nu", label: t("tab.cockpit") },
+    { id: "fremad", label: t("tab.forward") },
+    { id: "hvadvis", label: t("tab.whatIf") },
+    { id: "optimering", label: t("tab.optimize") },
+    { id: "naboeffekt", label: t("tab.compare") },
+    { id: "historik", label: t("tab.history") },
+  ];
+
   const tabs = profile.householdType === "par"
-    ? [...baseTabs, { id: "parsplit", label: "Parsplit" }]
+    ? [...baseTabs, { id: "parsplit", label: t("tab.coupleSplit") }]
     : baseTabs;
 
   if (showReport) {
@@ -67,18 +70,19 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
           <div className="flex items-center gap-0.5 sm:gap-1">
+            <LanguageToggle />
             <DarkModeToggle />
             <button onClick={() => setShowCharts(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">Diagrammer</span><span className="sm:hidden">Grafer</span>
+              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.charts")}</span><span className="sm:hidden">{t("dash.chartsShort")}</span>
             </button>
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <FileText className="w-3 h-3" /> Rapport
+              <FileText className="w-3 h-3" /> {t("dash.report")}
             </button>
             <button onClick={onReset}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Ny beregning</span><span className="sm:hidden">Nulstil</span>
+              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.newCalc")}</span><span className="sm:hidden">{t("dash.resetShort")}</span>
             </button>
           </div>
         </div>
@@ -88,10 +92,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         <DisposableIncome health={health} />
 
         {/* Tabs */}
-        <div className="flex border-b border-border">
+        <div className="flex border-b border-border overflow-x-auto">
           {tabs.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`relative flex-1 py-2.5 text-xs font-medium transition-colors ${
+              className={`relative flex-1 min-w-0 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}>
               {tab.label}
@@ -121,8 +125,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         {showShareCard && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-8">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Del dit resultat</h3>
-              <button onClick={() => setShowShareCard(false)} className="text-xs text-muted-foreground hover:text-foreground">Luk</button>
+              <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("dash.shareResult")}</h3>
+              <button onClick={() => setShowShareCard(false)} className="text-xs text-muted-foreground hover:text-foreground">{t("dash.close")}</button>
             </div>
             <ShareCard health={health} totalIncome={budget.totalIncome} totalExpenses={budget.totalExpenses} />
           </motion.div>
