@@ -631,10 +631,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                       </div>
                       <select value={src.frequency} onChange={(e) => updateIncomeSource(i, { frequency: e.target.value as PaymentFrequency })}
                         className="bg-background border border-border rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <option value="monthly">Månedlig</option>
-                        <option value="quarterly">Kvartalsvis</option>
-                        <option value="biannual">Halvårlig</option>
-                        <option value="annual">Årlig</option>
+                        <option value="monthly">{t("freq.monthly")}</option>
+                        <option value="quarterly">{t("freq.quarterly")}</option>
+                        <option value="biannual">{t("freq.biannual")}</option>
+                        <option value="annual">{t("freq.annual")}</option>
                       </select>
                     </div>
                     {src.frequency !== "monthly" && src.amount > 0 && (
