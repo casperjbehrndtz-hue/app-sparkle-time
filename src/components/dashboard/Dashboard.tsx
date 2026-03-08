@@ -11,6 +11,8 @@ import { NaboeffektView } from "./NaboeffektView";
 import { HvadHvisView } from "./HvadHvisView";
 import { HistorikView } from "./HistorikView";
 import { ParSplitView } from "./ParSplitView";
+import { StressTestView } from "./StressTestView";
+import { AarshjulView } from "./AarshjulView";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
