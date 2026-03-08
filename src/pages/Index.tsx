@@ -4,6 +4,8 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
+import { saveSnapshot } from "@/lib/snapshots";
+import { calculateHealth } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
@@ -57,6 +59,9 @@ const Index = () => {
     setProfile(p);
     setBudget(b);
     setOptimizations(opts);
+    // Save snapshot for history tracking
+    const health = calculateHealth(p, b);
+    saveSnapshot(b, health.score);
     // Submit anonymous price data to improve estimates for everyone
     submitPriceObservations(p);
   };

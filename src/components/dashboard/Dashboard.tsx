@@ -7,10 +7,14 @@ import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
 import { NaboeffektView } from "./NaboeffektView";
+import { HvadHvisView } from "./HvadHvisView";
+import { HistorikView } from "./HistorikView";
+import { ParSplitView } from "./ParSplitView";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -24,11 +28,13 @@ interface Props {
   onReset: () => void;
 }
 
-const tabs = [
+const baseTabs = [
   { id: "nu", label: "Cockpit" },
   { id: "fremad", label: "Fremad" },
+  { id: "hvadvis", label: "Hvad hvis" },
   { id: "optimering", label: "Optimering" },
   { id: "naboeffekt", label: "Sammenlign" },
+  { id: "historik", label: "Historik" },
 ];
 
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
@@ -40,6 +46,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
+
+  const tabs = profile.householdType === "par"
+    ? [...baseTabs, { id: "parsplit", label: "Parsplit" }]
+    : baseTabs;
 
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
@@ -57,6 +67,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
           <div className="flex items-center gap-0.5 sm:gap-1">
+            <DarkModeToggle />
             <button onClick={() => setShowCharts(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">Diagrammer</span><span className="sm:hidden">Grafer</span>
@@ -98,8 +109,11 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             transition={{ duration: 0.2 }}>
             {activeTab === "nu" && <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />}
             {activeTab === "fremad" && <FremadView profile={profile} budget={budget} health={health} />}
+            {activeTab === "hvadvis" && <HvadHvisView profile={profile} budget={budget} health={health} />}
             {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
+            {activeTab === "historik" && <HistorikView />}
+            {activeTab === "parsplit" && profile.householdType === "par" && <ParSplitView profile={profile} budget={budget} />}
           </motion.div>
         </AnimatePresence>
 

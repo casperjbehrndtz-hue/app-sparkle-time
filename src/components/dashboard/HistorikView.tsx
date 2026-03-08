@@ -1,0 +1,124 @@
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { getSnapshots } from "@/lib/snapshots";
+import { formatKr } from "@/lib/budgetCalculator";
+
+export function HistorikView() {
+  const snapshots = useMemo(() => getSnapshots(), []);
+
+  if (snapshots.length < 2) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 space-y-3">
+        <Clock className="w-10 h-10 mx-auto text-muted-foreground/40" />
+        <h3 className="text-sm font-semibold text-foreground">Ingen historik endnu</h3>
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+          Hver gang du laver en beregning, gemmer vi et snapshot. Kom tilbage senere for at se din udvikling over tid.
+        </p>
+      </motion.div>
+    );
+  }
+
+  const first = snapshots[0];
+  const last = snapshots[snapshots.length - 1];
+  const disposableDelta = last.disposableIncome - first.disposableIncome;
+  const scoreDelta = last.score - first.score;
+
+  const chartData = snapshots.map((s) => ({
+    date: new Date(s.date).toLocaleDateString("da-DK", { day: "numeric", month: "short" }),
+    rawDate: s.date,
+    rådighed: s.disposableIncome,
+    score: s.score,
+    indtægt: s.totalIncome,
+    udgifter: s.totalExpenses,
+  }));
+
+  return (
+    <div className="space-y-6">
+      {/* Delta badges */}
+      <div className="flex gap-3">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`flex-1 rounded-xl p-4 text-center space-y-1 ${
+            disposableDelta >= 0 ? "bg-primary/10" : "bg-destructive/10"
+          }`}
+        >
+          <div className={`flex items-center justify-center gap-1 text-sm font-bold ${
+            disposableDelta >= 0 ? "text-primary" : "text-destructive"
+          }`}>
+            {disposableDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {disposableDelta >= 0 ? "+" : ""}{formatKr(disposableDelta)} kr.
+          </div>
+          <p className="text-[10px] text-muted-foreground">Rådighedsbeløb siden start</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className={`flex-1 rounded-xl p-4 text-center space-y-1 ${
+            scoreDelta >= 0 ? "bg-primary/10" : "bg-destructive/10"
+          }`}
+        >
+          <div className={`flex items-center justify-center gap-1 text-sm font-bold ${
+            scoreDelta >= 0 ? "text-primary" : "text-destructive"
+          }`}>
+            {scoreDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+            {scoreDelta >= 0 ? "+" : ""}{scoreDelta} point
+          </div>
+          <p className="text-[10px] text-muted-foreground">Sundhedsscore siden start</p>
+        </motion.div>
+      </div>
+
+      {/* Disposable income chart */}
+      <div className="space-y-2">
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Rådighedsbeløb over tid</h3>
+        <div className="h-48 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorRaad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+              <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                formatter={(v: number) => [`${formatKr(v)} kr.`, "Rådighed"]}
+              />
+              <Area type="monotone" dataKey="rådighed" stroke="hsl(var(--primary))" fill="url(#colorRaad)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Score chart */}
+      <div className="space-y-2">
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Sundhedsscore over tid</h3>
+        <div className="h-36 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                formatter={(v: number) => [`${v} / 100`, "Score"]}
+              />
+              <Line type="monotone" dataKey="score" stroke="hsl(var(--kassen-gold))" strokeWidth={2} dot={{ r: 3 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground text-center">
+        {snapshots.length} beregninger gemt · Første: {new Date(first.date).toLocaleDateString("da-DK")} · Seneste: {new Date(last.date).toLocaleDateString("da-DK")}
+      </p>
+    </div>
+  );
+}
