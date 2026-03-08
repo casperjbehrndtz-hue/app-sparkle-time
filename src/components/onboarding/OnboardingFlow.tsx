@@ -77,6 +77,7 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
   step: OnboardingStep; title: string; subtitle?: string; onBack?: () => void; children: React.ReactNode; liveAmount?: number | null;
 }) {
   const config = useWhiteLabel();
+  const { t } = useI18n();
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border px-5 pt-4 pb-3">
@@ -84,7 +85,7 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
           <div className="flex items-center justify-between">
             {onBack ? (
               <button onClick={onBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 px-1">
-                <ChevronLeft className="w-4 h-4" /> Tilbage
+                <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
               </button>
             ) : <div />}
             <span className="font-display font-black text-base text-primary">{config.brandName}</span>
