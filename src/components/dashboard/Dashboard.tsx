@@ -17,6 +17,8 @@ import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
+import { MoneyFlowHero } from "./MoneyFlowHero";
+import { ConfettiEffect } from "./ConfettiEffect";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
