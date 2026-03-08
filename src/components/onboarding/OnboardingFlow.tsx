@@ -1014,15 +1014,15 @@ export function OnboardingFlow({ onComplete }: Props) {
     const isWarning = budget.disposableIncome > 3000;
 
     const variableFields: { key: keyof BudgetProfile; label: string; icon: string }[] = [
-      { key: "foodAmount", label: "Mad & dagligvarer", icon: "🛒" },
-      { key: "restaurantAmount", label: "Restaurant & takeaway", icon: "🍕" },
-      { key: "leisureAmount", label: "Fritid & oplevelser", icon: "🎭" },
-      { key: "clothingAmount", label: "Tøj & personlig pleje", icon: "👕" },
-      { key: "healthAmount", label: "Sundhed (læge, tandlæge)", icon: "🏥" },
+      { key: "foodAmount", label: t("step.review.food"), icon: "🛒" },
+      { key: "restaurantAmount", label: t("step.review.restaurant"), icon: "🍕" },
+      { key: "leisureAmount", label: t("step.review.leisure"), icon: "🎭" },
+      { key: "clothingAmount", label: t("step.review.clothing"), icon: "👕" },
+      { key: "healthAmount", label: t("step.review.health"), icon: "🏥" },
     ];
 
     return (
-      <StepShell step={step} title="Gennemse & justér" subtitle="Ret alle tal til inden du går videre." onBack={goBack}>
+      <StepShell step={step} title={t("step.review.title")} subtitle={t("step.review.subtitle")} onBack={goBack}>
         <div className="space-y-6">
           {/* Hero number */}
           <motion.div
@@ -1033,7 +1033,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           >
             <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"}`} />
             <div className="relative">
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rådighedsbeløb pr. måned</p>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
               <div className="flex items-baseline justify-center gap-1">
                 <motion.span
                   key={budget.disposableIncome}
@@ -1043,10 +1043,10 @@ export function OnboardingFlow({ onComplete }: Props) {
                 >
                   {formatKr(budget.disposableIncome)}
                 </motion.span>
-                <span className="text-muted-foreground font-display text-lg">kr.</span>
+                <span className="text-muted-foreground font-display text-lg">{t("currency")}</span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {isHealthy ? "✅ God økonomi" : isWarning ? "⚠️ Slank margin" : "🚨 Under anbefaling"}
+                {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
               </p>
             </div>
           </motion.div>
@@ -1054,9 +1054,9 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { label: "Indkomst", amount: budget.totalIncome, color: "text-primary" },
-              { label: "Udgifter", amount: budget.totalExpenses, color: "text-destructive" },
-              { label: "Andel", amount: expenseRatio, color: "text-muted-foreground", suffix: "%" },
+              { label: t("step.review.income"), amount: budget.totalIncome, color: "text-primary" },
+              { label: t("step.review.expenses"), amount: budget.totalExpenses, color: "text-destructive" },
+              { label: t("step.review.share"), amount: expenseRatio, color: "text-muted-foreground", suffix: "%" },
             ].map((s) => (
               <div key={s.label} className="rounded-xl border border-border p-3 text-center">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
@@ -1070,7 +1070,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Editable variable expenses */}
           <div>
             <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3 flex items-center gap-2">
-              <Info className="w-3.5 h-3.5" /> Variable udgifter — justér til dit forbrug
+              <Info className="w-3.5 h-3.5" /> {t("step.review.variableExpenses")}
             </h3>
             <div className="space-y-1.5">
               {variableFields.map(({ key, label, icon }) => (
@@ -1086,7 +1086,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                       onChange={(e) => update({ [key]: Number(e.target.value) || 0 } as any)}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16"
                     />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
               ))}
@@ -1096,20 +1096,18 @@ export function OnboardingFlow({ onComplete }: Props) {
           {/* Fixed expense list (read-only summary) */}
           <div className="rounded-xl border border-border divide-y divide-border">
             <div className="px-4 py-3 flex items-center justify-between">
-              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Faste udgifter</span>
-              <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} kr.</span>
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.review.fixedExpenses")}</span>
+              <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("currency")}</span>
             </div>
             {budget.fixedExpenses.map((e, i) => (
               <div key={i} className="px-4 py-2 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{e.label}</span>
-                <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
+                <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("currency")}</span>
               </div>
             ))}
           </div>
 
-          <AiTip text="Ret de variable udgifter ovenfor så de passer til jeres reelle forbrug. Tallene opdateres live, og I kan altid justere i dashboardet bagefter." />
-
-          <ContinueButton onClick={() => onComplete(profile)} label="Se fuldt dashboard" />
+          <ContinueButton onClick={() => onComplete(profile)} label={t("step.review.seeDashboard")} />
         </div>
       </StepShell>
     );
