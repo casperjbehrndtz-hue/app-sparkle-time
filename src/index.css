@@ -103,6 +103,16 @@
     --kassen-surface: 220 15% 10%;
     --kassen-surface-2: 220 15% 13%;
 
+    --flow-food: 38 85% 55%;
+    --flow-subscriptions: 263 60% 65%;
+    --flow-leisure: 330 70% 65%;
+    --flow-clothing: 187 80% 50%;
+    --flow-health: 172 56% 50%;
+    --flow-restaurant: 25 90% 58%;
+    --flow-children: 271 70% 63%;
+    --flow-pets: 292 74% 66%;
+    --flow-savings: 160 80% 35%;
+
     --hero-navy: 216 50% 12%;
     --hero-navy-light: 216 35% 20%;
 
