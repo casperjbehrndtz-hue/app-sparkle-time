@@ -870,9 +870,9 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Transport — detailed */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Transport</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
             <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
-              icon="🚗" label="Bil" sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} kr./md. samlet` : "Lån, benzin, forsikring, afgift"} />
+              icon="🚗" label={t("step.expenses.car")} sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} ${t("perMonth")}` : t("step.expenses.carLoan")} />
             {profile.hasCar && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-1.5 ml-2 border-l-2 border-primary/10 pl-4">
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
