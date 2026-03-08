@@ -548,8 +548,8 @@ export function OnboardingFlow({ onComplete }: Props) {
       <StepShell step={step} title={t("step.household.title")} subtitle={t("step.household.subtitle")}>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { type: "solo" as const, emoji: "🧍", label: "Kun mig", sub: "Enlig husstand" },
-            { type: "par" as const, emoji: "👫", label: "Vi er to", sub: "Par / samboende" },
+            { type: "solo" as const, emoji: "🧍", label: t("step.household.solo"), sub: t("step.household.soloSub") },
+            { type: "par" as const, emoji: "👫", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
           ].map((opt) => (
             <OptionCard
               key={opt.type}
