@@ -780,19 +780,19 @@ export function OnboardingFlow({ onComplete }: Props) {
   // ─── CHILDREN ────────────────────────────
   if (step === "children") {
     return (
-      <StepShell step={step} title={isPar ? "Har I børn?" : "Har du børn?"} subtitle="Vi finder institutionspriser automatisk." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={isPar ? t("step.children.titleCouple") : t("step.children.titleSolo")} subtitle={t("step.children.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
-            <OptionCard active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label="Ingen børn" />
-            <OptionCard active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label="Ja, vi har børn" />
+            <OptionCard active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
+            <OptionCard active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
           </div>
 
           {profile.hasChildren && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
-              <p className="text-sm text-muted-foreground">Alder for hvert barn:</p>
+              <p className="text-sm text-muted-foreground">{t("step.children.age")}</p>
               {childAgeInputs.map((age, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-14">Barn {i + 1}</span>
+                  <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
                   <select
                     value={age}
                     onChange={(e) => {
@@ -801,7 +801,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                     }}
                     className="flex-1 bg-background border border-border rounded-lg px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                   >
-                    {Array.from({ length: 18 }, (_, j) => <option key={j} value={j}>{j} år</option>)}
+                    {Array.from({ length: 18 }, (_, j) => <option key={j} value={j}>{j} {t("step.children.years")}</option>)}
                   </select>
                   {childAgeInputs.length > 1 && (
                     <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}
@@ -814,12 +814,12 @@ export function OnboardingFlow({ onComplete }: Props) {
               {childAgeInputs.length < 5 && (
                 <button onClick={() => { const na = [...childAgeInputs, 3]; setChildAgeInputs(na); update({ childrenAges: na }); }}
                   className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-                  <Plus className="w-3.5 h-3.5" /> Tilføj barn
+                  <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
                 </button>
               )}
             </motion.div>
           )}
-          <AiTip text="Institutionspriser er landsgennemsnit 2026 (kilde: KL/kommunerne). Vuggestue ca. 4.500 kr., børnehave ca. 2.600 kr., SFO ca. 2.300 kr./md. Din kommune kan afvige — ret beløbet i dashboardet." />
+          <AiTip text={t("step.children.tip")} />
           <ContinueButton onClick={() => {
             if (profile.hasChildren && childAgeInputs.length > 0) {
               update({ childrenAges: childAgeInputs });
