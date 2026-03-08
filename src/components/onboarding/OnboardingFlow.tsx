@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Check, ArrowRight, Shield, Clock, Sparkles, ChevronRight, Info } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import heroCouple from "@/assets/hero-couple.jpg";
 import featureAdvisor from "@/assets/feature-advisor.jpg";
