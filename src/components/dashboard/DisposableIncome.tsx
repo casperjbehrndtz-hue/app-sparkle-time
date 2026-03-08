@@ -22,7 +22,7 @@ export function DisposableIncome({ health }: Props) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
       {/* Health Score + 3 Truths */}
-      <div className="rounded-2xl border border-border p-5 relative overflow-hidden">
+      <div className="rounded-2xl border border-border p-5 relative overflow-hidden premium-card">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
           {/* Score ring */}
           <div className="relative flex-shrink-0 glow-ring">
