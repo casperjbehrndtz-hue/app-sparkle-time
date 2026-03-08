@@ -73,6 +73,17 @@ export default {
           navy: "hsl(var(--hero-navy))",
           "navy-light": "hsl(var(--hero-navy-light))",
         },
+        flow: {
+          food: "hsl(var(--flow-food))",
+          subscriptions: "hsl(var(--flow-subscriptions))",
+          leisure: "hsl(var(--flow-leisure))",
+          clothing: "hsl(var(--flow-clothing))",
+          health: "hsl(var(--flow-health))",
+          restaurant: "hsl(var(--flow-restaurant))",
+          children: "hsl(var(--flow-children))",
+          pets: "hsl(var(--flow-pets))",
+          savings: "hsl(var(--flow-savings))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
