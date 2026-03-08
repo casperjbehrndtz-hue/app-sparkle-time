@@ -14,6 +14,7 @@ import { PageLoader } from "@/components/PageLoader";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Privatliv = lazy(() => import("./pages/Privatliv"));
+const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => {
                   <Routes>
                     <Route path="/" element={<Index />} />
                     <Route path="/privatliv" element={<Privatliv />} />
+                    <Route path="/install" element={<Install />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

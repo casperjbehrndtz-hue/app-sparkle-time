@@ -8,7 +8,8 @@ export function DarkModeToggle() {
     if (typeof window === "undefined") return false;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return saved === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Default to light mode — never auto-detect dark
+    return false;
   });
 
   useEffect(() => {
