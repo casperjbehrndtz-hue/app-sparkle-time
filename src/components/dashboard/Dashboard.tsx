@@ -47,6 +47,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
 
+  const tabs = profile.householdType === "par"
+    ? [...baseTabs, { id: "parsplit", label: "Parsplit" }]
+    : baseTabs;
+
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
   }
