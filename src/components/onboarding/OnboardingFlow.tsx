@@ -597,7 +597,7 @@ export function OnboardingFlow({ onComplete }: Props) {
         <div className="space-y-8">
           <SliderInput
             value={profile.income} onChange={(v) => update({ income: v })}
-            label={isPar ? "Din indkomst" : "Månedlig indkomst"} min={10000} max={80000} step={500}
+            label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500}
           />
           {isPar && (
             <SliderInput
