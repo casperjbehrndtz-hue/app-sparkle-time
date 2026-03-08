@@ -186,7 +186,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
         {/* Scroll-based story sections */}
         <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
-          <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+          <div className="space-y-6">
+            <MoneyFlowHero budget={budget} />
+            <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+          </div>
         </StorySection>
 
         <StorySection id="fremad" title={t("tab.forward")} subtitle="Se frem — formue, mål og tidslinje">
