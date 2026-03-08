@@ -67,6 +67,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
           <div className="flex items-center gap-0.5 sm:gap-1">
+            <DarkModeToggle />
             <button onClick={() => setShowCharts(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">Diagrammer</span><span className="sm:hidden">Grafer</span>
