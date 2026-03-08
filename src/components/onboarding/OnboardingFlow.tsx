@@ -876,43 +876,43 @@ export function OnboardingFlow({ onComplete }: Props) {
             {profile.hasCar && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-1.5 ml-2 border-l-2 border-primary/10 pl-4">
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Billån / leasing</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carLoan")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carLoan} onChange={(e) => update({ carLoan: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Benzin / opladning</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.fuel")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carFuel} onChange={(e) => update({ carFuel: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                    <span className="text-[10px] text-muted-foreground">kr./md.</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Bilforsikring</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carInsurance")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carInsurance} onChange={(e) => update({ carInsurance: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perYear")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Vægtafgift / grøn ejerafgift</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carTax")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carTax} onChange={(e) => update({ carTax: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./år</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perYear")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                  <span className="text-xs text-muted-foreground">Service / værksted</span>
+                  <span className="text-xs text-muted-foreground">{t("step.expenses.carService")}</span>
                   <div className="flex items-center gap-1">
                     <input type="number" value={profile.carService} onChange={(e) => update({ carService: Number(e.target.value) || 0 })}
                       className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                    <span className="text-[10px] text-muted-foreground">kr./halvår</span>
+                    <span className="text-[10px] text-muted-foreground">{t("perHalfYear")}</span>
                   </div>
                 </div>
               </motion.div>
