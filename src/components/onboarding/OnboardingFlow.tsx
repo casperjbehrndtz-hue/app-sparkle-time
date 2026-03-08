@@ -855,11 +855,11 @@ export function OnboardingFlow({ onComplete }: Props) {
     ];
 
     return (
-      <StepShell step={step} title="Faste udgifter" subtitle="Vælg det der passer — vi præudfylder priserne." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={t("step.expenses.title")} subtitle={t("step.expenses.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-8">
           {/* Streaming */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Streaming & musik</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
             <div className="space-y-1.5">
               {sections[0].items.map((s) => (
                 <ToggleRow key={s.key} active={!!profile[s.key]} onClick={() => update({ [s.key]: !profile[s.key] } as any)}
