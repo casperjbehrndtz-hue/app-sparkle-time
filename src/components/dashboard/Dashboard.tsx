@@ -92,6 +92,14 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
 
+  // Trigger confetti for great health scores
+  useEffect(() => {
+    if (health.score >= 75) {
+      const timer = setTimeout(() => setConfettiTriggered(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [health.score]);
+
   const baseSections = [
     { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
     { id: "fremad", label: t("tab.forward"), emoji: "📈" },
