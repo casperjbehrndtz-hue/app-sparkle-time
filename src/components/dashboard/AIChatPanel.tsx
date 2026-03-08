@@ -207,9 +207,16 @@ export function AIChatPanel({ profile, budget }: Props) {
     }
   };
 
+  // Proactive nudge — show notification dot after 10 seconds
+  useEffect(() => {
+    if (isOpen || hasProactiveNudge) return;
+    const timer = setTimeout(() => setHasProactiveNudge(true), 10000);
+    return () => clearTimeout(timer);
+  }, [isOpen, hasProactiveNudge]);
+
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button with notification */}
       {!isOpen && (
         <motion.button
           initial={{ scale: 0, opacity: 0 }}
@@ -219,6 +226,15 @@ export function AIChatPanel({ profile, budget }: Props) {
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all"
         >
           <Sparkles className="w-6 h-6" />
+          {hasProactiveNudge && !hasInitialAnalysis && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"
+            >
+              <Bell className="w-3 h-3 text-white" />
+            </motion.div>
+          )}
         </motion.button>
       )}
 
