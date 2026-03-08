@@ -105,28 +105,31 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     : baseSections;
 
   // Track active section via IntersectionObserver
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useState(() => {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              setActiveSection(entry.target.id);
-            }
+  import("react").then(({ useEffect: _ue }) => {});
+  // Using useEffect for intersection observer
+  const sectionsRef = useRef(sections);
+  sectionsRef.current = sections;
+  
+  useState(() => {
+    if (typeof window === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
           }
-        },
-        { rootMargin: "-120px 0px -60% 0px", threshold: 0.1 }
-      );
-      setTimeout(() => {
-        sections.forEach((s) => {
-          const el = document.getElementById(s.id);
-          if (el) observer.observe(el);
-        });
-      }, 500);
-      return () => observer.disconnect();
-    });
-  }
+        }
+      },
+      { rootMargin: "-120px 0px -60% 0px", threshold: 0.1 }
+    );
+    setTimeout(() => {
+      sectionsRef.current.forEach((s) => {
+        const el = document.getElementById(s.id);
+        if (el) observer.observe(el);
+      });
+    }, 500);
+    return () => observer.disconnect();
+  });
 
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
