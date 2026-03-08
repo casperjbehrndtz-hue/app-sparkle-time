@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, X, MessageCircle, Loader2 } from "lucide-react";
+import { Sparkles, Send, X, MessageCircle, Loader2, Bell } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
+import { formatKr } from "@/lib/budgetCalculator";
 
 interface Props {
   profile: BudgetProfile;
@@ -14,12 +16,27 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/budget-ai`;
 
-const QUICK_QUESTIONS = [
-  "Hvor kan jeg spare mest?",
-  "Er min husleje for høj?",
-  "Hvad hvis renten stiger 2%?",
-  "Bruger jeg for meget på streaming?",
-];
+// Generate seasonal/contextual quick questions
+function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang: string): string[] {
+  const month = new Date().getMonth();
+  const questions: string[] = [];
+  const isDa = lang === "da";
+
+  // Seasonal
+  if (month >= 10 || month === 0) questions.push(isDa ? "Hvordan klarer mit budget julen?" : "How does my budget handle Christmas?");
+  if (month >= 4 && month <= 6) questions.push(isDa ? "Kan jeg spare op til sommerferie?" : "Can I save for summer vacation?");
+  if (month >= 0 && month <= 2) questions.push(isDa ? "Skal jeg skifte forsikring ved fornyelse?" : "Should I switch insurance at renewal?");
+
+  // Context-based
+  if (budget.disposableIncome < 3000) questions.push(isDa ? "Hvor kan jeg skære mest?" : "Where can I cut the most?");
+  if (profile.hasCar) questions.push(isDa ? "Hvad koster min bil reelt?" : "What does my car really cost?");
+  const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
+  if (streamCount >= 3) questions.push(isDa ? "Hvilken streaming kan jeg droppe?" : "Which streaming can I drop?");
+  if (profile.housingType === "ejer") questions.push(isDa ? "Hvad hvis renten stiger 2%?" : "What if rates rise 2%?");
+  if (!profile.hasSavings) questions.push(isDa ? "Hvordan starter jeg med at spare op?" : "How do I start saving?");
+
+  return questions.slice(0, 4);
+}
 
 async function streamAI({
   profile,
@@ -99,12 +116,16 @@ async function streamAI({
 
 export function AIChatPanel({ profile, budget }: Props) {
   const config = useWhiteLabel();
+  const { t, lang } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
+  const [hasProactiveNudge, setHasProactiveNudge] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const smartQuestions = useMemo(() => getSmartQuestions(profile, budget, lang), [profile, budget, lang]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -186,9 +207,16 @@ export function AIChatPanel({ profile, budget }: Props) {
     }
   };
 
+  // Proactive nudge — show notification dot after 10 seconds
+  useEffect(() => {
+    if (isOpen || hasProactiveNudge) return;
+    const timer = setTimeout(() => setHasProactiveNudge(true), 10000);
+    return () => clearTimeout(timer);
+  }, [isOpen, hasProactiveNudge]);
+
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button with notification */}
       {!isOpen && (
         <motion.button
           initial={{ scale: 0, opacity: 0 }}
@@ -198,6 +226,15 @@ export function AIChatPanel({ profile, budget }: Props) {
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all"
         >
           <Sparkles className="w-6 h-6" />
+          {hasProactiveNudge && !hasInitialAnalysis && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center"
+            >
+              <Bell className="w-3 h-3 text-white" />
+            </motion.div>
+          )}
         </motion.button>
       )}
 
@@ -263,10 +300,10 @@ export function AIChatPanel({ profile, budget }: Props) {
               )}
             </div>
 
-            {/* Quick questions */}
+            {/* Smart questions — context-aware */}
             {hasInitialAnalysis && messages.length <= 2 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {QUICK_QUESTIONS.map((q) => (
+                {smartQuestions.map((q) => (
                   <button
                     key={q}
                     onClick={() => sendMessage(q)}

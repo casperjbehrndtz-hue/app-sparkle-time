@@ -6,6 +6,7 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
+import { AILiveComment } from "./AILiveComment";
 import heroCouple from "@/assets/hero-couple.jpg";
 import featureAdvisor from "@/assets/feature-advisor.jpg";
 import featureFamily from "@/assets/feature-family.jpg";
@@ -656,6 +657,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} {t("currency")}
             </span>
           </div>
+          <AILiveComment profile={profile} step="income" />
           <AiTip text={isPar ? t("step.income.tipCouple") : t("step.income.tipSolo")} />
           <ContinueButton onClick={goNext} disabled={profile.income < 1000} />
         </div>
@@ -770,7 +772,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           {sourceNote && (
             <AiTip text={`${sourceNote}${postalName ? ` (${postalName})` : ""}. Ret beløbet ovenfor hvis det ikke passer.`} />
           )}
-
+          <AILiveComment profile={profile} step="housing" />
           <ContinueButton onClick={goNext} />
         </div>
       </StepShell>
@@ -998,6 +1000,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             </div>
           </div>
 
+          <AILiveComment profile={profile} step="expenses" />
           <AiTip text={`💡 Vi har automatisk inkluderet sundhed (${isPar ? "500" : "350"} kr.), restaurant (${isPar ? "1.500" : "800"} kr.)${profile.housingType === "ejer" ? ", grundejerforening (1.500 kr.)" : ""}${!profile.hasCar ? " og offentlig transport (600 kr.)" : ""} baseret på jeres profil. Tilføj egne udgifter ovenfor hvis noget mangler.`} />
           <ContinueButton onClick={goNext} label={t("step.expenses.seeOverview")} />
         </div>

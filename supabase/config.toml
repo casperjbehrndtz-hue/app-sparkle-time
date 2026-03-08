@@ -2,3 +2,9 @@ project_id = "xgyhmwjaxmbdiplfjrdq"
 
 [functions.budget-ai]
 verify_jwt = false
+
+[functions.onboarding-ai]
+verify_jwt = false
+
+[functions.crowdsourced-prices]
+verify_jwt = false
