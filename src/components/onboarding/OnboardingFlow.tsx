@@ -593,7 +593,7 @@ export function OnboardingFlow({ onComplete }: Props) {
     };
 
     return (
-      <StepShell step={step} title={isPar ? "Hvad er jeres indkomst?" : "Hvad er din indkomst?"} subtitle="Månedlig udbetalt efter skat." onBack={goBack}>
+      <StepShell step={step} title={isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")} subtitle={t("step.income.subtitle")} onBack={goBack}>
         <div className="space-y-8">
           <SliderInput
             value={profile.income} onChange={(v) => update({ income: v })}
