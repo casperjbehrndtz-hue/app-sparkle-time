@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Shield, Clock, Sparkles, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -180,6 +181,7 @@ export function WelcomePage({ onStart }: Props) {
                 <li>{t("footer.privacy")}</li>
                 <li>{t("footer.terms")}</li>
                 <li>{t("footer.contact")}</li>
+                <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />Installér app</Link></li>
               </ul>
             </div>
           </div>
