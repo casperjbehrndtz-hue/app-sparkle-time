@@ -27,6 +27,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
+import { SubscriptionTracker } from "./SubscriptionTracker";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 interface Props {
