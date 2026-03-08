@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { Shield, TrendingUp, Wallet, Activity } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function DisposableIncome({ health }: Props) {
+  const { t } = useI18n();
   const { score, label, color, truths } = health;
 
   // Score ring
@@ -47,23 +49,23 @@ export function DisposableIncome({ health }: Props) {
           <div className="flex-1 space-y-2.5">
             <TruthRow
               icon={<Wallet className="w-3.5 h-3.5" />}
-              label="Frihedstal"
-              value={`${formatKr(truths.freeCashFlow)} kr.`}
-              sub="Reelt til overs pr. md."
+              label={t("health.freedom")}
+              value={`${formatKr(truths.freeCashFlow)} ${t("currency")}`}
+              sub={t("health.freedomSub")}
               positive={truths.freeCashFlow > 5000}
             />
             <TruthRow
               icon={<Activity className="w-3.5 h-3.5" />}
-              label="Baseline"
-              value={`${formatKr(truths.monthlyBaseline)} kr.`}
-              sub="Faste udgifter pr. md."
+              label={t("health.baseline")}
+              value={`${formatKr(truths.monthlyBaseline)} ${t("currency")}`}
+              sub={t("health.baselineSub")}
               positive={true}
             />
             <TruthRow
               icon={<Shield className="w-3.5 h-3.5" />}
-              label="Buffer"
+              label={t("health.buffer")}
               value={truths.bufferScore}
-              sub={`~${health.bufferMonths} md. uden indkomst`}
+              sub={`~${health.bufferMonths} ${t("health.bufferSub")}`}
               positive={health.bufferMonths >= 3}
             />
           </div>
