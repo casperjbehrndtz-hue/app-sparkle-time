@@ -715,12 +715,12 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           <div>
-            <label className="text-sm text-muted-foreground block mb-2">Postnummer</label>
+            <label className="text-sm text-muted-foreground block mb-2">{t("step.housing.postalCode")}</label>
             <input
               type="text" inputMode="numeric" maxLength={4}
               value={profile.postalCode}
               onChange={(e) => handlePostalChange(e.target.value)}
-              placeholder="F.eks. 2100"
+              placeholder={t("step.housing.postalPlaceholder")}
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-[15px] font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30"
             />
             {postalName && (
