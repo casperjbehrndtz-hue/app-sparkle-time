@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
@@ -15,6 +16,9 @@ const Index = () => {
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
   const [budget, setBudget] = useState<ComputedBudget | null>(null);
   const [optimizations, setOptimizations] = useState<OptimizingAction[]>([]);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
+  const [pendingBudget, setPendingBudget] = useState<ComputedBudget | null>(null);
 
   // Apply white-label theme as CSS custom properties
   useEffect(() => {
@@ -30,7 +34,6 @@ const Index = () => {
       root.style.setProperty("--font-display", config.displayFont);
     }
     return () => {
-      // Reset on unmount
       root.style.removeProperty("--primary");
       root.style.removeProperty("--primary-foreground");
       root.style.removeProperty("--ring");
@@ -54,16 +57,27 @@ const Index = () => {
 
   const handleComplete = (p: BudgetProfile) => {
     const b = computeBudget(p);
-    const opts = generateOptimizations(p, b);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
-    setProfile(p);
-    setBudget(b);
+    // Show welcome insight screen before dashboard
+    setPendingProfile(p);
+    setPendingBudget(b);
+    setShowWelcome(true);
+  };
+
+  const handleWelcomeContinue = () => {
+    if (!pendingProfile || !pendingBudget) return;
+    const opts = generateOptimizations(pendingProfile, pendingBudget);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile));
+    setProfile(pendingProfile);
+    setBudget(pendingBudget);
     setOptimizations(opts);
+    setShowWelcome(false);
     // Save snapshot for history tracking
-    const health = calculateHealth(p, b);
-    saveSnapshot(b, health.score);
-    // Submit anonymous price data to improve estimates for everyone
-    submitPriceObservations(p);
+    const health = calculateHealth(pendingProfile, pendingBudget);
+    saveSnapshot(pendingBudget, health.score);
+    // Submit anonymous price data
+    submitPriceObservations(pendingProfile);
+    setPendingProfile(null);
+    setPendingBudget(null);
   };
 
   const handleReset = () => {
@@ -72,6 +86,17 @@ const Index = () => {
     setBudget(null);
     setOptimizations([]);
   };
+
+  // AI Welcome Insight screen
+  if (showWelcome && pendingProfile && pendingBudget) {
+    return (
+      <AIWelcomeInsight
+        profile={pendingProfile}
+        budget={pendingBudget}
+        onContinue={handleWelcomeContinue}
+      />
+    );
+  }
 
   if (profile && budget) {
     return (
