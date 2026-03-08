@@ -697,7 +697,7 @@ export function OnboardingFlow({ onComplete }: Props) {
     };
 
     return (
-      <StepShell step={step} title="Boligsituation" subtitle="Vi estimerer ud fra postnummer — justér frit." onBack={goBack} liveAmount={liveDisposable}>
+      <StepShell step={step} title={t("step.housing.title")} subtitle={t("step.housing.subtitle")} onBack={goBack} liveAmount={liveDisposable}>
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
             {[
