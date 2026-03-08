@@ -657,6 +657,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} {t("currency")}
             </span>
           </div>
+          <AILiveComment profile={profile} step="income" />
           <AiTip text={isPar ? t("step.income.tipCouple") : t("step.income.tipSolo")} />
           <ContinueButton onClick={goNext} disabled={profile.income < 1000} />
         </div>
