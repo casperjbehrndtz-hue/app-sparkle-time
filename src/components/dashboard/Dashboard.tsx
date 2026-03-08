@@ -11,6 +11,8 @@ import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
+import { SuiteNav } from "@/components/SuiteNav";
+import { AppFooter } from "@/components/AppFooter";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
@@ -48,7 +50,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      <SuiteNav />
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
@@ -70,7 +73,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5">
+      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5 flex-1">
         <DisposableIncome health={health} />
 
         {/* Tabs */}
@@ -112,10 +115,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         )}
       </main>
 
-      <footer className="border-t border-border py-6 text-center space-y-2">
-        <p className="text-[11px] text-muted-foreground/60">Beregnet på danske gennemsnitstal 2026 · Data gemmes lokalt</p>
-        <p className="text-[10px] text-muted-foreground/50 max-w-md mx-auto">Kassen er et budgetværktøj og yder ikke finansiel rådgivning. Tal med din bank eller en rådgiver om konkrete økonomiske beslutninger.</p>
-      </footer>
+      <AppFooter />
 
       <AIChatPanel profile={profile} budget={budget} />
     </div>
