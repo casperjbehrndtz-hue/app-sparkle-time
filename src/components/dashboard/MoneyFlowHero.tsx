@@ -84,19 +84,26 @@ function PctCounter({ target, delay, duration = 800, className }: { target: numb
 export function MoneyFlowHero({ budget }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
 
   const allExpenses = [...budget.fixedExpenses, ...budget.variableExpenses];
-  const grouped: Record<string, number> = {};
+  
+  // Group by category with sub-items
+  const categoryMap: Record<string, { total: number; items: ExpenseItem[] }> = {};
   allExpenses.forEach((e) => {
-    grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
+    if (!categoryMap[e.category]) categoryMap[e.category] = { total: 0, items: [] };
+    categoryMap[e.category].total += e.amount;
+    categoryMap[e.category].items.push(e);
   });
-  const sorted = Object.entries(grouped)
-    .map(([name, value]) => ({ name, value }))
+  
+  const sorted = Object.entries(categoryMap)
+    .map(([name, data]) => ({ name, value: data.total, items: data.items }))
     .sort((a, b) => b.value - a.value);
 
   const top = sorted.slice(0, 6);
-  const otherSum = sorted.slice(6).reduce((s, e) => s + e.value, 0);
-  if (otherSum > 0) top.push({ name: "Øvrigt", value: otherSum });
+  const otherItems = sorted.slice(6);
+  const otherSum = otherItems.reduce((s, e) => s + e.value, 0);
+  if (otherSum > 0) top.push({ name: "Øvrigt", value: otherSum, items: otherItems.flatMap(e => e.items) });
 
   const disposable = budget.disposableIncome;
   const totalOut = budget.totalExpenses;
