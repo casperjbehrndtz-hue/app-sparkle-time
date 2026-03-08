@@ -602,7 +602,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           {isPar && (
             <SliderInput
               value={profile.partnerIncome} onChange={(v) => update({ partnerIncome: v })}
-              label="Partners indkomst" min={0} max={80000} step={500}
+              label={t("step.income.partnerIncome")} min={0} max={80000} step={500}
             />
           )}
 
