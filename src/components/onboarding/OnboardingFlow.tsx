@@ -921,32 +921,32 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Insurance etc */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Forsikring & fagforening</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
             <div className="space-y-1.5">
               <ToggleRow active={profile.hasInsurance} onClick={() => update({ hasInsurance: !profile.hasInsurance })}
-                icon="🛡️" label="Forsikringer" sublabel="Indbo, ulykke, etc."
+                icon="🛡️" label={t("step.expenses.insurance")} sublabel={t("step.expenses.insuranceSub")}
                 amount={profile.insuranceAmount} onAmountChange={(v) => update({ insuranceAmount: v })} />
               <ToggleRow active={profile.hasUnion} onClick={() => update({ hasUnion: !profile.hasUnion })}
-                icon="🏛️" label="Fagforening & A-kasse"
+                icon="🏛️" label={t("step.expenses.union")}
                 amount={profile.unionAmount} onAmountChange={(v) => update({ unionAmount: v })} />
               <ToggleRow active={profile.hasFitness} onClick={() => update({ hasFitness: !profile.hasFitness })}
-                icon="💪" label="Fitness / sport"
+                icon="💪" label={t("step.expenses.fitness")}
                 amount={profile.fitnessAmount} onAmountChange={(v) => update({ fitnessAmount: v })} />
             </div>
           </div>
 
           {/* Kæledyr, lån & opsparing */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Kæledyr, lån & opsparing</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.petsLoans")}</h3>
             <div className="space-y-1.5">
               <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
-                icon="🐕" label="Kæledyr" sublabel="Foder, dyrlæge, forsikring"
+                icon="🐕" label={t("step.expenses.pet")} sublabel={t("step.expenses.petSub")}
                 amount={profile.petAmount} onAmountChange={(v) => update({ petAmount: v })} />
               <ToggleRow active={profile.hasLoan} onClick={() => update({ hasLoan: !profile.hasLoan })}
-                icon="💰" label="Lån" sublabel="SU-lån, forbrugslån, billån"
+                icon="💰" label={t("step.expenses.loan")} sublabel={t("step.expenses.loanSub")}
                 amount={profile.loanAmount} onAmountChange={(v) => update({ loanAmount: v })} />
               <ToggleRow active={profile.hasSavings} onClick={() => update({ hasSavings: !profile.hasSavings })}
-                icon="🏦" label="Opsparing / investering" sublabel="Fast opsparing pr. måned"
+                icon="🏦" label={t("step.expenses.savings")} sublabel={t("step.expenses.savingsSub")}
                 amount={profile.savingsAmount} onAmountChange={(v) => update({ savingsAmount: v })} />
             </div>
           </div>
