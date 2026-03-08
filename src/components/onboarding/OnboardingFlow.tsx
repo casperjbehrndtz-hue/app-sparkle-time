@@ -638,7 +638,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                       </select>
                     </div>
                     {src.frequency !== "monthly" && src.amount > 0 && (
-                      <p className="text-[11px] text-muted-foreground">= {formatKr(frequencyToMonthly(src.amount, src.frequency))} kr./md.</p>
+                      <p className="text-[11px] text-muted-foreground">= {formatKr(frequencyToMonthly(src.amount, src.frequency))} {t("perMonth")}</p>
                     )}
                   </div>
                 ))}
