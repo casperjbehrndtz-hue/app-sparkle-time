@@ -772,7 +772,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           {sourceNote && (
             <AiTip text={`${sourceNote}${postalName ? ` (${postalName})` : ""}. Ret beløbet ovenfor hvis det ikke passer.`} />
           )}
-
+          <AILiveComment profile={profile} step="housing" />
           <ContinueButton onClick={goNext} />
         </div>
       </StepShell>
