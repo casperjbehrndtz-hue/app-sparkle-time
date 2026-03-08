@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Download } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 
@@ -33,6 +34,7 @@ export function AppFooter() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">{t("footer.legal")}</h4>
             <ul className="space-y-1.5">
               <li><Link to="/privatliv" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
+              <li><Link to="/install" className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />Installér app</Link></li>
             </ul>
           </div>
 
