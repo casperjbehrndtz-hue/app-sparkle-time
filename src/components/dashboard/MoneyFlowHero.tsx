@@ -131,18 +131,44 @@ export function MoneyFlowHero({ budget }: Props) {
             const barDelay = 0.6 + i * 0.08;
             const isExpanded = expandedCat === expense.name;
             return (
-              <div key={expense.name}>
+              <div key={expense.name} id={`flow-detail-${expense.name}`}>
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 + i * 0.08 }}
-                  className="flex items-center gap-3 group cursor-pointer"
-                  onClick={() => setExpandedCat(isExpanded ? null : expense.name)}
+                  className="flex items-center gap-3 group cursor-pointer select-none active:scale-[0.98] transition-transform duration-100"
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isExpanded}
+                  aria-label={`${expense.name}: ${formatKr(expense.value)} kr. Tryk for detaljer`}
+                  onClick={() => {
+                    haptic(isExpanded ? "light" : "medium");
+                    const next = isExpanded ? null : expense.name;
+                    setExpandedCat(next);
+                    if (next) {
+                      // Smooth scroll to the detail panel after it opens
+                      requestAnimationFrame(() => {
+                        setTimeout(() => {
+                          document.getElementById(`flow-detail-${expense.name}`)?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          });
+                        }, 350);
+                      });
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      haptic("medium");
+                      setExpandedCat(isExpanded ? null : expense.name);
+                    }
+                  }}
                 >
-                  <span className="text-[10px] text-muted-foreground w-16 text-right truncate group-hover:text-foreground transition-colors">
+                  <span className="text-[10px] text-muted-foreground w-16 text-right truncate group-hover:text-foreground group-active:text-foreground transition-colors">
                     {expense.name}
                   </span>
-                  <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
+                  <div className="flex-1 h-7 sm:h-5 rounded-md bg-muted/40 relative overflow-hidden">
                     <motion.div
                       className="absolute inset-y-0 left-0 rounded-md transition-shadow"
                       style={{ backgroundColor: getColor(expense.name) }}
@@ -150,6 +176,7 @@ export function MoneyFlowHero({ budget }: Props) {
                       animate={isInView ? { width: `${Math.max(pct, 2)}%` } : {}}
                       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: barDelay }}
                       whileHover={{ boxShadow: `0 0 12px ${getColor(expense.name)}40` }}
+                      whileTap={{ scale: 1.02 }}
                     />
                     <div className="absolute inset-0 flex items-center px-2 z-10">
                       {pct > 15 && (
@@ -159,7 +186,16 @@ export function MoneyFlowHero({ budget }: Props) {
                       )}
                     </div>
                   </div>
-                  <AnimatedCounter target={Math.round(pct)} delay={barDelay} format="percent" className="text-[10px] font-medium tabular-nums text-muted-foreground w-12 text-right" />
+                  <div className="flex items-center gap-1 w-14 justify-end">
+                    <AnimatedCounter target={Math.round(pct)} delay={barDelay} format="percent" className="text-[10px] font-medium tabular-nums text-muted-foreground" />
+                    <motion.span
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-[10px] text-muted-foreground/50"
+                    >
+                      ▾
+                    </motion.span>
+                  </div>
                 </motion.div>
 
                 {/* Expandable detail panel */}
