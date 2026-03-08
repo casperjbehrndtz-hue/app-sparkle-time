@@ -17,6 +17,8 @@ import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
+import { MoneyFlowHero } from "./MoneyFlowHero";
+import { ConfettiEffect } from "./ConfettiEffect";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
@@ -83,11 +85,20 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [confettiTriggered, setConfettiTriggered] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
+
+  // Trigger confetti for great health scores
+  useEffect(() => {
+    if (health.score >= 75) {
+      const timer = setTimeout(() => setConfettiTriggered(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [health.score]);
 
   const baseSections = [
     { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
@@ -135,6 +146,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <ConfettiEffect trigger={confettiTriggered} />
       <SuiteNav />
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
@@ -174,7 +186,10 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
         {/* Scroll-based story sections */}
         <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
-          <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+          <div className="space-y-6">
+            <MoneyFlowHero budget={budget} />
+            <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+          </div>
         </StorySection>
 
         <StorySection id="fremad" title={t("tab.forward")} subtitle="Se frem — formue, mål og tidslinje">

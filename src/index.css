@@ -233,6 +233,42 @@ input[type="range"]::-moz-range-thumb {
   animation: countUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Premium micro-interactions */
+.premium-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.premium-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.12);
+}
+.premium-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Glow pulse for health score ring */
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px hsl(var(--primary) / 0.2)); }
+  50% { filter: drop-shadow(0 0 12px hsl(var(--primary) / 0.4)); }
+}
+.glow-ring {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+/* Shimmer loading effect */
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Tap feedback for mobile */
+@media (hover: none) {
+  .premium-card:active {
+    transform: scale(0.97);
+    transition-duration: 0.1s;
+  }
+}
+
 /* Print styles */
 @media print {
   body {
