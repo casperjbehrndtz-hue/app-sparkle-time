@@ -200,6 +200,15 @@ input[type="range"]::-moz-range-thumb {
   -moz-appearance: textfield;
 }
 
+/* Hide scrollbar for section nav */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Safe area for fixed bottom bar */
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 /* Keyframes */
 @keyframes countUp {
   from { opacity: 0; transform: translateY(8px); }
