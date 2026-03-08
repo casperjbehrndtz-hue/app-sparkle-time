@@ -272,6 +272,7 @@ function AiTip({ text }: { text: string }) {
 
 export function OnboardingFlow({ onComplete }: Props) {
   const config = useWhiteLabel();
+  const { t, lang } = useI18n();
   const [step, setStep] = useState<OnboardingStep>("welcome");
   const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
