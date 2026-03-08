@@ -651,7 +651,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           <div className="rounded-xl bg-muted/50 border border-border p-4 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Samlet indkomst</span>
+            <span className="text-sm text-muted-foreground">{t("step.income.total")}</span>
             <span className="font-display font-bold text-lg text-primary">
               {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} kr.
             </span>
