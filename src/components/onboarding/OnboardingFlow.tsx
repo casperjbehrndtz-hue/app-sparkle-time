@@ -615,7 +615,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                   <div key={i} className="rounded-xl border border-border p-3 space-y-2">
                     <div className="flex gap-2">
                       <input type="text" value={src.label} onChange={(e) => updateIncomeSource(i, { label: e.target.value })}
-                        placeholder="F.eks. Bonus, SU, børnepenge"
+                        placeholder={t("step.income.placeholder")}
                         className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
                       <button onClick={() => removeIncomeSource(i)}
                         className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
