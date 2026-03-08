@@ -28,11 +28,13 @@ interface Props {
   onReset: () => void;
 }
 
-const tabs = [
+const baseTabs = [
   { id: "nu", label: "Cockpit" },
   { id: "fremad", label: "Fremad" },
+  { id: "hvadvis", label: "Hvad hvis" },
   { id: "optimering", label: "Optimering" },
   { id: "naboeffekt", label: "Sammenlign" },
+  { id: "historik", label: "Historik" },
 ];
 
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
