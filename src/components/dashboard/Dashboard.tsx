@@ -113,6 +113,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       { id: "stresstest", label: t("tab.stressTest"), emoji: "🔬" },
       { id: "aarshjul", label: t("tab.calendar"), emoji: "📅" },
       { id: "optimering", label: t("tab.optimize"), emoji: "⚡" },
+      { id: "abonnementer", label: "Abonnementer", emoji: "💳" },
       { id: "naboeffekt", label: t("tab.compare"), emoji: "👥" },
       { id: "historik", label: t("tab.history"), emoji: "📊" },
     ];
