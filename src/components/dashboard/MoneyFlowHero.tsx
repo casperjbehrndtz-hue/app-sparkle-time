@@ -1,9 +1,20 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { AnimatedCounter } from "./AnimatedCounter";
 import type { ComputedBudget, ExpenseItem } from "@/lib/types";
 import { X } from "lucide-react";
+
+/** Trigger haptic feedback on supported devices */
+function haptic(style: "light" | "medium" = "light") {
+  try {
+    if ("vibrate" in navigator) {
+      navigator.vibrate(style === "light" ? 10 : 25);
+    }
+  } catch {
+    // Haptic not available — silent fail
+  }
+}
 
 interface Props {
   budget: ComputedBudget;
