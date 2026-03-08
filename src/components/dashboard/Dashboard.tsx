@@ -11,6 +11,8 @@ import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
 import { ShareCard } from "./ShareCard";
+import { SuiteNav } from "@/components/SuiteNav";
+import { AppFooter } from "@/components/AppFooter";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
