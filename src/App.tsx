@@ -14,6 +14,7 @@ import { PageLoader } from "@/components/PageLoader";
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Privatliv = lazy(() => import("./pages/Privatliv"));
+const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient();
 
