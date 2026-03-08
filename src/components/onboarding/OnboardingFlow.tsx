@@ -701,9 +701,9 @@ export function OnboardingFlow({ onComplete }: Props) {
         <div className="space-y-6">
           <div className="grid grid-cols-3 gap-3">
             {[
-              { type: "lejer" as const, emoji: "🏢", label: "Lejer" },
-              { type: "andel" as const, emoji: "🏘️", label: "Andel" },
-              { type: "ejer" as const, emoji: "🏡", label: "Ejer" },
+              { type: "lejer" as const, emoji: "🏢", label: t("step.housing.renter") },
+              { type: "andel" as const, emoji: "🏘️", label: t("step.housing.coop") },
+              { type: "ejer" as const, emoji: "🏡", label: t("step.housing.owner") },
             ].map((opt) => (
               <OptionCard
                 key={opt.type}
