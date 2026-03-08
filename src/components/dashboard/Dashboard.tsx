@@ -109,8 +109,11 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             transition={{ duration: 0.2 }}>
             {activeTab === "nu" && <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />}
             {activeTab === "fremad" && <FremadView profile={profile} budget={budget} health={health} />}
+            {activeTab === "hvadvis" && <HvadHvisView profile={profile} budget={budget} health={health} />}
             {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
+            {activeTab === "historik" && <HistorikView />}
+            {activeTab === "parsplit" && profile.householdType === "par" && <ParSplitView profile={profile} budget={budget} />}
           </motion.div>
         </AnimatePresence>
 

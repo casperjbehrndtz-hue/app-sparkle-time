@@ -59,6 +59,9 @@ const Index = () => {
     setProfile(p);
     setBudget(b);
     setOptimizations(opts);
+    // Save snapshot for history tracking
+    const health = calculateHealth(p, b);
+    saveSnapshot(b, health.score);
     // Submit anonymous price data to improve estimates for everyone
     submitPriceObservations(p);
   };
