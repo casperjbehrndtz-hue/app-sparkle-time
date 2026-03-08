@@ -999,7 +999,7 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
 
           <AiTip text={`💡 Vi har automatisk inkluderet sundhed (${isPar ? "500" : "350"} kr.), restaurant (${isPar ? "1.500" : "800"} kr.)${profile.housingType === "ejer" ? ", grundejerforening (1.500 kr.)" : ""}${!profile.hasCar ? " og offentlig transport (600 kr.)" : ""} baseret på jeres profil. Tilføj egne udgifter ovenfor hvis noget mangler.`} />
-          <ContinueButton onClick={goNext} label="Se overblik" />
+          <ContinueButton onClick={goNext} label={t("step.expenses.seeOverview")} />
         </div>
       </StepShell>
     );
