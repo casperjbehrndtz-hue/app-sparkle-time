@@ -24,6 +24,7 @@ export function AppFooter() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">{t("footer.tools")}</h4>
             <ul className="space-y-1.5">
               <li><Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("footer.budgetCalc")}</Link></li>
+              <li><Link to="/guides" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Guides & tips</Link></li>
               <li><a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.coupleFinance")}</a></li>
               <li><a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.childTax")}</a></li>
             </ul>
