@@ -146,6 +146,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <ConfettiEffect trigger={confettiTriggered} />
       <SuiteNav />
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
