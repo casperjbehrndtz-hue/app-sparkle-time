@@ -68,6 +68,9 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
   return (
     <div className="space-y-4">
 
+      {/* Social Proof Nudges */}
+      <SocialProofNudge profile={profile} budget={budget} health={health} context="cockpit" />
+
       {/* AI Insight - Always visible at top */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}

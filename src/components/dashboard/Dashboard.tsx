@@ -120,6 +120,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             {activeTab === "hvadvis" && <HvadHvisView profile={profile} budget={budget} health={health} />}
             {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
+            {activeTab === "stresstest" && <StressTestView profile={profile} budget={budget} />}
+            {activeTab === "aarshjul" && <AarshjulView profile={profile} budget={budget} />}
             {activeTab === "historik" && <HistorikView />}
             {activeTab === "parsplit" && profile.householdType === "par" && <ParSplitView profile={profile} budget={budget} />}
           </motion.div>
