@@ -300,10 +300,10 @@ export function AIChatPanel({ profile, budget }: Props) {
               )}
             </div>
 
-            {/* Quick questions */}
+            {/* Smart questions — context-aware */}
             {hasInitialAnalysis && messages.length <= 2 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1.5">
-                {QUICK_QUESTIONS.map((q) => (
+                {smartQuestions.map((q) => (
                   <button
                     key={q}
                     onClick={() => sendMessage(q)}
