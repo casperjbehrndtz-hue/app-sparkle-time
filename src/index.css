@@ -42,6 +42,17 @@
     --kassen-surface: 150 8% 98%;
     --kassen-surface-2: 150 8% 96%;
 
+    /* Flow category colors */
+    --flow-food: 38 92% 50%;
+    --flow-subscriptions: 263 70% 58%;
+    --flow-leisure: 330 81% 60%;
+    --flow-clothing: 187 92% 41%;
+    --flow-health: 172 66% 40%;
+    --flow-restaurant: 25 95% 53%;
+    --flow-children: 271 81% 56%;
+    --flow-pets: 292 84% 61%;
+    --flow-savings: 160 96% 21%;;
+
     /* Hero navy — matched to ParFinans blue */
     --hero-navy: 216 56% 18%;
     --hero-navy-light: 216 40% 26%;
