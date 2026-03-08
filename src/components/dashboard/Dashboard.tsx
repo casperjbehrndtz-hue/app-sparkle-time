@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { RotateCcw, FileText, BarChart3 } from "lucide-react";
+import { RotateCcw, FileText, BarChart3, LogIn, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
