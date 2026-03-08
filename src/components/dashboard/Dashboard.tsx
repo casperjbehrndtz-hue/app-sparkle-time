@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, FileText, BarChart3 } from "lucide-react";
+import { useState, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { RotateCcw, FileText, BarChart3, ChevronDown, ArrowRight, Share2 } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { DisposableIncome } from "./DisposableIncome";
@@ -32,31 +32,101 @@ interface Props {
   onReset: () => void;
 }
 
+// ─── Scroll section wrapper ──────────────────────────────
+function StorySection({ id, title, subtitle, children, delay = 0 }: {
+  id: string; title: string; subtitle?: string; children: React.ReactNode; delay?: number;
+}) {
+  return (
+    <motion.section
+      id={id}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay }}
+      className="scroll-mt-20"
+    >
+      <div className="mb-5">
+        <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">{title}</h2>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
+      {children}
+    </motion.section>
+  );
+}
+
+// ─── Section nav pill ─────────────────────────────────────
+function SectionNav({ sections, activeSection }: { sections: { id: string; label: string; emoji: string }[]; activeSection: string }) {
+  return (
+    <div className="sticky top-[57px] z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 overflow-x-auto scrollbar-hide">
+      <div className="max-w-2xl mx-auto px-5 py-2 flex gap-1">
+        {sections.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              activeSection === s.id
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <span>{s.emoji}</span> {s.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState("nu");
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [activeSection, setActiveSection] = useState("cockpit");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const health = calculateHealth(profile, budget);
   const smartSteps = generateSmartSteps(profile, budget, health);
 
-  const baseTabs = [
-    { id: "nu", label: t("tab.cockpit") },
-    { id: "fremad", label: t("tab.forward") },
-    { id: "hvadvis", label: t("tab.whatIf") },
-    { id: "stresstest", label: t("tab.stressTest") },
-    { id: "aarshjul", label: t("tab.calendar") },
-    { id: "optimering", label: t("tab.optimize") },
-    { id: "naboeffekt", label: t("tab.compare") },
-    { id: "historik", label: t("tab.history") },
+  const baseSections = [
+    { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
+    { id: "fremad", label: t("tab.forward"), emoji: "📈" },
+    { id: "hvadvis", label: t("tab.whatIf"), emoji: "🔮" },
+    { id: "stresstest", label: t("tab.stressTest"), emoji: "🔬" },
+    { id: "aarshjul", label: t("tab.calendar"), emoji: "📅" },
+    { id: "optimering", label: t("tab.optimize"), emoji: "⚡" },
+    { id: "naboeffekt", label: t("tab.compare"), emoji: "👥" },
+    { id: "historik", label: t("tab.history"), emoji: "📊" },
   ];
 
-  const tabs = profile.householdType === "par"
-    ? [...baseTabs, { id: "parsplit", label: t("tab.coupleSplit") }]
-    : baseTabs;
+  const sections = profile.householdType === "par"
+    ? [...baseSections, { id: "parsplit", label: t("tab.coupleSplit"), emoji: "💑" }]
+    : baseSections;
+
+  // Track active section via IntersectionObserver
+  if (typeof window !== "undefined") {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useState(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              setActiveSection(entry.target.id);
+            }
+          }
+        },
+        { rootMargin: "-120px 0px -60% 0px", threshold: 0.1 }
+      );
+      setTimeout(() => {
+        sections.forEach((s) => {
+          const el = document.getElementById(s.id);
+          if (el) observer.observe(el);
+        });
+      }, 500);
+      return () => observer.disconnect();
+    });
+  }
 
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
@@ -70,7 +140,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     <div className="min-h-screen bg-background flex flex-col">
       <SuiteNav />
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
           <div className="flex items-center gap-0.5 sm:gap-1">
@@ -92,42 +162,59 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-5 py-6 space-y-5 flex-1">
-        <DisposableIncome health={health} />
+      {/* Section nav */}
+      <SectionNav sections={sections} activeSection={activeSection} />
 
-        {/* Tabs */}
-        <div className="flex border-b border-border overflow-x-auto">
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`relative flex-1 min-w-0 py-2.5 text-xs font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              }`}>
-              {tab.label}
-              {activeTab === tab.id && (
-                <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-full" />
-              )}
-            </button>
-          ))}
-        </div>
+      <main ref={scrollRef} className="max-w-2xl mx-auto px-5 py-6 space-y-16 flex-1 w-full">
+        {/* Hero health score */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <DisposableIncome health={health} />
+        </motion.div>
 
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab}
-            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}>
-            {activeTab === "nu" && <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />}
-            {activeTab === "fremad" && <FremadView profile={profile} budget={budget} health={health} />}
-            {activeTab === "hvadvis" && <HvadHvisView profile={profile} budget={budget} health={health} />}
-            {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
-            {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
-            {activeTab === "stresstest" && <StressTestView profile={profile} budget={budget} />}
-            {activeTab === "aarshjul" && <AarshjulView profile={profile} budget={budget} />}
-            {activeTab === "historik" && <HistorikView />}
-            {activeTab === "parsplit" && profile.householdType === "par" && <ParSplitView profile={profile} budget={budget} />}
-          </motion.div>
-        </AnimatePresence>
+        {/* Scroll-based story sections */}
+        <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
+          <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+        </StorySection>
 
-        {/* Share Card Preview (toggleable) */}
+        <StorySection id="fremad" title={t("tab.forward")} subtitle="Se frem — formue, mål og tidslinje">
+          <FremadView profile={profile} budget={budget} health={health} />
+        </StorySection>
+
+        <StorySection id="hvadvis" title={t("tab.whatIf")} subtitle="Simulér livsbegivenheder og se effekten">
+          <HvadHvisView profile={profile} budget={budget} health={health} />
+        </StorySection>
+
+        <StorySection id="stresstest" title={t("tab.stressTest")} subtitle="Hvor modstandsdygtig er din økonomi?">
+          <StressTestView profile={profile} budget={budget} />
+        </StorySection>
+
+        <StorySection id="aarshjul" title={t("tab.calendar")} subtitle="Årlige udgifter du skal forberede dig på">
+          <AarshjulView profile={profile} budget={budget} />
+        </StorySection>
+
+        <StorySection id="optimering" title={t("tab.optimize")} subtitle="Konkrete besparelsesforslag baseret på dine tal">
+          <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
+        </StorySection>
+
+        <StorySection id="naboeffekt" title={t("tab.compare")} subtitle="Sammenlign med lignende husstande i dit område">
+          <NaboeffektView profile={profile} budget={budget} />
+        </StorySection>
+
+        <StorySection id="historik" title={t("tab.history")} subtitle="Se udviklingen over tid">
+          <HistorikView />
+        </StorySection>
+
+        {profile.householdType === "par" && (
+          <StorySection id="parsplit" title={t("tab.coupleSplit")} subtitle="Fordeling af fælles udgifter">
+            <ParSplitView profile={profile} budget={budget} />
+          </StorySection>
+        )}
+
+        {/* Share Card */}
         {showShareCard && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-8">
             <div className="flex items-center justify-between mb-3">
@@ -140,7 +227,6 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       </main>
 
       <AppFooter />
-
       <AIChatPanel profile={profile} budget={budget} />
     </div>
   );
