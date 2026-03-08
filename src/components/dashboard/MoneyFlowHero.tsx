@@ -1,6 +1,7 @@
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { formatKr } from "@/lib/budgetCalculator";
+import { AnimatedCounter } from "./AnimatedCounter";
 import type { ComputedBudget, ExpenseItem } from "@/lib/types";
 import { X } from "lucide-react";
 
@@ -8,77 +9,32 @@ interface Props {
   budget: ComputedBudget;
 }
 
-const FLOW_COLORS: Record<string, string> = {
-  Bolig: "var(--kassen-blue)",
-  Transport: "var(--kassen-gold)",
-  Forsikring: "var(--kassen-green)",
-  Mad: "#f59e0b",
-  Abonnementer: "#8b5cf6",
-  Fritid: "#ec4899",
-  Tøj: "#06b6d4",
-  Sundhed: "#14b8a6",
-  Restaurant: "#f97316",
-  Børn: "#a855f7",
-  Fagforening: "#64748b",
-  Fitness: "#10b981",
-  Kæledyr: "#d946ef",
-  Lån: "#ef4444",
-  Opsparing: "#059669",
-  Internet: "#3b82f6",
+// Map categories to design-token CSS vars
+const FLOW_COLOR_MAP: Record<string, string> = {
+  Bolig: "hsl(var(--kassen-blue))",
+  Transport: "hsl(var(--kassen-gold))",
+  Forsikring: "hsl(var(--kassen-green))",
+  Mad: "hsl(var(--flow-food))",
+  "Mad & dagligvarer": "hsl(var(--flow-food))",
+  Abonnementer: "hsl(var(--flow-subscriptions))",
+  Fritid: "hsl(var(--flow-leisure))",
+  Tøj: "hsl(var(--flow-clothing))",
+  Sundhed: "hsl(var(--flow-health))",
+  Restaurant: "hsl(var(--flow-restaurant))",
+  Børn: "hsl(var(--flow-children))",
+  Fagforening: "hsl(var(--muted-foreground))",
+  Fitness: "hsl(var(--kassen-green))",
+  Kæledyr: "hsl(var(--flow-pets))",
+  Lån: "hsl(var(--destructive))",
+  Opsparing: "hsl(var(--flow-savings))",
+  Internet: "hsl(var(--kassen-blue))",
+  Forsyning: "hsl(var(--kassen-blue))",
+  Andet: "hsl(var(--muted-foreground))",
+  Øvrigt: "hsl(var(--muted-foreground))",
 };
 
 function getColor(cat: string) {
-  return FLOW_COLORS[cat] ?? "hsl(var(--muted-foreground))";
-}
-
-/** Counts from 0 to `target` synced with bar animation timing */
-function FlowCounter({ target, delay, duration = 800, className }: { target: number; delay: number; duration?: number; className?: string }) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => {
-      const start = performance.now();
-      const step = (now: number) => {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 4); // ease-out quart
-        setValue(Math.round(target * eased));
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay * 1000);
-    return () => clearTimeout(timeout);
-  }, [isInView, target, delay, duration]);
-
-  return <span ref={ref} className={className}>{formatKr(value)}</span>;
-}
-
-/** Counts a percentage from 0 to target */
-function PctCounter({ target, delay, duration = 800, className }: { target: number; delay: number; duration?: number; className?: string }) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-40px" });
-
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => {
-      const start = performance.now();
-      const step = (now: number) => {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 4);
-        setValue(Math.round(target * eased));
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }, delay * 1000);
-    return () => clearTimeout(timeout);
-  }, [isInView, target, delay, duration]);
-
-  return <span ref={ref} className={className}>{value}%</span>;
+  return FLOW_COLOR_MAP[cat] ?? "hsl(var(--muted-foreground))";
 }
 
 export function MoneyFlowHero({ budget }: Props) {
@@ -86,28 +42,33 @@ export function MoneyFlowHero({ budget }: Props) {
   const isInView = useInView(ref, { once: true, margin: "-40px" });
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
 
-  const allExpenses = [...budget.fixedExpenses, ...budget.variableExpenses];
-  
-  // Group by category with sub-items
-  const categoryMap: Record<string, { total: number; items: ExpenseItem[] }> = {};
-  allExpenses.forEach((e) => {
-    if (!categoryMap[e.category]) categoryMap[e.category] = { total: 0, items: [] };
-    categoryMap[e.category].total += e.amount;
-    categoryMap[e.category].items.push(e);
-  });
-  
-  const sorted = Object.entries(categoryMap)
-    .map(([name, data]) => ({ name, value: data.total, items: data.items }))
-    .sort((a, b) => b.value - a.value);
+  const { top, disposable, totalOut, income } = useMemo(() => {
+    const allExpenses = [...budget.fixedExpenses, ...budget.variableExpenses];
 
-  const top = sorted.slice(0, 6);
-  const otherItems = sorted.slice(6);
-  const otherSum = otherItems.reduce((s, e) => s + e.value, 0);
-  if (otherSum > 0) top.push({ name: "Øvrigt", value: otherSum, items: otherItems.flatMap(e => e.items) });
+    // Group by category with sub-items
+    const categoryMap: Record<string, { total: number; items: ExpenseItem[] }> = {};
+    allExpenses.forEach((e) => {
+      if (!categoryMap[e.category]) categoryMap[e.category] = { total: 0, items: [] };
+      categoryMap[e.category].total += e.amount;
+      categoryMap[e.category].items.push(e);
+    });
 
-  const disposable = budget.disposableIncome;
-  const totalOut = budget.totalExpenses;
-  const income = budget.totalIncome;
+    const sorted = Object.entries(categoryMap)
+      .map(([name, data]) => ({ name, value: data.total, items: data.items }))
+      .sort((a, b) => b.value - a.value);
+
+    const topEntries = sorted.slice(0, 6);
+    const otherItems = sorted.slice(6);
+    const otherSum = otherItems.reduce((s, e) => s + e.value, 0);
+    if (otherSum > 0) topEntries.push({ name: "Øvrigt", value: otherSum, items: otherItems.flatMap(e => e.items) });
+
+    return {
+      top: topEntries,
+      disposable: budget.disposableIncome,
+      totalOut: budget.totalExpenses,
+      income: budget.totalIncome,
+    };
+  }, [budget]);
 
   return (
     <div ref={ref} className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -135,7 +96,7 @@ export function MoneyFlowHero({ budget }: Props) {
               />
               <div className="absolute inset-0 flex items-center justify-center z-10">
                 <span className="text-xs font-display font-bold text-primary-foreground drop-shadow-sm">
-                  <FlowCounter target={income} delay={0.2} duration={1000} /> kr.
+                  <AnimatedCounter target={income} delay={0.2} duration={1000} /> kr.
                 </span>
               </div>
             </div>
@@ -182,14 +143,14 @@ export function MoneyFlowHero({ budget }: Props) {
                     <div className="absolute inset-0 flex items-center px-2 z-10">
                       {pct > 15 && (
                         <span className="text-[10px] font-medium text-white drop-shadow-sm">
-                          <FlowCounter target={expense.value} delay={barDelay} />
+                          <AnimatedCounter target={expense.value} delay={barDelay} />
                         </span>
                       )}
                     </div>
                   </div>
-                  <PctCounter target={Math.round(pct)} delay={barDelay} className="text-[10px] font-medium tabular-nums text-muted-foreground w-12 text-right" />
+                  <AnimatedCounter target={Math.round(pct)} delay={barDelay} format="percent" className="text-[10px] font-medium tabular-nums text-muted-foreground w-12 text-right" />
                 </motion.div>
-                
+
                 {/* Expandable detail panel */}
                 <AnimatePresence>
                   {isExpanded && expense.items.length > 0 && (
@@ -259,7 +220,7 @@ export function MoneyFlowHero({ budget }: Props) {
             />
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <span className={`text-xs font-display font-bold drop-shadow-sm ${disposable >= 0 ? "text-primary-foreground" : "text-destructive-foreground"}`}>
-                {disposable >= 0 ? "+" : ""}<FlowCounter target={Math.abs(disposable)} delay={1.5} duration={1000} /> kr.
+                {disposable >= 0 ? "+" : ""}<AnimatedCounter target={Math.abs(disposable)} delay={1.5} duration={1000} /> kr.
               </span>
             </div>
           </div>
@@ -285,8 +246,8 @@ function SummaryPill({ label, pct, amount, delay, positive }: { label: string; p
   return (
     <div className="text-center">
       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</p>
-      <PctCounter target={pct} delay={delay} duration={600} className={`font-display font-black text-lg ${positive ? "text-primary" : "text-foreground"}`} />
-      <p className="text-[10px] text-muted-foreground"><FlowCounter target={amount} delay={delay} duration={600} /> kr.</p>
+      <AnimatedCounter target={pct} delay={delay} duration={600} format="percent" className={`font-display font-black text-lg ${positive ? "text-primary" : "text-foreground"}`} />
+      <p className="text-[10px] text-muted-foreground"><AnimatedCounter target={amount} delay={delay} duration={600} /> kr.</p>
     </div>
   );
 }

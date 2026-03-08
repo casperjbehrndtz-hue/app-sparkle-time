@@ -1,3 +1,4 @@
+import { formatKr } from "./budgetCalculator";
 import type { BudgetProfile, ComputedBudget } from "./types";
 
 export interface HealthMetrics {
@@ -27,22 +28,21 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   const fixedTotal = budget.fixedExpenses.reduce((s, e) => s + e.amount, 0);
   const variableTotal = budget.variableExpenses.reduce((s, e) => s + e.amount, 0);
 
-  // --- Buffer months (estimeret: antager 1 måneds løn i opsparing som default) ---
-  const estimatedBuffer = totalIncome * 1; // konservativt estimat
+  // --- Buffer months ---
+  const estimatedBuffer = totalIncome * 1;
   const bufferMonths = fixedTotal > 0 ? Math.round((estimatedBuffer / fixedTotal) * 10) / 10 : 0;
 
-  // --- Debt ratio (bolig + lån / indkomst) ---
+  // --- Debt ratio ---
   const housingCost = budget.fixedExpenses
     .filter(e => e.category === "Bolig")
     .reduce((s, e) => s + e.amount, 0);
   const debtRatio = totalIncome > 0 ? Math.round((housingCost / totalIncome) * 100) : 0;
 
-  // --- Savings rate (free cash flow / income) ---
+  // --- Savings rate ---
   const savingsRate = totalIncome > 0 ? Math.round((Math.max(0, freeCashFlow) / totalIncome) * 100) : 0;
 
-  // --- Stability (hvor meget af indkomsten er "forudsigeligt" dækket) ---
+  // --- Stability ---
   const coverageRatio = totalIncome > 0 ? Math.min(fixedTotal / totalIncome, 1) : 1;
-  // Optimal: 50-65% faste udgifter. Over 75% = ustabilt. Under 40% = meget stabilt.
   let stabilityScore: number;
   if (coverageRatio <= 0.5) stabilityScore = 95;
   else if (coverageRatio <= 0.65) stabilityScore = 80;
@@ -58,8 +58,8 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
     .filter(e => ["Fritid", "Tøj"].includes(e.category))
     .reduce((s, e) => s + e.amount, 0);
 
-  const driftCost = fixedTotal - insuranceCost + (variableTotal - lifestyleCost); // faste + mad/nødvendigheder
-  const estimatedSavings = Math.max(0, freeCashFlow * 0.5); // antag 50% af frit beløb → opsparing
+  const driftCost = fixedTotal - insuranceCost + (variableTotal - lifestyleCost);
+  const estimatedSavings = Math.max(0, freeCashFlow * 0.5);
 
   const buckets = {
     drift: driftCost,
@@ -69,19 +69,15 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   };
 
   // --- Health Score (0-100) ---
-  // Vægtet: buffer 20%, gældsgrad 20%, opsparingsrate 25%, stabilitet 15%, diversitet 20%
-  const bufferScore = Math.min(100, bufferMonths * 12); // 8+ mdr = ~100
+  const bufferScore = Math.min(100, bufferMonths * 12);
   const debtScore = debtRatio <= 0 ? 40 : debtRatio <= 25 ? 90 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
-  // Note: debtRatio 0 = likely missing housing data → penalize
   const savingsScore = savingsRate >= 30 ? 85 : savingsRate >= 20 ? 95 : savingsRate >= 15 ? 80 : Math.min(75, savingsRate * 5);
-  // Sweet spot is 15-25%. Over 30% may mean underreporting expenses.
-  
-  // Diversitet: straffer for manglende forsikring, opsparing, buffer
+
   const hasInsuranceCheck = profile.hasInsurance ? 1 : 0;
   const hasSavingsCheck = savingsRate >= 10 ? 1 : 0;
   const hasBufferCheck = bufferMonths >= 3 ? 1 : 0;
   const diversityScore = Math.round(((hasInsuranceCheck + hasSavingsCheck + hasBufferCheck) / 3) * 100);
-  
+
   const rawScore = Math.round(
     bufferScore * 0.20 +
     debtScore * 0.20 +
@@ -89,7 +85,6 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
     stabilityScore * 0.15 +
     diversityScore * 0.20
   );
-  // Cap at 92 to avoid unrealistic "perfect" scores with estimated data
   const score = Math.min(92, rawScore);
 
   const label = score >= 75 ? "Stærk" : score >= 55 ? "OK" : score >= 35 ? "Sårbar" : "Kritisk";
@@ -98,19 +93,8 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   const bufferLabel = bufferMonths >= 6 ? "Stærk buffer" : bufferMonths >= 3 ? "Acceptabel" : "Sårbar";
 
   return {
-    score,
-    label,
-    color,
-    bufferMonths,
-    debtRatio,
-    savingsRate,
-    stabilityScore,
-    buckets,
-    truths: {
-      freeCashFlow,
-      monthlyBaseline: fixedTotal,
-      bufferScore: bufferLabel,
-    },
+    score, label, color, bufferMonths, debtRatio, savingsRate, stabilityScore, buckets,
+    truths: { freeCashFlow, monthlyBaseline: fixedTotal, bufferScore: bufferLabel },
   };
 }
 
@@ -121,16 +105,14 @@ export function generateSmartSteps(
 ): { icon: string; text: string; priority: "high" | "medium" | "low" }[] {
   const steps: { icon: string; text: string; priority: "high" | "medium" | "low" }[] = [];
 
-  // Critical: expenses > income
   if (budget.disposableIncome < 0) {
     steps.push({
       icon: "🚨",
-      text: `Du bruger ${formatSimple(Math.abs(budget.disposableIncome))} kr. mere end du tjener. Skær i de variable udgifter eller øg indkomsten.`,
+      text: `Du bruger ${formatKr(Math.abs(budget.disposableIncome))} kr. mere end du tjener. Skær i de variable udgifter eller øg indkomsten.`,
       priority: "high",
     });
   }
 
-  // Buffer warning
   if (health.bufferMonths < 3) {
     steps.push({
       icon: "🛡️",
@@ -139,7 +121,6 @@ export function generateSmartSteps(
     });
   }
 
-  // Debt ratio
   if (health.debtRatio > 35) {
     steps.push({
       icon: "🏡",
@@ -148,16 +129,14 @@ export function generateSmartSteps(
     });
   }
 
-  // Savings rate
   if (health.savingsRate < 10 && budget.disposableIncome > 0) {
     steps.push({
       icon: "📈",
-      text: `Din opsparingsrate er ${health.savingsRate}%. Selv 500 kr./md. ekstra bygger ${formatSimple(500 * 12)} kr./år i formue.`,
+      text: `Din opsparingsrate er ${health.savingsRate}%. Selv 500 kr./md. ekstra bygger ${formatKr(500 * 12)} kr./år i formue.`,
       priority: "medium",
     });
   }
 
-  // Streaming
   const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
   if (streamingCount >= 3) {
     steps.push({
@@ -167,22 +146,16 @@ export function generateSmartSteps(
     });
   }
 
-  // Insurance
   if (profile.hasInsurance && profile.insuranceAmount > 800) {
     steps.push({
       icon: "🛡️",
-      text: `Forsikring koster ${formatSimple(profile.insuranceAmount)} kr./md. Sammenlign hvert 2. år — gennemsnitlig besparelse: 200 kr./md.`,
+      text: `Forsikring koster ${formatKr(profile.insuranceAmount)} kr./md. Sammenlign hvert 2. år — gennemsnitlig besparelse: 200 kr./md.`,
       priority: "low",
     });
   }
 
-  // Sort by priority and return top 3
   const priorityOrder = { high: 0, medium: 1, low: 2 };
   return steps
     .sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority])
     .slice(0, 3);
-}
-
-function formatSimple(n: number): string {
-  return new Intl.NumberFormat("da-DK", { maximumFractionDigits: 0 }).format(n);
 }

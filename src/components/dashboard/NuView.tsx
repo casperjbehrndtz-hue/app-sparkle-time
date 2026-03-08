@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
@@ -14,17 +15,25 @@ interface Props {
   smartSteps: { icon: string; text: string; priority: "high" | "medium" | "low" }[];
 }
 
-const COLORS = [
-  "#1e40af", "#2563eb", "#d97706", "#6366f1",
-  "#0ea5e9", "#14b8a6", "#f59e0b", "#ec4899",
-  "#64748b", "#dc2626",
+// Using design tokens via CSS variables
+const CHART_COLORS = [
+  "hsl(var(--primary))",
+  "hsl(var(--kassen-blue))",
+  "hsl(var(--kassen-gold))",
+  "hsl(var(--flow-subscriptions))",
+  "hsl(var(--flow-food))",
+  "hsl(var(--flow-health))",
+  "hsl(var(--flow-leisure))",
+  "hsl(var(--flow-restaurant))",
+  "hsl(var(--muted-foreground))",
+  "hsl(var(--destructive))",
 ];
 
 const BUCKET_COLORS = {
-  drift: "#1e40af",
-  frihed: "#d97706",
-  fremtid: "#059669",
-  risiko: "#6366f1",
+  drift: "hsl(var(--primary))",
+  frihed: "hsl(var(--kassen-gold))",
+  fremtid: "hsl(var(--flow-savings))",
+  risiko: "hsl(var(--flow-subscriptions))",
 };
 
 const BUCKET_LABELS = {
@@ -34,7 +43,6 @@ const BUCKET_LABELS = {
   risiko: { label: "Risiko", emoji: "🛡️", sub: "Forsikring & buffer" },
 };
 
-// Smart action links based on step content + white-label config
 function getSmartAction(
   step: { icon: string; text: string; priority: "high" | "medium" | "low" },
   ctaLinks: Record<string, { label: string; url: string } | undefined>
@@ -51,19 +59,25 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
   const config = useWhiteLabel();
   const isPar = profile.householdType === "par";
 
-  // Category grouping for donut
-  const grouped: Record<string, number> = {};
-  [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
-    grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
-  });
-  const donutData = Object.entries(grouped).map(([name, value]) => ({ name, value }));
+  // Memoize computed data to prevent re-sorts and mutations
+  const donutData = useMemo(() => {
+    const grouped: Record<string, number> = {};
+    [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
+      grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
+    });
+    return Object.entries(grouped)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [budget.fixedExpenses, budget.variableExpenses]);
+
+  const barData = useMemo(() => donutData.slice(0, 8), [donutData]);
 
   // 4 Buckets
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
   const bucketEntries = Object.entries(health.buckets) as [keyof typeof BUCKET_LABELS, number][];
 
   // Proactive alerts
-  const alerts = generateAlerts(profile, budget, health);
+  const alerts = useMemo(() => generateAlerts(profile, budget, health), [profile, budget, health]);
 
   return (
     <div className="space-y-4">
@@ -71,7 +85,7 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
       {/* Social Proof Nudges */}
       <SocialProofNudge profile={profile} budget={budget} health={health} context="cockpit" />
 
-      {/* AI Insight - Always visible at top */}
+      {/* AI Insight */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -172,7 +186,6 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
       {/* 4 Buckets */}
       <div className="rounded-xl border border-border p-4">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Pengenes fordeling</h3>
-        {/* Stacked bar */}
         <div className="h-3 rounded-full overflow-hidden flex mb-4">
           {bucketEntries.map(([key, val]) => (
             <motion.div
@@ -223,11 +236,11 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
       {/* Expense Donut + Bar Chart */}
       <div className="rounded-xl border border-border p-5">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-4">Udgiftsoverblik</h3>
-        
-        {/* Bar chart — category breakdown */}
+
+        {/* Bar chart */}
         <div className="h-52 mb-6">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={donutData.sort((a, b) => b.value - a.value).slice(0, 8)} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }} barCategoryGap="18%">
+            <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }} barCategoryGap="18%">
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--border))" opacity={0.5} />
               <XAxis type="number" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="name" width={105} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
@@ -248,21 +261,21 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
                 }}
               />
               <Bar dataKey="value" radius={[0, 5, 5, 0]} maxBarSize={20}>
-                {donutData.sort((a, b) => b.value - a.value).slice(0, 8).map((_, idx) => (
-                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                {barData.map((_, idx) => (
+                  <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Donut — refined */}
+        {/* Donut */}
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center">
           <div className="h-36 w-36 sm:h-40 sm:w-40 flex-shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={donutData} cx="50%" cy="50%" innerRadius={44} outerRadius={64} paddingAngle={2} dataKey="value" strokeWidth={0}>
-                  {donutData.map((_, idx) => <Cell key={idx} fill={COLORS[idx % COLORS.length]} />)}
+                  {donutData.map((_, idx) => <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />)}
                 </Pie>
                 <Tooltip
                   content={({ active, payload }) => {
@@ -286,7 +299,7 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
               return (
                 <div key={entry.name} className="flex items-center justify-between text-sm group">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                    <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
                     <span className="text-muted-foreground text-xs group-hover:text-foreground transition-colors">{entry.name}</span>
                   </div>
                   <div className="flex items-baseline gap-1.5">
@@ -372,20 +385,20 @@ function generateAlerts(profile: BudgetProfile, budget: ComputedBudget, health: 
 function generatePersonalInsight(profile: BudgetProfile, budget: ComputedBudget, health: HealthMetrics): string {
   const isPar = profile.householdType === "par";
   const freeCash = budget.disposableIncome;
-  
+
   if (freeCash < 0) {
     return `${isPar ? "I" : "Du"} bruger mere end ${isPar ? "I" : "du"} tjener. Det vigtigste lige nu er at finde ${formatKr(Math.abs(freeCash))} kr. at skære — start med de variable udgifter.`;
   }
-  
+
   if (health.debtRatio > 40) {
     return `${isPar ? "Jeres" : "Din"} boligudgift er ${health.debtRatio}% af indkomsten. Det er over grænsen. Overvej at refinansiere — det kan frigøre ${formatKr(Math.round(budget.totalIncome * (health.debtRatio - 30) / 100))} kr./md.`;
   }
-  
+
   if (health.savingsRate >= 25) {
-    const fiveYearProjection = Math.round(freeCash * 0.4 * 12 * 5 * 1.35); // 7% compounded rough
+    const fiveYearProjection = Math.round(freeCash * 0.4 * 12 * 5 * 1.35);
     return `Med ${health.savingsRate}% opsparingsrate er ${isPar ? "I" : "du"} i top 15% af danske husstande. Ved 7% årligt afkast kan det blive ca. ${formatKr(fiveYearProjection)} kr. på 5 år. Investering indebærer risiko.`;
   }
-  
+
   if (health.savingsRate >= 15) {
     return `${isPar ? "I" : "Du"} sparer ${health.savingsRate}% op — det er solidt. Næste mål: nå 20% ved at flytte ${formatKr(Math.round((0.20 - health.savingsRate / 100) * budget.totalIncome))} kr. mere til opsparing.`;
   }

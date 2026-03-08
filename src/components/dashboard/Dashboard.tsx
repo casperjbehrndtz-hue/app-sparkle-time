@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw, FileText, BarChart3, ChevronDown, ArrowRight, Share2 } from "lucide-react";
+import { RotateCcw, FileText, BarChart3 } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
+import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { DisposableIncome } from "./DisposableIncome";
 import { NuView } from "./NuView";
 import { OptimeringView } from "./OptimeringView";
@@ -23,7 +24,6 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
-import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
@@ -89,8 +89,9 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const [activeSection, setActiveSection] = useState("cockpit");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const health = calculateHealth(profile, budget);
-  const smartSteps = generateSmartSteps(profile, budget, health);
+  // Memoize expensive calculations
+  const health = useMemo(() => calculateHealth(profile, budget), [profile, budget]);
+  const smartSteps = useMemo(() => generateSmartSteps(profile, budget, health), [profile, budget, health]);
 
   // Trigger confetti for great health scores
   useEffect(() => {
@@ -100,22 +101,23 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     }
   }, [health.score]);
 
-  const baseSections = [
-    { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
-    { id: "fremad", label: t("tab.forward"), emoji: "📈" },
-    { id: "hvadvis", label: t("tab.whatIf"), emoji: "🔮" },
-    { id: "stresstest", label: t("tab.stressTest"), emoji: "🔬" },
-    { id: "aarshjul", label: t("tab.calendar"), emoji: "📅" },
-    { id: "optimering", label: t("tab.optimize"), emoji: "⚡" },
-    { id: "naboeffekt", label: t("tab.compare"), emoji: "👥" },
-    { id: "historik", label: t("tab.history"), emoji: "📊" },
-  ];
+  const sections = useMemo(() => {
+    const baseSections = [
+      { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
+      { id: "fremad", label: t("tab.forward"), emoji: "📈" },
+      { id: "hvadvis", label: t("tab.whatIf"), emoji: "🔮" },
+      { id: "stresstest", label: t("tab.stressTest"), emoji: "🔬" },
+      { id: "aarshjul", label: t("tab.calendar"), emoji: "📅" },
+      { id: "optimering", label: t("tab.optimize"), emoji: "⚡" },
+      { id: "naboeffekt", label: t("tab.compare"), emoji: "👥" },
+      { id: "historik", label: t("tab.history"), emoji: "📊" },
+    ];
+    return profile.householdType === "par"
+      ? [...baseSections, { id: "parsplit", label: t("tab.coupleSplit"), emoji: "💑" }]
+      : baseSections;
+  }, [profile.householdType, t]);
 
-  const sections = profile.householdType === "par"
-    ? [...baseSections, { id: "parsplit", label: t("tab.coupleSplit"), emoji: "💑" }]
-    : baseSections;
-
-  // Track active section via IntersectionObserver
+  // Track active section via IntersectionObserver (fixed deps)
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -134,7 +136,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
       });
     }, 500);
     return () => { clearTimeout(timer); observer.disconnect(); };
-  }, []);
+  }, [sections]);
 
   if (showReport) {
     return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
@@ -184,45 +186,63 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
           <DisposableIncome health={health} />
         </motion.div>
 
-        {/* Scroll-based story sections */}
+        {/* Scroll-based story sections with error boundaries */}
         <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
-          <div className="space-y-6">
-            <MoneyFlowHero budget={budget} />
-            <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
-          </div>
+          <SectionErrorBoundary fallbackTitle="Cockpit">
+            <div className="space-y-6">
+              <MoneyFlowHero budget={budget} />
+              <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
+            </div>
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="fremad" title={t("tab.forward")} subtitle="Se frem — formue, mål og tidslinje">
-          <FremadView profile={profile} budget={budget} health={health} />
+          <SectionErrorBoundary fallbackTitle="Fremad">
+            <FremadView profile={profile} budget={budget} health={health} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="hvadvis" title={t("tab.whatIf")} subtitle="Simulér livsbegivenheder og se effekten">
-          <HvadHvisView profile={profile} budget={budget} health={health} />
+          <SectionErrorBoundary fallbackTitle="Hvad hvis">
+            <HvadHvisView profile={profile} budget={budget} health={health} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="stresstest" title={t("tab.stressTest")} subtitle="Hvor modstandsdygtig er din økonomi?">
-          <StressTestView profile={profile} budget={budget} />
+          <SectionErrorBoundary fallbackTitle="Stress-test">
+            <StressTestView profile={profile} budget={budget} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="aarshjul" title={t("tab.calendar")} subtitle="Årlige udgifter du skal forberede dig på">
-          <AarshjulView profile={profile} budget={budget} />
+          <SectionErrorBoundary fallbackTitle="Årshjul">
+            <AarshjulView profile={profile} budget={budget} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="optimering" title={t("tab.optimize")} subtitle="Konkrete besparelsesforslag baseret på dine tal">
-          <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
+          <SectionErrorBoundary fallbackTitle="Optimering">
+            <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="naboeffekt" title={t("tab.compare")} subtitle="Sammenlign med lignende husstande i dit område">
-          <NaboeffektView profile={profile} budget={budget} />
+          <SectionErrorBoundary fallbackTitle="Naboeffekt">
+            <NaboeffektView profile={profile} budget={budget} />
+          </SectionErrorBoundary>
         </StorySection>
 
         <StorySection id="historik" title={t("tab.history")} subtitle="Se udviklingen over tid">
-          <HistorikView />
+          <SectionErrorBoundary fallbackTitle="Historik">
+            <HistorikView />
+          </SectionErrorBoundary>
         </StorySection>
 
         {profile.householdType === "par" && (
           <StorySection id="parsplit" title={t("tab.coupleSplit")} subtitle="Fordeling af fælles udgifter">
-            <ParSplitView profile={profile} budget={budget} />
+            <SectionErrorBoundary fallbackTitle="Parsplit">
+              <ParSplitView profile={profile} budget={budget} />
+            </SectionErrorBoundary>
           </StorySection>
         )}
 
