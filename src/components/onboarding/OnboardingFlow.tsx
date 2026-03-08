@@ -646,7 +646,7 @@ export function OnboardingFlow({ onComplete }: Props) {
             )}
             <button onClick={addIncomeSource}
               className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Tilføj indkomstkilde
+              <Plus className="w-3.5 h-3.5" /> {t("step.income.addSource")}
             </button>
           </div>
 
