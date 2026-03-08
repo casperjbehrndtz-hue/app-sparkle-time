@@ -5,6 +5,7 @@ import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 import { ArrowRight, ExternalLink, AlertTriangle, TrendingUp, Zap } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { SocialProofNudge } from "./SocialProofNudge";
 
 interface Props {
   budget: ComputedBudget;
