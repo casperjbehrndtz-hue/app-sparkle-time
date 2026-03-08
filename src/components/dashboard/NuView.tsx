@@ -5,6 +5,7 @@ import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 import { ArrowRight, ExternalLink, AlertTriangle, TrendingUp, Zap } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { SocialProofNudge } from "./SocialProofNudge";
 
 interface Props {
   budget: ComputedBudget;
@@ -66,6 +67,9 @@ export function NuView({ budget, profile, health, smartSteps }: Props) {
 
   return (
     <div className="space-y-4">
+
+      {/* Social Proof Nudges */}
+      <SocialProofNudge profile={profile} budget={budget} health={health} context="cockpit" />
 
       {/* AI Insight - Always visible at top */}
       <motion.div

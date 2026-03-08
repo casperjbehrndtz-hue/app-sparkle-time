@@ -11,6 +11,8 @@ import { NaboeffektView } from "./NaboeffektView";
 import { HvadHvisView } from "./HvadHvisView";
 import { HistorikView } from "./HistorikView";
 import { ParSplitView } from "./ParSplitView";
+import { StressTestView } from "./StressTestView";
+import { AarshjulView } from "./AarshjulView";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
@@ -45,6 +47,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     { id: "nu", label: t("tab.cockpit") },
     { id: "fremad", label: t("tab.forward") },
     { id: "hvadvis", label: t("tab.whatIf") },
+    { id: "stresstest", label: t("tab.stressTest") },
+    { id: "aarshjul", label: t("tab.calendar") },
     { id: "optimering", label: t("tab.optimize") },
     { id: "naboeffekt", label: t("tab.compare") },
     { id: "historik", label: t("tab.history") },
@@ -116,6 +120,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             {activeTab === "hvadvis" && <HvadHvisView profile={profile} budget={budget} health={health} />}
             {activeTab === "optimering" && <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />}
             {activeTab === "naboeffekt" && <NaboeffektView profile={profile} budget={budget} />}
+            {activeTab === "stresstest" && <StressTestView profile={profile} budget={budget} />}
+            {activeTab === "aarshjul" && <AarshjulView profile={profile} budget={budget} />}
             {activeTab === "historik" && <HistorikView />}
             {activeTab === "parsplit" && profile.householdType === "par" && <ParSplitView profile={profile} budget={budget} />}
           </motion.div>
