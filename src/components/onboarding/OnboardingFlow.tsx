@@ -656,10 +656,7 @@ export function OnboardingFlow({ onComplete }: Props) {
               {formatKr(profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional)} {t("currency")}
             </span>
           </div>
-          <AiTip text={isPar 
-            ? `Gennemsnitlig husstandsindkomst for par i Danmark er ca. 52.000 kr./md. efter skat.`
-            : `Gennemsnitlig indkomst for enlige i Danmark er ca. 27.000 kr./md. efter skat.`
-          } />
+          <AiTip text={isPar ? t("step.income.tipCouple") : t("step.income.tipSolo")} />
           <ContinueButton onClick={goNext} disabled={profile.income < 1000} />
         </div>
       </StepShell>
