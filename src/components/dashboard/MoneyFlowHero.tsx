@@ -1,7 +1,8 @@
-import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { formatKr } from "@/lib/budgetCalculator";
-import type { ComputedBudget } from "@/lib/types";
+import type { ComputedBudget, ExpenseItem } from "@/lib/types";
+import { X } from "lucide-react";
 
 interface Props {
   budget: ComputedBudget;
