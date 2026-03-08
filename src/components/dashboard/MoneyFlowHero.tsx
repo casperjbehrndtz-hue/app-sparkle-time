@@ -1,7 +1,8 @@
-import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { formatKr } from "@/lib/budgetCalculator";
-import type { ComputedBudget } from "@/lib/types";
+import type { ComputedBudget, ExpenseItem } from "@/lib/types";
+import { X } from "lucide-react";
 
 interface Props {
   budget: ComputedBudget;
@@ -83,19 +84,26 @@ function PctCounter({ target, delay, duration = 800, className }: { target: numb
 export function MoneyFlowHero({ budget }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-40px" });
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
 
   const allExpenses = [...budget.fixedExpenses, ...budget.variableExpenses];
-  const grouped: Record<string, number> = {};
+  
+  // Group by category with sub-items
+  const categoryMap: Record<string, { total: number; items: ExpenseItem[] }> = {};
   allExpenses.forEach((e) => {
-    grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
+    if (!categoryMap[e.category]) categoryMap[e.category] = { total: 0, items: [] };
+    categoryMap[e.category].total += e.amount;
+    categoryMap[e.category].items.push(e);
   });
-  const sorted = Object.entries(grouped)
-    .map(([name, value]) => ({ name, value }))
+  
+  const sorted = Object.entries(categoryMap)
+    .map(([name, data]) => ({ name, value: data.total, items: data.items }))
     .sort((a, b) => b.value - a.value);
 
   const top = sorted.slice(0, 6);
-  const otherSum = sorted.slice(6).reduce((s, e) => s + e.value, 0);
-  if (otherSum > 0) top.push({ name: "Øvrigt", value: otherSum });
+  const otherItems = sorted.slice(6);
+  const otherSum = otherItems.reduce((s, e) => s + e.value, 0);
+  if (otherSum > 0) top.push({ name: "Øvrigt", value: otherSum, items: otherItems.flatMap(e => e.items) });
 
   const disposable = budget.disposableIncome;
   const totalOut = budget.totalExpenses;
@@ -145,40 +153,83 @@ export function MoneyFlowHero({ budget }: Props) {
         </div>
 
         {/* Expense waterfall */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {top.map((expense, i) => {
             const pct = income > 0 ? (expense.value / income) * 100 : 0;
             const barDelay = 0.6 + i * 0.08;
+            const isExpanded = expandedCat === expense.name;
             return (
-              <motion.div
-                key={expense.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 + i * 0.08 }}
-                className="flex items-center gap-3 group"
-              >
-                <span className="text-[10px] text-muted-foreground w-16 text-right truncate group-hover:text-foreground transition-colors">
-                  {expense.name}
-                </span>
-                <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-md transition-shadow"
-                    style={{ backgroundColor: getColor(expense.name) }}
-                    initial={{ width: 0 }}
-                    animate={isInView ? { width: `${Math.max(pct, 2)}%` } : {}}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: barDelay }}
-                    whileHover={{ boxShadow: `0 0 12px ${getColor(expense.name)}40` }}
-                  />
-                  <div className="absolute inset-0 flex items-center px-2 z-10">
-                    {pct > 15 && (
-                      <span className="text-[10px] font-medium text-white drop-shadow-sm">
-                        <FlowCounter target={expense.value} delay={barDelay} />
-                      </span>
-                    )}
+              <div key={expense.name}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 + i * 0.08 }}
+                  className="flex items-center gap-3 group cursor-pointer"
+                  onClick={() => setExpandedCat(isExpanded ? null : expense.name)}
+                >
+                  <span className="text-[10px] text-muted-foreground w-16 text-right truncate group-hover:text-foreground transition-colors">
+                    {expense.name}
+                  </span>
+                  <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 rounded-md transition-shadow"
+                      style={{ backgroundColor: getColor(expense.name) }}
+                      initial={{ width: 0 }}
+                      animate={isInView ? { width: `${Math.max(pct, 2)}%` } : {}}
+                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: barDelay }}
+                      whileHover={{ boxShadow: `0 0 12px ${getColor(expense.name)}40` }}
+                    />
+                    <div className="absolute inset-0 flex items-center px-2 z-10">
+                      {pct > 15 && (
+                        <span className="text-[10px] font-medium text-white drop-shadow-sm">
+                          <FlowCounter target={expense.value} delay={barDelay} />
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <PctCounter target={Math.round(pct)} delay={barDelay} className="text-[10px] font-medium tabular-nums text-muted-foreground w-12 text-right" />
-              </motion.div>
+                  <PctCounter target={Math.round(pct)} delay={barDelay} className="text-[10px] font-medium tabular-nums text-muted-foreground w-12 text-right" />
+                </motion.div>
+                
+                {/* Expandable detail panel */}
+                <AnimatePresence>
+                  {isExpanded && expense.items.length > 0 && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="ml-[76px] mr-[60px] mt-1 mb-2 rounded-lg border border-border/60 bg-muted/20 backdrop-blur-sm">
+                        <div className="px-3 py-2 flex items-center justify-between border-b border-border/40">
+                          <span className="text-[10px] font-semibold text-foreground">{expense.name}</span>
+                          <button onClick={(e) => { e.stopPropagation(); setExpandedCat(null); }} className="p-0.5 rounded hover:bg-muted transition-colors">
+                            <X className="w-3 h-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                        <div className="divide-y divide-border/30">
+                          {expense.items.map((item, j) => {
+                            const itemPct = expense.value > 0 ? Math.round((item.amount / expense.value) * 100) : 0;
+                            return (
+                              <div key={`${item.label}-${j}`} className="px-3 py-1.5 flex items-center justify-between">
+                                <span className="text-[10px] text-muted-foreground">{item.label}</span>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="text-[10px] font-medium tabular-nums">{formatKr(item.amount)} kr.</span>
+                                  <span className="text-[9px] text-muted-foreground/60 tabular-nums w-7 text-right">{itemPct}%</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="px-3 py-1.5 border-t border-border/40 flex items-center justify-between">
+                          <span className="text-[10px] font-semibold text-foreground">Total</span>
+                          <span className="text-[10px] font-bold tabular-nums">{formatKr(expense.value)} kr.</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             );
           })}
         </div>
