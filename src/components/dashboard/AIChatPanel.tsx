@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, X, MessageCircle, Loader2, Bell } from "lucide-react";
+import { Sparkles, Send, X, Loader2, Bell } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
-import { formatKr } from "@/lib/budgetCalculator";
+import { useAIStream } from "@/hooks/useAIStream";
 
 interface Props {
   profile: BudgetProfile;
@@ -14,20 +14,15 @@ interface Props {
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/budget-ai`;
-
-// Generate seasonal/contextual quick questions
 function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang: string): string[] {
   const month = new Date().getMonth();
   const questions: string[] = [];
   const isDa = lang === "da";
 
-  // Seasonal
   if (month >= 10 || month === 0) questions.push(isDa ? "Hvordan klarer mit budget julen?" : "How does my budget handle Christmas?");
   if (month >= 4 && month <= 6) questions.push(isDa ? "Kan jeg spare op til sommerferie?" : "Can I save for summer vacation?");
   if (month >= 0 && month <= 2) questions.push(isDa ? "Skal jeg skifte forsikring ved fornyelse?" : "Should I switch insurance at renewal?");
 
-  // Context-based
   if (budget.disposableIncome < 3000) questions.push(isDa ? "Hvor kan jeg skære mest?" : "Where can I cut the most?");
   if (profile.hasCar) questions.push(isDa ? "Hvad koster min bil reelt?" : "What does my car really cost?");
   const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
@@ -36,82 +31,6 @@ function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang:
   if (!profile.hasSavings) questions.push(isDa ? "Hvordan starter jeg med at spare op?" : "How do I start saving?");
 
   return questions.slice(0, 4);
-}
-
-async function streamAI({
-  profile,
-  budget,
-  mode,
-  messages,
-  onDelta,
-  onDone,
-  onError,
-}: {
-  profile: BudgetProfile;
-  budget: ComputedBudget;
-  mode: "optimize" | "chat";
-  messages?: Msg[];
-  onDelta: (text: string) => void;
-  onDone: () => void;
-  onError: (err: string) => void;
-}) {
-  try {
-    const resp = await fetch(CHAT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({ profile, budget, mode, messages }),
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({ error: "Ukendt fejl" }));
-      onError(err.error || `Fejl ${resp.status}`);
-      return;
-    }
-
-    if (!resp.body) {
-      onError("Ingen stream modtaget");
-      return;
-    }
-
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let textBuffer = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      textBuffer += decoder.decode(value, { stream: true });
-
-      let newlineIndex: number;
-      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-        let line = textBuffer.slice(0, newlineIndex);
-        textBuffer = textBuffer.slice(newlineIndex + 1);
-
-        if (line.endsWith("\r")) line = line.slice(0, -1);
-        if (line.startsWith(":") || line.trim() === "") continue;
-        if (!line.startsWith("data: ")) continue;
-
-        const jsonStr = line.slice(6).trim();
-        if (jsonStr === "[DONE]") break;
-
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const content = parsed.choices?.[0]?.delta?.content;
-          if (content) onDelta(content);
-        } catch {
-          textBuffer = line + "\n" + textBuffer;
-          break;
-        }
-      }
-    }
-
-    onDone();
-  } catch (e) {
-    onError(e instanceof Error ? e.message : "Netværksfejl");
-  }
 }
 
 export function AIChatPanel({ profile, budget }: Props) {
@@ -124,6 +43,7 @@ export function AIChatPanel({ profile, budget }: Props) {
   const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
   const [hasProactiveNudge, setHasProactiveNudge] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const aiStream = useAIStream();
 
   const smartQuestions = useMemo(() => getSmartQuestions(profile, budget, lang), [profile, budget, lang]);
 
@@ -133,15 +53,14 @@ export function AIChatPanel({ profile, budget }: Props) {
     }
   }, [messages]);
 
-  const runOptimize = () => {
+  const runOptimize = useCallback(() => {
     if (hasInitialAnalysis || isLoading) return;
     setIsLoading(true);
     let assistantSoFar = "";
 
-    streamAI({
-      profile,
-      budget,
-      mode: "optimize",
+    aiStream.stream({
+      functionName: "budget-ai",
+      body: { profile, budget, mode: "optimize" },
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         setMessages((prev) => {
@@ -161,9 +80,9 @@ export function AIChatPanel({ profile, budget }: Props) {
         setMessages((prev) => [...prev, { role: "assistant", content: `❌ ${err}` }]);
       },
     });
-  };
+  }, [hasInitialAnalysis, isLoading, profile, budget, aiStream]);
 
-  const sendMessage = (text: string) => {
+  const sendMessage = useCallback((text: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: Msg = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMsg];
@@ -173,19 +92,12 @@ export function AIChatPanel({ profile, budget }: Props) {
 
     let assistantSoFar = "";
 
-    streamAI({
-      profile,
-      budget,
-      mode: "chat",
-      messages: newMessages,
+    aiStream.stream({
+      functionName: "budget-ai",
+      body: { profile, budget, mode: "chat", messages: newMessages },
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         setMessages((prev) => {
-          const last = prev[prev.length - 1];
-          if (last?.role === "assistant" && !prev.find((m, i) => i === prev.length - 1 && m === userMsg)) {
-            return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-          }
-          // Check if we already added an assistant message after the user message
           if (prev[prev.length - 1]?.role === "assistant" && prev[prev.length - 2]?.content === userMsg.content) {
             return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
           }
@@ -198,7 +110,7 @@ export function AIChatPanel({ profile, budget }: Props) {
         setMessages((prev) => [...prev, { role: "assistant", content: `❌ ${err}` }]);
       },
     });
-  };
+  }, [isLoading, messages, profile, budget, aiStream]);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -207,7 +119,7 @@ export function AIChatPanel({ profile, budget }: Props) {
     }
   };
 
-  // Proactive nudge — show notification dot after 10 seconds
+  // Proactive nudge
   useEffect(() => {
     if (isOpen || hasProactiveNudge) return;
     const timer = setTimeout(() => setHasProactiveNudge(true), 10000);
@@ -216,7 +128,6 @@ export function AIChatPanel({ profile, budget }: Props) {
 
   return (
     <>
-      {/* Floating button with notification */}
       {!isOpen && (
         <motion.button
           initial={{ scale: 0, opacity: 0 }}
@@ -238,7 +149,6 @@ export function AIChatPanel({ profile, budget }: Props) {
         </motion.button>
       )}
 
-      {/* Chat panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -248,7 +158,6 @@ export function AIChatPanel({ profile, budget }: Props) {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-4rem)] rounded-2xl border border-border bg-background shadow-2xl shadow-black/10 flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -264,7 +173,6 @@ export function AIChatPanel({ profile, budget }: Props) {
               </button>
             </div>
 
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {messages.length === 0 && !isLoading && (
                 <div className="text-center py-8">
@@ -300,7 +208,6 @@ export function AIChatPanel({ profile, budget }: Props) {
               )}
             </div>
 
-            {/* Smart questions — context-aware */}
             {hasInitialAnalysis && messages.length <= 2 && (
               <div className="px-4 pb-2 flex flex-wrap gap-1.5">
                 {smartQuestions.map((q) => (
@@ -316,13 +223,9 @@ export function AIChatPanel({ profile, budget }: Props) {
               </div>
             )}
 
-            {/* Input */}
             <div className="px-4 py-3 border-t border-border bg-muted/20">
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  sendMessage(input);
-                }}
+                onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
                 className="flex gap-2"
               >
                 <input

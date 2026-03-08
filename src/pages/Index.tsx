@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
 import { Dashboard } from "@/components/dashboard/Dashboard";
@@ -7,6 +7,7 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
 import { saveSnapshot } from "@/lib/snapshots";
 import { calculateHealth } from "@/lib/healthScore";
+import { parseProfile } from "@/lib/profileSchema";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
@@ -14,11 +15,23 @@ const STORAGE_KEY = "kassen_profile_v2";
 const Index = () => {
   const config = useWhiteLabel();
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
-  const [budget, setBudget] = useState<ComputedBudget | null>(null);
-  const [optimizations, setOptimizations] = useState<OptimizingAction[]>([]);
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
-  const [pendingBudget, setPendingBudget] = useState<ComputedBudget | null>(null);
+
+  // Memoize expensive computations
+  const budget = useMemo<ComputedBudget | null>(
+    () => profile ? computeBudget(profile) : null,
+    [profile]
+  );
+  const optimizations = useMemo<OptimizingAction[]>(
+    () => (profile && budget) ? generateOptimizations(profile, budget) : [],
+    [profile, budget]
+  );
+
+  const pendingBudget = useMemo<ComputedBudget | null>(
+    () => pendingProfile ? computeBudget(pendingProfile) : null,
+    [pendingProfile]
+  );
 
   // Apply white-label theme as CSS custom properties
   useEffect(() => {
@@ -41,35 +54,35 @@ const Index = () => {
     };
   }, [config]);
 
+  // Load from localStorage with Zod validation
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const p: BudgetProfile = JSON.parse(saved);
-        const b = computeBudget(p);
-        const opts = generateOptimizations(p, b);
-        setProfile(p);
-        setBudget(b);
-        setOptimizations(opts);
+        const raw = JSON.parse(saved);
+        const validated = parseProfile(raw);
+        if (validated) {
+          setProfile(validated);
+        } else {
+          // Corrupted data — remove it
+          console.warn("[Index] Corrupted profile data removed from localStorage");
+          localStorage.removeItem(STORAGE_KEY);
+        }
       }
-    } catch { /* ignore */ }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }, []);
 
   const handleComplete = (p: BudgetProfile) => {
-    const b = computeBudget(p);
-    // Show welcome insight screen before dashboard
     setPendingProfile(p);
-    setPendingBudget(b);
     setShowWelcome(true);
   };
 
   const handleWelcomeContinue = () => {
     if (!pendingProfile || !pendingBudget) return;
-    const opts = generateOptimizations(pendingProfile, pendingBudget);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile));
     setProfile(pendingProfile);
-    setBudget(pendingBudget);
-    setOptimizations(opts);
     setShowWelcome(false);
     // Save snapshot for history tracking
     const health = calculateHealth(pendingProfile, pendingBudget);
@@ -77,14 +90,11 @@ const Index = () => {
     // Submit anonymous price data
     submitPriceObservations(pendingProfile);
     setPendingProfile(null);
-    setPendingBudget(null);
   };
 
   const handleReset = () => {
     localStorage.removeItem(STORAGE_KEY);
     setProfile(null);
-    setBudget(null);
-    setOptimizations([]);
   };
 
   // AI Welcome Insight screen
