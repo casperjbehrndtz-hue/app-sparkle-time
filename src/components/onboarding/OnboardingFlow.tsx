@@ -608,7 +608,7 @@ export function OnboardingFlow({ onComplete }: Props) {
 
           {/* Additional income sources */}
           <div>
-            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Øvrig indkomst</h3>
+            <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
             {profile.additionalIncome.length > 0 && (
               <div className="space-y-2 mb-3">
                 {profile.additionalIncome.map((src, i) => (
