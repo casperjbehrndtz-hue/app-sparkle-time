@@ -627,7 +627,7 @@ export function OnboardingFlow({ onComplete }: Props) {
                         <input type="number" value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Number(e.target.value) || 0 })}
                           placeholder={t("step.income.amount")}
                           className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
-                        <span className="text-xs text-muted-foreground">kr.</span>
+                        <span className="text-xs text-muted-foreground">{t("currency")}</span>
                       </div>
                       <select value={src.frequency} onChange={(e) => updateIncomeSource(i, { frequency: e.target.value as PaymentFrequency })}
                         className="bg-background border border-border rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20">
