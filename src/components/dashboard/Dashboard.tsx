@@ -47,6 +47,8 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     { id: "nu", label: t("tab.cockpit") },
     { id: "fremad", label: t("tab.forward") },
     { id: "hvadvis", label: t("tab.whatIf") },
+    { id: "stresstest", label: t("tab.stressTest") },
+    { id: "aarshjul", label: t("tab.calendar") },
     { id: "optimering", label: t("tab.optimize") },
     { id: "naboeffekt", label: t("tab.compare") },
     { id: "historik", label: t("tab.history") },
