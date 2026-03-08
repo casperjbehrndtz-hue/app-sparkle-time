@@ -741,11 +741,11 @@ export function OnboardingFlow({ onComplete }: Props) {
           )}
           {profile.housingType === "ejer" && (
             <div className="space-y-5">
-              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Månedlig boligydelse" min={2000} max={30000} step={250} />
-              <SliderInput value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label="Boligens estimerede værdi" min={500000} max={10000000} step={100000} />
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.mortgage")} min={2000} max={30000} step={250} />
+              <SliderInput value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label={t("step.housing.propertyValue")} min={500000} max={10000000} step={100000} />
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">Rente på lån</span>
+                  <span className="text-sm text-muted-foreground">{t("step.housing.interestRate")}</span>
                   <div className="flex items-baseline gap-1 bg-muted rounded-lg px-3 py-1.5">
                     <span className="font-display font-bold text-lg">{profile.interestRate.toFixed(1)}</span>
                     <span className="text-xs text-muted-foreground">%</span>
