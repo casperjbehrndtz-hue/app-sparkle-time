@@ -4,6 +4,8 @@ import { Dashboard } from "@/components/dashboard/Dashboard";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
+import { saveSnapshot } from "@/lib/snapshots";
+import { calculateHealth } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
