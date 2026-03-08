@@ -198,7 +198,7 @@ export function MoneyFlowHero({ budget }: Props) {
                   </div>
                 </motion.div>
 
-                {/* Expandable detail panel */}
+                {/* Expandable detail panel with swipe-to-dismiss */}
                 <AnimatePresence>
                   {isExpanded && expense.items.length > 0 && (
                     <motion.div
@@ -207,11 +207,24 @@ export function MoneyFlowHero({ budget }: Props) {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
+                      drag="y"
+                      dragConstraints={{ top: 0, bottom: 0 }}
+                      dragElastic={0.4}
+                      onDragEnd={(_e, info) => {
+                        if (Math.abs(info.offset.y) > 40 || Math.abs(info.velocity.y) > 300) {
+                          haptic("light");
+                          setExpandedCat(null);
+                        }
+                      }}
                     >
                       <div className="ml-[76px] mr-[60px] mt-1 mb-2 rounded-lg border border-border/60 bg-muted/20 backdrop-blur-sm">
-                        <div className="px-3 py-2 flex items-center justify-between border-b border-border/40">
+                        {/* Swipe handle */}
+                        <div className="flex justify-center pt-1.5 pb-0.5">
+                          <div className="w-8 h-1 rounded-full bg-muted-foreground/25" />
+                        </div>
+                        <div className="px-3 py-1.5 flex items-center justify-between border-b border-border/40">
                           <span className="text-[10px] font-semibold text-foreground">{expense.name}</span>
-                          <button onClick={(e) => { e.stopPropagation(); setExpandedCat(null); }} className="p-0.5 rounded hover:bg-muted transition-colors">
+                          <button onClick={(e) => { e.stopPropagation(); haptic("light"); setExpandedCat(null); }} className="p-0.5 rounded hover:bg-muted transition-colors">
                             <X className="w-3 h-3 text-muted-foreground" />
                           </button>
                         </div>
