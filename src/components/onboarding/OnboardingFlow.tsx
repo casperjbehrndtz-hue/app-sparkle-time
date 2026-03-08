@@ -735,8 +735,8 @@ export function OnboardingFlow({ onComplete }: Props) {
           )}
           {profile.housingType === "andel" && (
             <div className="space-y-5">
-              <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label="Månedlig boligafgift" min={1000} max={15000} step={250} />
-              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label="Andelslån (afdrag + renter)" min={0} max={15000} step={250} />
+              <SliderInput value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label={t("step.housing.coopFee")} min={1000} max={15000} step={250} />
+              <SliderInput value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.coopLoan")} min={0} max={15000} step={250} />
             </div>
           )}
           {profile.housingType === "ejer" && (
