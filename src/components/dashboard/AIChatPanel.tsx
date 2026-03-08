@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, X, MessageCircle, Loader2 } from "lucide-react";
+import { Sparkles, Send, X, MessageCircle, Loader2, Bell } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
+import { formatKr } from "@/lib/budgetCalculator";
 
 interface Props {
   profile: BudgetProfile;
@@ -14,12 +16,27 @@ type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/budget-ai`;
 
-const QUICK_QUESTIONS = [
-  "Hvor kan jeg spare mest?",
-  "Er min husleje for høj?",
-  "Hvad hvis renten stiger 2%?",
-  "Bruger jeg for meget på streaming?",
-];
+// Generate seasonal/contextual quick questions
+function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang: string): string[] {
+  const month = new Date().getMonth();
+  const questions: string[] = [];
+  const isDa = lang === "da";
+
+  // Seasonal
+  if (month >= 10 || month === 0) questions.push(isDa ? "Hvordan klarer mit budget julen?" : "How does my budget handle Christmas?");
+  if (month >= 4 && month <= 6) questions.push(isDa ? "Kan jeg spare op til sommerferie?" : "Can I save for summer vacation?");
+  if (month >= 0 && month <= 2) questions.push(isDa ? "Skal jeg skifte forsikring ved fornyelse?" : "Should I switch insurance at renewal?");
+
+  // Context-based
+  if (budget.disposableIncome < 3000) questions.push(isDa ? "Hvor kan jeg skære mest?" : "Where can I cut the most?");
+  if (profile.hasCar) questions.push(isDa ? "Hvad koster min bil reelt?" : "What does my car really cost?");
+  const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
+  if (streamCount >= 3) questions.push(isDa ? "Hvilken streaming kan jeg droppe?" : "Which streaming can I drop?");
+  if (profile.housingType === "ejer") questions.push(isDa ? "Hvad hvis renten stiger 2%?" : "What if rates rise 2%?");
+  if (!profile.hasSavings) questions.push(isDa ? "Hvordan starter jeg med at spare op?" : "How do I start saving?");
+
+  return questions.slice(0, 4);
+}
 
 async function streamAI({
   profile,
