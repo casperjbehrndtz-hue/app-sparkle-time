@@ -91,7 +91,7 @@ function StepShell({ step, title, subtitle, onBack, children, liveAmount }: {
             <span className="font-display font-black text-base text-primary">{config.brandName}</span>
             {liveAmount != null ? (
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Tilbage</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{t("nav.back")}</span>
                 <span className={`font-display font-bold text-sm ${liveAmount > 5000 ? "text-primary" : liveAmount > 0 ? "text-kassen-gold" : "text-destructive"}`}>
                   {formatKr(liveAmount)}
                 </span>
