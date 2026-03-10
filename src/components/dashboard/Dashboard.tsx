@@ -36,6 +36,7 @@ interface Props {
   budget: ComputedBudget;
   optimizations: OptimizingAction[];
   onReset: () => void;
+  onProfileChange: (profile: BudgetProfile) => void;
 }
 
 // ─── Scroll section wrapper ──────────────────────────────
@@ -121,7 +122,7 @@ function AdvancedSection({ id, title, emoji, children }: { id: string; title: st
   );
 }
 
-export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
+export function Dashboard({ profile, budget, optimizations, onReset, onProfileChange }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
@@ -222,6 +223,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
               health={health}
               smartSteps={smartSteps}
               optimizations={optimizations}
+              onProfileChange={onProfileChange}
             />
           </SectionErrorBoundary>
         </StorySection>

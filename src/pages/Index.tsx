@@ -101,6 +101,12 @@ const Index = () => {
     setPendingProfile(null);
   };
 
+  const handleProfileChange = (updated: BudgetProfile) => {
+    setProfile(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    if (user) saveToCloud(updated);
+  };
+
   const handleReset = () => {
     localStorage.removeItem(STORAGE_KEY);
     setProfile(null);
@@ -123,6 +129,7 @@ const Index = () => {
         budget={budget}
         optimizations={optimizations}
         onReset={handleReset}
+        onProfileChange={handleProfileChange}
       />
     );
   }
