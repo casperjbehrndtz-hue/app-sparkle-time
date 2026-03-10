@@ -6,6 +6,7 @@ import {
   CartesianGrid, Area, AreaChart, ReferenceLine,
 } from "recharts";
 import { formatKr } from "@/lib/budgetCalculator";
+import { SankeyDiagram } from "./SankeyDiagram";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
