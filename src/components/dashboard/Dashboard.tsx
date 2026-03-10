@@ -223,6 +223,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               health={health}
               smartSteps={smartSteps}
               optimizations={optimizations}
+              onProfileChange={onProfileChange}
             />
           </SectionErrorBoundary>
         </StorySection>
