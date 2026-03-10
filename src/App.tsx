@@ -39,6 +39,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <I18nProvider>
           <WhiteLabelProvider config={config}>
+            <MarketDataProvider>
             <TooltipProvider>
               <Toaster />
               <Sonner />
