@@ -1,4 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
+import {
+  sankey as d3Sankey,
+  sankeyLinkHorizontal,
+  sankeyJustify,
+  type SankeyNode as D3SankeyNode,
+  type SankeyLink as D3SankeyLink,
+} from "d3-sankey";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { ComputedBudget, BudgetProfile } from "@/lib/types";
 
@@ -27,41 +34,60 @@ const CAT_COLORS: Record<string, string> = {
   "Andet": "#b0b0b0",
 };
 
-function getColor(cat: string) { return CAT_COLORS[cat] || "#b0b0b0"; }
-
-// SankeyMATIC uses high-curviness bezier — control points at ~60% of the gap
-function flowPath(x0: number, y0t: number, y0b: number, x1: number, y1t: number, y1b: number): string {
-  const dx = x1 - x0;
-  const cx0 = x0 + dx * 0.6;
-  const cx1 = x1 - dx * 0.6;
-  return `M ${x0},${y0t} C ${cx0},${y0t} ${cx1},${y1t} ${x1},${y1t} L ${x1},${y1b} C ${cx1},${y1b} ${cx0},${y0b} ${x0},${y0b} Z`;
+function getColor(name: string): string {
+  return CAT_COLORS[name] || "#b0b0b0";
 }
 
-interface SNode { id: string; label: string; value: number; y: number; h: number; color: string; }
+interface NodeExtra { name: string; color: string; column: number; }
+interface LinkExtra { color: string; }
+
+type SNode = D3SankeyNode<NodeExtra, LinkExtra>;
+type SLink = D3SankeyLink<NodeExtra, LinkExtra>;
 
 export function SankeyDiagram({ budget, profile }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  const data = useMemo(() => {
-    const incomeNodes: { label: string; value: number }[] = [];
+  const { nodes, links, width, height } = useMemo(() => {
+    // ── Build graph data ──
+    const nodeList: NodeExtra[] = [];
+    const linkList: { source: number; target: number; value: number; color: string }[] = [];
+
+    // Col 0: Income sources
     const mainIncome = profile?.income || budget.totalIncome;
     const partnerIncome = profile?.partnerIncome || 0;
     const additionalIncome = profile?.additionalIncome || [];
+
+    const incomeEntries: { label: string; value: number }[] = [];
     if (partnerIncome > 0) {
-      incomeNodes.push({ label: "Løn M", value: mainIncome });
-      incomeNodes.push({ label: "Løn F", value: partnerIncome });
+      incomeEntries.push({ label: "Løn M", value: mainIncome });
+      incomeEntries.push({ label: "Løn F", value: partnerIncome });
     } else {
-      incomeNodes.push({ label: "Løn", value: mainIncome });
+      incomeEntries.push({ label: "Løn", value: mainIncome });
     }
-    additionalIncome.forEach((inc) => {
+    additionalIncome.forEach(inc => {
       if (inc.amount > 0) {
         const monthly = inc.frequency === "monthly" ? inc.amount : inc.frequency === "quarterly" ? Math.round(inc.amount / 3) : inc.frequency === "biannual" ? Math.round(inc.amount / 6) : Math.round(inc.amount / 12);
-        incomeNodes.push({ label: inc.label || "Øvrig", value: monthly });
+        incomeEntries.push({ label: inc.label || "Øvrig", value: monthly });
       }
     });
 
+    incomeEntries.forEach(inc => {
+      nodeList.push({ name: inc.label, color: "#b39ddb", column: 0 });
+    });
+
+    // Col 1: "Indtægt" aggregate
+    const totalIdx = nodeList.length;
+    nodeList.push({ name: "Indtægt", color: "#1565c0", column: 1 });
+
+    // Links: income → Indtægt
+    incomeEntries.forEach((inc, i) => {
+      linkList.push({ source: i, target: totalIdx, value: inc.value, color: "#b39ddb" });
+    });
+
+    // Col 2: Categories
     const categoryMap = new Map<string, { total: number; items: { label: string; amount: number }[] }>();
-    [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
+    [...budget.fixedExpenses, ...budget.variableExpenses].forEach(e => {
       if (e.amount <= 0) return;
       const existing = categoryMap.get(e.category) || { total: 0, items: [] };
       existing.total += e.amount;
@@ -69,157 +95,103 @@ export function SankeyDiagram({ budget, profile }: Props) {
       categoryMap.set(e.category, existing);
     });
 
-    const disposable = Math.max(0, budget.disposableIncome);
     const categories = Array.from(categoryMap.entries())
       .sort((a, b) => b[1].total - a[1].total)
       .map(([name, d]) => ({ name, total: d.total, items: d.items.sort((a, b) => b.amount - a.amount), color: getColor(name) }));
 
-    return { incomeNodes, categories, disposable, totalIncome: budget.totalIncome };
+    const disposable = Math.max(0, budget.disposableIncome);
+
+    const catStartIdx = nodeList.length;
+    categories.forEach(cat => {
+      nodeList.push({ name: cat.name, color: cat.color, column: 2 });
+    });
+    if (disposable > 0) {
+      nodeList.push({ name: "Opsparing", color: "#5ba3cf", column: 2 });
+    }
+
+    // Links: Indtægt → categories
+    categories.forEach((cat, i) => {
+      linkList.push({ source: totalIdx, target: catStartIdx + i, value: cat.total, color: cat.color });
+    });
+    if (disposable > 0) {
+      linkList.push({ source: totalIdx, target: catStartIdx + categories.length, value: disposable, color: "#5ba3cf" });
+    }
+
+    // Col 3: Individual items
+    const itemStartIdx = nodeList.length;
+    const itemEntries: { label: string; value: number; catIdx: number; color: string }[] = [];
+    categories.forEach((cat, catI) => {
+      cat.items.forEach(item => {
+        itemEntries.push({ label: item.label, value: item.amount, catIdx: catStartIdx + catI, color: cat.color });
+      });
+    });
+    if (disposable > 0) {
+      itemEntries.push({ label: "Til overs", value: disposable, catIdx: catStartIdx + categories.length, color: "#5ba3cf" });
+    }
+
+    itemEntries.forEach(item => {
+      nodeList.push({ name: item.label, color: item.color, column: 3 });
+    });
+
+    // Links: categories → items
+    itemEntries.forEach((item, i) => {
+      linkList.push({ source: item.catIdx, target: itemStartIdx + i, value: item.value, color: item.color });
+    });
+
+    // ── Run d3-sankey layout ──
+    const W = 900;
+    const itemCount = itemEntries.length;
+    const H = Math.max(500, itemCount * 24 + 60);
+    const nodeWidth = 14;
+    const nodePadding = 6;
+
+    const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
+      .nodeWidth(nodeWidth)
+      .nodePadding(nodePadding)
+      .nodeAlign(sankeyJustify)
+      .extent([[1, 20], [W - 1, H - 20]]);
+
+    const graph = sankeyGen({
+      nodes: nodeList.map(n => ({ ...n })),
+      links: linkList.map(l => ({ ...l })),
+    });
+
+    return { nodes: graph.nodes, links: graph.links, width: W, height: H };
   }, [budget, profile]);
 
-  // Build right-side entries
-  const col3Entries: { id: string; label: string; value: number; color: string; catId: string }[] = [];
-  data.categories.forEach((c) => {
-    c.items.forEach((item, idx) => {
-      col3Entries.push({ id: `item-${c.name}-${idx}`, label: item.label, value: item.amount, color: c.color, catId: `cat-${c.name}` });
-    });
-  });
-  if (data.disposable > 0) {
-    col3Entries.push({ id: "item-tilovers", label: "Til overs", value: data.disposable, color: "#5ba3cf", catId: "cat-tilovers" });
-  }
+  const linkPathGen = sankeyLinkHorizontal();
 
-  const col2Entries = [
-    ...data.categories.map(c => ({ id: `cat-${c.name}`, label: c.name, value: c.total, color: c.color })),
-    ...(data.disposable > 0 ? [{ id: "cat-tilovers", label: "Opsparing", value: data.disposable, color: "#5ba3cf" }] : []),
-  ];
-
-  // ── SankeyMATIC-style layout ──
-  // Key principle: node heights are PROPORTIONAL to values, no minimum override
-  // Spacing between nodes is fixed. Labels are placed at node center.
-  const nodeW = 14;
-  const nodeSpacing = 6; // gap between nodes (SankeyMATIC default ~6)
-  const padY = 24;
-  const padX = 16;
-  const totalW = 900;
-  
-  // Column X positions — tighter, like SankeyMATIC
-  const col0X = 90;
-  const col1X = 260;
-  const col2X = 480;
-  const col3X = 660;
-
-  // Calculate height from the column with most nodes
-  // SankeyMATIC: total node height = diagram height - spacing gaps
-  const maxNodes = Math.max(col3Entries.length, col2Entries.length, data.incomeNodes.length);
-  const targetH = Math.max(500, maxNodes * 28 + padY * 2);
-  const height = targetH;
-  const usableH = height - padY * 2;
-
-  // Proportional layout like SankeyMATIC: each node's height = (value/total) * available
-  function layoutProportional(entries: { id: string; label: string; value: number; color: string }[], total: number): SNode[] {
-    const availH = usableH - Math.max(0, entries.length - 1) * nodeSpacing;
-    const nodes: SNode[] = [];
-    let y = padY;
-    entries.forEach(e => {
-      const h = Math.max(2, (e.value / total) * availH);
-      nodes.push({ ...e, y, h });
-      y += h + nodeSpacing;
-    });
-    // Center vertically
-    const used = nodes.length > 0 ? nodes[nodes.length - 1].y + nodes[nodes.length - 1].h - nodes[0].y : 0;
-    const off = Math.max(0, (usableH - used) / 2);
-    nodes.forEach(n => n.y += off);
-    return nodes;
-  }
-
-  // Col0: income
-  const incColor = "#b39ddb";
-  const col0Nodes = layoutProportional(
-    data.incomeNodes.map(n => ({ id: `inc-${n.label}`, label: n.label, value: n.value, color: incColor })),
-    data.totalIncome
-  );
-
-  // Col1: single "Indtægt" node — same height as col0 total
-  const c0top = col0Nodes[0]?.y ?? padY;
-  const c0bot = col0Nodes.length > 0 ? col0Nodes[col0Nodes.length - 1].y + col0Nodes[col0Nodes.length - 1].h : padY + usableH;
-  const col1Node: SNode = { id: "total-income", label: "Indtægt", value: data.totalIncome, y: c0top, h: c0bot - c0top, color: "#1565c0" };
-
-  // Col2: categories
-  const col2Nodes = layoutProportional(col2Entries, data.totalIncome);
-
-  // Col3: items
-  const col3Nodes = layoutProportional(
-    col3Entries.map(e => ({ id: e.id, label: e.label, value: e.value, color: e.color })),
-    data.totalIncome
-  );
-
-  // ── Flows ──
-  const flows0to1: { path: string; color: string; id: string }[] = [];
-  {
-    let c1y = col1Node.y;
-    col0Nodes.forEach((n, i) => {
-      const h1 = (n.value / data.totalIncome) * col1Node.h;
-      flows0to1.push({ path: flowPath(col0X + nodeW, n.y, n.y + n.h, col1X, c1y, c1y + h1), color: n.color, id: `f0-${i}` });
-      c1y += h1;
-    });
-  }
-
-  const flows1to2: { path: string; color: string; id: string; catId: string }[] = [];
-  {
-    let c1y = col1Node.y;
-    col2Nodes.forEach((cat, i) => {
-      const h1 = (cat.value / data.totalIncome) * col1Node.h;
-      flows1to2.push({ path: flowPath(col1X + nodeW, c1y, c1y + h1, col2X, cat.y, cat.y + cat.h), color: cat.color, id: `f1-${i}`, catId: cat.id });
-      c1y += h1;
-    });
-  }
-
-  const flows2to3: { path: string; color: string; id: string; itemId: string; catId: string }[] = [];
-  {
-    const cursors = col2Nodes.map(n => n.y);
-    col3Entries.forEach((entry, idx) => {
-      const ci = col2Nodes.findIndex(n => n.id === entry.catId);
-      if (ci === -1) return;
-      const cat = col2Nodes[ci];
-      const item = col3Nodes[idx];
-      const fh = Math.max(1, (entry.value / cat.value) * cat.h);
-      flows2to3.push({ path: flowPath(col2X + nodeW, cursors[ci], cursors[ci] + fh, col3X, item.y, item.y + item.h), color: entry.color, id: `f2-${idx}`, itemId: entry.id, catId: entry.catId });
-      cursors[ci] += fh;
-    });
-  }
-
-  // Hover
-  const isRelated = (catId: string, itemId?: string) => {
-    if (!hovered) return true;
-    if (hovered === catId) return true;
-    if (itemId && hovered === itemId) return true;
-    const he = col3Entries.find(e => e.id === hovered);
-    return he ? he.catId === catId : false;
+  // Hover helpers
+  const getNodeName = (idx: number | SNode | undefined): string => {
+    if (idx === undefined) return "";
+    if (typeof idx === "object") return (idx as SNode).name || "";
+    return nodes[idx]?.name || "";
   };
-  // SankeyMATIC uses ~0.4-0.5 flow opacity by default
-  const fop = (catId: string, itemId?: string) => !hovered ? 0.45 : isRelated(catId, itemId) ? 0.7 : 0.06;
 
-  // Label Y resolver — for cols where nodes may be too small for labels
-  function labelYPositions(nodes: SNode[], minSpacing: number): number[] {
-    const centers = nodes.map(n => n.y + n.h / 2);
-    const resolved = [...centers];
-    for (let pass = 0; pass < 15; pass++) {
-      let moved = false;
-      for (let i = 1; i < resolved.length; i++) {
-        if (resolved[i] - resolved[i - 1] < minSpacing) {
-          const push = (minSpacing - (resolved[i] - resolved[i - 1])) / 2 + 0.5;
-          resolved[i - 1] -= push;
-          resolved[i] += push;
-          moved = true;
-        }
-      }
-      if (!moved) break;
-    }
-    return resolved;
-  }
+  const isLinkRelated = (link: SLink): boolean => {
+    if (!hovered) return true;
+    const src = typeof link.source === "object" ? link.source : nodes[link.source as number];
+    const tgt = typeof link.target === "object" ? link.target : nodes[link.target as number];
+    if (src?.name === hovered || tgt?.name === hovered) return true;
+    // Check if hovered node is connected via a chain
+    // e.g., hovering an item should highlight its category's link from Indtægt
+    return false;
+  };
 
-  const col2LabelYs = labelYPositions(col2Nodes, 22);
-  const col3LabelYs = labelYPositions(col3Nodes, 20);
+  const isNodeRelated = (node: SNode): boolean => {
+    if (!hovered) return true;
+    if (node.name === hovered) return true;
+    // Check if any link connects this node to hovered
+    const related = links.some(l => {
+      const src = typeof l.source === "object" ? l.source : nodes[l.source as number];
+      const tgt = typeof l.target === "object" ? l.target : nodes[l.target as number];
+      return (src?.name === hovered && tgt?.name === node.name) ||
+             (tgt?.name === hovered && src?.name === node.name) ||
+             (src?.name === node.name && tgt?.name === hovered) ||
+             (tgt?.name === node.name && src?.name === hovered);
+    });
+    return related;
+  };
 
   return (
     <div className="space-y-3">
@@ -237,54 +209,95 @@ export function SankeyDiagram({ budget, profile }: Props) {
       </div>
 
       <div className="relative overflow-x-auto -mx-3 sm:mx-0 rounded-xl bg-card border border-border/40">
-        <svg viewBox={`0 0 ${totalW} ${height}`} className="w-full" style={{ minHeight: Math.min(height, 650) }} preserveAspectRatio="xMidYMid meet">
-          
-          {/* Flows — rendered FIRST so nodes sit on top */}
-          {flows0to1.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={hovered ? 0.12 : 0.45} className="transition-opacity duration-200" />)}
-          {flows1to2.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId)} className="transition-opacity duration-200 cursor-pointer" onMouseEnter={() => setHovered(f.catId)} onMouseLeave={() => setHovered(null)} />)}
-          {flows2to3.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId, f.itemId)} className="transition-opacity duration-200 cursor-pointer" onMouseEnter={() => setHovered(f.itemId)} onMouseLeave={() => setHovered(null)} />)}
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${width} ${height}`}
+          className="w-full"
+          style={{ minHeight: Math.min(height, 650) }}
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Links */}
+          {links.map((link, i) => {
+            const d = linkPathGen(link as any);
+            if (!d) return null;
+            const src = typeof link.source === "object" ? link.source : null;
+            const tgt = typeof link.target === "object" ? link.target : null;
+            const color = (link as any).color || src?.color || "#ccc";
+            const related = isLinkRelated(link);
 
-          {/* Col0: Income nodes — SankeyMATIC style: solid opaque bars, label beside */}
-          {col0Nodes.map(n => (
-            <g key={n.id}>
-              <rect x={col0X} y={n.y} width={nodeW} height={n.h} fill={n.color} opacity={1} />
-              <text x={col0X - 6} y={n.y + n.h / 2} textAnchor="end" dominantBaseline="central" fontSize={15} fontWeight={700} className="text-foreground" fill="currentColor">{n.label}</text>
-              <text x={col0X - 6} y={n.y + n.h / 2 + 18} textAnchor="end" dominantBaseline="central" fontSize={14} className="text-muted-foreground" fill="currentColor">{formatKr(n.value)}</text>
-            </g>
-          ))}
-
-          {/* Col1: Aggregate node */}
-          <rect x={col1X} y={col1Node.y} width={nodeW} height={col1Node.h} fill={col1Node.color} opacity={1} />
-          {/* Label inside/over the node area */}
-          <text x={col1X + nodeW / 2} y={col1Node.y + col1Node.h / 2 - 10} textAnchor="middle" dominantBaseline="central" fontSize={15} fontWeight={700} fill="white"
-            paintOrder="stroke" stroke={col1Node.color} strokeWidth={6} strokeLinejoin="round">Indtægt</text>
-          <text x={col1X + nodeW / 2} y={col1Node.y + col1Node.h / 2 + 12} textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={600} fill="white"
-            paintOrder="stroke" stroke={col1Node.color} strokeWidth={6} strokeLinejoin="round">{formatKr(data.totalIncome)}</text>
-
-          {/* Col2: Category nodes */}
-          {col2Nodes.map((n, i) => {
-            const active = isRelated(n.id);
-            const ly = col2LabelYs[i];
             return (
-              <g key={n.id} className="cursor-pointer" onMouseEnter={() => setHovered(n.id)} onMouseLeave={() => setHovered(null)}>
-                <rect x={col2X} y={n.y} width={nodeW} height={n.h} fill={n.color} opacity={active ? 1 : 0.35} className="transition-opacity duration-200" />
-                {/* Label to the right of node, like SankeyMATIC */}
-                <text x={col2X + nodeW + 6} y={ly - 5} dominantBaseline="central" fontSize={12} fontWeight={700} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.35}>{n.label}</text>
-                <text x={col2X + nodeW + 6} y={ly + 11} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.2}>{formatKr(n.value)}</text>
-              </g>
+              <path
+                key={`link-${i}`}
+                d={d}
+                fill="none"
+                stroke={color}
+                strokeWidth={Math.max(1, link.width || 1)}
+                strokeOpacity={!hovered ? 0.45 : related ? 0.65 : 0.06}
+                className="transition-opacity duration-200 cursor-pointer"
+                onMouseEnter={() => {
+                  const name = tgt?.name || src?.name || "";
+                  setHovered(name);
+                }}
+                onMouseLeave={() => setHovered(null)}
+              />
             );
           })}
 
-          {/* Col3: Item nodes */}
-          {col3Nodes.map((n, idx) => {
-            const entry = col3Entries[idx];
-            const active = isRelated(entry.catId, n.id);
-            const ly = col3LabelYs[idx];
+          {/* Nodes */}
+          {nodes.map((node, i) => {
+            const x0 = node.x0 ?? 0;
+            const x1 = node.x1 ?? 0;
+            const y0 = node.y0 ?? 0;
+            const y1 = node.y1 ?? 0;
+            const w = x1 - x0;
+            const h = y1 - y0;
+            const active = isNodeRelated(node);
+            const isCol0 = node.column === 0;
+            const isCol1 = node.column === 1;
+            const isCol3 = node.column === 3;
+            const isCol2 = node.column === 2;
+
             return (
-              <g key={n.id} className="cursor-pointer" onMouseEnter={() => setHovered(n.id)} onMouseLeave={() => setHovered(null)}>
-                <rect x={col3X} y={n.y} width={nodeW} height={Math.max(n.h, 2)} fill={n.color} opacity={active ? 1 : 0.25} className="transition-opacity duration-200" />
-                <text x={col3X + nodeW + 6} y={ly - 5} dominantBaseline="central" fontSize={12} fontWeight={600} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{n.label}</text>
-                <text x={col3X + nodeW + 6} y={ly + 11} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.15}>{formatKr(n.value)}</text>
+              <g
+                key={`node-${i}`}
+                className="cursor-pointer"
+                onMouseEnter={() => setHovered(node.name)}
+                onMouseLeave={() => setHovered(null)}
+              >
+                <rect
+                  x={x0}
+                  y={y0}
+                  width={w}
+                  height={h}
+                  fill={node.color}
+                  opacity={active ? 1 : 0.3}
+                  className="transition-opacity duration-200"
+                />
+                {/* Labels */}
+                {isCol0 && (
+                  <>
+                    <text x={x0 - 8} y={y0 + h / 2 - 8} textAnchor="end" dominantBaseline="central" fontSize={14} fontWeight={700} fill="currentColor" className="text-foreground">{node.name}</text>
+                    <text x={x0 - 8} y={y0 + h / 2 + 10} textAnchor="end" dominantBaseline="central" fontSize={13} fill="currentColor" className="text-muted-foreground">{formatKr(node.value ?? 0)}</text>
+                  </>
+                )}
+                {isCol1 && (
+                  <>
+                    <text x={x0 + w / 2} y={y0 + h / 2 - 9} textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={700} fill="white" paintOrder="stroke" stroke={node.color} strokeWidth={5} strokeLinejoin="round">{node.name}</text>
+                    <text x={x0 + w / 2} y={y0 + h / 2 + 11} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="white" paintOrder="stroke" stroke={node.color} strokeWidth={5} strokeLinejoin="round">{formatKr(node.value ?? 0)}</text>
+                  </>
+                )}
+                {isCol2 && h > 6 && (
+                  <>
+                    <text x={x1 + 8} y={y0 + h / 2 - 6} dominantBaseline="central" fontSize={12} fontWeight={700} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{node.name}</text>
+                    <text x={x1 + 8} y={y0 + h / 2 + 10} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.2}>{formatKr(node.value ?? 0)}</text>
+                  </>
+                )}
+                {isCol3 && (
+                  <>
+                    <text x={x1 + 8} y={y0 + h / 2 - 5} dominantBaseline="central" fontSize={12} fontWeight={600} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{node.name}</text>
+                    <text x={x1 + 8} y={y0 + h / 2 + 10} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.15}>{formatKr(node.value ?? 0)}</text>
+                  </>
+                )}
               </g>
             );
           })}
