@@ -56,6 +56,7 @@ function getColor(cat: string) {
 
 export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
   const { t } = useI18n();
+  const { data: marketData } = useMarketData();
   const { score, label, color, truths } = health;
 
   const radius = 36;
