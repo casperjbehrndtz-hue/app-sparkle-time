@@ -193,12 +193,15 @@ function SankeyView({ budget, profile, categories, disposable }: {
     const W = 620;
     const rightCount = categories.length + (disposable > 0 ? 1 : 0);
     const maxSide = Math.max(rightCount, incomeNodeCount);
-    const H = Math.max(300, maxSide * 34 + 40);
+    // More padding when income vastly exceeds expenses (small nodes need spacing)
+    const ratio = totalIncome > 0 ? Math.max(...categories.map(c => c.total), disposable) / Math.min(...categories.map(c => c.total), 1) : 1;
+    const pad = ratio > 20 ? 18 : ratio > 8 ? 14 : 10;
+    const H = Math.max(340, maxSide * (pad + 22) + 40);
     const LEFT_PAD = 120;
 
     const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
       .nodeWidth(16)
-      .nodePadding(8)
+      .nodePadding(pad)
       .nodeAlign(sankeyJustify)
       .extent([[LEFT_PAD, 16], [W - 140, H - 16]]);
 
