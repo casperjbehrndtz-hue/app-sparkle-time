@@ -67,7 +67,7 @@ export function InlineChartsSection({ profile, budget }: Props) {
           transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           className="rounded-2xl border border-border/60 bg-background p-3 sm:p-5 shadow-sm"
         >
-          {activeTab === "sankey" && <SankeyDiagram budget={budget} />}
+          {activeTab === "sankey" && <SankeyDiagram budget={budget} profile={profile} />}
           {activeTab === "planlagt" && <PlannedVsActualInline budget={budget} />}
           {activeTab === "raadighed" && <DisposableOverTimeInline budget={budget} />}
         </motion.div>
