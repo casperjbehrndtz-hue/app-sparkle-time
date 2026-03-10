@@ -247,19 +247,12 @@ function SankeyView({ budget, profile, categories, disposable }: {
                 </text>
               </>
             ) : (
-              // Right labels: category name + amount
-              <>
-                <text x={x1 + 10} y={y0 + h / 2 - 7} dominantBaseline="central"
-                  fontSize={13} fontWeight={700} fill="currentColor" className="text-foreground"
-                  opacity={active ? 1 : 0.3}>
-                  {node.name}
-                </text>
-                <text x={x1 + 10} y={y0 + h / 2 + 10} dominantBaseline="central"
-                  fontSize={12} fill="currentColor" className="text-muted-foreground"
-                  opacity={active ? 0.8 : 0.2}>
-                  {formatKr(node.value ?? 0)} kr.
-                </text>
-              </>
+              <text x={x1 + 10} y={y0 + h / 2} dominantBaseline="central"
+                fontSize={13} fill="currentColor" className="text-foreground"
+                opacity={active ? 1 : 0.3}>
+                <tspan fontWeight={700}>{node.name}</tspan>
+                <tspan dx={6} fontWeight={500} opacity={0.6}>{formatKr(node.value ?? 0)} kr.</tspan>
+              </text>
             )}
           </g>
         );
