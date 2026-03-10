@@ -204,7 +204,13 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
           <DisposableIncome health={health} />
         </motion.div>
 
-        {/* Scroll-based story sections with error boundaries */}
+        {/* Charts overview — first and most prominent */}
+        <StorySection id="overblik" title="Overblik" subtitle="Hvor går dine penge hen? Se det hele i ét blik.">
+          <SectionErrorBoundary fallbackTitle="Overblik">
+            <InlineChartsSection profile={profile} budget={budget} />
+          </SectionErrorBoundary>
+        </StorySection>
+
         <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
           <SectionErrorBoundary fallbackTitle="Cockpit">
             <div className="space-y-6">
