@@ -27,48 +27,14 @@ const CAT_COLORS: Record<string, string> = {
   "Andet": "#b0b0b0",
 };
 
-function getColor(cat: string) {
-  return CAT_COLORS[cat] || "#b0b0b0";
-}
+function getColor(cat: string) { return CAT_COLORS[cat] || "#b0b0b0"; }
 
-function flowPath(
-  x0: number, y0top: number, y0bot: number,
-  x1: number, y1top: number, y1bot: number
-): string {
+function flowPath(x0: number, y0t: number, y0b: number, x1: number, y1t: number, y1b: number): string {
   const cx = (x0 + x1) / 2;
-  return [
-    `M ${x0},${y0top}`,
-    `C ${cx},${y0top} ${cx},${y1top} ${x1},${y1top}`,
-    `L ${x1},${y1bot}`,
-    `C ${cx},${y1bot} ${cx},${y0bot} ${x0},${y0bot}`,
-    `Z`,
-  ].join(" ");
+  return `M ${x0},${y0t} C ${cx},${y0t} ${cx},${y1t} ${x1},${y1t} L ${x1},${y1b} C ${cx},${y1b} ${cx},${y0b} ${x0},${y0b} Z`;
 }
 
-interface SNode {
-  id: string;
-  label: string;
-  value: number;
-  y: number;
-  h: number;
-  color: string;
-}
-
-// Resolve overlapping labels by pushing them apart
-function resolveOverlaps(nodes: SNode[], minSpacing: number): { y: number; h: number }[] {
-  const positions = nodes.map(n => ({ y: n.y, h: n.h }));
-  // Multiple passes to resolve
-  for (let pass = 0; pass < 5; pass++) {
-    for (let i = 1; i < positions.length; i++) {
-      const prevBottom = positions[i - 1].y + positions[i - 1].h;
-      const overlap = prevBottom + minSpacing - positions[i].y;
-      if (overlap > 0) {
-        positions[i].y += overlap;
-      }
-    }
-  }
-  return positions;
-}
+interface SNode { id: string; label: string; value: number; y: number; h: number; color: string; }
 
 export function SankeyDiagram({ budget, profile }: Props) {
   const [hovered, setHovered] = useState<string | null>(null);
@@ -78,7 +44,6 @@ export function SankeyDiagram({ budget, profile }: Props) {
     const mainIncome = profile?.income || budget.totalIncome;
     const partnerIncome = profile?.partnerIncome || 0;
     const additionalIncome = profile?.additionalIncome || [];
-
     if (partnerIncome > 0) {
       incomeNodes.push({ label: "Løn M", value: mainIncome });
       incomeNodes.push({ label: "Løn F", value: partnerIncome });
@@ -87,10 +52,7 @@ export function SankeyDiagram({ budget, profile }: Props) {
     }
     additionalIncome.forEach((inc) => {
       if (inc.amount > 0) {
-        const monthly = inc.frequency === "monthly" ? inc.amount
-          : inc.frequency === "quarterly" ? Math.round(inc.amount / 3)
-          : inc.frequency === "biannual" ? Math.round(inc.amount / 6)
-          : Math.round(inc.amount / 12);
+        const monthly = inc.frequency === "monthly" ? inc.amount : inc.frequency === "quarterly" ? Math.round(inc.amount / 3) : inc.frequency === "biannual" ? Math.round(inc.amount / 6) : Math.round(inc.amount / 12);
         incomeNodes.push({ label: inc.label || "Øvrig", value: monthly });
       }
     });
@@ -107,17 +69,12 @@ export function SankeyDiagram({ budget, profile }: Props) {
     const disposable = Math.max(0, budget.disposableIncome);
     const categories = Array.from(categoryMap.entries())
       .sort((a, b) => b[1].total - a[1].total)
-      .map(([name, d]) => ({
-        name,
-        total: d.total,
-        items: d.items.sort((a, b) => b.amount - a.amount),
-        color: getColor(name),
-      }));
+      .map(([name, d]) => ({ name, total: d.total, items: d.items.sort((a, b) => b.amount - a.amount), color: getColor(name) }));
 
     return { incomeNodes, categories, disposable, totalIncome: budget.totalIncome };
   }, [budget, profile]);
 
-  // Build entries
+  // Build all entries
   const col3Entries: { id: string; label: string; value: number; color: string; catId: string }[] = [];
   data.categories.forEach((c) => {
     c.items.forEach((item, idx) => {
@@ -133,56 +90,96 @@ export function SankeyDiagram({ budget, profile }: Props) {
     ...(data.disposable > 0 ? [{ id: "cat-tilovers", label: "Opsparing", value: data.disposable, color: "#7faed4" }] : []),
   ];
 
-  // Layout
+  // ── Layout constants ──
   const nodeW = 10;
   const totalW = 1000;
   const col0X = 100;
-  const col1X = 310;
-  const col2X = 600;
-  const col3X = 790;
-  const gap = 4;
-  const padY = 25;
+  const col1X = 300;
+  const col2X = 580;
+  const col3X = 780;
+  const padY = 30;
 
-  // Height: ensure enough room for all items with label spacing
-  const labelH = 26; // min height per item for readable labels
-  const neededH = col3Entries.length * labelH + padY * 2;
-  const height = Math.max(520, neededH);
+  // Height driven by whichever column needs most space
+  // Each label needs ~28px vertical space minimum
+  const labelMinH = 28;
+  const col2MinH = col2Entries.length * labelMinH;
+  const col3MinH = col3Entries.length * labelMinH;
+  const incMinH = data.incomeNodes.length * 60;
+  const height = Math.max(550, Math.max(col2MinH, col3MinH, incMinH) + padY * 2 + 40);
   const usableH = height - padY * 2;
 
-  function layoutNodes(entries: { id: string; label: string; value: number; color: string }[], totalValue: number, minH = 4): SNode[] {
+  // Layout: proportional heights but with minimum, then scale to fit
+  function layoutColumn(entries: { id: string; label: string; value: number; color: string }[], totalValue: number, minNodeH: number, gapSize: number): SNode[] {
+    // Calculate proportional heights
+    const rawHeights = entries.map(e => (e.value / totalValue) * usableH);
+    // Apply minimum
+    const heights = rawHeights.map(h => Math.max(minNodeH, h));
+    const totalNeeded = heights.reduce((s, h) => s + h, 0) + (entries.length - 1) * gapSize;
+    
+    // If we need more space than available, scale down proportionally but keep minimums
+    let scale = 1;
+    if (totalNeeded > usableH) {
+      const minTotal = entries.length * minNodeH + (entries.length - 1) * gapSize;
+      const excess = usableH - minTotal;
+      const rawExcess = heights.reduce((s, h) => s + Math.max(0, h - minNodeH), 0);
+      if (rawExcess > 0 && excess > 0) {
+        // Scale only the excess above minimum
+        const excessScale = excess / rawExcess;
+        for (let i = 0; i < heights.length; i++) {
+          heights[i] = minNodeH + Math.max(0, heights[i] - minNodeH) * excessScale;
+        }
+      }
+    }
+
+    const finalTotal = heights.reduce((s, h) => s + h, 0) + (entries.length - 1) * gapSize;
+    const startY = padY + Math.max(0, (usableH - finalTotal) / 2);
+    
     const nodes: SNode[] = [];
-    const totalGaps = Math.max(0, entries.length - 1) * gap;
-    const availH = usableH - totalGaps;
-    let y = padY;
-    entries.forEach((e) => {
-      const h = Math.max(minH, (e.value / totalValue) * availH);
-      nodes.push({ ...e, y, h });
-      y += h + gap;
+    let y = startY;
+    entries.forEach((e, i) => {
+      nodes.push({ ...e, y, h: heights[i] });
+      y += heights[i] + gapSize;
     });
-    // Center
-    const totalUsed = nodes.length > 0 ? (nodes[nodes.length - 1].y + nodes[nodes.length - 1].h - nodes[0].y) : 0;
-    const offset = Math.max(0, (usableH - totalUsed) / 2);
-    if (offset > 1) nodes.forEach(n => n.y += offset);
     return nodes;
   }
 
   const incColor = "#b39ddb";
-  const col0Nodes = layoutNodes(
+  const col0Nodes = layoutColumn(
     data.incomeNodes.map(n => ({ id: `inc-${n.label}`, label: n.label, value: n.value, color: incColor })),
-    data.totalIncome, 20
+    data.totalIncome, 30, 10
   );
 
-  const col1Node: SNode = { id: "total-income", label: "Indtægt", value: data.totalIncome, y: padY, h: usableH, color: "#7e57c2" };
+  // Col1: single aggregate - spans from first to last of col0
+  const col1Top = col0Nodes[0].y;
+  const col1Bot = col0Nodes[col0Nodes.length - 1].y + col0Nodes[col0Nodes.length - 1].h;
+  const col1Node: SNode = { id: "total-income", label: "Indtægt", value: data.totalIncome, y: col1Top, h: col1Bot - col1Top, color: "#7e57c2" };
 
-  const col2Nodes = layoutNodes(col2Entries, data.totalIncome, 6);
-  const col3Nodes = layoutNodes(
+  const col2Nodes = layoutColumn(col2Entries, data.totalIncome, 8, 5);
+  const col3Nodes = layoutColumn(
     col3Entries.map(e => ({ id: e.id, label: e.label, value: e.value, color: e.color })),
-    data.totalIncome, 4
+    data.totalIncome, 6, 3
   );
 
-  // Resolve label overlaps for col2 and col3
-  const col2LabelPositions = resolveOverlaps(col2Nodes, labelH);
-  const col3LabelPositions = resolveOverlaps(col3Nodes, labelH);
+  // ── Label positions: resolve overlaps ──
+  function resolvedLabelYs(nodes: SNode[], minSpacing: number): number[] {
+    const ys = nodes.map(n => n.y + n.h / 2);
+    for (let pass = 0; pass < 10; pass++) {
+      let moved = false;
+      for (let i = 1; i < ys.length; i++) {
+        if (ys[i] - ys[i - 1] < minSpacing) {
+          const push = (minSpacing - (ys[i] - ys[i - 1])) / 2 + 0.5;
+          ys[i - 1] -= push;
+          ys[i] += push;
+          moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+    return ys;
+  }
+
+  const col2LabelYs = resolvedLabelYs(col2Nodes, labelMinH);
+  const col3LabelYs = resolvedLabelYs(col3Nodes, labelMinH);
 
   // ── Flows ──
   const flows0to1: { path: string; color: string; id: string }[] = [];
@@ -219,16 +216,14 @@ export function SankeyDiagram({ budget, profile }: Props) {
     });
   }
 
-  // Hover logic
   const isRelated = (catId: string, itemId?: string) => {
     if (!hovered) return true;
     if (hovered === catId) return true;
     if (itemId && hovered === itemId) return true;
     const he = col3Entries.find(e => e.id === hovered);
-    if (he && he.catId === catId) return true;
-    return false;
+    return he ? he.catId === catId : false;
   };
-  const fop = (catId: string, itemId?: string) => !hovered ? 0.7 : isRelated(catId, itemId) ? 0.8 : 0.06;
+  const fop = (catId: string, itemId?: string) => !hovered ? 0.7 : isRelated(catId, itemId) ? 0.82 : 0.05;
 
   return (
     <div className="space-y-3">
@@ -246,30 +241,16 @@ export function SankeyDiagram({ budget, profile }: Props) {
       </div>
 
       <div className="relative overflow-x-auto -mx-3 sm:mx-0 rounded-xl bg-card border border-border/40">
-        <svg
-          viewBox={`0 0 ${totalW} ${height}`}
-          className="w-full"
-          style={{ minHeight: 420 }}
-          preserveAspectRatio="xMidYMid meet"
-        >
+        <svg viewBox={`0 0 ${totalW} ${height}`} className="w-full" style={{ minHeight: 450 }} preserveAspectRatio="xMidYMid meet">
+          
           {/* Flows Col0→Col1 */}
-          {flows0to1.map(f => (
-            <path key={f.id} d={f.path} fill={f.color} opacity={hovered ? 0.2 : 0.6} className="transition-opacity duration-200" />
-          ))}
+          {flows0to1.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={hovered ? 0.18 : 0.55} className="transition-opacity duration-200" />)}
 
           {/* Flows Col1→Col2 */}
-          {flows1to2.map(f => (
-            <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId)}
-              className="transition-opacity duration-200 cursor-pointer"
-              onMouseEnter={() => setHovered(f.catId)} onMouseLeave={() => setHovered(null)} />
-          ))}
+          {flows1to2.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId)} className="transition-opacity duration-200 cursor-pointer" onMouseEnter={() => setHovered(f.catId)} onMouseLeave={() => setHovered(null)} />)}
 
           {/* Flows Col2→Col3 */}
-          {flows2to3.map(f => (
-            <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId, f.itemId)}
-              className="transition-opacity duration-200 cursor-pointer"
-              onMouseEnter={() => setHovered(f.itemId)} onMouseLeave={() => setHovered(null)} />
-          ))}
+          {flows2to3.map(f => <path key={f.id} d={f.path} fill={f.color} opacity={fop(f.catId, f.itemId)} className="transition-opacity duration-200 cursor-pointer" onMouseEnter={() => setHovered(f.itemId)} onMouseLeave={() => setHovered(null)} />)}
 
           {/* Col0: Income sources */}
           {col0Nodes.map(n => (
@@ -280,58 +261,41 @@ export function SankeyDiagram({ budget, profile }: Props) {
             </g>
           ))}
 
-          {/* Col1: Aggregate — label centered ON the node bar */}
+          {/* Col1: Aggregate income — label to the LEFT */}
           <rect x={col1X} y={col1Node.y} width={nodeW} height={col1Node.h} rx={1} fill={col1Node.color} />
-          <text
-            x={col1X + nodeW / 2}
-            y={col1Node.y + col1Node.h / 2 - 10}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize={14}
-            fontWeight={700}
-            fill="white"
-            paintOrder="stroke"
-            stroke={col1Node.color}
-            strokeWidth={4}
-          >Indtægt</text>
-          <text
-            x={col1X + nodeW / 2}
-            y={col1Node.y + col1Node.h / 2 + 10}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fontSize={12}
-            fontWeight={600}
-            fill="white"
-            paintOrder="stroke"
-            stroke={col1Node.color}
-            strokeWidth={4}
-          >{formatKr(data.totalIncome)}</text>
+          <text x={col1X - 10} y={col1Node.y + col1Node.h / 2 - 9} textAnchor="end" dominantBaseline="middle" fontSize={14} fontWeight={700} fill="currentColor" className="text-foreground">Indtægt</text>
+          <text x={col1X - 10} y={col1Node.y + col1Node.h / 2 + 9} textAnchor="end" dominantBaseline="middle" fontSize={12} fill="currentColor" className="text-muted-foreground">{formatKr(data.totalIncome)}</text>
 
-          {/* Col2: Categories — labels use resolved positions to avoid overlap */}
+          {/* Col2: Categories with resolved label positions */}
           {col2Nodes.map((n, i) => {
             const active = isRelated(n.id);
-            const lp = col2LabelPositions[i];
-            const labelY = lp.y + lp.h / 2;
+            const ly = col2LabelYs[i];
             return (
               <g key={n.id} className="cursor-pointer" onMouseEnter={() => setHovered(n.id)} onMouseLeave={() => setHovered(null)}>
                 <rect x={col2X} y={n.y} width={nodeW} height={n.h} rx={1} fill={n.color} opacity={active ? 1 : 0.3} className="transition-opacity duration-200" />
-                <text x={col2X - 10} y={labelY - 6} textAnchor="end" dominantBaseline="middle" fontSize={11} fontWeight={700} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{n.label}</text>
-                <text x={col2X - 10} y={labelY + 8} textAnchor="end" dominantBaseline="middle" fontSize={10} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.2}>{formatKr(n.value)}</text>
+                {/* Leader line from node center to label if they diverge */}
+                {Math.abs(ly - (n.y + n.h / 2)) > 4 && (
+                  <line x1={col2X - 2} y1={n.y + n.h / 2} x2={col2X - 8} y2={ly} stroke="currentColor" className="text-border" strokeWidth={0.5} opacity={active ? 0.4 : 0.1} />
+                )}
+                <text x={col2X - 12} y={ly - 7} textAnchor="end" dominantBaseline="middle" fontSize={11} fontWeight={700} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{n.label}</text>
+                <text x={col2X - 12} y={ly + 7} textAnchor="end" dominantBaseline="middle" fontSize={10} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.2}>{formatKr(n.value)}</text>
               </g>
             );
           })}
 
-          {/* Col3: Items — labels use resolved positions to avoid overlap */}
+          {/* Col3: Items with resolved label positions */}
           {col3Nodes.map((n, idx) => {
             const entry = col3Entries[idx];
             const active = isRelated(entry.catId, n.id);
-            const lp = col3LabelPositions[idx];
-            const labelY = lp.y + lp.h / 2;
+            const ly = col3LabelYs[idx];
             return (
               <g key={n.id} className="cursor-pointer" onMouseEnter={() => setHovered(n.id)} onMouseLeave={() => setHovered(null)}>
                 <rect x={col3X} y={n.y} width={nodeW} height={Math.max(n.h, 3)} rx={1} fill={n.color} opacity={active ? 1 : 0.2} className="transition-opacity duration-200" />
-                <text x={col3X + nodeW + 8} y={labelY - 6} dominantBaseline="middle" fontSize={11} fontWeight={600} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.25}>{n.label}</text>
-                <text x={col3X + nodeW + 8} y={labelY + 8} dominantBaseline="middle" fontSize={10} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.15}>{formatKr(n.value)}</text>
+                {Math.abs(ly - (n.y + n.h / 2)) > 4 && (
+                  <line x1={col3X + nodeW + 2} y1={n.y + n.h / 2} x2={col3X + nodeW + 6} y2={ly} stroke="currentColor" className="text-border" strokeWidth={0.5} opacity={active ? 0.4 : 0.1} />
+                )}
+                <text x={col3X + nodeW + 10} y={ly - 7} dominantBaseline="middle" fontSize={11} fontWeight={600} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.25}>{n.label}</text>
+                <text x={col3X + nodeW + 10} y={ly + 7} dominantBaseline="middle" fontSize={10} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.15}>{formatKr(n.value)}</text>
               </g>
             );
           })}
