@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useMarketData } from "@/hooks/useMarketData";
+import { getLiveIncome } from "@/lib/marketData";
 
 interface Props {
   profile: BudgetProfile;
@@ -13,8 +15,12 @@ const fadeUp = (d: number) => ({
 });
 
 export function NaboeffektView({ profile, budget }: Props) {
+  const { data: marketData } = useMarketData();
   const isPar = profile.householdType === "par";
-  const neighborAvg = isPar ? 11800 : 7200;
+  // Use live income data if available, otherwise fall back to static estimates
+  const liveIncome = getLiveIncome(marketData ?? null, profile.postalCode || "000");
+  const neighborAvg = liveIncome ? Math.round(liveIncome * (isPar ? 0.65 : 0.38)) : (isPar ? 11800 : 7200);
+  // neighborAvg represents estimated disposable income after typical expenses
   const userAmount = budget.disposableIncome;
   const diff = neighborAvg - userAmount;
   const isAboveAvg = userAmount >= neighborAvg;

@@ -2,10 +2,12 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { EditableAmount } from "./EditableAmount";
-import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp } from "lucide-react";
+import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SocialProofNudge } from "./SocialProofNudge";
 import { getFieldMapping, INCOME_MAPPINGS } from "@/lib/fieldMappings";
+import { useMarketData } from "@/hooks/useMarketData";
+import { hasLiveData, getLiveIncome, getLiveElPrice, getLiveMortgageRate } from "@/lib/marketData";
 import type { BudgetProfile, ComputedBudget, OptimizingAction, ExpenseItem } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 
@@ -54,6 +56,7 @@ function getColor(cat: string) {
 
 export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
   const { t } = useI18n();
+  const { data: marketData } = useMarketData();
   const { score, label, color, truths } = health;
 
   const radius = 36;
@@ -285,6 +288,34 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           </div>
         </div>
       </div>
+
+      {/* ── Live Data Indicator ── */}
+      {marketData && (() => {
+        const live = hasLiveData(marketData);
+        const liveItems: string[] = [];
+        if (live.electricity) liveItems.push(`El: ${getLiveElPrice(marketData)?.toFixed(2)} kr/kWh`);
+        if (live.mortgageRate) liveItems.push(`Rente: ${getLiveMortgageRate(marketData)}%`);
+        if (live.income) {
+          const areaIncome = getLiveIncome(marketData, profile.postalCode || "000");
+          if (areaIncome) liveItems.push(`Gns. indkomst: ${formatKr(areaIncome)} kr.`);
+        }
+        if (liveItems.length === 0) return null;
+        return (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10"
+          >
+            <Radio className="w-3 h-3 text-primary animate-pulse flex-shrink-0" />
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+              <span className="text-[9px] font-semibold text-primary uppercase tracking-wider">Live data</span>
+              {liveItems.map((item, i) => (
+                <span key={i} className="text-[9px] text-muted-foreground">{item}</span>
+              ))}
+            </div>
+          </motion.div>
+        );
+      })()}
 
       {/* ── 4 Buckets ── */}
       <div className="rounded-2xl border border-border p-4">

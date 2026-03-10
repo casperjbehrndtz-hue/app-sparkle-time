@@ -9,6 +9,7 @@ import { saveSnapshot } from "@/lib/snapshots";
 import { calculateHealth } from "@/lib/healthScore";
 import { parseProfile } from "@/lib/profileSchema";
 import { useAuth } from "@/hooks/useAuth";
+import { useMarketData } from "@/hooks/useMarketData";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
@@ -16,21 +17,22 @@ const STORAGE_KEY = "kassen_profile_v2";
 const Index = () => {
   const config = useWhiteLabel();
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
+  const { data: marketData } = useMarketData();
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
 
   const budget = useMemo<ComputedBudget | null>(
-    () => profile ? computeBudget(profile) : null,
-    [profile]
+    () => profile ? computeBudget(profile, marketData) : null,
+    [profile, marketData]
   );
   const optimizations = useMemo<OptimizingAction[]>(
     () => (profile && budget) ? generateOptimizations(profile, budget) : [],
     [profile, budget]
   );
   const pendingBudget = useMemo<ComputedBudget | null>(
-    () => pendingProfile ? computeBudget(pendingProfile) : null,
-    [pendingProfile]
+    () => pendingProfile ? computeBudget(pendingProfile, marketData) : null,
+    [pendingProfile, marketData]
   );
 
   // Apply white-label theme
@@ -55,7 +57,6 @@ const Index = () => {
     if (authLoading) return;
 
     const loadData = async () => {
-      // Try cloud if logged in
       if (user) {
         const cloudProfile = await loadFromCloud();
         if (cloudProfile) {
@@ -63,14 +64,12 @@ const Index = () => {
           return;
         }
       }
-      // Fallback to localStorage
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
           const validated = parseProfile(JSON.parse(saved));
           if (validated) {
             setProfile(validated);
-            // Sync to cloud if logged in
             if (user) saveToCloud(validated);
           } else {
             localStorage.removeItem(STORAGE_KEY);
@@ -96,7 +95,6 @@ const Index = () => {
     const health = calculateHealth(pendingProfile, pendingBudget);
     saveSnapshot(pendingBudget, health.score);
     submitPriceObservations(pendingProfile);
-    // Save to cloud
     if (user) saveToCloud(pendingProfile);
     setPendingProfile(null);
   };

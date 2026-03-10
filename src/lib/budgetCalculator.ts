@@ -11,8 +11,14 @@ import {
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
 import { frequencyToMonthly, frequencyLabel } from "./types";
+import type { MarketData } from "./marketData";
+import { getLiveElCost } from "./marketData";
 
-export function computeBudget(profile: BudgetProfile): ComputedBudget {
+// Average annual kWh usage
+const ANNUAL_KWH_SOLO = 2000;
+const ANNUAL_KWH_PAR = 3500;
+
+export function computeBudget(profile: BudgetProfile, marketData?: MarketData | null): ComputedBudget {
   const isPar = profile.householdType === "par";
   const additionalMonthly = (profile.additionalIncome || []).reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
   const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly;
@@ -60,12 +66,18 @@ export function computeBudget(profile: BudgetProfile): ComputedBudget {
     amount: UTILITIES.internet.price,
     colorVar: "--kassen-blue",
   });
+
+  // Electricity: use live price if available
+  const liveElCost = getLiveElCost(marketData ?? null, isPar ? ANNUAL_KWH_PAR : ANNUAL_KWH_SOLO);
+  const elAmount = liveElCost ?? (isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo);
+  const elLabel = liveElCost ? "El (live-pris)" : "El";
   fixedExpenses.push({
     category: "Forsyning",
-    label: "El",
-    amount: isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo,
+    label: elLabel,
+    amount: elAmount,
     colorVar: "--kassen-blue",
   });
+
   fixedExpenses.push({
     category: "Forsyning",
     label: "Varme & vand",
