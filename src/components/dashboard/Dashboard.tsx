@@ -36,6 +36,7 @@ interface Props {
   budget: ComputedBudget;
   optimizations: OptimizingAction[];
   onReset: () => void;
+  onProfileChange: (profile: BudgetProfile) => void;
 }
 
 // ─── Scroll section wrapper ──────────────────────────────
