@@ -2,10 +2,12 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { EditableAmount } from "./EditableAmount";
-import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp } from "lucide-react";
+import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SocialProofNudge } from "./SocialProofNudge";
 import { getFieldMapping, INCOME_MAPPINGS } from "@/lib/fieldMappings";
+import { useMarketData } from "@/hooks/useMarketData";
+import { hasLiveData, getLiveIncome, getLiveElPrice, getLiveMortgageRate } from "@/lib/marketData";
 import type { BudgetProfile, ComputedBudget, OptimizingAction, ExpenseItem } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 
