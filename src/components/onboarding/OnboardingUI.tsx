@@ -165,7 +165,8 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           value={localValue}
           onChange={handleInputChange}
           onBlur={handleBlur}
-          className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin w-48 sm:w-56 text-foreground"
+          style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
+          className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
         />
         <span className="text-lg text-muted-foreground font-display">{suffix}</span>
       </div>
