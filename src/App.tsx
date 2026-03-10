@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { CookieBanner } from "@/components/CookieBanner";
 import { PageLoader } from "@/components/PageLoader";
+import { MarketDataProvider } from "@/hooks/useMarketData";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -38,6 +39,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <I18nProvider>
           <WhiteLabelProvider config={config}>
+            <MarketDataProvider>
             <TooltipProvider>
               <Toaster />
               <Sonner />
@@ -57,6 +59,7 @@ const App = () => {
               </BrowserRouter>
               <CookieBanner />
             </TooltipProvider>
+            </MarketDataProvider>
           </WhiteLabelProvider>
         </I18nProvider>
       </QueryClientProvider>
