@@ -129,6 +129,7 @@ const Index = () => {
         budget={budget}
         optimizations={optimizations}
         onReset={handleReset}
+        onProfileChange={handleProfileChange}
       />
     );
   }
