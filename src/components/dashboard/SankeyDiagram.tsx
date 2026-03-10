@@ -153,15 +153,16 @@ function SankeyView({ budget, profile, categories, disposable }: {
       linkList.push({ source: 0, target: catStartIdx + categories.length, value: disposable, color: "#2e86c1" });
     }
 
-    const W = 580;
+    const W = 620;
     const catCount = categories.length + (disposable > 0 ? 1 : 0);
     const H = Math.max(300, catCount * 34 + 40);
+    const LEFT_PAD = 120; // room for "Indkomst" label
 
     const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
       .nodeWidth(16)
       .nodePadding(8)
       .nodeAlign(sankeyJustify)
-      .extent([[1, 16], [W - 1, H - 16]]);
+      .extent([[LEFT_PAD, 16], [W - 140, H - 16]]);
 
     const graph = sankeyGen({
       nodes: nodeList.map(n => ({ ...n })),
