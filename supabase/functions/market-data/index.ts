@@ -70,20 +70,18 @@ async function fetchDSTIncome(): Promise<Record<string, number>> {
     for (let i = 1; i < lines.length; i++) {
       const cols = lines[i].split(";");
       if (cols.length < 6) continue;
-      const munCode = cols[3]?.trim();
+      const munName = cols[3]?.trim();
       const value = parseFloat(cols[5]?.trim());
 
-      if (!munCode || isNaN(value)) continue;
-      // Skip landsdele (2-digit codes like "01", "02")
-      if (munCode.length < 3 && munCode !== "000") continue;
+      if (!munName || isNaN(value)) continue;
+      // Skip landsdele
+      if (munName.startsWith("Landsdel")) continue;
 
-      // Map municipality code to postal code
-      const postalCode = MUNICIPALITY_TO_POSTAL[munCode] || munCode;
+      // Map municipality name to postal code
+      const postalCode = MUNICIPALITY_TO_POSTAL[munName] || munName;
       // Value is annual → monthly
       result[postalCode] = Math.round(value / 12);
     }
-
-    // Also store the national average under "000"
     console.log(`DST income: ${Object.keys(result).length} areas mapped`);
     return result;
   } catch (err) {
