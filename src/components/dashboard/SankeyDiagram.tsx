@@ -1,113 +1,249 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
-import type { ComputedBudget } from "@/lib/types";
+import type { ComputedBudget, BudgetProfile } from "@/lib/types";
 
 interface Props {
   budget: ComputedBudget;
+  profile?: BudgetProfile;
 }
 
-const SANKEY_COLORS: Record<string, string> = {
-  "Bolig": "#1e40af",
-  "Forsyning": "#3b82f6",
-  "Transport": "#d97706",
-  "Abonnementer": "#6366f1",
-  "Forsikring": "#0ea5e9",
-  "Fagforening": "#64748b",
-  "Børn": "#f59e0b",
-  "Kæledyr": "#a3a3a3",
-  "Lån": "#7c3aed",
-  "Fitness": "#14b8a6",
-  "Opsparing": "#059669",
-  "Mad & dagligvarer": "#dc2626",
-  "Fritid": "#f97316",
-  "Tøj": "#ec4899",
-  "Sundhed": "#ef4444",
-  "Restaurant": "#e11d48",
-  "Andet": "#94a3b8",
+// Colors matching the Reddit/SankeyMATIC aesthetic
+const CAT_COLORS: Record<string, string> = {
+  "Bolig": "#c9a0dc",        // soft purple (like Reddit)
+  "Forsyning": "#8fbc8f",    // sage green
+  "Transport": "#b8860b",    // dark goldenrod
+  "Abonnementer": "#6a9fb5", // steel blue
+  "Forsikring": "#cd853f",   // peru/warm brown
+  "Fagforening": "#a0785a",  // warm brown
+  "Børn": "#f4a460",         // sandy brown
+  "Kæledyr": "#c0c0c0",      // silver
+  "Lån": "#cd5c5c",          // indian red
+  "Fitness": "#20b2aa",      // light sea green
+  "Opsparing": "#3cb371",    // medium sea green
+  "Mad & dagligvarer": "#e07070", // salmon red
+  "Fritid": "#f4a460",       // sandy orange
+  "Tøj": "#dda0dd",          // plum
+  "Sundhed": "#f08080",      // light coral
+  "Restaurant": "#e88080",   // warm red
+  "Andet": "#b0b0b0",        // gray
 };
 
 function getColor(cat: string) {
-  return SANKEY_COLORS[cat] || "#94a3b8";
+  return CAT_COLORS[cat] || "#b0b0b0";
 }
 
-export function SankeyDiagram({ budget }: Props) {
-  const [hoveredFlow, setHoveredFlow] = useState<string | null>(null);
+// Smooth cubic bezier path between two vertical segments
+function flowPath(
+  x0: number, y0top: number, y0bot: number,
+  x1: number, y1top: number, y1bot: number
+): string {
+  const cx0 = x0 + (x1 - x0) * 0.5;
+  const cx1 = x0 + (x1 - x0) * 0.5;
+  return [
+    `M ${x0},${y0top}`,
+    `C ${cx0},${y0top} ${cx1},${y1top} ${x1},${y1top}`,
+    `L ${x1},${y1bot}`,
+    `C ${cx1},${y1bot} ${cx0},${y0bot} ${x0},${y0bot}`,
+    `Z`,
+  ].join(" ");
+}
 
-  const { flows, totalIncome, disposable } = useMemo(() => {
-    const categoryMap = new Map<string, number>();
+interface SankeyNode {
+  id: string;
+  label: string;
+  value: number;
+  y: number;
+  h: number;
+  color: string;
+}
+
+export function SankeyDiagram({ budget, profile }: Props) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const data = useMemo(() => {
+    // ── Column 1: Income sources ──
+    const incomeNodes: { label: string; value: number }[] = [];
+    const mainIncome = profile?.income || budget.totalIncome;
+    const partnerIncome = profile?.partnerIncome || 0;
+    const additionalIncome = profile?.additionalIncome || [];
+
+    if (partnerIncome > 0) {
+      incomeNodes.push({ label: "Løn 1", value: mainIncome });
+      incomeNodes.push({ label: "Løn 2", value: partnerIncome });
+    } else {
+      incomeNodes.push({ label: "Løn", value: mainIncome });
+    }
+    additionalIncome.forEach((inc) => {
+      if (inc.amount > 0) {
+        const monthly = inc.frequency === "monthly" ? inc.amount
+          : inc.frequency === "quarterly" ? Math.round(inc.amount / 3)
+          : inc.frequency === "biannual" ? Math.round(inc.amount / 6)
+          : Math.round(inc.amount / 12);
+        incomeNodes.push({ label: inc.label || "Øvrig", value: monthly });
+      }
+    });
+
+    // ── Column 2: Category groups ──
+    const categoryMap = new Map<string, { total: number; items: { label: string; amount: number }[] }>();
     [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
-      categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.amount);
+      if (e.amount <= 0) return;
+      const existing = categoryMap.get(e.category) || { total: 0, items: [] };
+      existing.total += e.amount;
+      existing.items.push({ label: e.label, amount: e.amount });
+      categoryMap.set(e.category, existing);
     });
 
-    const sorted = Array.from(categoryMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .filter(([, v]) => v > 0);
+    const disposable = Math.max(0, budget.disposableIncome);
+    const categories = Array.from(categoryMap.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .map(([name, data]) => ({
+        name,
+        total: data.total,
+        items: data.items.sort((a, b) => b.amount - a.amount),
+        color: getColor(name),
+      }));
 
-    return {
-      flows: sorted,
-      totalIncome: budget.totalIncome,
-      disposable: Math.max(0, budget.disposableIncome),
-    };
-  }, [budget]);
+    return { incomeNodes, categories, disposable, totalIncome: budget.totalIncome };
+  }, [budget, profile]);
 
-  // Layout constants
-  const width = 600;
-  const height = Math.max(360, (flows.length + 2) * 28 + 40);
-  const leftX = 0;
-  const leftW = 90;
-  const rightX = width - 120;
-  const rightW = 120;
-  const midX1 = leftX + leftW;
-  const midX2 = rightX;
-  const gap = 3;
+  // ── Layout ──
+  const nodeW = 12;
+  const labelPadL = 8;
+  const labelPadR = 8;
 
-  // Left node: single "Indkomst" block
-  const leftHeight = height - 40;
-  const leftY = 20;
+  // Responsive widths
+  const totalW = 780;
+  const col1X = 120; // income nodes
+  const col2X = 370; // category groups
+  const col3X = 560; // individual items
+  const gap = 4;
+  const padY = 20;
 
-  // Right nodes: one per category + disposable
-  const allRight = [...flows, ["Til overs", disposable] as [string, number]];
-  const totalRight = allRight.reduce((s, [, v]) => s + (v as number), 0);
-  const availableHeight = height - 40 - (allRight.length - 1) * gap;
+  // Calculate total items count for height
+  const allItems = data.categories.flatMap((c) => c.items);
+  const itemCount = allItems.length + (data.disposable > 0 ? 1 : 0);
+  const catCount = data.categories.length + (data.disposable > 0 ? 1 : 0);
+  const incCount = data.incomeNodes.length;
 
-  // Compute right node positions
-  const rightNodes = useMemo(() => {
-    let y = 20;
-    return allRight.map(([name, value]) => {
-      const h = Math.max(4, (value as number / totalRight) * availableHeight);
-      const node = { name: name as string, value: value as number, y, h, color: name === "Til overs" ? "#2563eb" : getColor(name as string) };
+  const height = Math.max(400, Math.max(itemCount * 24, catCount * 36, incCount * 50) + padY * 2);
+  const usableH = height - padY * 2;
+
+  // ── Position nodes in each column ──
+  function layoutNodes(entries: { id: string; label: string; value: number; color: string }[], totalValue: number): SankeyNode[] {
+    const nodes: SankeyNode[] = [];
+    let y = padY;
+    const availH = usableH - (entries.length - 1) * gap;
+    entries.forEach((e) => {
+      const h = Math.max(6, (e.value / totalValue) * availH);
+      nodes.push({ ...e, y, h });
       y += h + gap;
-      return node;
     });
-  }, [allRight, totalRight, availableHeight]);
-
-  // Generate curved paths (Sankey links)
-  function sankeyPath(sourceY: number, sourceH: number, targetY: number, targetH: number) {
-    const x0 = midX1;
-    const x1 = midX2;
-    const cx = (x0 + x1) / 2;
-
-    const y0top = sourceY;
-    const y0bot = sourceY + sourceH;
-    const y1top = targetY;
-    const y1bot = targetY + targetH;
-
-    return `M ${x0},${y0top} C ${cx},${y0top} ${cx},${y1top} ${x1},${y1top} L ${x1},${y1bot} C ${cx},${y1bot} ${cx},${y0bot} ${x0},${y0bot} Z`;
+    return nodes;
   }
 
-  // Map flows to source positions on the left
-  const flowPaths = useMemo(() => {
-    let currentLeftY = leftY;
-    return rightNodes.map((node) => {
-      const proportion = node.value / totalRight;
-      const sourceH = proportion * leftHeight;
-      const path = sankeyPath(currentLeftY, sourceH, node.y, node.h);
-      const result = { ...node, path, sourceY: currentLeftY, sourceH };
-      currentLeftY += sourceH;
-      return result;
+  // Column 1: Income
+  const col1Nodes = layoutNodes(
+    data.incomeNodes.map((n) => ({ id: `inc-${n.label}`, label: n.label, value: n.value, color: "#7b68a8" })),
+    data.totalIncome
+  );
+
+  // Column 2: Categories
+  const col2Entries = [
+    ...data.categories.map((c) => ({ id: `cat-${c.name}`, label: c.name, value: c.total, color: c.color })),
+    ...(data.disposable > 0 ? [{ id: "cat-tilovers", label: "Til overs", value: data.disposable, color: "#3cb371" }] : []),
+  ];
+  const col2Nodes = layoutNodes(col2Entries, data.totalIncome);
+
+  // Column 3: Individual items
+  const col3Entries: { id: string; label: string; value: number; color: string; catId: string }[] = [];
+  data.categories.forEach((c) => {
+    c.items.forEach((item, idx) => {
+      col3Entries.push({
+        id: `item-${c.name}-${idx}`,
+        label: item.label,
+        value: item.amount,
+        color: c.color,
+        catId: `cat-${c.name}`,
+      });
     });
-  }, [rightNodes, totalRight, leftHeight, leftY]);
+  });
+  if (data.disposable > 0) {
+    col3Entries.push({
+      id: "item-tilovers",
+      label: "Til overs",
+      value: data.disposable,
+      color: "#3cb371",
+      catId: "cat-tilovers",
+    });
+  }
+  const col3Nodes = layoutNodes(
+    col3Entries.map((e) => ({ id: e.id, label: e.label, value: e.value, color: e.color })),
+    data.totalIncome
+  );
+
+  // ── Generate flow paths ──
+  // Col1 → Col2: each income source distributes proportionally across all categories
+  const flows1to2: { path: string; color: string; id: string }[] = [];
+  {
+    // Track current Y position on each col1 and col2 node
+    const col1Cursors = col1Nodes.map((n) => n.y);
+    const col2Cursors = col2Nodes.map((n) => n.y);
+
+    col1Nodes.forEach((incNode, iIdx) => {
+      const incShare = incNode.value / data.totalIncome;
+      col2Nodes.forEach((catNode, cIdx) => {
+        const flowValue = catNode.value * incShare;
+        const flowH1 = Math.max(1, (flowValue / data.totalIncome) * (usableH - (col1Nodes.length - 1) * gap));
+        const flowH2 = Math.max(1, (flowValue / data.totalIncome) * (usableH - (col2Nodes.length - 1) * gap));
+
+        const path = flowPath(
+          col1X + nodeW, col1Cursors[iIdx], col1Cursors[iIdx] + flowH1,
+          col2X, col2Cursors[cIdx], col2Cursors[cIdx] + flowH2
+        );
+
+        flows1to2.push({ path, color: catNode.color, id: `f1-${iIdx}-${cIdx}` });
+        col1Cursors[iIdx] += flowH1;
+        col2Cursors[cIdx] += flowH2;
+      });
+    });
+  }
+
+  // Col2 → Col3: each category distributes to its items
+  const flows2to3: { path: string; color: string; id: string; itemId: string; catId: string }[] = [];
+  {
+    const col2Cursors = col2Nodes.map((n) => n.y);
+
+    col3Entries.forEach((entry, idx) => {
+      const catIdx = col2Nodes.findIndex((n) => n.id === entry.catId);
+      if (catIdx === -1) return;
+      const catNode = col2Nodes[catIdx];
+      const itemNode = col3Nodes[idx];
+
+      const flowProportion = entry.value / catNode.value;
+      const flowH2 = Math.max(1, flowProportion * catNode.h);
+
+      const path = flowPath(
+        col2X + nodeW, col2Cursors[catIdx], col2Cursors[catIdx] + flowH2,
+        col3X, itemNode.y, itemNode.y + itemNode.h
+      );
+
+      flows2to3.push({ path, color: entry.color, id: `f2-${idx}`, itemId: entry.id, catId: entry.catId });
+      col2Cursors[catIdx] += flowH2;
+    });
+  }
+
+  const isHoveredCat = (catId: string) => hovered === catId;
+  const isHoveredItem = (itemId: string) => hovered === itemId;
+  const isRelated = (catId: string, itemId?: string) => {
+    if (!hovered) return true;
+    if (hovered === catId) return true;
+    if (itemId && hovered === itemId) return true;
+    // Check if hovered item belongs to this cat
+    const hoveredEntry = col3Entries.find((e) => e.id === hovered);
+    if (hoveredEntry && hoveredEntry.catId === catId) return true;
+    return false;
+  };
 
   return (
     <div className="space-y-3">
@@ -126,122 +262,171 @@ export function SankeyDiagram({ budget }: Props) {
       </div>
 
       {/* Sankey SVG */}
-      <div className="relative overflow-x-auto">
+      <div className="relative overflow-x-auto -mx-3 sm:mx-0">
         <svg
-          viewBox={`-10 0 ${width + 20} ${height}`}
+          viewBox={`0 0 ${totalW} ${height}`}
           className="w-full"
-          style={{ minHeight: 280, maxHeight: 500 }}
+          style={{ minHeight: 350, maxHeight: 600 }}
         >
-          {/* Left node — Indkomst */}
-          <rect
-            x={leftX}
-            y={leftY}
-            width={leftW - 2}
-            height={leftHeight}
-            rx={6}
-            fill="#1e3a5f"
-            opacity={0.9}
-          />
-          <text
-            x={leftX + (leftW - 2) / 2}
-            y={leftY + leftHeight / 2 - 8}
-            textAnchor="middle"
-            fill="white"
-            fontSize={11}
-            fontWeight={600}
-          >
-            Indkomst
-          </text>
-          <text
-            x={leftX + (leftW - 2) / 2}
-            y={leftY + leftHeight / 2 + 10}
-            textAnchor="middle"
-            fill="white"
-            fontSize={10}
-            opacity={0.8}
-          >
-            {formatKr(totalIncome)} kr.
-          </text>
-
-          {/* Flow paths */}
-          {flowPaths.map((flow) => (
-            <motion.path
-              key={flow.name}
-              d={flow.path}
-              fill={flow.color}
-              opacity={hoveredFlow === null ? 0.45 : hoveredFlow === flow.name ? 0.7 : 0.15}
-              onMouseEnter={() => setHoveredFlow(flow.name)}
-              onMouseLeave={() => setHoveredFlow(null)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: hoveredFlow === null ? 0.45 : hoveredFlow === flow.name ? 0.7 : 0.15 }}
-              transition={{ duration: 0.2 }}
-              className="cursor-pointer"
+          {/* ── Flows Col1→Col2 ── */}
+          {flows1to2.map((f) => (
+            <path
+              key={f.id}
+              d={f.path}
+              fill={f.color}
+              opacity={hovered ? 0.12 : 0.35}
+              className="transition-opacity duration-200"
             />
           ))}
 
-          {/* Right nodes */}
-          {rightNodes.map((node) => (
-            <g
-              key={node.name}
-              onMouseEnter={() => setHoveredFlow(node.name)}
-              onMouseLeave={() => setHoveredFlow(null)}
-              className="cursor-pointer"
-            >
-              <rect
-                x={rightX}
-                y={node.y}
-                width={rightW}
-                height={Math.max(node.h, 4)}
-                rx={4}
-                fill={node.color}
-                opacity={hoveredFlow === null ? 0.85 : hoveredFlow === node.name ? 1 : 0.3}
-              />
-              {node.h > 14 && (
-                <>
-                  <text
-                    x={rightX + rightW + 6}
-                    y={node.y + node.h / 2 - 1}
-                    fill="currentColor"
-                    fontSize={10}
-                    fontWeight={500}
-                    dominantBaseline="middle"
-                    className="text-foreground"
-                    opacity={hoveredFlow === null ? 1 : hoveredFlow === node.name ? 1 : 0.3}
-                  >
-                    {node.name}
-                  </text>
-                </>
-              )}
+          {/* ── Flows Col2→Col3 ── */}
+          {flows2to3.map((f) => (
+            <motion.path
+              key={f.id}
+              d={f.path}
+              fill={f.color}
+              opacity={isRelated(f.catId, f.itemId) ? (hovered ? 0.55 : 0.4) : 0.08}
+              className="transition-opacity duration-200 cursor-pointer"
+              onMouseEnter={() => setHovered(f.itemId)}
+              onMouseLeave={() => setHovered(null)}
+            />
+          ))}
+
+          {/* ── Col1: Income nodes ── */}
+          {col1Nodes.map((node) => (
+            <g key={node.id}>
+              <rect x={col1X} y={node.y} width={nodeW} height={node.h} rx={2} fill={node.color} />
+              <text
+                x={col1X - labelPadL}
+                y={node.y + node.h / 2}
+                textAnchor="end"
+                dominantBaseline="middle"
+                fontSize={11}
+                fontWeight={600}
+                fill="currentColor"
+                className="text-foreground"
+              >
+                {node.label}
+              </text>
+              <text
+                x={col1X - labelPadL}
+                y={node.y + node.h / 2 + 14}
+                textAnchor="end"
+                dominantBaseline="middle"
+                fontSize={10}
+                fill="currentColor"
+                className="text-muted-foreground"
+              >
+                {formatKr(node.value)}
+              </text>
             </g>
           ))}
 
-          {/* Hover tooltip */}
-          {hoveredFlow && (() => {
-            const flow = flowPaths.find((f) => f.name === hoveredFlow);
-            if (!flow) return null;
-            const pct = Math.round((flow.value / totalIncome) * 100);
+          {/* ── Col2: Category nodes ── */}
+          {col2Nodes.map((node) => {
+            const active = isRelated(node.id);
             return (
-              <g>
+              <g
+                key={node.id}
+                onMouseEnter={() => setHovered(node.id)}
+                onMouseLeave={() => setHovered(null)}
+                className="cursor-pointer"
+              >
                 <rect
-                  x={width / 2 - 75}
-                  y={0}
-                  width={150}
-                  height={36}
-                  rx={8}
-                  fill="hsl(var(--background))"
-                  stroke="hsl(var(--border))"
-                  strokeWidth={1}
-                  opacity={0.95}
+                  x={col2X}
+                  y={node.y}
+                  width={nodeW}
+                  height={node.h}
+                  rx={2}
+                  fill={node.color}
+                  opacity={active ? 1 : 0.3}
+                  className="transition-opacity duration-200"
                 />
-                <text x={width / 2} y={15} textAnchor="middle" fontSize={10} fontWeight={600} fill="currentColor" className="text-foreground">
-                  {flow.name}
-                </text>
-                <text x={width / 2} y={29} textAnchor="middle" fontSize={10} fill="currentColor" className="text-muted-foreground">
-                  {formatKr(flow.value)} kr. ({pct}%)
-                </text>
+                {node.h > 18 && (
+                  <text
+                    x={col2X + nodeW / 2}
+                    y={node.y + node.h / 2}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize={8}
+                    fontWeight={600}
+                    fill="white"
+                    transform={`rotate(-90, ${col2X + nodeW / 2}, ${node.y + node.h / 2})`}
+                    opacity={active ? 1 : 0.4}
+                  >
+                    {node.label.length > 12 ? node.label.slice(0, 11) + "…" : node.label}
+                  </text>
+                )}
+                {/* Amount label next to node */}
+                {node.h > 12 && (
+                  <text
+                    x={col2X - 4}
+                    y={node.y + node.h / 2}
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                    fontSize={9}
+                    fill="currentColor"
+                    className="text-muted-foreground"
+                    opacity={active ? 0.8 : 0.3}
+                  >
+                    {formatKr(node.value)}
+                  </text>
+                )}
               </g>
             );
-          })()}
+          })}
+
+          {/* ── Col3: Item nodes ── */}
+          {col3Nodes.map((node, idx) => {
+            const entry = col3Entries[idx];
+            const active = isRelated(entry.catId, node.id);
+            return (
+              <g
+                key={node.id}
+                onMouseEnter={() => setHovered(node.id)}
+                onMouseLeave={() => setHovered(null)}
+                className="cursor-pointer"
+              >
+                <rect
+                  x={col3X}
+                  y={node.y}
+                  width={nodeW}
+                  height={Math.max(node.h, 3)}
+                  rx={2}
+                  fill={node.color}
+                  opacity={active ? 1 : 0.25}
+                  className="transition-opacity duration-200"
+                />
+                {node.h > 8 && (
+                  <>
+                    <text
+                      x={col3X + nodeW + labelPadR}
+                      y={node.y + node.h / 2 - 1}
+                      dominantBaseline="middle"
+                      fontSize={10}
+                      fontWeight={500}
+                      fill="currentColor"
+                      className="text-foreground"
+                      opacity={active ? 1 : 0.3}
+                    >
+                      {node.label}
+                    </text>
+                    <text
+                      x={col3X + nodeW + labelPadR}
+                      y={node.y + node.h / 2 + 11}
+                      dominantBaseline="middle"
+                      fontSize={9}
+                      fill="currentColor"
+                      className="text-muted-foreground"
+                      opacity={active ? 0.8 : 0.2}
+                    >
+                      {formatKr(node.value)}
+                    </text>
+                  </>
+                )}
+              </g>
+            );
+          })}
         </svg>
       </div>
     </div>
