@@ -4,6 +4,8 @@ import { AlertTriangle, TrendingDown, Zap, Briefcase, ShieldAlert, Heart } from 
 import { useI18n } from "@/lib/i18n";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth } from "@/lib/healthScore";
+import { useMarketData } from "@/hooks/useMarketData";
+import { getLiveMortgageRate } from "@/lib/marketData";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
