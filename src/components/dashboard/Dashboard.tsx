@@ -108,6 +108,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
 
   const sections = useMemo(() => {
     const baseSections = [
+      { id: "overblik", label: "Overblik", emoji: "📊" },
       { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
       { id: "fremad", label: t("tab.forward"), emoji: "📈" },
       { id: "hvadvis", label: t("tab.whatIf"), emoji: "🔮" },
