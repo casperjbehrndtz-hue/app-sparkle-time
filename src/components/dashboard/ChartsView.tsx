@@ -56,96 +56,9 @@ function ChartTooltipBox({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Pengestrøm (Waterfall) ───────────────────
+// ─── Pengestrøm (Sankey) ───────────────────
 function SankeyChart({ budget }: { budget: ComputedBudget }) {
-  const categoryMap = new Map<string, number>();
-  [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
-    categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.amount);
-  });
-
-  const data = [
-    { name: "Indkomst", value: budget.totalIncome, type: "income", pct: 100 },
-    ...Array.from(categoryMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, value]) => ({
-        name,
-        value,
-        type: "expense",
-        pct: Math.round((value / budget.totalIncome) * 100),
-      })),
-    { name: "Til overs", value: Math.max(0, budget.disposableIncome), type: "remaining", pct: Math.round((Math.max(0, budget.disposableIncome) / budget.totalIncome) * 100) },
-  ];
-
-  return (
-    <div className="space-y-4">
-      {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-        {[
-          { label: "Indkomst", value: budget.totalIncome, color: "text-kassen-blue" },
-          { label: "Udgifter", value: budget.totalExpenses, color: "text-destructive" },
-          { label: "Til overs", value: budget.disposableIncome, color: budget.disposableIncome >= 0 ? "text-kassen-blue" : "text-destructive" },
-        ].map((s) => (
-          <div key={s.label} className="text-center p-3 rounded-xl bg-muted/40 border border-border/50">
-            <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
-            <p className={`font-display font-bold text-sm ${s.color}`}>{formatKr(s.value)} kr.</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="h-[320px] sm:h-[380px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ left: 0, right: 8, top: 0, bottom: 0 }} barCategoryGap="20%">
-            <CartesianGrid horizontal={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
-            <XAxis
-              type="number"
-              tickFormatter={(v) => `${Math.round(v / 1000)}k`}
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={85}
-              tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.length) return null;
-                const d = payload[0].payload;
-                return (
-                  <ChartTooltipBox>
-                    <p className="font-semibold text-foreground mb-1">{d.name}</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-display font-bold text-sm">{formatKr(d.value)} kr.</span>
-                      <span className="text-muted-foreground">({d.pct}%)</span>
-                    </div>
-                  </ChartTooltipBox>
-                );
-              }}
-            />
-            <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={22}>
-              {data.map((entry, i) => (
-                <Cell
-                  key={i}
-                  fill={
-                    entry.type === "income"
-                      ? "#1e3a5f"
-                      : entry.type === "remaining"
-                      ? "#2563eb"
-                      : getFlowColor(entry.name)
-                  }
-                  opacity={entry.type === "income" ? 1 : 0.85}
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+  return <SankeyDiagram budget={budget} />;
 }
 
 // ─── Planlagt vs Faktisk ───────────────────────
