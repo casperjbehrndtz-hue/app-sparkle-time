@@ -59,6 +59,7 @@ const App = () => {
               </BrowserRouter>
               <CookieBanner />
             </TooltipProvider>
+            </MarketDataProvider>
           </WhiteLabelProvider>
         </I18nProvider>
       </QueryClientProvider>
