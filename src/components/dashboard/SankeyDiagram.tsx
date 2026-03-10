@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import {
   sankey as d3Sankey,
   sankeyLinkHorizontal,
@@ -6,7 +6,9 @@ import {
   type SankeyNode as D3SankeyNode,
   type SankeyLink as D3SankeyLink,
 } from "d3-sankey";
+import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { ComputedBudget, BudgetProfile } from "@/lib/types";
 
 interface Props {
@@ -15,141 +17,151 @@ interface Props {
 }
 
 const CAT_COLORS: Record<string, string> = {
-  "Bolig": "#e8a0cf",
-  "Forsyning": "#80cfe0",
-  "Transport": "#c4956a",
-  "Abonnementer": "#9b8ec4",
-  "Forsikring": "#dbb870",
-  "Fagforening": "#e05050",
-  "Børn": "#6abf6a",
-  "Kæledyr": "#c0c0c0",
-  "Lån": "#e07070",
-  "Fitness": "#c4956a",
-  "Opsparing": "#5ba3cf",
-  "Mad & dagligvarer": "#80cfe0",
-  "Fritid": "#f4a460",
-  "Tøj": "#dbb870",
-  "Sundhed": "#d4a0d4",
-  "Restaurant": "#f0a070",
-  "Andet": "#b0b0b0",
+  Bolig: "#1e3a5f",
+  Forsyning: "#5ba3cf",
+  Transport: "#c4956a",
+  Abonnementer: "#9b8ec4",
+  Forsikring: "#dbb870",
+  Fagforening: "#e05050",
+  Børn: "#6abf6a",
+  Kæledyr: "#a0a0a0",
+  Lån: "#e07070",
+  Fitness: "#c4956a",
+  Opsparing: "#2e86c1",
+  "Mad & dagligvarer": "#4caf93",
+  Fritid: "#f4a460",
+  Tøj: "#dbb870",
+  Sundhed: "#d4a0d4",
+  Restaurant: "#f0a070",
+  Andet: "#b0b0b0",
 };
 
 function getColor(name: string): string {
   return CAT_COLORS[name] || "#b0b0b0";
 }
 
-interface NodeExtra { name: string; color: string; column: number; }
+interface NodeExtra { name: string; color: string; }
 interface LinkExtra { color: string; }
-
 type SNode = D3SankeyNode<NodeExtra, LinkExtra>;
 type SLink = D3SankeyLink<NodeExtra, LinkExtra>;
 
-export function SankeyDiagram({ budget, profile }: Props) {
+// ─── Stacked Bar (mobile) ──────────────────────
+function StackedBarView({ categories, income, disposable }: {
+  categories: { name: string; total: number; color: string }[];
+  income: number;
+  disposable: number;
+}) {
+  return (
+    <div className="space-y-3">
+      {/* Stacked bar */}
+      <div>
+        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2">Indkomst fordelt på udgifter</p>
+        <div className="h-6 rounded-lg overflow-hidden flex">
+          {categories.map((cat, i) => {
+            const pct = income > 0 ? (cat.total / income) * 100 : 0;
+            return (
+              <motion.div
+                key={cat.name}
+                initial={{ width: 0 }}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.04 }}
+                style={{ backgroundColor: cat.color }}
+                className="h-full"
+                title={`${cat.name}: ${formatKr(cat.total)} kr.`}
+              />
+            );
+          })}
+          {disposable > 0 && (
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(disposable / income) * 100}%` }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: categories.length * 0.04 }}
+              className="h-full bg-primary/30"
+              title={`Til overs: ${formatKr(disposable)} kr.`}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="space-y-1.5">
+        {categories.map((cat, i) => {
+          const pct = income > 0 ? Math.round((cat.total / income) * 100) : 0;
+          return (
+            <motion.div
+              key={cat.name}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 + i * 0.04 }}
+              className="flex items-center gap-2"
+            >
+              <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: cat.color }} />
+              <span className="text-xs text-muted-foreground flex-1 truncate">{cat.name}</span>
+              <span className="text-xs font-medium tabular-nums">{formatKr(cat.total)}</span>
+              <span className="text-[10px] text-muted-foreground/60 tabular-nums w-7 text-right">{pct}%</span>
+            </motion.div>
+          );
+        })}
+        {disposable > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 + categories.length * 0.04 }}
+            className="flex items-center gap-2 pt-1 border-t border-border/50"
+          >
+            <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 bg-primary/30" />
+            <span className="text-xs font-medium text-primary flex-1">Til overs</span>
+            <span className="text-xs font-bold text-primary tabular-nums">{formatKr(disposable)}</span>
+            <span className="text-[10px] text-primary/60 tabular-nums w-7 text-right">{Math.round((disposable / income) * 100)}%</span>
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Sankey (desktop) ──────────────────────
+function SankeyView({ budget, profile, categories, disposable }: {
+  budget: ComputedBudget;
+  profile?: BudgetProfile;
+  categories: { name: string; total: number; color: string }[];
+  disposable: number;
+}) {
   const [hovered, setHovered] = useState<string | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   const { nodes, links, width, height } = useMemo(() => {
-    // ── Build graph data ──
     const nodeList: NodeExtra[] = [];
     const linkList: { source: number; target: number; value: number; color: string }[] = [];
 
-    // Col 0: Income sources
-    const mainIncome = profile?.income || budget.totalIncome;
-    const partnerIncome = profile?.partnerIncome || 0;
-    const additionalIncome = profile?.additionalIncome || [];
+    // Col 0: "Indkomst" single node
+    nodeList.push({ name: "Indkomst", color: "#1565c0" });
 
-    const incomeEntries: { label: string; value: number }[] = [];
-    if (partnerIncome > 0) {
-      incomeEntries.push({ label: "Løn M", value: mainIncome });
-      incomeEntries.push({ label: "Løn F", value: partnerIncome });
-    } else {
-      incomeEntries.push({ label: "Løn", value: mainIncome });
-    }
-    additionalIncome.forEach(inc => {
-      if (inc.amount > 0) {
-        const monthly = inc.frequency === "monthly" ? inc.amount : inc.frequency === "quarterly" ? Math.round(inc.amount / 3) : inc.frequency === "biannual" ? Math.round(inc.amount / 6) : Math.round(inc.amount / 12);
-        incomeEntries.push({ label: inc.label || "Øvrig", value: monthly });
-      }
-    });
-
-    incomeEntries.forEach(inc => {
-      nodeList.push({ name: inc.label, color: "#b39ddb", column: 0 });
-    });
-
-    // Col 1: "Indtægt" aggregate
-    const totalIdx = nodeList.length;
-    nodeList.push({ name: "Indtægt", color: "#1565c0", column: 1 });
-
-    // Links: income → Indtægt
-    incomeEntries.forEach((inc, i) => {
-      linkList.push({ source: i, target: totalIdx, value: inc.value, color: "#b39ddb" });
-    });
-
-    // Col 2: Categories
-    const categoryMap = new Map<string, { total: number; items: { label: string; amount: number }[] }>();
-    [...budget.fixedExpenses, ...budget.variableExpenses].forEach(e => {
-      if (e.amount <= 0) return;
-      const existing = categoryMap.get(e.category) || { total: 0, items: [] };
-      existing.total += e.amount;
-      existing.items.push({ label: e.label, amount: e.amount });
-      categoryMap.set(e.category, existing);
-    });
-
-    const categories = Array.from(categoryMap.entries())
-      .sort((a, b) => b[1].total - a[1].total)
-      .map(([name, d]) => ({ name, total: d.total, items: d.items.sort((a, b) => b.amount - a.amount), color: getColor(name) }));
-
-    const disposable = Math.max(0, budget.disposableIncome);
-
-    const catStartIdx = nodeList.length;
+    // Col 1: Categories + disposable
+    const catStartIdx = 1;
     categories.forEach(cat => {
-      nodeList.push({ name: cat.name, color: cat.color, column: 2 });
+      nodeList.push({ name: cat.name, color: cat.color });
     });
     if (disposable > 0) {
-      nodeList.push({ name: "Opsparing", color: "#5ba3cf", column: 2 });
+      nodeList.push({ name: "Til overs", color: "#2e86c1" });
     }
 
-    // Links: Indtægt → categories
+    // Links
     categories.forEach((cat, i) => {
-      linkList.push({ source: totalIdx, target: catStartIdx + i, value: cat.total, color: cat.color });
+      linkList.push({ source: 0, target: catStartIdx + i, value: cat.total, color: cat.color });
     });
     if (disposable > 0) {
-      linkList.push({ source: totalIdx, target: catStartIdx + categories.length, value: disposable, color: "#5ba3cf" });
+      linkList.push({ source: 0, target: catStartIdx + categories.length, value: disposable, color: "#2e86c1" });
     }
 
-    // Col 3: Individual items
-    const itemStartIdx = nodeList.length;
-    const itemEntries: { label: string; value: number; catIdx: number; color: string }[] = [];
-    categories.forEach((cat, catI) => {
-      cat.items.forEach(item => {
-        itemEntries.push({ label: item.label, value: item.amount, catIdx: catStartIdx + catI, color: cat.color });
-      });
-    });
-    if (disposable > 0) {
-      itemEntries.push({ label: "Til overs", value: disposable, catIdx: catStartIdx + categories.length, color: "#5ba3cf" });
-    }
-
-    itemEntries.forEach(item => {
-      nodeList.push({ name: item.label, color: item.color, column: 3 });
-    });
-
-    // Links: categories → items
-    itemEntries.forEach((item, i) => {
-      linkList.push({ source: item.catIdx, target: itemStartIdx + i, value: item.value, color: item.color });
-    });
-
-    // ── Run d3-sankey layout ──
-    const W = 900;
-    const itemCount = itemEntries.length;
-    const H = Math.max(500, itemCount * 24 + 60);
-    const nodeWidth = 14;
-    const nodePadding = 6;
+    const W = 580;
+    const catCount = categories.length + (disposable > 0 ? 1 : 0);
+    const H = Math.max(300, catCount * 34 + 40);
 
     const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
-      .nodeWidth(nodeWidth)
-      .nodePadding(nodePadding)
+      .nodeWidth(16)
+      .nodePadding(8)
       .nodeAlign(sankeyJustify)
-      .extent([[1, 20], [W - 1, H - 20]]);
+      .extent([[1, 16], [W - 1, H - 16]]);
 
     const graph = sankeyGen({
       nodes: nodeList.map(n => ({ ...n })),
@@ -157,151 +169,145 @@ export function SankeyDiagram({ budget, profile }: Props) {
     });
 
     return { nodes: graph.nodes, links: graph.links, width: W, height: H };
-  }, [budget, profile]);
+  }, [categories, disposable]);
 
   const linkPathGen = sankeyLinkHorizontal();
 
-  // Hover helpers
-  const getNodeName = (idx: number | SNode | undefined): string => {
-    if (idx === undefined) return "";
-    if (typeof idx === "object") return (idx as SNode).name || "";
-    return nodes[idx]?.name || "";
-  };
-
-  const isLinkRelated = (link: SLink): boolean => {
+  const isRelated = (nodeName: string): boolean => {
     if (!hovered) return true;
-    const src = typeof link.source === "object" ? link.source : nodes[link.source as number];
-    const tgt = typeof link.target === "object" ? link.target : nodes[link.target as number];
-    if (src?.name === hovered || tgt?.name === hovered) return true;
-    // Check if hovered node is connected via a chain
-    // e.g., hovering an item should highlight its category's link from Indtægt
+    if (nodeName === hovered) return true;
+    // "Indkomst" relates to everything
+    if (hovered === "Indkomst" || nodeName === "Indkomst") return true;
     return false;
   };
 
-  const isNodeRelated = (node: SNode): boolean => {
-    if (!hovered) return true;
-    if (node.name === hovered) return true;
-    // Check if any link connects this node to hovered
-    const related = links.some(l => {
-      const src = typeof l.source === "object" ? l.source : nodes[l.source as number];
-      const tgt = typeof l.target === "object" ? l.target : nodes[l.target as number];
-      return (src?.name === hovered && tgt?.name === node.name) ||
-             (tgt?.name === hovered && src?.name === node.name) ||
-             (src?.name === node.name && tgt?.name === hovered) ||
-             (tgt?.name === node.name && src?.name === hovered);
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="w-full"
+      style={{ minHeight: Math.min(height, 500) }}
+      preserveAspectRatio="xMidYMid meet"
+    >
+      {/* Links */}
+      {links.map((link, i) => {
+        const d = linkPathGen(link as any);
+        if (!d) return null;
+        const tgt = typeof link.target === "object" ? link.target : null;
+        const color = (link as any).color || "#ccc";
+        const related = !hovered || tgt?.name === hovered || hovered === "Indkomst";
+
+        return (
+          <path
+            key={`link-${i}`}
+            d={d}
+            fill="none"
+            stroke={color}
+            strokeWidth={Math.max(1, link.width || 1)}
+            strokeOpacity={!hovered ? 0.4 : related ? 0.6 : 0.06}
+            className="transition-opacity duration-200"
+            onMouseEnter={() => setHovered(tgt?.name || null)}
+            onMouseLeave={() => setHovered(null)}
+          />
+        );
+      })}
+
+      {/* Nodes */}
+      {nodes.map((node, i) => {
+        const x0 = node.x0 ?? 0;
+        const x1 = node.x1 ?? 0;
+        const y0 = node.y0 ?? 0;
+        const y1 = node.y1 ?? 0;
+        const w = x1 - x0;
+        const h = y1 - y0;
+        const active = isRelated(node.name);
+        const isSource = i === 0;
+
+        return (
+          <g
+            key={`node-${i}`}
+            className="cursor-pointer"
+            onMouseEnter={() => setHovered(node.name)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <rect x={x0} y={y0} width={w} height={h} rx={3}
+              fill={node.color} opacity={active ? 1 : 0.25}
+              className="transition-opacity duration-200" />
+
+            {isSource ? (
+              // Left label: "Indkomst" centered on node
+              <>
+                <text x={x0 - 10} y={y0 + h / 2 - 9} textAnchor="end" dominantBaseline="central"
+                  fontSize={15} fontWeight={800} fill="currentColor" className="text-foreground">
+                  Indkomst
+                </text>
+                <text x={x0 - 10} y={y0 + h / 2 + 11} textAnchor="end" dominantBaseline="central"
+                  fontSize={13} fontWeight={600} fill="currentColor" className="text-muted-foreground">
+                  {formatKr(budget.totalIncome)} kr.
+                </text>
+              </>
+            ) : (
+              // Right labels: category name + amount
+              <>
+                <text x={x1 + 10} y={y0 + h / 2 - 7} dominantBaseline="central"
+                  fontSize={13} fontWeight={700} fill="currentColor" className="text-foreground"
+                  opacity={active ? 1 : 0.3}>
+                  {node.name}
+                </text>
+                <text x={x1 + 10} y={y0 + h / 2 + 10} dominantBaseline="central"
+                  fontSize={12} fill="currentColor" className="text-muted-foreground"
+                  opacity={active ? 0.8 : 0.2}>
+                  {formatKr(node.value ?? 0)} kr.
+                </text>
+              </>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ─── Main export ──────────────────────
+export function SankeyDiagram({ budget, profile }: Props) {
+  const isMobile = useIsMobile();
+
+  const { categories, disposable } = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    [...budget.fixedExpenses, ...budget.variableExpenses].forEach(e => {
+      if (e.amount <= 0) return;
+      categoryMap.set(e.category, (categoryMap.get(e.category) || 0) + e.amount);
     });
-    return related;
-  };
+
+    const cats = Array.from(categoryMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, total]) => ({ name, total, color: getColor(name) }));
+
+    return { categories: cats, disposable: Math.max(0, budget.disposableIncome) };
+  }, [budget]);
 
   return (
     <div className="space-y-3">
+      {/* Summary pills */}
       <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {[
           { label: "Indkomst", value: budget.totalIncome, accent: "text-primary" },
-          { label: "Udgifter", value: budget.totalExpenses, accent: "text-destructive" },
+          { label: "Udgifter", value: budget.totalExpenses, accent: "text-foreground" },
           { label: "Til overs", value: budget.disposableIncome, accent: budget.disposableIncome >= 0 ? "text-primary" : "text-destructive" },
         ].map(s => (
-          <div key={s.label} className="text-center p-2.5 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
+          <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
             <p className={`font-display font-bold text-xs sm:text-sm ${s.accent}`}>{formatKr(s.value)} kr.</p>
           </div>
         ))}
       </div>
 
-      <div className="relative overflow-x-auto -mx-3 sm:mx-0 rounded-xl bg-card border border-border/40">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${width} ${height}`}
-          className="w-full"
-          style={{ minHeight: Math.min(height, 650) }}
-          preserveAspectRatio="xMidYMid meet"
-        >
-          {/* Links */}
-          {links.map((link, i) => {
-            const d = linkPathGen(link as any);
-            if (!d) return null;
-            const src = typeof link.source === "object" ? link.source : null;
-            const tgt = typeof link.target === "object" ? link.target : null;
-            const color = (link as any).color || src?.color || "#ccc";
-            const related = isLinkRelated(link);
-
-            return (
-              <path
-                key={`link-${i}`}
-                d={d}
-                fill="none"
-                stroke={color}
-                strokeWidth={Math.max(1, link.width || 1)}
-                strokeOpacity={!hovered ? 0.45 : related ? 0.65 : 0.06}
-                className="transition-opacity duration-200 cursor-pointer"
-                onMouseEnter={() => {
-                  const name = tgt?.name || src?.name || "";
-                  setHovered(name);
-                }}
-                onMouseLeave={() => setHovered(null)}
-              />
-            );
-          })}
-
-          {/* Nodes */}
-          {nodes.map((node, i) => {
-            const x0 = node.x0 ?? 0;
-            const x1 = node.x1 ?? 0;
-            const y0 = node.y0 ?? 0;
-            const y1 = node.y1 ?? 0;
-            const w = x1 - x0;
-            const h = y1 - y0;
-            const active = isNodeRelated(node);
-            const isCol0 = node.column === 0;
-            const isCol1 = node.column === 1;
-            const isCol3 = node.column === 3;
-            const isCol2 = node.column === 2;
-
-            return (
-              <g
-                key={`node-${i}`}
-                className="cursor-pointer"
-                onMouseEnter={() => setHovered(node.name)}
-                onMouseLeave={() => setHovered(null)}
-              >
-                <rect
-                  x={x0}
-                  y={y0}
-                  width={w}
-                  height={h}
-                  fill={node.color}
-                  opacity={active ? 1 : 0.3}
-                  className="transition-opacity duration-200"
-                />
-                {/* Labels */}
-                {isCol0 && (
-                  <>
-                    <text x={x0 - 8} y={y0 + h / 2 - 8} textAnchor="end" dominantBaseline="central" fontSize={14} fontWeight={700} fill="currentColor" className="text-foreground">{node.name}</text>
-                    <text x={x0 - 8} y={y0 + h / 2 + 10} textAnchor="end" dominantBaseline="central" fontSize={13} fill="currentColor" className="text-muted-foreground">{formatKr(node.value ?? 0)}</text>
-                  </>
-                )}
-                {isCol1 && (
-                  <>
-                    <text x={x0 + w / 2} y={y0 + h / 2 - 9} textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={700} fill="white" paintOrder="stroke" stroke={node.color} strokeWidth={5} strokeLinejoin="round">{node.name}</text>
-                    <text x={x0 + w / 2} y={y0 + h / 2 + 11} textAnchor="middle" dominantBaseline="central" fontSize={13} fontWeight={600} fill="white" paintOrder="stroke" stroke={node.color} strokeWidth={5} strokeLinejoin="round">{formatKr(node.value ?? 0)}</text>
-                  </>
-                )}
-                {isCol2 && h > 6 && (
-                  <>
-                    <text x={x1 + 8} y={y0 + h / 2 - 6} dominantBaseline="central" fontSize={12} fontWeight={700} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{node.name}</text>
-                    <text x={x1 + 8} y={y0 + h / 2 + 10} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.2}>{formatKr(node.value ?? 0)}</text>
-                  </>
-                )}
-                {isCol3 && (
-                  <>
-                    <text x={x1 + 8} y={y0 + h / 2 - 5} dominantBaseline="central" fontSize={12} fontWeight={600} fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>{node.name}</text>
-                    <text x={x1 + 8} y={y0 + h / 2 + 10} dominantBaseline="central" fontSize={11} fill="currentColor" className="text-muted-foreground" opacity={active ? 0.8 : 0.15}>{formatKr(node.value ?? 0)}</text>
-                  </>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+      {/* Sankey (desktop) or Stacked Bar (mobile) */}
+      <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4">
+        {isMobile ? (
+          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} />
+        ) : (
+          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} />
+        )}
       </div>
     </div>
   );
