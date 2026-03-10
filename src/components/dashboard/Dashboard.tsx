@@ -19,6 +19,7 @@ import { AarshjulView } from "./AarshjulView";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
+import { InlineChartsSection } from "./InlineChartsSection";
 import { ShareCard } from "./ShareCard";
 import { MoneyFlowHero } from "./MoneyFlowHero";
 import { ConfettiEffect } from "./ConfettiEffect";
