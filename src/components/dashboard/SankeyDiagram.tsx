@@ -146,7 +146,6 @@ export function SankeyDiagram({ budget, profile }: Props) {
     const nodePadding = 6;
 
     const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
-      .nodeId((d: any) => d.index as number)
       .nodeWidth(nodeWidth)
       .nodePadding(nodePadding)
       .nodeAlign(sankeyJustify)
