@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { CookieBanner } from "@/components/CookieBanner";
 import { PageLoader } from "@/components/PageLoader";
+import { MarketDataProvider } from "@/hooks/useMarketData";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
