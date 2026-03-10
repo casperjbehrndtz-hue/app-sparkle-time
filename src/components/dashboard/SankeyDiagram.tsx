@@ -129,15 +129,40 @@ function SankeyView({ budget, profile, categories, disposable }: {
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
 
-  const { nodes, links, width, height } = useMemo(() => {
+  const { nodes, links, width, height, incomeCount } = useMemo(() => {
     const nodeList: NodeExtra[] = [];
     const linkList: { source: number; target: number; value: number; color: string }[] = [];
 
-    // Col 0: "Indkomst" single node
-    nodeList.push({ name: "Indkomst", color: "#1565c0" });
+    // Col 0: Income sources
+    const incomeSources: { name: string; amount: number }[] = [];
+    if (profile) {
+      if (profile.income > 0) incomeSources.push({ name: "Løn", amount: profile.income });
+      if (profile.partnerIncome > 0) incomeSources.push({ name: "Partner", amount: profile.partnerIncome });
+      if (profile.additionalIncome?.length) {
+        profile.additionalIncome.forEach(src => {
+          if (src.amount > 0) {
+            const monthly = src.frequency === "monthly" ? src.amount
+              : src.frequency === "quarterly" ? Math.round(src.amount / 3)
+              : src.frequency === "biannual" ? Math.round(src.amount / 6)
+              : Math.round(src.amount / 12);
+            if (monthly > 0) incomeSources.push({ name: src.label || "Øvrig", amount: monthly });
+          }
+        });
+      }
+    }
+    // Fallback: single node if no profile or only one source
+    if (incomeSources.length === 0) {
+      incomeSources.push({ name: "Indkomst", amount: budget.totalIncome });
+    }
+
+    const INCOME_COLOR = "#1565c0";
+    incomeSources.forEach(src => {
+      nodeList.push({ name: src.name, color: INCOME_COLOR });
+    });
+    const incomeNodeCount = incomeSources.length;
 
     // Col 1: Categories + disposable
-    const catStartIdx = 1;
+    const catStartIdx = incomeNodeCount;
     categories.forEach(cat => {
       nodeList.push({ name: cat.name, color: cat.color });
     });
@@ -145,18 +170,31 @@ function SankeyView({ budget, profile, categories, disposable }: {
       nodeList.push({ name: "Til overs", color: "#2e86c1" });
     }
 
-    // Links
-    categories.forEach((cat, i) => {
-      linkList.push({ source: 0, target: catStartIdx + i, value: cat.total, color: cat.color });
+    // Links: each income source → each category (proportional)
+    const totalIncome = incomeSources.reduce((s, src) => s + src.amount, 0);
+    const totalSpend = categories.reduce((s, c) => s + c.total, 0) + (disposable > 0 ? disposable : 0);
+
+    incomeSources.forEach((src, srcIdx) => {
+      const share = totalIncome > 0 ? src.amount / totalIncome : 1 / incomeSources.length;
+      categories.forEach((cat, catIdx) => {
+        const val = Math.round(cat.total * share);
+        if (val > 0) {
+          linkList.push({ source: srcIdx, target: catStartIdx + catIdx, value: val, color: cat.color });
+        }
+      });
+      if (disposable > 0) {
+        const val = Math.round(disposable * share);
+        if (val > 0) {
+          linkList.push({ source: srcIdx, target: catStartIdx + categories.length, value: val, color: "#2e86c1" });
+        }
+      }
     });
-    if (disposable > 0) {
-      linkList.push({ source: 0, target: catStartIdx + categories.length, value: disposable, color: "#2e86c1" });
-    }
 
     const W = 620;
-    const catCount = categories.length + (disposable > 0 ? 1 : 0);
-    const H = Math.max(300, catCount * 34 + 40);
-    const LEFT_PAD = 120; // room for "Indkomst" label
+    const rightCount = categories.length + (disposable > 0 ? 1 : 0);
+    const maxSide = Math.max(rightCount, incomeNodeCount);
+    const H = Math.max(300, maxSide * 34 + 40);
+    const LEFT_PAD = 120;
 
     const sankeyGen = d3Sankey<NodeExtra, LinkExtra>()
       .nodeWidth(16)
@@ -169,18 +207,10 @@ function SankeyView({ budget, profile, categories, disposable }: {
       links: linkList.map(l => ({ ...l })),
     });
 
-    return { nodes: graph.nodes, links: graph.links, width: W, height: H };
-  }, [categories, disposable]);
+    return { nodes: graph.nodes, links: graph.links, width: W, height: H, incomeCount: incomeNodeCount };
+  }, [categories, disposable, profile, budget.totalIncome]);
 
   const linkPathGen = sankeyLinkHorizontal();
-
-  const isRelated = (nodeName: string): boolean => {
-    if (!hovered) return true;
-    if (nodeName === hovered) return true;
-    // "Indkomst" relates to everything
-    if (hovered === "Indkomst" || nodeName === "Indkomst") return true;
-    return false;
-  };
 
   return (
     <svg
@@ -193,9 +223,10 @@ function SankeyView({ budget, profile, categories, disposable }: {
       {links.map((link, i) => {
         const d = linkPathGen(link as any);
         if (!d) return null;
+        const src = typeof link.source === "object" ? link.source : null;
         const tgt = typeof link.target === "object" ? link.target : null;
         const color = (link as any).color || "#ccc";
-        const related = !hovered || tgt?.name === hovered || hovered === "Indkomst";
+        const related = !hovered || tgt?.name === hovered || src?.name === hovered;
 
         return (
           <path
@@ -206,7 +237,7 @@ function SankeyView({ budget, profile, categories, disposable }: {
             strokeWidth={Math.max(1, link.width || 1)}
             strokeOpacity={!hovered ? 0.4 : related ? 0.6 : 0.06}
             className="transition-opacity duration-200"
-            onMouseEnter={() => setHovered(tgt?.name || null)}
+            onMouseEnter={() => setHovered(tgt?.name || src?.name || null)}
             onMouseLeave={() => setHovered(null)}
           />
         );
@@ -220,8 +251,8 @@ function SankeyView({ budget, profile, categories, disposable }: {
         const y1 = node.y1 ?? 0;
         const w = x1 - x0;
         const h = y1 - y0;
-        const active = isRelated(node.name);
-        const isSource = i === 0;
+        const isSource = i < incomeCount;
+        const active = !hovered || hovered === node.name || (isSource && !categories.some(c => c.name === hovered) && hovered !== "Til overs") || (!isSource && !nodes.slice(0, incomeCount).some(n => n.name === hovered));
 
         return (
           <g
@@ -235,18 +266,15 @@ function SankeyView({ budget, profile, categories, disposable }: {
               className="transition-opacity duration-200" />
 
             {isSource ? (
-              // Left label: "Indkomst" centered on node
-              <>
-                <text x={x0 - 10} y={y0 + h / 2 - 9} textAnchor="end" dominantBaseline="central"
-                  fontSize={15} fontWeight={800} fill="currentColor" className="text-foreground">
-                  Indkomst
-                </text>
-                <text x={x0 - 10} y={y0 + h / 2 + 11} textAnchor="end" dominantBaseline="central"
-                  fontSize={13} fontWeight={600} fill="currentColor" className="text-muted-foreground">
-                  {formatKr(budget.totalIncome)} kr.
-                </text>
-              </>
+              // Left label
+              <text x={x0 - 10} y={y0 + h / 2} textAnchor="end" dominantBaseline="central"
+                fontSize={13} fill="currentColor" className="text-foreground"
+                opacity={active ? 1 : 0.3}>
+                <tspan fontWeight={700}>{node.name}</tspan>
+                <tspan dx={-((node.name.length * 7) + 6)} dy={16} fontWeight={500} opacity={0.6} fontSize={12}>{formatKr(node.value ?? 0)} kr.</tspan>
+              </text>
             ) : (
+              // Right label
               <text x={x1 + 10} y={y0 + h / 2} dominantBaseline="central"
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
