@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo } from "react";
+import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
-import { AnimatedCounter } from "./AnimatedCounter";
-import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, ChevronDown, ExternalLink } from "lucide-react";
-import { useWhiteLabel } from "@/lib/whiteLabel";
+import { EditableAmount } from "./EditableAmount";
+import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SocialProofNudge } from "./SocialProofNudge";
+import { getFieldMapping, INCOME_MAPPINGS } from "@/lib/fieldMappings";
 import type { BudgetProfile, ComputedBudget, OptimizingAction, ExpenseItem } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 
@@ -15,6 +15,7 @@ interface Props {
   health: HealthMetrics;
   smartSteps: { icon: string; text: string; priority: "high" | "medium" | "low" }[];
   optimizations: OptimizingAction[];
+  onProfileChange: (profile: BudgetProfile) => void;
 }
 
 const BUCKET_COLORS = {
@@ -51,18 +52,23 @@ function getColor(cat: string) {
   return FLOW_COLORS[cat] ?? "hsl(var(--muted-foreground))";
 }
 
-export function CockpitSection({ profile, budget, health, smartSteps, optimizations }: Props) {
-  const config = useWhiteLabel();
+export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
   const { t } = useI18n();
   const { score, label, color, truths } = health;
 
-  // Score ring
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
   const ringColor = score >= 75 ? "#1e40af" : score >= 55 ? "#d97706" : "#dc2626";
 
-  // Top expenses
+  const isPar = profile.householdType === "par";
+
+  // Helper: update a single profile field
+  const updateField = (field: keyof BudgetProfile, value: number) => {
+    onProfileChange({ ...profile, [field]: value });
+  };
+
+  // Top expenses grouped by category, with editable items
   const topExpenses = useMemo(() => {
     const categoryMap = new Map<string, { total: number; items: ExpenseItem[] }>();
     [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
@@ -92,15 +98,13 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
   const bucketEntries = Object.entries(health.buckets) as [keyof typeof BUCKET_LABELS, number][];
 
-  // Total savings potential
   const totalSavings = optimizations.reduce((s, o) => s + o.besparelse_kr, 0);
 
   return (
     <div className="space-y-4">
-      {/* ── Row 1: Health Score + 3 Truths + Key Numbers ── */}
+      {/* ── Row 1: Health Score + Truths ── */}
       <div className="rounded-2xl border border-border p-4 sm:p-5">
         <div className="flex items-start gap-4">
-          {/* Score ring - compact */}
           <div className="relative flex-shrink-0">
             <svg width="80" height="80" viewBox="0 0 80 80" className="drop-shadow-sm">
               <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
@@ -121,7 +125,6 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
             </div>
           </div>
 
-          {/* 3 Truths - compact */}
           <div className="flex-1 space-y-1.5 min-w-0">
             <TruthRow icon={<Wallet className="w-3 h-3" />} label={t("health.freedom")} value={`${formatKr(truths.freeCashFlow)} kr.`} positive={truths.freeCashFlow > 5000} />
             <TruthRow icon={<Activity className="w-3 h-3" />} label={t("health.baseline")} value={`${formatKr(truths.monthlyBaseline)} kr.`} positive={true} />
@@ -129,11 +132,33 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           </div>
         </div>
 
-        {/* Income → Expenses → Free — single row summary */}
+        {/* Income → Expenses → Free — EDITABLE */}
         <div className="mt-4 grid grid-cols-3 gap-2">
           <div className="text-center p-2.5 rounded-xl bg-primary/5 border border-primary/15">
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Indkomst</p>
-            <p className="font-display font-bold text-sm text-primary">{formatKr(budget.totalIncome)} kr.</p>
+            <div className="font-display font-bold text-sm text-primary">
+              <EditableAmount
+                value={profile.income}
+                onChange={(v) => updateField("income", v)}
+                min={INCOME_MAPPINGS.income.min}
+                max={INCOME_MAPPINGS.income.max}
+                step={INCOME_MAPPINGS.income.step}
+                className="font-display font-bold text-sm text-primary"
+              />
+            </div>
+            {isPar && (
+              <div className="mt-1">
+                <p className="text-[8px] text-muted-foreground">Partner</p>
+                <EditableAmount
+                  value={profile.partnerIncome}
+                  onChange={(v) => updateField("partnerIncome", v)}
+                  min={INCOME_MAPPINGS.partnerIncome.min}
+                  max={INCOME_MAPPINGS.partnerIncome.max}
+                  step={INCOME_MAPPINGS.partnerIncome.step}
+                  className="font-display font-bold text-[11px] text-primary/70"
+                />
+              </div>
+            )}
           </div>
           <div className="text-center p-2.5 rounded-xl bg-muted/50 border border-border/50">
             <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Udgifter</p>
@@ -148,7 +173,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
       </div>
 
-      {/* ── Alerts (only if any) ── */}
+      {/* ── Alerts ── */}
       {alerts.length > 0 && (
         <div className="space-y-1.5">
           {alerts.map((alert, i) => (
@@ -172,36 +197,68 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
       )}
 
-      {/* ── Top Expenses — compact waterfall ── */}
+      {/* ── Top Expenses — compact waterfall with EDITABLE items ── */}
       <div className="rounded-2xl border border-border p-4">
-        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Top udgifter</p>
-        <div className="space-y-1.5">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Top udgifter</p>
+          <p className="text-[9px] text-muted-foreground">Klik på beløb for at redigere</p>
+        </div>
+        <div className="space-y-2">
           {topExpenses.map((expense, i) => {
             const pct = budget.totalIncome > 0 ? (expense.value / budget.totalIncome) * 100 : 0;
+            // Find editable items within this category
+            const editableItems = expense.items.filter(item => getFieldMapping(item.label));
+            const hasEditable = editableItems.length > 0;
+
             return (
               <motion.div
                 key={expense.name}
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 + i * 0.06 }}
-                className="flex items-center gap-2.5"
+                className="space-y-0.5"
               >
-                <span className="text-[10px] text-muted-foreground w-20 text-right truncate">{expense.name}</span>
-                <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-md"
-                    style={{ backgroundColor: getColor(expense.name) }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.max(pct, 2)}%` }}
-                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 + i * 0.06 }}
-                  />
-                  {pct > 18 && (
-                    <span className="absolute inset-0 flex items-center px-2 text-[10px] font-medium text-white drop-shadow-sm z-10">
-                      {formatKr(expense.value)}
-                    </span>
-                  )}
+                {/* Category bar */}
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[10px] text-muted-foreground w-20 text-right truncate">{expense.name}</span>
+                  <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 rounded-md"
+                      style={{ backgroundColor: getColor(expense.name) }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.max(pct, 2)}%` }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 + i * 0.06 }}
+                    />
+                    {pct > 18 && (
+                      <span className="absolute inset-0 flex items-center px-2 text-[10px] font-medium text-white drop-shadow-sm z-10">
+                        {formatKr(expense.value)}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground tabular-nums w-8 text-right">{Math.round(pct)}%</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground tabular-nums w-8 text-right">{Math.round(pct)}%</span>
+
+                {/* Editable sub-items */}
+                {hasEditable && (
+                  <div className="ml-[calc(5rem+10px)] space-y-0.5">
+                    {editableItems.map((item) => {
+                      const mapping = getFieldMapping(item.label)!;
+                      return (
+                        <div key={item.label} className="flex items-center justify-between">
+                          <span className="text-[9px] text-muted-foreground truncate max-w-[120px]">{item.label}</span>
+                          <EditableAmount
+                            value={item.amount}
+                            onChange={(v) => updateField(mapping.field, v)}
+                            min={mapping.min}
+                            max={mapping.max}
+                            step={mapping.step}
+                            className="text-[10px] font-medium tabular-nums text-foreground"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </motion.div>
             );
           })}
@@ -229,7 +286,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
       </div>
 
-      {/* ── 4 Buckets — compact ── */}
+      {/* ── 4 Buckets ── */}
       <div className="rounded-2xl border border-border p-4">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2.5">Pengenes fordeling</p>
         <div className="h-2.5 rounded-full overflow-hidden flex mb-3">
@@ -259,7 +316,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
       </div>
 
-      {/* ── Savings Potential CTA (if any optimizations) ── */}
+      {/* ── Savings Potential CTA ── */}
       {totalSavings > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -286,7 +343,6 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </motion.div>
       )}
 
-      {/* ── Social Proof ── */}
       <SocialProofNudge profile={profile} budget={budget} health={health} context="cockpit" />
     </div>
   );
