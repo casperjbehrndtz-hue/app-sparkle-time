@@ -1,35 +1,35 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { RotateCcw, FileText, BarChart3, LogIn, LogOut } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { RotateCcw, FileText, BarChart3, LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
-import { DisposableIncome } from "./DisposableIncome";
-import { NuView } from "./NuView";
+import { CockpitSection } from "./CockpitSection";
 import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
-import { NaboeffektView } from "./NaboeffektView";
-import { HvadHvisView } from "./HvadHvisView";
-import { HistorikView } from "./HistorikView";
-import { ParSplitView } from "./ParSplitView";
-import { StressTestView } from "./StressTestView";
-import { AarshjulView } from "./AarshjulView";
+import { InlineChartsSection } from "./InlineChartsSection";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
 import { ChartsView } from "./ChartsView";
-import { InlineChartsSection } from "./InlineChartsSection";
 import { ShareCard } from "./ShareCard";
-import { MoneyFlowHero } from "./MoneyFlowHero";
 import { ConfettiEffect } from "./ConfettiEffect";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
-import { SubscriptionTracker } from "./SubscriptionTracker";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
+
+// Lazy-load advanced views
+import { NaboeffektView } from "./NaboeffektView";
+import { HvadHvisView } from "./HvadHvisView";
+import { HistorikView } from "./HistorikView";
+import { ParSplitView } from "./ParSplitView";
+import { StressTestView } from "./StressTestView";
+import { AarshjulView } from "./AarshjulView";
+import { SubscriptionTracker } from "./SubscriptionTracker";
 
 interface Props {
   profile: BudgetProfile;
@@ -60,7 +60,7 @@ function StorySection({ id, title, subtitle, children, delay = 0 }: {
   );
 }
 
-// ─── Section nav pill ─────────────────────────────────────
+// ─── Section nav ─────────────────────────────────────
 function SectionNav({ sections, activeSection }: { sections: { id: string; label: string; emoji: string }[]; activeSection: string }) {
   return (
     <div className="sticky top-[57px] z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 overflow-x-auto scrollbar-hide">
@@ -83,22 +83,56 @@ function SectionNav({ sections, activeSection }: { sections: { id: string; label
   );
 }
 
+// ─── Collapsible advanced section ────────────────────
+function AdvancedSection({ id, title, emoji, children }: { id: string; title: string; emoji: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div id={id} className="scroll-mt-20">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-3 px-1 group"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">{emoji}</span>
+          <span className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors">{title}</span>
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="pb-6">
+              <SectionErrorBoundary fallbackTitle={title}>
+                {children}
+              </SectionErrorBoundary>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
   const [showReport, setShowReport] = useState(false);
   const [showCharts, setShowCharts] = useState(false);
-  const [showShareCard, setShowShareCard] = useState(false);
   const [confettiTriggered, setConfettiTriggered] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
-  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Memoize expensive calculations
   const health = useMemo(() => calculateHealth(profile, budget), [profile, budget]);
   const smartSteps = useMemo(() => generateSmartSteps(profile, budget, health), [profile, budget, health]);
 
-  // Trigger confetti for great health scores
   useEffect(() => {
     if (health.score >= 75) {
       const timer = setTimeout(() => setConfettiTriggered(true), 800);
@@ -106,32 +140,20 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     }
   }, [health.score]);
 
-  const sections = useMemo(() => {
-    const baseSections = [
-      { id: "overblik", label: "Overblik", emoji: "📊" },
-      { id: "cockpit", label: t("tab.cockpit"), emoji: "🎯" },
-      { id: "fremad", label: t("tab.forward"), emoji: "📈" },
-      { id: "hvadvis", label: t("tab.whatIf"), emoji: "🔮" },
-      { id: "stresstest", label: t("tab.stressTest"), emoji: "🔬" },
-      { id: "aarshjul", label: t("tab.calendar"), emoji: "📅" },
-      { id: "optimering", label: t("tab.optimize"), emoji: "⚡" },
-      { id: "abonnementer", label: "Abonnementer", emoji: "💳" },
-      { id: "naboeffekt", label: t("tab.compare"), emoji: "👥" },
-      { id: "historik", label: t("tab.history"), emoji: "📊" },
-    ];
-    return profile.householdType === "par"
-      ? [...baseSections, { id: "parsplit", label: t("tab.coupleSplit"), emoji: "💑" }]
-      : baseSections;
-  }, [profile.householdType, t]);
+  const sections = [
+    { id: "cockpit", label: "Cockpit", emoji: "🎯" },
+    { id: "overblik", label: "Overblik", emoji: "📊" },
+    { id: "handling", label: "Handling", emoji: "⚡" },
+    { id: "fremad", label: "Fremtid", emoji: "📈" },
+    { id: "dybde", label: "Dybdegående", emoji: "🔬" },
+  ];
 
-  // Track active section via IntersectionObserver (fixed deps)
+  // Track active section
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         }
       },
       { rootMargin: "-120px 0px -60% 0px", threshold: 0.1 }
@@ -145,18 +167,14 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
     return () => { clearTimeout(timer); observer.disconnect(); };
   }, [sections]);
 
-  if (showReport) {
-    return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
-  }
-
-  if (showCharts) {
-    return <ChartsView profile={profile} budget={budget} onBack={() => setShowCharts(false)} />;
-  }
+  if (showReport) return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
+  if (showCharts) return <ChartsView profile={profile} budget={budget} onBack={() => setShowCharts(false)} />;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <ConfettiEffect trigger={confettiTriggered} />
       <SuiteNav />
+
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
@@ -166,7 +184,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             <DarkModeToggle />
             <button onClick={() => setShowCharts(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.charts")}</span><span className="sm:hidden">{t("dash.chartsShort")}</span>
+              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.charts")}</span>
             </button>
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
@@ -174,7 +192,7 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
             </button>
             <button onClick={onReset}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.newCalc")}</span><span className="sm:hidden">{t("dash.resetShort")}</span>
+              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.newCalc")}</span>
             </button>
             {user ? (
               <button onClick={signOut}
@@ -191,101 +209,83 @@ export function Dashboard({ profile, budget, optimizations, onReset }: Props) {
         </div>
       </header>
 
-      {/* Section nav */}
       <SectionNav sections={sections} activeSection={activeSection} />
 
-      <main ref={scrollRef} className="max-w-2xl mx-auto px-5 py-6 space-y-16 flex-1 w-full">
-        {/* Hero health score */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <DisposableIncome health={health} />
-        </motion.div>
+      <main className="max-w-2xl mx-auto px-5 py-6 space-y-12 flex-1 w-full">
 
-        {/* Charts overview — first and most prominent */}
+        {/* ━━━ Section 1: COCKPIT — everything at a glance ━━━ */}
+        <StorySection id="cockpit" title="Cockpit" subtitle="Dit økonomiske overblik — alt på ét sted.">
+          <SectionErrorBoundary fallbackTitle="Cockpit">
+            <CockpitSection
+              profile={profile}
+              budget={budget}
+              health={health}
+              smartSteps={smartSteps}
+              optimizations={optimizations}
+            />
+          </SectionErrorBoundary>
+        </StorySection>
+
+        {/* ━━━ Section 2: OVERBLIK — visual deep-dive ━━━ */}
         <StorySection id="overblik" title="Overblik" subtitle="Hvor går dine penge hen? Se det hele i ét blik.">
           <SectionErrorBoundary fallbackTitle="Overblik">
             <InlineChartsSection profile={profile} budget={budget} />
           </SectionErrorBoundary>
         </StorySection>
 
-        <StorySection id="cockpit" title={t("tab.cockpit")} subtitle="Dit økonomiske overblik lige nu">
-          <SectionErrorBoundary fallbackTitle="Cockpit">
-            <div className="space-y-6">
-              <MoneyFlowHero budget={budget} />
-              <NuView budget={budget} profile={profile} health={health} smartSteps={smartSteps} />
-            </div>
-          </SectionErrorBoundary>
-        </StorySection>
-
-        <StorySection id="fremad" title={t("tab.forward")} subtitle="Se frem — formue, mål og tidslinje">
-          <SectionErrorBoundary fallbackTitle="Fremad">
-            <FremadView profile={profile} budget={budget} health={health} />
-          </SectionErrorBoundary>
-        </StorySection>
-
-        <StorySection id="hvadvis" title={t("tab.whatIf")} subtitle="Simulér livsbegivenheder og se effekten">
-          <SectionErrorBoundary fallbackTitle="Hvad hvis">
-            <HvadHvisView profile={profile} budget={budget} health={health} />
-          </SectionErrorBoundary>
-        </StorySection>
-
-        <StorySection id="stresstest" title={t("tab.stressTest")} subtitle="Hvor modstandsdygtig er din økonomi?">
-          <SectionErrorBoundary fallbackTitle="Stress-test">
-            <StressTestView profile={profile} budget={budget} />
-          </SectionErrorBoundary>
-        </StorySection>
-
-        <StorySection id="aarshjul" title={t("tab.calendar")} subtitle="Årlige udgifter du skal forberede dig på">
-          <SectionErrorBoundary fallbackTitle="Årshjul">
-            <AarshjulView profile={profile} budget={budget} />
-          </SectionErrorBoundary>
-        </StorySection>
-
-        <StorySection id="optimering" title={t("tab.optimize")} subtitle="Konkrete besparelsesforslag baseret på dine tal">
-          <SectionErrorBoundary fallbackTitle="Optimering">
+        {/* ━━━ Section 3: HANDLING — what to do ━━━ */}
+        <StorySection id="handling" title="Handling" subtitle="Konkrete besparelsesforslag baseret på dine tal.">
+          <SectionErrorBoundary fallbackTitle="Handling">
             <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
           </SectionErrorBoundary>
         </StorySection>
 
-        <StorySection id="abonnementer" title="Abonnementer" subtitle="Overblik over dine faste abonnementer og services">
-          <SectionErrorBoundary fallbackTitle="Abonnementer">
-            <SubscriptionTracker profile={profile} />
+        {/* ━━━ Section 4: FREMTID — projections ━━━ */}
+        <StorySection id="fremad" title="Fremtid" subtitle="Se frem — formue, mål og tidslinje.">
+          <SectionErrorBoundary fallbackTitle="Fremtid">
+            <FremadView profile={profile} budget={budget} health={health} />
           </SectionErrorBoundary>
         </StorySection>
 
-        <StorySection id="naboeffekt" title={t("tab.compare")} subtitle="Sammenlign med lignende husstande i dit område">
-          <SectionErrorBoundary fallbackTitle="Naboeffekt">
-            <NaboeffektView profile={profile} budget={budget} />
-          </SectionErrorBoundary>
-        </StorySection>
+        {/* ━━━ Section 5: DYBDEGÅENDE — collapsible advanced ━━━ */}
+        <section id="dybde" className="scroll-mt-20">
+          <div className="mb-4">
+            <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">Dybdegående</h2>
+            <p className="text-sm text-muted-foreground mt-1">Avancerede analyser og simulationer.</p>
+          </div>
 
-        <StorySection id="historik" title={t("tab.history")} subtitle="Se udviklingen over tid">
-          <SectionErrorBoundary fallbackTitle="Historik">
-            <HistorikView />
-          </SectionErrorBoundary>
-        </StorySection>
+          <div className="rounded-2xl border border-border divide-y divide-border overflow-hidden">
+            <AdvancedSection id="hvadvis-inner" title="Hvad hvis?" emoji="🔮">
+              <HvadHvisView profile={profile} budget={budget} health={health} />
+            </AdvancedSection>
 
-        {profile.householdType === "par" && (
-          <StorySection id="parsplit" title={t("tab.coupleSplit")} subtitle="Fordeling af fælles udgifter">
-            <SectionErrorBoundary fallbackTitle="Parsplit">
-              <ParSplitView profile={profile} budget={budget} />
-            </SectionErrorBoundary>
-          </StorySection>
-        )}
+            <AdvancedSection id="stresstest-inner" title="Stress-test" emoji="🔬">
+              <StressTestView profile={profile} budget={budget} />
+            </AdvancedSection>
 
-        {/* Share Card */}
-        {showShareCard && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-8">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("dash.shareResult")}</h3>
-              <button onClick={() => setShowShareCard(false)} className="text-xs text-muted-foreground hover:text-foreground">{t("dash.close")}</button>
-            </div>
-            <ShareCard health={health} totalIncome={budget.totalIncome} totalExpenses={budget.totalExpenses} />
-          </motion.div>
-        )}
+            <AdvancedSection id="aarshjul-inner" title="Årshjul" emoji="📅">
+              <AarshjulView profile={profile} budget={budget} />
+            </AdvancedSection>
+
+            <AdvancedSection id="abonnementer-inner" title="Abonnementer" emoji="💳">
+              <SubscriptionTracker profile={profile} />
+            </AdvancedSection>
+
+            <AdvancedSection id="naboeffekt-inner" title="Sammenlign" emoji="👥">
+              <NaboeffektView profile={profile} budget={budget} />
+            </AdvancedSection>
+
+            <AdvancedSection id="historik-inner" title="Historik" emoji="📊">
+              <HistorikView />
+            </AdvancedSection>
+
+            {profile.householdType === "par" && (
+              <AdvancedSection id="parsplit-inner" title="Par-fordeling" emoji="💑">
+                <ParSplitView profile={profile} budget={budget} />
+              </AdvancedSection>
+            )}
+          </div>
+        </section>
       </main>
 
       <AppFooter />
