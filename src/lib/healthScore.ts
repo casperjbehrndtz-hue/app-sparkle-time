@@ -32,9 +32,9 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   const estimatedBuffer = totalIncome * 1;
   const bufferMonths = fixedTotal > 0 ? Math.round((estimatedBuffer / fixedTotal) * 10) / 10 : 0;
 
-  // --- Debt ratio ---
+  // --- Debt ratio (exclude negative items like rentefradrag) ---
   const housingCost = budget.fixedExpenses
-    .filter(e => e.category === "Bolig")
+    .filter(e => e.category === "Bolig" && e.amount > 0)
     .reduce((s, e) => s + e.amount, 0);
   const debtRatio = totalIncome > 0 ? Math.round((housingCost / totalIncome) * 100) : 0;
 

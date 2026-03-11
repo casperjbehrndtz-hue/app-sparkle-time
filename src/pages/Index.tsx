@@ -21,6 +21,7 @@ const Index = () => {
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
+  const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
 
   const budget = useMemo<ComputedBudget | null>(
     () => profile ? computeBudget(profile, marketData) : null,
@@ -92,6 +93,7 @@ const Index = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile));
     setProfile(pendingProfile);
     setShowWelcome(false);
+    setEditingProfile(null);
     const health = calculateHealth(pendingProfile, pendingBudget);
     saveSnapshot(pendingBudget, health.score);
     submitPriceObservations(pendingProfile);
@@ -107,6 +109,13 @@ const Index = () => {
 
   const handleReset = () => {
     localStorage.removeItem(STORAGE_KEY);
+    setProfile(null);
+    setEditingProfile(null);
+  };
+
+  const handleEditProfile = () => {
+    // Go back to onboarding with current profile pre-filled
+    setEditingProfile(profile);
     setProfile(null);
   };
 
@@ -128,11 +137,12 @@ const Index = () => {
         optimizations={optimizations}
         onReset={handleReset}
         onProfileChange={handleProfileChange}
+        onEditProfile={handleEditProfile}
       />
     );
   }
 
-  return <OnboardingFlow onComplete={handleComplete} />;
+  return <OnboardingFlow onComplete={handleComplete} initialProfile={editingProfile ?? undefined} />;
 };
 
 export default Index;

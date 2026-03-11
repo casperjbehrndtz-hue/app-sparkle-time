@@ -48,6 +48,12 @@ export const UTILITIES = {
     icon: "📱",
     category: "Forsyning",
   },
+  dr_licens: {
+    label: "DR (medielicens)",
+    price: 181,
+    icon: "📺",
+    category: "Forsyning",
+  },
 };
 
 export const INSURANCE = {

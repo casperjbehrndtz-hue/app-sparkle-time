@@ -23,6 +23,7 @@ import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 
 interface Props {
   onComplete: (profile: BudgetProfile) => void;
+  initialProfile?: BudgetProfile;
 }
 
 const defaultProfile: BudgetProfile = {
@@ -43,13 +44,14 @@ const defaultProfile: BudgetProfile = {
   customExpenses: [],
 };
 
-export function OnboardingFlow({ onComplete }: Props) {
+export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
-  const [step, setStep] = useState<OnboardingStep>("welcome");
+  const isEditing = !!initialProfile;
+  const [step, setStep] = useState<OnboardingStep>(isEditing ? "household" : "welcome");
   const [direction, setDirection] = useState(1);
-  const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
-  const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
+  const [profile, setProfile] = useState<BudgetProfile>(initialProfile ?? defaultProfile);
+  const [childAgeInputs, setChildAgeInputs] = useState<number[]>(initialProfile?.childrenAges?.length ? initialProfile.childrenAges : [3]);
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
@@ -135,7 +137,8 @@ export function OnboardingFlow({ onComplete }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">
                 {isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")}
               </h1>
-              <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
+            <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">💡 Indtast løn efter skat (netto — det du får udbetalt)</p>
             </motion.div>
             <BigSlider value={profile.income} onChange={(v) => update({ income: v })}
               label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500} />
@@ -391,28 +394,27 @@ export function OnboardingFlow({ onComplete }: Props) {
               )}
             </div>
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Telefon & internet</h3>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Telefon, internet & forsyning</h3>
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base">📡</span>
-                    <div>
-                      <span className="text-sm font-medium">Internet</span>
-                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
+                {[
+                  { icon: "📡", label: "Internet", price: UTILITIES.internet.price },
+                  { icon: "📱", label: isPar ? "Mobil (2 pers.)" : "Mobil", price: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1) },
+                  { icon: "⚡", label: "El", price: isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo },
+                  { icon: "🔥", label: "Varme & vand", price: isPar ? UTILITIES.heating.price_par : UTILITIES.heating.price_solo },
+                  { icon: "📺", label: "DR (medielicens)", price: UTILITIES.dr_licens.price },
+                ].map((u) => (
+                  <div key={u.label} className="flex items-center justify-between rounded-2xl border-2 border-border bg-muted/30 px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base">{u.icon}</span>
+                      <div>
+                        <span className="text-sm font-medium">{u.label}</span>
+                        <span className="text-[10px] text-muted-foreground ml-1.5">(inkluderet)</span>
+                      </div>
                     </div>
+                    <span className="text-sm font-semibold tabular-nums text-muted-foreground">{u.price} kr./md.</span>
                   </div>
-                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.internet.price} kr./md.</span>
-                </div>
-                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base">📱</span>
-                    <div>
-                      <span className="text-sm font-medium">{isPar ? "Mobil (2 pers.)" : "Mobil"}</span>
-                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
-                    </div>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.mobile.price_per_person * (isPar ? 2 : 1)} kr./md.</span>
-                </div>
+                ))}
+                <p className="text-[10px] text-muted-foreground/60 mt-1">Disse udgifter medregnes automatisk i dit budget.</p>
               </div>
             </div>
             <div>
