@@ -9,9 +9,9 @@ export function SuiteNav() {
   if (config.brandName !== "Kassen") return null;
 
   const suiteLinks = [
-    { label: t("nav.budget"), href: "/", current: true },
-    { label: t("nav.coupleFinance"), href: "https://parfinans.dk", current: false },
-    { label: t("nav.childTax"), href: "https://boerneskat.dk", current: false },
+    { label: t("nav.budget"), href: "/", current: true, comingSoon: false },
+    { label: t("nav.coupleFinance"), href: "#", current: false, comingSoon: true },
+    { label: t("nav.childTax"), href: "#", current: false, comingSoon: true },
   ];
 
   return (
@@ -20,16 +20,24 @@ export function SuiteNav() {
         {suiteLinks.map((link) => (
           <a
             key={link.label}
-            href={link.href}
-            target={link.current ? undefined : "_blank"}
-            rel={link.current ? undefined : "noopener noreferrer"}
-            className={`px-2.5 py-1 rounded transition-colors ${
+            href={link.comingSoon ? undefined : link.href}
+            target={link.current || link.comingSoon ? undefined : "_blank"}
+            rel={link.current || link.comingSoon ? undefined : "noopener noreferrer"}
+            className={`px-2.5 py-1 rounded transition-colors inline-flex items-center gap-1.5 ${
               link.current
                 ? "font-semibold bg-primary-foreground/15"
+                : link.comingSoon
+                ? "opacity-50 cursor-default"
                 : "opacity-70 hover:opacity-100"
             }`}
+            onClick={link.comingSoon ? (e) => e.preventDefault() : undefined}
           >
             {link.label}
+            {link.comingSoon && (
+              <span className="text-[8px] font-semibold bg-primary-foreground/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                Snart
+              </span>
+            )}
           </a>
         ))}
       </div>

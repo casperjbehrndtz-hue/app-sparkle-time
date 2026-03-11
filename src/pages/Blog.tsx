@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Search, TrendingUp, Calculator, PiggyBank, Home } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const articles = [
   {
@@ -42,6 +43,10 @@ const articles = [
 
 export default function Blog() {
   const config = useWhiteLabel();
+  usePageMeta(
+    "Guides & tips — Kassen",
+    "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget."
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   const filtered = articles.filter(

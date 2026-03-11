@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Info, Sparkles } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
@@ -44,18 +44,57 @@ const defaultProfile: BudgetProfile = {
   customExpenses: [],
 };
 
+const ONBOARDING_SESSION_KEY = "kassen_onboarding_wip";
+
+function saveOnboardingState(step: OnboardingStep, profile: BudgetProfile, childAgeInputs: number[]) {
+  try {
+    sessionStorage.setItem(ONBOARDING_SESSION_KEY, JSON.stringify({ step, profile, childAgeInputs }));
+  } catch { /* ignore quota errors */ }
+}
+
+function loadOnboardingState(): { step: OnboardingStep; profile: BudgetProfile; childAgeInputs: number[] } | null {
+  try {
+    const saved = sessionStorage.getItem(ONBOARDING_SESSION_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return null;
+}
+
+function clearOnboardingState() {
+  try { sessionStorage.removeItem(ONBOARDING_SESSION_KEY); } catch { /* ignore */ }
+}
+
 export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
   const isEditing = !!initialProfile;
-  const [step, setStep] = useState<OnboardingStep>(isEditing ? "household" : "welcome");
+
+  // Restore from sessionStorage if available (and not editing)
+  const restored = !isEditing ? loadOnboardingState() : null;
+
+  const [step, setStep] = useState<OnboardingStep>(
+    isEditing ? "household" : restored?.step ?? "welcome"
+  );
   const [direction, setDirection] = useState(1);
-  const [profile, setProfile] = useState<BudgetProfile>(initialProfile ?? defaultProfile);
-  const [childAgeInputs, setChildAgeInputs] = useState<number[]>(initialProfile?.childrenAges?.length ? initialProfile.childrenAges : [3]);
+  const [profile, setProfile] = useState<BudgetProfile>(
+    initialProfile ?? restored?.profile ?? defaultProfile
+  );
+  const [childAgeInputs, setChildAgeInputs] = useState<number[]>(
+    initialProfile?.childrenAges?.length
+      ? initialProfile.childrenAges
+      : restored?.childAgeInputs ?? [3]
+  );
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Persist onboarding state to sessionStorage on changes
+  useEffect(() => {
+    if (step !== "welcome") {
+      saveOnboardingState(step, profile, childAgeInputs);
+    }
+  }, [step, profile, childAgeInputs]);
 
   const isPar = profile.householdType === "par";
   const update = useCallback((partial: Partial<BudgetProfile>) => {
@@ -564,7 +603,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 </div>
               ))}
             </div>
-            <ContinueButton onClick={() => onComplete(profile)} label={t("step.review.seeDashboard")} />
+            <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} label={t("step.review.seeDashboard")} />
           </div>
         );
       }

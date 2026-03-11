@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const articles: Record<string, { title: string; category: string; readTime: string; content: string }> = {
   "hvad-koster-det-at-bo-i-koebenhavn": {
@@ -204,6 +205,11 @@ export default function Article() {
   const { slug } = useParams<{ slug: string }>();
   const config = useWhiteLabel();
   const article = slug ? articles[slug] : null;
+
+  usePageMeta(
+    article ? `${article.title} — Kassen` : "Guide — Kassen",
+    article ? article.content.slice(0, 155).replace(/[#\n*]/g, "").trim() : "Læs guides om dansk privatøkonomi."
+  );
 
   if (!article) return <Navigate to="/guides" replace />;
 

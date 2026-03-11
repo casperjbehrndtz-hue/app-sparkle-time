@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import heroCouple from "@/assets/hero-couple.jpg";
 import featureAdvisor from "@/assets/feature-advisor.jpg";
 import featureFamily from "@/assets/feature-family.jpg";
@@ -15,6 +16,10 @@ interface Props {
 export function WelcomePage({ onStart }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
+  usePageMeta(
+    "Kassen — Danmarks nemmeste budgetværktøj",
+    "Find ud af hvad du reelt har til overs. Beregn dit rådighedsbeløb på 3 minutter — gratis, privat og uden login."
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -169,7 +174,7 @@ export function WelcomePage({ onStart }: Props) {
             <div>
               <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t("footer.product")}</h4>
               <ul className="space-y-2 text-xs text-muted-foreground">
-                <li>{t("footer.budgetCalc")}</li>
+                <li><button onClick={onStart} className="hover:text-foreground transition-colors bg-transparent border-none cursor-pointer p-0 text-left text-xs text-muted-foreground">{t("footer.budgetCalc")}</button></li>
                 <li>{t("feature.aiInsight")}</li>
                 <li>{t("footer.neighborComp")}</li>
                 <li>{t("feature.bankReport")}</li>
@@ -178,10 +183,11 @@ export function WelcomePage({ onStart }: Props) {
             <div>
               <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t("footer.info")}</h4>
               <ul className="space-y-2 text-xs text-muted-foreground">
-                <li>{t("footer.privacy")}</li>
+                <li><Link to="/privatliv" className="hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
                 <li>{t("footer.terms")}</li>
                 <li>{t("footer.contact")}</li>
                 <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />Installér app</Link></li>
+                <li><Link to="/guides" className="hover:text-foreground transition-colors">Guides & tips</Link></li>
               </ul>
             </div>
           </div>

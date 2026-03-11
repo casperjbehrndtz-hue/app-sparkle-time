@@ -108,12 +108,14 @@ const Index = () => {
   };
 
   const handleReset = () => {
+    if (!window.confirm("Er du sikker? Dette sletter dit nuværende budget og starter forfra.")) return;
     localStorage.removeItem(STORAGE_KEY);
     setProfile(null);
     setEditingProfile(null);
   };
 
   const handleEditProfile = () => {
+    if (!window.confirm("Vil du redigere dine oplysninger? Dine nuværende data bruges som udgangspunkt.")) return;
     // Go back to onboarding with current profile pre-filled
     setEditingProfile(profile);
     setProfile(null);

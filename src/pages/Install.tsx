@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, CheckCircle, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -13,6 +14,10 @@ const Install = () => {
   const [installed, setInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const navigate = useNavigate();
+  usePageMeta(
+    "Installér Kassen — Gratis budget-app",
+    "Installér Kassen som app på din telefon — uden app store. Få hurtigt overblik over dit budget."
+  );
 
   useEffect(() => {
     // Detect iOS

@@ -1,9 +1,14 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const Privatliv = () => {
   const config = useWhiteLabel();
+  usePageMeta(
+    "Privatlivspolitik — Kassen",
+    "Læs om hvordan Kassen håndterer dine data. Alt gemmes lokalt — ingen data deles med tredjeparter."
+  );
 
   return (
     <div className="min-h-screen bg-background">

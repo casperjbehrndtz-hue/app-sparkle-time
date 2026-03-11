@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, FileText, LogIn, LogOut, ChevronDown } from "lucide-react";
+import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -194,6 +194,17 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       </header>
 
       <SectionNav sections={sections} activeSection={activeSection} />
+
+      {/* Login CTA for unauthenticated users */}
+      {!user && (
+        <div className="max-w-2xl mx-auto px-5 pt-4">
+          <Link to="/login"
+            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-primary hover:bg-primary/10 transition-colors">
+            <Cloud className="w-3.5 h-3.5" />
+            <span>Log ind for at gemme dit budget på tværs af enheder</span>
+          </Link>
+        </div>
+      )}
 
       <main className="max-w-2xl mx-auto px-5 py-6 space-y-12 flex-1 w-full">
 

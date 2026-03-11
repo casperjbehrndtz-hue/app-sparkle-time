@@ -6,6 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "@/hooks/use-toast";
+import { usePageMeta } from "@/hooks/usePageMeta";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,6 +19,27 @@ export default function Auth() {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const navigate = useNavigate();
+  usePageMeta(
+    "Log ind — Kassen",
+    "Log ind eller opret en gratis konto for at synkronisere dit budget på tværs af enheder."
+  );
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      toast({ title: "Indtast e-mail", description: "Skriv din e-mail ovenfor, så sender vi et link til nulstilling.", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/login",
+    });
+    setBusy(false);
+    if (error) {
+      toast({ title: "Fejl", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Tjek din e-mail", description: "Vi har sendt et link til nulstilling af din adgangskode." });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +114,15 @@ export default function Auth() {
         </form>
 
         <div className="text-center mt-6 space-y-2">
+          {isLogin && (
+            <button
+              onClick={handleForgotPassword}
+              disabled={busy}
+              className="text-xs text-muted-foreground hover:text-primary bg-transparent border-none cursor-pointer hover:underline"
+            >
+              Glemt kodeord?
+            </button>
+          )}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-primary hover:underline bg-transparent border-none cursor-pointer"

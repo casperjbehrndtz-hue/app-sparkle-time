@@ -14,8 +14,13 @@ export function HistorikView() {
         <Clock className="w-10 h-10 mx-auto text-muted-foreground/40" />
         <h3 className="text-sm font-semibold text-foreground">Ingen historik endnu</h3>
         <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-          Hver gang du laver en beregning, gemmer vi et snapshot. Kom tilbage senere for at se din udvikling over tid.
+          Din historik vises her når du har brugt Kassen i mere end en måned. Hver gang du opdaterer dit budget, gemmer vi et snapshot — så du kan se din udvikling over tid.
         </p>
+        {snapshots.length === 1 && (
+          <p className="text-[10px] text-muted-foreground/60">
+            1 snapshot gemt · Opdater dit budget igen for at se en graf
+          </p>
+        )}
       </motion.div>
     );
   }

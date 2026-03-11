@@ -134,9 +134,11 @@ export function AIChatPanel({ profile, budget }: Props) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 1, type: "spring", bounce: 0.4 }}
           onClick={handleOpen}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all"
+          className="fixed bottom-6 right-6 z-50 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all px-5 gap-2"
+          title="Spørg AI om din økonomi"
         >
-          <Sparkles className="w-6 h-6" />
+          <Sparkles className="w-5 h-5" />
+          <span className="text-sm font-semibold hidden sm:inline">Spørg AI</span>
           {hasProactiveNudge && !hasInitialAnalysis && (
             <motion.div
               initial={{ scale: 0 }}
