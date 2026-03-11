@@ -7,7 +7,9 @@ import {
   HEALTH,
   HOMEOWNER_ASSOCIATION,
   PROPERTY_TAX,
+  TAX_DEDUCTION_RATE,
   getChildcarePrice,
+  getChildBenefit,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
 import { frequencyToMonthly, frequencyLabel } from "./types";
