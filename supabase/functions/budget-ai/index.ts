@@ -6,6 +6,39 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Transform Anthropic SSE → OpenAI-compatible SSE so the client (useAIStream.ts) needs no changes.
+function anthropicToOpenAIStream(anthropicStream: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  const transform = new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, controller) {
+      buffer += decoder.decode(chunk, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        const trimmed = line.trimEnd();
+        if (!trimmed.startsWith("data: ")) continue;
+        const jsonStr = trimmed.slice(6);
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.type === "content_block_delta" && parsed.delta?.type === "text_delta") {
+            const openAIChunk = JSON.stringify({ choices: [{ delta: { content: parsed.delta.text } }] });
+            controller.enqueue(encoder.encode(`data: ${openAIChunk}\n\n`));
+          }
+        } catch { /* skip unparseable lines */ }
+      }
+    },
+    flush(controller) {
+      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+    },
+  });
+
+  return anthropicStream.pipeThrough(transform);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -14,8 +47,9 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const { profile, budget, mode, messages: chatMessages } = body;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const isPar = profile.householdType === "par";
     const profileSummary = `
@@ -70,25 +104,23 @@ ${profileSummary}
 
 Besvar brugerens spørgsmål baseret på deres konkrete økonomi.`;
 
-    const messages: { role: string; content: string }[] = [
-      { role: "system", content: systemPrompt },
-    ];
+    // Build messages array for Anthropic (no system role in messages)
+    const anthropicMessages: { role: string; content: string }[] = mode === "optimize"
+      ? [{ role: "user", content: "Analysér min økonomi og giv mig personlige anbefalinger." }]
+      : (chatMessages ?? []);
 
-    if (mode === "optimize") {
-      messages.push({ role: "user", content: "Analysér min økonomi og giv mig personlige anbefalinger." });
-    } else if (chatMessages && Array.isArray(chatMessages)) {
-      messages.push(...chatMessages);
-    }
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages,
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: mode === "optimize" ? 800 : 500,
+        system: systemPrompt,
+        messages: anthropicMessages,
         stream: true,
       }),
     });
@@ -99,19 +131,19 @@ Besvar brugerens spørgsmål baseret på deres konkrete økonomi.`;
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI-kreditter opbrugt." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      if (response.status === 529) {
+        return new Response(JSON.stringify({ error: "AI er overbelastet. Prøv igen om lidt." }), {
+          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
+      console.error("Anthropic error:", response.status, t);
       return new Response(JSON.stringify({ error: "AI-fejl. Prøv igen." }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
+    return new Response(anthropicToOpenAIStream(response.body!), {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (e) {

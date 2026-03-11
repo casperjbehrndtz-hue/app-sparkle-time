@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md
 
-> Last updated: 2026-03-11
+> Last updated: 2026-03-11 (AI gateway migrated to Anthropic)
 > Keep this file updated whenever major changes are made.
 
 ---
@@ -29,7 +29,7 @@ The codebase also has a **white-label system** so the same app can be deployed u
 | PWA | vite-plugin-pwa (Workbox) |
 | Auth & DB | Supabase (PostgreSQL + GoTrue auth) |
 | Edge functions | Supabase Edge Functions (Deno) |
-| AI | Lovable AI gateway → `google/gemini-3-flash-preview` ⚠️ (see Broken) |
+| AI | Anthropic Claude (`claude-haiku-4-5-20251001`) via direct API |
 | Package manager | npm (bun.lock committed; use `npm install`) |
 | Testing | Vitest + Testing Library |
 
@@ -155,8 +155,8 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 | Function | Trigger | Depends on |
 |---|---|---|
-| `budget-ai` | POST from `AIChatPanel` / optimisation mode | `LOVABLE_API_KEY` ⚠️ |
-| `onboarding-ai` | POST from `AILiveComment`, `AIWelcomeInsight` | `LOVABLE_API_KEY` ⚠️ |
+| `budget-ai` | POST from `AIChatPanel` / optimisation mode | `ANTHROPIC_API_KEY` |
+| `onboarding-ai` | POST from `AILiveComment`, `AIWelcomeInsight` | `ANTHROPIC_API_KEY` |
 | `market-data` | GET, called by `useMarketData` hook on app load | DST API, Energi Data Service, Nationalbanken |
 | `crowdsourced-prices` | GET/POST from `NaboeffektView` + `submitPriceObservations` | Supabase DB |
 
@@ -184,10 +184,7 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 ### 🔴 Critical
 
-**AI gateway is Lovable-owned**
-Both `budget-ai` and `onboarding-ai` call `https://ai.gateway.lovable.dev` using a `LOVABLE_API_KEY` secret stored in the Supabase project. This key belongs to Lovable and can be revoked at any time. AI features (welcome insight, live onboarding comments, AI chat, optimisation analysis) will silently fail or return 402/401 when that happens.
-
-**Fix:** Replace the gateway URL and key with a direct provider — either Anthropic (Claude) or Google AI Studio (Gemini) — and store the new secret as a Supabase function secret.
+~~**AI gateway is Lovable-owned**~~ — **Resolved.** Both edge functions now call Anthropic directly (`api.anthropic.com/v1/messages`, model `claude-haiku-4-5-20251001`). The `ANTHROPIC_API_KEY` secret must be set in the Supabase project (Dashboard → Edge Functions → Secrets). Until it is set, AI features will return 500.
 
 ### 🟡 Incomplete
 
@@ -205,7 +202,7 @@ Both `budget-ai` and `onboarding-ai` call `https://ai.gateway.lovable.dev` using
 
 ## Next priorities
 
-1. **Replace AI gateway** — swap `LOVABLE_API_KEY` + `ai.gateway.lovable.dev` in both edge functions with a real provider key (Anthropic or Google). Update Supabase function secrets.
+1. ~~**Replace AI gateway**~~ — Done. Set `ANTHROPIC_API_KEY` secret in Supabase Dashboard → Edge Functions → Secrets.
 
 2. **Blog article pages** — add `/guides/:slug` route with full article content, or integrate a headless CMS.
 
