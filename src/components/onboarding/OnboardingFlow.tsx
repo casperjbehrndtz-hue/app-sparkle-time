@@ -44,13 +44,14 @@ const defaultProfile: BudgetProfile = {
   customExpenses: [],
 };
 
-export function OnboardingFlow({ onComplete }: Props) {
+export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
-  const [step, setStep] = useState<OnboardingStep>("welcome");
+  const isEditing = !!initialProfile;
+  const [step, setStep] = useState<OnboardingStep>(isEditing ? "household" : "welcome");
   const [direction, setDirection] = useState(1);
-  const [profile, setProfile] = useState<BudgetProfile>(defaultProfile);
-  const [childAgeInputs, setChildAgeInputs] = useState<number[]>([3]);
+  const [profile, setProfile] = useState<BudgetProfile>(initialProfile ?? defaultProfile);
+  const [childAgeInputs, setChildAgeInputs] = useState<number[]>(initialProfile?.childrenAges?.length ? initialProfile.childrenAges : [3]);
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
