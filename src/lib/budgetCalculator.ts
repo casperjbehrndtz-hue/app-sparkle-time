@@ -23,7 +23,14 @@ const ANNUAL_KWH_PAR = 3500;
 export function computeBudget(profile: BudgetProfile, marketData?: MarketData | null): ComputedBudget {
   const isPar = profile.householdType === "par";
   const additionalMonthly = (profile.additionalIncome || []).reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
-  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly;
+  
+  // Børnepenge (child benefits) — tax-free income
+  let childBenefitTotal = 0;
+  if (profile.hasChildren && profile.childrenAges.length > 0) {
+    childBenefitTotal = profile.childrenAges.reduce((sum, age) => sum + getChildBenefit(age).monthly, 0);
+  }
+  
+  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly + childBenefitTotal;
   const fixedExpenses: ExpenseItem[] = [];
   const variableExpenses: ExpenseItem[] = [];
 
