@@ -120,24 +120,15 @@ function AdvancedSection({ id, title, emoji, children }: { id: string; title: st
   );
 }
 
-export function Dashboard({ profile, budget, optimizations, onReset, onProfileChange }: Props) {
+export function Dashboard({ profile, budget, optimizations, onReset, onProfileChange, onEditProfile }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
   const [showReport, setShowReport] = useState(false);
-  const [showCharts, setShowCharts] = useState(false);
-  const [confettiTriggered, setConfettiTriggered] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
 
   const health = useMemo(() => calculateHealth(profile, budget), [profile, budget]);
   const smartSteps = useMemo(() => generateSmartSteps(profile, budget, health), [profile, budget, health]);
-
-  useEffect(() => {
-    if (health.score >= 75) {
-      const timer = setTimeout(() => setConfettiTriggered(true), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [health.score]);
 
   const sections = [
     { id: "cockpit", label: "Cockpit", emoji: "🎯" },
@@ -167,11 +158,9 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   }, [sections]);
 
   if (showReport) return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
-  if (showCharts) return <ChartsView profile={profile} budget={budget} onBack={() => setShowCharts(false)} />;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <ConfettiEffect trigger={confettiTriggered} />
       <SuiteNav />
 
       {/* Header */}
@@ -181,17 +170,13 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           <div className="flex items-center gap-0.5 sm:gap-1">
             <LanguageToggle />
             <DarkModeToggle />
-            <button onClick={() => setShowCharts(true)}
-              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <BarChart3 className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.charts")}</span>
+            <button onClick={onEditProfile}
+              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold">
+              <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">Ret oplysninger</span>
             </button>
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <FileText className="w-3 h-3" /> {t("dash.report")}
-            </button>
-            <button onClick={onReset}
-              className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.newCalc")}</span>
             </button>
             {user ? (
               <button onClick={signOut}
@@ -200,7 +185,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               </button>
             ) : (
               <Link to="/login"
-                className="flex items-center gap-1 text-[11px] sm:text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold">
+                className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted font-semibold">
                 <LogIn className="w-3 h-3" /> <span className="hidden sm:inline">Log ind</span>
               </Link>
             )}
