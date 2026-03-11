@@ -136,42 +136,47 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
 
         {/* Income → Expenses → Free — EDITABLE */}
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <div className="text-center p-2.5 rounded-xl bg-primary/5 border border-primary/15">
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Indkomst</p>
-            <div className="font-display font-bold text-sm text-primary">
-              <EditableAmount
-                value={profile.income}
-                onChange={(v) => updateField("income", v)}
-                min={INCOME_MAPPINGS.income.min}
-                max={INCOME_MAPPINGS.income.max}
-                step={INCOME_MAPPINGS.income.step}
-                className="font-display font-bold text-sm text-primary"
-              />
-            </div>
-            {isPar && (
-              <div className="mt-1">
-                <p className="text-[8px] text-muted-foreground">Partner</p>
+        <div className="mt-4 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
+              <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Indkomst</p>
+              <div className="font-display font-bold text-base text-primary">
                 <EditableAmount
-                  value={profile.partnerIncome}
-                  onChange={(v) => updateField("partnerIncome", v)}
-                  min={INCOME_MAPPINGS.partnerIncome.min}
-                  max={INCOME_MAPPINGS.partnerIncome.max}
-                  step={INCOME_MAPPINGS.partnerIncome.step}
-                  className="font-display font-bold text-[11px] text-primary/70"
+                  value={profile.income}
+                  onChange={(v) => updateField("income", v)}
+                  min={INCOME_MAPPINGS.income.min}
+                  max={INCOME_MAPPINGS.income.max}
+                  step={INCOME_MAPPINGS.income.step}
+                  className="font-display font-bold text-base text-primary"
                 />
               </div>
-            )}
-          </div>
-          <div className="text-center p-2.5 rounded-xl bg-muted/50 border border-border/50">
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Udgifter</p>
-            <p className="font-display font-bold text-sm text-foreground">{formatKr(budget.totalExpenses)} kr.</p>
-          </div>
-          <div className={`text-center p-2.5 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
-            <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">Til rådighed</p>
-            <p className={`font-display font-bold text-sm ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
-              {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome)} kr.
-            </p>
+              {isPar && (
+                <div className="mt-1.5 pt-1.5 border-t border-primary/10">
+                  <p className="text-[8px] text-muted-foreground mb-0.5">Partner</p>
+                  <EditableAmount
+                    value={profile.partnerIncome}
+                    onChange={(v) => updateField("partnerIncome", v)}
+                    min={INCOME_MAPPINGS.partnerIncome.min}
+                    max={INCOME_MAPPINGS.partnerIncome.max}
+                    step={INCOME_MAPPINGS.partnerIncome.step}
+                    className="font-display font-bold text-sm text-primary/70"
+                  />
+                </div>
+              )}
+              <p className="text-[9px] text-muted-foreground mt-1 tabular-nums">I alt: {formatKr(budget.totalIncome)} kr.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex-1 p-3 rounded-xl bg-muted/50 border border-border/50">
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Udgifter</p>
+                <p className="font-display font-bold text-base text-foreground">{formatKr(budget.totalExpenses)} kr.</p>
+              </div>
+              <div className={`flex-1 p-3 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Til rådighed</p>
+                <p className={`font-display font-bold text-base ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
+                  {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome)} kr.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

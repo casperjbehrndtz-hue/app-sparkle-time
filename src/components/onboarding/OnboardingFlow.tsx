@@ -13,9 +13,10 @@ import {
   BigChoice, BigSlider, ToggleRow, ContinueButton,
 } from "./OnboardingUI";
 import {
-  SUBSCRIPTIONS, FOOD, INSURANCE,
+  SUBSCRIPTIONS, FOOD, INSURANCE, UTILITIES,
   getMortgageEstimate, getRentEstimate, getAndelEstimate,
   getPostalName, getEstimateSource, getPropertyValueEstimate,
+  getChildBenefit,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
