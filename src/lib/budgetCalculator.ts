@@ -68,7 +68,28 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Utilities
+  // Rentefradrag (mortgage interest tax deduction) for homeowners
+  if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
+    // Estimate: ~60% of mortgage payment is interest (varies by loan type/age)
+    const estimatedMonthlyInterest = Math.round(profile.mortgageAmount * 0.6);
+    const monthlyDeduction = Math.round(estimatedMonthlyInterest * TAX_DEDUCTION_RATE);
+    if (monthlyDeduction > 0) {
+      fixedExpenses.push({
+        category: "Bolig",
+        label: `Rentefradrag (−${TAX_DEDUCTION_RATE * 100}%)`,
+        amount: -monthlyDeduction,
+        colorVar: "--kassen-green",
+      });
+    }
+  }
+
+  // Børnepenge displayed as income line
+  if (childBenefitTotal > 0) {
+    // Not added as expense — already added to totalIncome above
+    // We show it in the review/cockpit as part of income breakdown
+  }
+
+
   fixedExpenses.push({
     category: "Forsyning",
     label: "Internet",
