@@ -157,10 +157,10 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
     return () => { clearTimeout(timer); observer.disconnect(); };
   }, [sections]);
 
-  if (showReport) return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => setShowReport(false)} />;
+  if (showReport) return <BudgetReport profile={profile} budget={budget} health={health} onBack={() => { setShowReport(false); window.scrollTo(0, 0); }} />;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-safe">
       <SuiteNav />
 
       {/* Header */}

@@ -18,6 +18,7 @@ const Privatliv = lazy(() => import("./pages/Privatliv"));
 const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Blog = lazy(() => import("./pages/Blog"));
+const Article = lazy(() => import("./pages/Article"));
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => {
                     <Route path="/install" element={<Install />} />
                     <Route path="/login" element={<Auth />} />
                     <Route path="/guides" element={<Blog />} />
+                    <Route path="/guides/:slug" element={<Article />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

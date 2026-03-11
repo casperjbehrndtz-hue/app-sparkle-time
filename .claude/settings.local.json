@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp:*)",
+      "Bash(supabase --version 2>&1 && npx supabase --version 2>&1 | head -2)",
+      "Bash(npm install:*)",
+      "Bash(winget install:*)",
+      "Bash(scoop install:*)",
+      "Bash(npx supabase:*)",
+      "Bash(cd C:/Users/Casper/app-sparkle-time && SUPABASE_ACCESS_TOKEN=sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020 npx supabase link --project-ref xgyhmwjaxmbdiplfjrdq 2>&1)",
+      "Bash(cd C:/Users/Casper/app-sparkle-time && SUPABASE_ACCESS_TOKEN=sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020 npx supabase projects list 2>&1)",
+      "Bash(cd C:/Users/Casper/app-sparkle-time && SUPABASE_ACCESS_TOKEN=sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020 npx supabase link --project-ref gpzuhhfpwokevsljyumt 2>&1)",
+      "Bash(cd C:/Users/Casper/app-sparkle-time && SUPABASE_ACCESS_TOKEN=sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020 npx supabase db push 2>&1)",
+      "Bash(cd C:/Users/Casper/app-sparkle-time && SUPABASE_ACCESS_TOKEN=sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020 npx supabase status 2>&1)",
+      "Bash(curl -s \"https://api.supabase.com/v1/projects/gpzuhhfpwokevsljyumt/api-keys\" -H \"Authorization: Bearer sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020\" 2>&1)",
+      "Bash(curl -s \"https://api.supabase.com/v1/projects/gpzuhhfpwokevsljyumt/secrets\" -H \"Authorization: Bearer sbp_233ee89125a9fc75ffebe5ec5a4f6a989d962020\" 2>&1)",
+      "Bash(claude --dangerously-skip-permissions 2>&1)"
+    ]
+  }
+}
