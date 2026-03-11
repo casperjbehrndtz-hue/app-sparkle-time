@@ -68,28 +68,27 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Rentefradrag (mortgage interest tax deduction) for homeowners
-  if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
-    // Estimate: ~60% of mortgage payment is interest (varies by loan type/age)
-    const estimatedMonthlyInterest = Math.round(profile.mortgageAmount * 0.6);
+  // Rentefradrag (mortgage interest tax deduction) for homeowners and andel with loans
+  if ((profile.housingType === "ejer" || profile.housingType === "andel") && profile.mortgageAmount > 0) {
+    // Use interest rate if available, otherwise estimate ~60% of payment is interest
+    const interestRatePct = profile.interestRate > 0 ? profile.interestRate : 4.0;
+    // Approximate: monthly interest ≈ (outstanding_principal × rate) / 12
+    // Since we only have monthly payment, estimate interest portion based on rate
+    // Higher rates = more interest portion. At 4%, roughly 55-65% of payment is interest.
+    const interestFraction = Math.min(0.85, 0.4 + (interestRatePct * 0.06));
+    const estimatedMonthlyInterest = Math.round(profile.mortgageAmount * interestFraction);
     const monthlyDeduction = Math.round(estimatedMonthlyInterest * TAX_DEDUCTION_RATE);
     if (monthlyDeduction > 0) {
       fixedExpenses.push({
         category: "Bolig",
-        label: `Rentefradrag (−${TAX_DEDUCTION_RATE * 100}%)`,
+        label: `Rentefradrag (−${Math.round(TAX_DEDUCTION_RATE * 100)}%)`,
         amount: -monthlyDeduction,
         colorVar: "--kassen-green",
       });
     }
   }
 
-  // Børnepenge displayed as income line
-  if (childBenefitTotal > 0) {
-    // Not added as expense — already added to totalIncome above
-    // We show it in the review/cockpit as part of income breakdown
-  }
-
-
+  // Utilities — always included
   fixedExpenses.push({
     category: "Forsyning",
     label: "Internet",
@@ -118,6 +117,14 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     category: "Forsyning",
     label: isPar ? "Mobil (2 pers.)" : "Mobil",
     amount: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1),
+    colorVar: "--kassen-blue",
+  });
+
+  // DR medielicens — mandatory for all Danish households
+  fixedExpenses.push({
+    category: "Forsyning",
+    label: "DR (medielicens)",
+    amount: UTILITIES.dr_licens.price,
     colorVar: "--kassen-blue",
   });
 
