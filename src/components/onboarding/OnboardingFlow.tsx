@@ -307,6 +307,25 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
                   </button>
                 )}
+                {/* Show børnepenge info */}
+                {childAgeInputs.length > 0 && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Børnepenge (automatisk medregnet)</p>
+                    {childAgeInputs.map((age, i) => {
+                      const benefit = getChildBenefit(age);
+                      return (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Barn {i + 1} ({age} år)</span>
+                          <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} kr./md.</span>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-sm font-bold">
+                      <span>I alt børnepenge</span>
+                      <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} kr./md.</span>
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             )}
             <ContinueButton onClick={() => {
