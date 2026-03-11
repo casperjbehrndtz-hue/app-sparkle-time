@@ -372,6 +372,31 @@ export function OnboardingFlow({ onComplete }: Props) {
               )}
             </div>
             <div>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Telefon & internet</h3>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">📡</span>
+                    <div>
+                      <span className="text-sm font-medium">Internet</span>
+                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.internet.price} kr./md.</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">📱</span>
+                    <div>
+                      <span className="text-sm font-medium">{isPar ? "Mobil (2 pers.)" : "Mobil"}</span>
+                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.mobile.price_per_person * (isPar ? 2 : 1)} kr./md.</span>
+                </div>
+              </div>
+            </div>
+            <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
               <div className="space-y-1.5">
                 <ToggleRow active={profile.hasInsurance} onClick={() => update({ hasInsurance: !profile.hasInsurance })}
