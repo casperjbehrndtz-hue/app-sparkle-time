@@ -7,7 +7,9 @@ import {
   HEALTH,
   HOMEOWNER_ASSOCIATION,
   PROPERTY_TAX,
+  TAX_DEDUCTION_RATE,
   getChildcarePrice,
+  getChildBenefit,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
 import { frequencyToMonthly, frequencyLabel } from "./types";
@@ -21,7 +23,14 @@ const ANNUAL_KWH_PAR = 3500;
 export function computeBudget(profile: BudgetProfile, marketData?: MarketData | null): ComputedBudget {
   const isPar = profile.householdType === "par";
   const additionalMonthly = (profile.additionalIncome || []).reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
-  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly;
+  
+  // Børnepenge (child benefits) — tax-free income
+  let childBenefitTotal = 0;
+  if (profile.hasChildren && profile.childrenAges.length > 0) {
+    childBenefitTotal = profile.childrenAges.reduce((sum, age) => sum + getChildBenefit(age).monthly, 0);
+  }
+  
+  const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly + childBenefitTotal;
   const fixedExpenses: ExpenseItem[] = [];
   const variableExpenses: ExpenseItem[] = [];
 
@@ -59,7 +68,28 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Utilities
+  // Rentefradrag (mortgage interest tax deduction) for homeowners
+  if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
+    // Estimate: ~60% of mortgage payment is interest (varies by loan type/age)
+    const estimatedMonthlyInterest = Math.round(profile.mortgageAmount * 0.6);
+    const monthlyDeduction = Math.round(estimatedMonthlyInterest * TAX_DEDUCTION_RATE);
+    if (monthlyDeduction > 0) {
+      fixedExpenses.push({
+        category: "Bolig",
+        label: `Rentefradrag (−${TAX_DEDUCTION_RATE * 100}%)`,
+        amount: -monthlyDeduction,
+        colorVar: "--kassen-green",
+      });
+    }
+  }
+
+  // Børnepenge displayed as income line
+  if (childBenefitTotal > 0) {
+    // Not added as expense — already added to totalIncome above
+    // We show it in the review/cockpit as part of income breakdown
+  }
+
+
   fixedExpenses.push({
     category: "Forsyning",
     label: "Internet",

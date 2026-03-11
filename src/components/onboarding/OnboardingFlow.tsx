@@ -13,9 +13,10 @@ import {
   BigChoice, BigSlider, ToggleRow, ContinueButton,
 } from "./OnboardingUI";
 import {
-  SUBSCRIPTIONS, FOOD, INSURANCE,
+  SUBSCRIPTIONS, FOOD, INSURANCE, UTILITIES,
   getMortgageEstimate, getRentEstimate, getAndelEstimate,
   getPostalName, getEstimateSource, getPropertyValueEstimate,
+  getChildBenefit,
 } from "@/data/priceDatabase";
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
@@ -306,6 +307,25 @@ export function OnboardingFlow({ onComplete }: Props) {
                     <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
                   </button>
                 )}
+                {/* Show børnepenge info */}
+                {childAgeInputs.length > 0 && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Børnepenge (automatisk medregnet)</p>
+                    {childAgeInputs.map((age, i) => {
+                      const benefit = getChildBenefit(age);
+                      return (
+                        <div key={i} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Barn {i + 1} ({age} år)</span>
+                          <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} kr./md.</span>
+                        </div>
+                      );
+                    })}
+                    <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-sm font-bold">
+                      <span>I alt børnepenge</span>
+                      <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} kr./md.</span>
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             )}
             <ContinueButton onClick={() => {
@@ -369,6 +389,31 @@ export function OnboardingFlow({ onComplete }: Props) {
                   ))}
                 </motion.div>
               )}
+            </div>
+            <div>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Telefon & internet</h3>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">📡</span>
+                    <div>
+                      <span className="text-sm font-medium">Internet</span>
+                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.internet.price} kr./md.</span>
+                </div>
+                <div className="flex items-center justify-between rounded-2xl border-2 border-primary/20 bg-primary/[0.02] px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">📱</span>
+                    <div>
+                      <span className="text-sm font-medium">{isPar ? "Mobil (2 pers.)" : "Mobil"}</span>
+                      <span className="text-xs text-muted-foreground ml-1.5">(inkluderet)</span>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold tabular-nums">{UTILITIES.mobile.price_per_person * (isPar ? 2 : 1)} kr./md.</span>
+                </div>
+              </div>
             </div>
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>

@@ -99,6 +99,29 @@ export const CHILDCARE = {
   age_15_plus: { label: "Ingen institutionsudgift (15+ år)", price: 0 },
 };
 
+// Børnepenge (børne- og ungeydelse) 2026, kilde: borger.dk / Skattestyrelsen
+// Udbetales kvartalsvis, her omregnet til månedligt beløb
+export const CHILD_BENEFIT = {
+  age_0_2: { label: "Børnepenge (0-2 år)", monthly: 1532 },   // 4.596 kr/kvartal
+  age_3_6: { label: "Børnepenge (3-6 år)", monthly: 1212 },   // 3.636 kr/kvartal
+  age_7_14: { label: "Børnepenge (7-14 år)", monthly: 954 },   // 2.862 kr/kvartal
+  age_15_17: { label: "Børnepenge (15-17 år)", monthly: 954 }, // 2.862 kr/kvartal
+};
+
+export function getChildBenefit(age: number): { label: string; monthly: number } {
+  if (age <= 2) return CHILD_BENEFIT.age_0_2;
+  if (age <= 6) return CHILD_BENEFIT.age_3_6;
+  if (age <= 14) return CHILD_BENEFIT.age_7_14;
+  if (age <= 17) return CHILD_BENEFIT.age_15_17;
+  return { label: "Ingen børnepenge (18+ år)", monthly: 0 };
+}
+
+// Rentefradrag: skatteværdi af renteudgifter (2026)
+// Under bundgrænsen (50.000 single / 100.000 par): ~33,6%
+// Over bundgrænsen: ~25,6%
+// Simplificeret: vi bruger 33% for de fleste
+export const TAX_DEDUCTION_RATE = 0.33;
+
 // Gennemsnitlig månedlig boligydelse (ydelse + bidrag) pr. postnummer
 // Beregnet ud fra typisk belåning (~70-80% af ejendomsværdi), blandet rente ~4%, 30 år
 export const MORTGAGE_ESTIMATES: Record<string, number> = {
