@@ -23,6 +23,7 @@ import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 
 interface Props {
   onComplete: (profile: BudgetProfile) => void;
+  initialProfile?: BudgetProfile;
 }
 
 const defaultProfile: BudgetProfile = {
