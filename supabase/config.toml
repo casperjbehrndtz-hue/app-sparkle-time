@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.crowdsourced-prices]
 verify_jwt = false
+
+[functions.market-data]
+verify_jwt = false
