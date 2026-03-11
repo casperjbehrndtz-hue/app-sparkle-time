@@ -27,3 +27,14 @@ bun.lockb
 *.sln
 *.sw?
 .vercel
+
+# Screenshots & temp analysis files
+*.png
+*.jpg
+*.jpeg
+!public/**
+analysis-screenshots/
+analysis-script*.mjs
+screenshot-roadmap.cjs
+roadmap.html
+vercel-projects.json
