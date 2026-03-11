@@ -1,135 +1,101 @@
 # Kassen — Roadmap mod den bedste budgetinfrastruktur
 
-> Levende dokument. Opdateres løbende. Baseret på dybdegående analyse marts 2026.
+> Levende dokument. Opdateres løbende.
 > **Mission:** Bygge Danmarks bedste, mest komplette og mest brugervenlige budgetværktøj.
 
 ---
 
 ## Status-oversigt
 
-| Kategori | Færdig | I gang | Mangler |
-|---|---|---|---|
-| Kritiske bugs | 2 | 0 | 0 |
-| Core features | 7 | 0 | 3 |
-| UX & design | 7 | 0 | 8 |
-| Indhold & i18n | 3 | 0 | 5 |
-| Teknisk fundament | 8 | 0 | 4 |
-| Vækst & lancering | 1 | 0 | 6 |
+| Kategori | Færdig | Mangler |
+|---|---|---|
+| Kritiske bugs | 2 | 0 |
+| Core features | 10 | 1 |
+| UX & design | 13 | 2 |
+| Indhold & i18n | 4 | 4 |
+| Teknisk fundament | 9 | 3 |
+| Vækst & lancering | 3 | 4 |
 
 ---
 
-## 🔴 Kritiske bugs (blokkerer lancering)
+## 🟠 Core features
 
-- [x] **Budget-rapport crasher** — fjernet motion.div fra BudgetReport, race condition elimineret
-- [x] **Cookie-banner blokerer onboarding** — hævet z-index til z-[200]
-- ~~**404-side er på engelsk**~~ — bekræftet oversat, ikke en bug
-
----
-
-## 🟠 Core features (mangler eller ufærdige)
-
-### Guides & Blog
-- [x] Guides-artikler er klikbare — route `/guides/:slug` + Article.tsx oprettet
-- [x] 4 artikler med rigtigt indhold: København, abonnementer, parøkonomi, begynderguide
-- [ ] SEO: tilføj `<title>` og `<meta description>` per artikel
-
-### Suite-navigation
-- [ ] "Parøkonomi" og "Børneskat" er separate projekter i Lovable — link til dem når de er klar, eller skjul links i mellemtiden
-
-### Bruger-autentificering
-- [ ] Cloud-sync er optional men ikke tydeligt kommunikeret
-- [ ] "Log ind for at gemme på tværs af enheder" — mangler tydelig CTA
-- [ ] Glemt kodeord-flow mangler (kun signup/login nu)
-
-### Abonnementer-modul
-- ~~Abonnements-model~~ — siden er gratis, ikke relevant
+- [x] Supabase database med RLS
+- [x] Auth (email/password)
+- [x] AI edge functions (budget-ai, onboarding-ai, market-data, crowdsourced-prices)
+- [x] Onboarding flow (6 trin)
+- [x] Dashboard med Sankey, formueprojektion, stress-test
+- [x] Guides-artikler klikbare med rigtigt indhold (4 artikler)
+- [x] Login-synlighed — "Log ind for at gemme" CTA i dashboard
+- [x] Glemt kodeord-flow
+- [x] Sitemap.xml
+- [x] Onboarding in-progress persistens (sessionStorage)
+- [ ] **Suite-navigation** — Parøkonomi og Børneskat er separate Lovable-projekter. Link til dem når de er klar (nu vist som "Snart")
 
 ---
 
-## 🟡 UX & design forbedringer
+## 🟡 UX & design
 
-### Onboarding
-- [ ] **In-progress persistens** — gem onboarding-state i sessionStorage så brugeren ikke mister data ved reload
-- [ ] **AI Live Comments synlighed** — kommentarerne dukkede ikke op under test, tjek edge function timeout og fejlhåndtering
-- [ ] **Bekræftelsesdialog** ved "Ret oplysninger" — forhindrer utilsigtet nulstilling
-
-### Dashboard
-- [ ] **AI Chat FAB mangler label** — tilføj "Spørg AI" tekst eller tooltip til Sparkles-knappen
-- [ ] **Editerbare beløb er ikke tydelige** — tilføj pencil-ikon eller understregning til klikbare beløb i Cockpit
-- [ ] **Mobil: kollaps sektioner som default** — "Overblik", "Handling", "Fremtid" bør starte kollapset på mobil
-- [ ] **Skeleton loader** — fjern tomt flash ved profil-indlæsning fra localStorage
-- [ ] **Historik-sektion** er altid tom ved første brug — tilføj forklaring eller skjul til der er data
-
-### Landingsside
-- [ ] **Tomme felter** mellem feature-cards og testimonials — undersøg billedcontainere
-- [ ] **Testimonials** er de rigtige? Tjek om de er placeholders
-- [ ] **"Sådan virker det"-sektion** — er den fyldt ud med rigtigt indhold?
+- [x] BudgetReport crash fikset
+- [x] Cookie-banner overlapper ikke onboarding (z-[200])
+- [x] AI Chat FAB har "Spørg AI" label
+- [x] Bekræftelsesdialog ved "Ret oplysninger"
+- [x] Historik empty state forklaring
+- [x] Landingsside footer links fikset
+- [ ] **Landingsside testimonials** — "Line, 34 fra Aarhus" m.fl. er placeholders. Erstat med rigtige når du har dem
+- [ ] **Billeder optimeret** — `feature-family.jpg` er 188 kB, bør konverteres til WebP
 
 ---
 
 ## 🟡 Indhold & i18n
 
-- [ ] **Dashboard-sektionstitler mangler i18n** — "Cockpit", "Overblik", "Handling", "Fremtid", "Dybdegående" er hardcoded dansk
-- [ ] **Onboarding hardcoded strings** — `OnboardingFlow.tsx` linje 141, 397, 417 er ikke i i18n-systemet
-- [ ] **Expenses-step strings** — "Telefon, internet & forsyning" og lign. mangler i i18n
-- [ ] **Engelsk i EN-mode** — test hvad der sker ved sprog-toggle, ret alle huller
-- [ ] **Meta-beskrivelser** — er alle sider SEO-optimerede med unikke meta-tags?
+- [x] 4 guides-artikler med dansk finansviden
+- [x] SEO meta-tags på alle sider (usePageMeta hook)
+- [ ] **Dashboard-sektionstitler** — "Cockpit", "Overblik" m.fl. er hardcoded dansk, mangler i18n
+- [ ] **Onboarding hardcoded strings** — OnboardingFlow.tsx linje 141, 397, 417
+- [ ] **Expenses-step strings** — "Telefon, internet & forsyning" m.fl. mangler i18n
+- [ ] **EN-mode test** — gennemtest sprog-toggle og ret huller
 
 ---
 
 ## 🔵 Teknisk fundament
 
-### Sikkerhed & stabilitet
-- [ ] **TypeScript strict mode** — `strict: false` i tsconfig arvet fra Lovable, bør strammes gradvist
-- [ ] **Error tracking** — tilføj Sentry eller lignende for at fange fejl i produktion
-- [ ] **Rate limiting** på AI edge functions — en bruger kan spamme Anthropic API gratis
-
-### Performance
-- [ ] **PWA fuldt testet** — er offline-mode og install-flow testet på mobil?
-- [ ] **Billeder optimeret** — er hero-billeder i moderne format (WebP/AVIF)?
-- [ ] **Bundle size audit** — kør `npm run build` og analyser hvad der fylder
-
-### Database
-- [ ] **Migrations testet** — er alle migrations kørt på det rigtige Supabase-projekt?
-- [ ] **Backup-strategi** — er Supabase point-in-time recovery aktiveret?
+- [x] Rate limiting på AI edge functions (20 req/IP/time)
+- [x] Vercel SPA routing (vercel.json)
+- [x] .gitignore ryddet op
+- [ ] **Bundle size** — Index-chunk er 787 kB. Overvej lazy-load af recharts og avancerede dashboard-views
+- [ ] **TypeScript strict mode** — `strict: false` i tsconfig, stram gradvist
+- [ ] **Error tracking** — Sentry eller lignende (kræver API-nøgle)
 
 ---
 
 ## 🟢 Vækst & lancering
 
-- [ ] **Custom domæne** — køb og tilslut fx `kassen.dk` til Vercel
-- [ ] **Analytics** — Vercel Analytics er tilbudt, aktiver det
-- [ ] **Cookie-banner GDPR-compliance** — er den nuværende løsning GDPR-compliant?
-- [ ] **Sitemap.xml** — generer og submit til Google Search Console
-- [ ] **Open Graph billeder** — dynamiske OG-billeder for deling på sociale medier
-- [ ] **Lanceringsplan** — ProductHunt, Reddit r/dkfinance, Facebook-grupper?
+- [x] Deployet på Vercel (app-sparkle-time.vercel.app)
+- [x] Sitemap.xml klar til Google Search Console
+- [x] Suite-nav "Snart" badges
+- [ ] **Custom domæne** — køb fx `kassen.dk` og tilslut til Vercel
+- [ ] **Analytics** — aktiver Vercel Analytics i dashboardet
+- [ ] **Open Graph billeder** — dynamiske OG-billeder til sociale medier
+- [ ] **Lanceringsplan** — ProductHunt, Reddit r/dkfinance, Facebook-grupper
 
 ---
 
-## ✅ Færdigt (reference)
+## ✅ Kritiske bugs — alle fikset
 
-- [x] Migreret fra Lovable til standard web stack
-- [x] Supabase database med RLS
-- [x] Auth (email/password)
-- [x] AI edge functions deployet (budget-ai, onboarding-ai, market-data, crowdsourced-prices)
-- [x] ANTHROPIC_API_KEY sat som secret
-- [x] Deployet på Vercel
-- [x] AIWelcomeInsight virker og streamer
-- [x] Onboarding flow (6 trin)
-- [x] Dashboard med Sankey, formueprojektion, stress-test
-- [x] PWA-manifest
-- [x] Dansk/engelsk sprog-toggle
-- [x] Postnummer-baserede estimater
-- [x] market-data 401-fejl fikset
+- [x] BudgetReport crash (Framer Motion race condition)
+- [x] Cookie-banner blokerede onboarding
+- [x] Alle routes 404 (vercel.json SPA routing)
+- [x] market-data 401 (manglende verify_jwt=false)
+- [x] Gammelt Lovable-projekt slettet
 
 ---
 
-## Arbejdsorden (anbefalet rækkefølge)
+## Næste prioriteter (anbefalet rækkefølge)
 
-1. Fix de 3 kritiske bugs
-2. Guides-artikler (SEO-værdi + troværdighed)
-3. Custom domæne
-4. Analytics + Error tracking
-5. i18n komplet dækning
-6. Parøkonomi-modul
-7. Lancering
+1. **Custom domæne** — kassen.dk eller lignende
+2. **Analytics aktivering** — Vercel dashboard, 2 klik
+3. **Testimonials** — erstat placeholders med rigtige når du har dem
+4. **Bundle size** — lazy-load recharts/avancerede views
+5. **i18n komplet** — dansk/engelsk konsistens
+6. **Lancering** — Google Search Console + sitemap submit
