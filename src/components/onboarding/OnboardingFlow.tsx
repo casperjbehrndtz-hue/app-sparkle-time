@@ -137,7 +137,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">
                 {isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")}
               </h1>
-              <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
+            <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">💡 Indtast løn efter skat (netto — det du får udbetalt)</p>
             </motion.div>
             <BigSlider value={profile.income} onChange={(v) => update({ income: v })}
               label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500} />
