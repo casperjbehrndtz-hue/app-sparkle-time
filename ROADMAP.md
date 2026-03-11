@@ -9,8 +9,8 @@
 
 | Kategori | Færdig | I gang | Mangler |
 |---|---|---|---|
-| Kritiske bugs | 0 | 0 | 3 |
-| Core features | 6 | 0 | 4 |
+| Kritiske bugs | 2 | 0 | 0 |
+| Core features | 7 | 0 | 3 |
 | UX & design | 7 | 0 | 8 |
 | Indhold & i18n | 3 | 0 | 5 |
 | Teknisk fundament | 8 | 0 | 4 |
@@ -20,23 +20,21 @@
 
 ## 🔴 Kritiske bugs (blokkerer lancering)
 
-- [ ] **Budget-rapport crasher** — `NotFoundError: insertBefore` race condition mellem Framer Motion og React DOM i `BudgetReport.tsx`
-- [ ] **Cookie-banner blokerer onboarding** — fixed banner overlapper "Fortsæt"-knapper. Fix: `padding-bottom` på onboarding-container eller højere `z-index` hierarki
-- [ ] **404-side er på engelsk** — `src/pages/NotFound.tsx` bruger engelske strings. Oversæt til dansk
+- [x] **Budget-rapport crasher** — fjernet motion.div fra BudgetReport, race condition elimineret
+- [x] **Cookie-banner blokerer onboarding** — hævet z-index til z-[200]
+- ~~**404-side er på engelsk**~~ — bekræftet oversat, ikke en bug
 
 ---
 
 ## 🟠 Core features (mangler eller ufærdige)
 
 ### Guides & Blog
-- [ ] Guides-artikler er ikke klikbare — 4 placeholder-kort uden indhold
-- [ ] Skriv minimum 3 rigtige artikler: "Sådan læser du dit rådighedsbeløb", "De 5 største udgiftsfælder", "Opsparing for begyndere"
-- [ ] SEO-optimerede artikler med dansk finansviden
+- [x] Guides-artikler er klikbare — route `/guides/:slug` + Article.tsx oprettet
+- [x] 4 artikler med rigtigt indhold: København, abonnementer, parøkonomi, begynderguide
+- [ ] SEO: tilføj `<title>` og `<meta description>` per artikel
 
 ### Suite-navigation
-- [ ] "Parøkonomi"-modul — vises i nav men ikke implementeret
-- [ ] "Børneskat"-modul — vises i nav men ikke implementeret
-- [ ] Beslut: bygge dem eller skjule dem indtil klar
+- [ ] "Parøkonomi" og "Børneskat" er separate projekter i Lovable — link til dem når de er klar, eller skjul links i mellemtiden
 
 ### Bruger-autentificering
 - [ ] Cloud-sync er optional men ikke tydeligt kommunikeret
@@ -44,8 +42,7 @@
 - [ ] Glemt kodeord-flow mangler (kun signup/login nu)
 
 ### Abonnementer-modul
-- [ ] `subscriptions`-tabel er i databasen men UI er ikke fuldt implementeret
-- [ ] Tilbagevendende udgifter burde synkronisere med onboarding-udgifter
+- ~~Abonnements-model~~ — siden er gratis, ikke relevant
 
 ---
 
