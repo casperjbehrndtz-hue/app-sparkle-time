@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, FileText, BarChart3, LogIn, LogOut, ChevronDown } from "lucide-react";
+import { Pencil, FileText, LogIn, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -12,9 +12,6 @@ import { FremadView } from "./FremadView";
 import { InlineChartsSection } from "./InlineChartsSection";
 import { AIChatPanel } from "./AIChatPanel";
 import { BudgetReport } from "./BudgetReport";
-import { ChartsView } from "./ChartsView";
-import { ShareCard } from "./ShareCard";
-import { ConfettiEffect } from "./ConfettiEffect";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
@@ -37,6 +34,7 @@ interface Props {
   optimizations: OptimizingAction[];
   onReset: () => void;
   onProfileChange: (profile: BudgetProfile) => void;
+  onEditProfile: () => void;
 }
 
 // ─── Scroll section wrapper ──────────────────────────────
