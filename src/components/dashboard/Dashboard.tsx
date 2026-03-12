@@ -11,6 +11,7 @@ import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
 import { InlineChartsSection } from "./InlineChartsSection";
 import { AIChatPanel } from "./AIChatPanel";
+import { ProfileEditSheet } from "./ProfileEditSheet";
 import { BudgetReport } from "./BudgetReport";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -136,6 +137,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const { t } = useI18n();
   const { user, signOut } = useAuth();
   const [showReport, setShowReport] = useState(false);
+  const [showEditSheet, setShowEditSheet] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
 
   const health = useMemo(() => calculateHealth(profile, budget), [profile, budget]);
@@ -181,7 +183,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           <div className="flex items-center gap-0.5 sm:gap-1">
             <LanguageToggle />
             <DarkModeToggle />
-            <button onClick={onEditProfile}
+            <button onClick={() => setShowEditSheet(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold">
               <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.editInfo")}</span>
             </button>
@@ -311,6 +313,12 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
       <AppFooter />
       <AIChatPanel profile={profile} budget={budget} />
+      <ProfileEditSheet
+        open={showEditSheet}
+        onClose={() => setShowEditSheet(false)}
+        profile={profile}
+        onSave={onProfileChange}
+      />
     </div>
   );
 }

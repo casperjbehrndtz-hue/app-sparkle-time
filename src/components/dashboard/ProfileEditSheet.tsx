@@ -1,0 +1,247 @@
+import { useState } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import type { BudgetProfile } from "@/lib/types";
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  profile: BudgetProfile;
+  onSave: (updated: BudgetProfile) => void;
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-border/40 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-1">{children}</div>
+    </div>
+  );
+}
+
+function NumberInput({ value, onChange, suffix = "kr.", min = 0, step = 500 }: {
+  value: number; onChange: (v: number) => void; suffix?: string; min?: number; step?: number;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        type="number"
+        value={value}
+        min={min}
+        step={step}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-24 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40"
+      />
+      <span className="text-xs text-muted-foreground">{suffix}</span>
+    </div>
+  );
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`w-10 h-6 rounded-full transition-colors relative ${checked ? "bg-primary" : "bg-muted"}`}
+    >
+      <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "left-5" : "left-1"}`} />
+    </button>
+  );
+}
+
+export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
+  const [p, setP] = useState<BudgetProfile>({ ...profile });
+  const set = <K extends keyof BudgetProfile>(key: K, value: BudgetProfile[K]) =>
+    setP(prev => ({ ...prev, [key]: value }));
+
+  const handleSave = () => {
+    onSave(p);
+    onClose();
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader className="mb-4">
+          <SheetTitle className="font-display">Ret dine oplysninger</SheetTitle>
+        </SheetHeader>
+
+        <div className="space-y-5 pb-24">
+
+          {/* ── Husstand & Indkomst ─────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Husstand & Indkomst</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              <Field label="Husstandstype">
+                <select
+                  value={p.householdType}
+                  onChange={(e) => set("householdType", e.target.value as BudgetProfile["householdType"])}
+                  className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
+                >
+                  <option value="solo">Enlig</option>
+                  <option value="par">Par</option>
+                </select>
+              </Field>
+              <Field label="Din indkomst (netto)">
+                <NumberInput value={p.income} onChange={(v) => set("income", v)} />
+              </Field>
+              {p.householdType === "par" && (
+                <Field label="Partners indkomst (netto)">
+                  <NumberInput value={p.partnerIncome} onChange={(v) => set("partnerIncome", v)} />
+                </Field>
+              )}
+              <Field label="Postnummer">
+                <input
+                  type="text"
+                  value={p.postalCode}
+                  maxLength={4}
+                  onChange={(e) => set("postalCode", e.target.value)}
+                  className="w-20 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40"
+                />
+              </Field>
+            </div>
+          </section>
+
+          {/* ── Bolig ───────────────────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Bolig</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              <Field label="Boligtype">
+                <select
+                  value={p.housingType}
+                  onChange={(e) => set("housingType", e.target.value as BudgetProfile["housingType"])}
+                  className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
+                >
+                  <option value="leje">Leje</option>
+                  <option value="ejer">Ejer</option>
+                  <option value="andel">Andel</option>
+                  <option value="ungdomsbolig">Ungdomsbolig</option>
+                </select>
+              </Field>
+              {(p.housingType === "leje" || p.housingType === "andel" || p.housingType === "ungdomsbolig") && (
+                <Field label="Husleje/ydelse">
+                  <NumberInput value={p.rentAmount} onChange={(v) => set("rentAmount", v)} />
+                </Field>
+              )}
+              {p.housingType === "ejer" && (
+                <>
+                  <Field label="Månedlig boligydelse">
+                    <NumberInput value={p.mortgageAmount} onChange={(v) => set("mortgageAmount", v)} />
+                  </Field>
+                  <Field label="Rente (%)">
+                    <NumberInput value={p.interestRate} onChange={(v) => set("interestRate", v)} suffix="%" step={0.1} min={0} />
+                  </Field>
+                </>
+              )}
+            </div>
+          </section>
+
+          {/* ── Forbrug ─────────────────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Forbrug</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              <Field label="Mad & dagligvarer">
+                <NumberInput value={p.foodAmount} onChange={(v) => set("foodAmount", v)} />
+              </Field>
+              <Field label="Restauranter & takeaway">
+                <NumberInput value={p.restaurantAmount} onChange={(v) => set("restaurantAmount", v)} />
+              </Field>
+              <Field label="Fritid & oplevelser">
+                <NumberInput value={p.leisureAmount} onChange={(v) => set("leisureAmount", v)} />
+              </Field>
+              <Field label="Tøj & sko">
+                <NumberInput value={p.clothingAmount} onChange={(v) => set("clothingAmount", v)} />
+              </Field>
+              <Field label="Sundhed & medicin">
+                <NumberInput value={p.healthAmount} onChange={(v) => set("healthAmount", v)} />
+              </Field>
+            </div>
+          </section>
+
+          {/* ── Transport ───────────────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Transport</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              <Field label="Har bil">
+                <Toggle checked={p.hasCar} onChange={(v) => set("hasCar", v)} />
+              </Field>
+              {p.hasCar && (
+                <>
+                  <Field label="Billån (md.)">
+                    <NumberInput value={p.carLoan} onChange={(v) => set("carLoan", v)} />
+                  </Field>
+                  <Field label="Benzin/el (md.)">
+                    <NumberInput value={p.carFuel} onChange={(v) => set("carFuel", v)} />
+                  </Field>
+                  <Field label="Bilforsikring (md.)">
+                    <NumberInput value={p.carInsurance} onChange={(v) => set("carInsurance", v)} />
+                  </Field>
+                </>
+              )}
+            </div>
+          </section>
+
+          {/* ── Abonnementer ────────────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Abonnementer</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              {([
+                ["Netflix (149 kr.)", "hasNetflix"],
+                ["Spotify (109 kr.)", "hasSpotify"],
+                ["HBO Max (99 kr.)", "hasHBO"],
+                ["Viaplay (99 kr.)", "hasViaplay"],
+                ["Disney+ (99 kr.)", "hasDisney"],
+                ["Apple TV+ (59 kr.)", "hasAppleTV"],
+                ["Amazon Prime (89 kr.)", "hasAmazonPrime"],
+              ] as [string, keyof BudgetProfile][]).map(([label, key]) => (
+                <Field key={key} label={label}>
+                  <Toggle checked={!!p[key]} onChange={(v) => set(key, v as never)} />
+                </Field>
+              ))}
+            </div>
+          </section>
+
+          {/* ── Lån & Opsparing ─────────────────────────────────────────── */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Lån & Opsparing</h3>
+            <div className="rounded-xl border border-border/60 px-4">
+              <Field label="Har lån">
+                <Toggle checked={p.hasLoan} onChange={(v) => set("hasLoan", v)} />
+              </Field>
+              {p.hasLoan && (
+                <Field label="Lånebetaling (md.)">
+                  <NumberInput value={p.loanAmount} onChange={(v) => set("loanAmount", v)} />
+                </Field>
+              )}
+              <Field label="Sparer op">
+                <Toggle checked={p.hasSavings} onChange={(v) => set("hasSavings", v)} />
+              </Field>
+              {p.hasSavings && (
+                <Field label="Opsparing (md.)">
+                  <NumberInput value={p.savingsAmount} onChange={(v) => set("savingsAmount", v)} />
+                </Field>
+              )}
+              <Field label="Forsikringer">
+                <Toggle checked={p.hasInsurance} onChange={(v) => set("hasInsurance", v)} />
+              </Field>
+              {p.hasInsurance && (
+                <Field label="Forsikring (md.)">
+                  <NumberInput value={p.insuranceAmount} onChange={(v) => set("insuranceAmount", v)} />
+                </Field>
+              )}
+            </div>
+          </section>
+        </div>
+
+        {/* Sticky save button */}
+        <div className="fixed bottom-0 right-0 w-full sm:max-w-md px-6 py-4 bg-background border-t border-border">
+          <button
+            onClick={handleSave}
+            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all"
+          >
+            Gem ændringer
+          </button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
