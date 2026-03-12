@@ -1,26 +1,23 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const cors = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
   // Auth: only cron can trigger this
   const cronSecret = Deno.env.get("CRON_SECRET");
   if (req.headers.get("Authorization") !== `Bearer ${cronSecret}`) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 401, headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) {
     return new Response(JSON.stringify({ error: "No Resend key configured" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
@@ -32,7 +29,7 @@ serve(async (req) => {
   // Get all users who haven't been emailed this month
   const month = new Date().toISOString().slice(0, 7); // "2026-03"
   const { data: users } = await supabase.auth.admin.listUsers();
-  if (!users) return new Response(JSON.stringify({ sent: 0 }), { headers: corsHeaders });
+  if (!users) return new Response(JSON.stringify({ sent: 0 }), { headers: cors });
 
   // Check which users have a saved budget (cloud_profiles table)
   const { data: profiles } = await supabase
@@ -106,6 +103,6 @@ serve(async (req) => {
 
   console.log(`Monthly reminder: sent ${sent} emails for ${month}`);
   return new Response(JSON.stringify({ sent, month }), {
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 });

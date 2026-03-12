@@ -1,8 +1,4 @@
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ─── Municipality name → postal code mapping ──────────────
 const MUNICIPALITY_TO_POSTAL: Record<string, string> = {
@@ -182,8 +178,9 @@ async function fetchMortgageRate(): Promise<number> {
 
 // ─── Main handler ──────────────────────────────────────────
 Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
@@ -202,7 +199,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify(result), {
       headers: {
-        ...corsHeaders,
+        ...cors,
         "Content-Type": "application/json",
         "Cache-Control": "public, max-age=3600",
       },
@@ -211,7 +208,7 @@ Deno.serve(async (req) => {
     console.error("market-data error:", err);
     return new Response(
       JSON.stringify({ error: "Failed to fetch market data" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });

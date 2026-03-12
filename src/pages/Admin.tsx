@@ -5,8 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-// Admin emails that are allowed to use this page
-const ADMIN_EMAILS = ["casperjunker@hotmail.com"];
+// Admin emails — set VITE_ADMIN_EMAILS in .env (comma-separated)
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS as string ?? "")
+  .split(",").map((e: string) => e.trim().toLowerCase()).filter(Boolean);
 
 type Draft = {
   id: string;

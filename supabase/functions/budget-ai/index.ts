@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getCorsHeaders, validateMessages } from "../_shared/cors.ts";
 
 // ─── Simple in-memory rate limiter: max 20 requests per IP per hour ───
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -24,12 +25,6 @@ setInterval(() => {
     if (now > entry.resetAt) rateLimitMap.delete(ip);
   }
 }, 10 * 60 * 1000);
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
 
 // Transform Anthropic SSE → OpenAI-compatible SSE so the client (useAIStream.ts) needs no changes.
 function anthropicToOpenAIStream(anthropicStream: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
@@ -65,8 +60,9 @@ function anthropicToOpenAIStream(anthropicStream: ReadableStream<Uint8Array>): R
 }
 
 serve(async (req) => {
+  const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
@@ -75,12 +71,13 @@ serve(async (req) => {
       || "unknown";
     if (!checkRateLimit(clientIP)) {
       return new Response(JSON.stringify({ error: "For mange forespørgsler. Prøv igen om lidt." }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429, headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
     const body = await req.json();
-    const { profile, budget, mode, messages: chatMessages } = body;
+    const { profile, budget, mode, messages: rawMessages } = body;
+    const chatMessages = validateMessages(rawMessages ?? []);
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
@@ -162,28 +159,28 @@ Besvar brugerens spørgsmål baseret på deres konkrete økonomi.`;
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "For mange forespørgsler. Prøv igen om lidt." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 429, headers: { ...cors, "Content-Type": "application/json" },
         });
       }
       if (response.status === 529) {
         return new Response(JSON.stringify({ error: "AI er overbelastet. Prøv igen om lidt." }), {
-          status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 503, headers: { ...cors, "Content-Type": "application/json" },
         });
       }
       const t = await response.text();
       console.error("Anthropic error:", response.status, t);
       return new Response(JSON.stringify({ error: "AI-fejl. Prøv igen." }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500, headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
     return new Response(anthropicToOpenAIStream(response.body!), {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+      headers: { ...cors, "Content-Type": "text/event-stream", "Vary": "Origin" },
     });
   } catch (e) {
     console.error("budget-ai error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Ukendt fejl" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 });

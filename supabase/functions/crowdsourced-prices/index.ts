@@ -1,14 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+import { getCorsHeaders, isValidPostalCode } from "../_shared/cors.ts";
 
 Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   const supabase = createClient(
@@ -35,7 +31,7 @@ Deno.serve(async (req) => {
       if (error) throw error;
 
       return new Response(JSON.stringify({ averages: data }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
@@ -46,7 +42,7 @@ Deno.serve(async (req) => {
       if (!Array.isArray(observations) || observations.length === 0) {
         return new Response(
           JSON.stringify({ error: "observations array required" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
         );
       }
 
@@ -62,7 +58,7 @@ Deno.serve(async (req) => {
         )
         .map((o: any) => ({
           category: String(o.category).slice(0, 50),
-          postal_code: o.postal_code ? String(o.postal_code).slice(0, 10) : null,
+          postal_code: isValidPostalCode(o.postal_code) ? String(o.postal_code) : null,
           household_type: String(o.household_type).slice(0, 10),
           amount: Math.round(o.amount),
         }));
@@ -70,7 +66,7 @@ Deno.serve(async (req) => {
       if (valid.length === 0) {
         return new Response(
           JSON.stringify({ error: "no valid observations" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
         );
       }
 
@@ -82,18 +78,18 @@ Deno.serve(async (req) => {
 
       return new Response(
         JSON.stringify({ submitted: valid.length }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     return new Response("Method not allowed", {
       status: 405,
-      headers: corsHeaders,
+      headers: cors,
     });
   } catch (err) {
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });

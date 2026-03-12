@@ -1,10 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ─── Topic seed list ──────────────────────────────────────────────────────────
 const TOPICS = [
@@ -123,7 +119,8 @@ function estimateReadTime(content: string): string {
 }
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const cors = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
   // ─── Auth ─────────────────────────────────────────────────────────────────
   const cronSecret = Deno.env.get("CRON_SECRET");
@@ -131,7 +128,7 @@ serve(async (req) => {
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
@@ -144,7 +141,7 @@ serve(async (req) => {
   if (!anthropicKey) {
     return new Response(JSON.stringify({ error: "No Anthropic key" }), {
       status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
@@ -163,7 +160,7 @@ serve(async (req) => {
     const topic = TOPICS.find(t => !used.has(t.slug));
     if (!topic) {
       return new Response(JSON.stringify({ message: "All topics used" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
@@ -285,14 +282,14 @@ Samlet længde: 900-1200 ord. Start direkte med ## — ingen titel øverst.`;
 
     return new Response(
       JSON.stringify({ success: true, draft_id: draft.id, title: topic.title }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...cors, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
     console.error("generate-article error:", err);
     return new Response(
       JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });

@@ -4,8 +4,6 @@ import { Users, MessageSquare, TrendingUp, Activity, FileText, ArrowUpRight, Loa
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 
-type EventRow = { event_type: string; created_at: string; session_id: string };
-
 type Stats = {
   totalSessions: number;
   onboardingCompletes: number;
@@ -62,45 +60,29 @@ export default function Partner() {
 
     setBrandKey(data.brand_key);
     setPartnerName(data.name);
-    setStats(computeStats(data.events));
-    setLoading(false);
-  }
 
-  function computeStats(events: EventRow[]): Stats {
-    const sessions = new Set(events.map(e => e.session_id)).size;
-    const starts = events.filter(e => e.event_type === "onboarding_start").length;
-    const completes = events.filter(e => e.event_type === "onboarding_complete").length;
-    const aiMsgs = events.filter(e => e.event_type === "ai_message_sent").length;
-    const reports = events.filter(e => e.event_type === "report_generated").length;
-
-    // Daily active last 30 days
-    const daily: Record<string, Set<string>> = {};
-    events.forEach(e => {
-      const d = e.created_at.slice(0, 10);
-      if (!daily[d]) daily[d] = new Set();
-      daily[d].add(e.session_id);
-    });
-    const dailyActive = Object.entries(daily)
+    // API returns pre-aggregated data — build Stats from server response
+    const ec: Record<string, number> = data.event_counts ?? {};
+    const dc: Record<string, number> = data.daily_counts ?? {};
+    const starts = ec["onboarding_start"] ?? 0;
+    const completes = ec["onboarding_complete"] ?? 0;
+    const dailyActive = Object.entries(dc)
       .sort(([a], [b]) => a.localeCompare(b))
-      .slice(-30)
-      .map(([date, s]) => ({ date, count: s.size }));
-
-    // Event breakdown
-    const eventCounts: Record<string, number> = {};
-    events.forEach(e => { eventCounts[e.event_type] = (eventCounts[e.event_type] ?? 0) + 1; });
-    const topEvents = Object.entries(eventCounts)
+      .map(([date, count]) => ({ date, count }));
+    const topEvents = Object.entries(ec)
       .sort(([, a], [, b]) => b - a)
       .map(([event, count]) => ({ event, count }));
 
-    return {
-      totalSessions: sessions,
+    setStats({
+      totalSessions: data.unique_sessions ?? 0,
       onboardingCompletes: completes,
-      aiInteractions: aiMsgs,
-      reportsGenerated: reports,
+      aiInteractions: ec["ai_message_sent"] ?? 0,
+      reportsGenerated: ec["report_generated"] ?? 0,
       dailyActive,
       topEvents,
       conversionRate: starts > 0 ? Math.round((completes / starts) * 100) : 0,
-    };
+    });
+    setLoading(false);
   }
 
   const embedCode = brandKey ? `<iframe
@@ -108,8 +90,10 @@ export default function Partner() {
   width="100%"
   height="720"
   frameborder="0"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
   style="border-radius:16px;border:1px solid #e5e5e5;"
   title="Finansiel overblik"
+  loading="lazy"
 ></iframe>` : "";
 
   if (loading) return (
