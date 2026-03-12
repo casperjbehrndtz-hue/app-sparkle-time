@@ -54,10 +54,6 @@ export default function Auth() {
       return;
     }
 
-    if (!isLogin) {
-      toast({ title: "Tjek din e-mail", description: "Vi har sendt et bekræftelseslink." });
-      return;
-    }
     navigate("/");
   };
 
