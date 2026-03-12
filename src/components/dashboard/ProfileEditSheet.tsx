@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
 import type { BudgetProfile } from "@/lib/types";
 
 interface Props {
@@ -18,8 +19,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function NumberInput({ value, onChange, suffix = "kr.", min = 0, step = 500 }: {
-  value: number; onChange: (v: number) => void; suffix?: string; min?: number; step?: number;
+function NumberInput({ value, onChange, suffix = "kr.", min = 0, step = 500, label }: {
+  value: number; onChange: (v: number) => void; suffix?: string; min?: number; step?: number; label?: string;
 }) {
   return (
     <div className="flex items-center gap-1">
@@ -28,20 +29,24 @@ function NumberInput({ value, onChange, suffix = "kr.", min = 0, step = 500 }: {
         value={value}
         min={min}
         step={step}
+        aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-24 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40"
+        className="w-24 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40"
       />
       <span className="text-xs text-muted-foreground">{suffix}</span>
     </div>
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`w-10 h-6 rounded-full transition-colors relative ${checked ? "bg-primary" : "bg-muted"}`}
+      className={`w-10 h-6 rounded-full transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${checked ? "bg-primary" : "bg-muted"}`}
     >
       <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "left-5" : "left-1"}`} />
     </button>
@@ -49,13 +54,20 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
+  const { toast } = useToast();
   const [p, setP] = useState<BudgetProfile>({ ...profile });
   const set = <K extends keyof BudgetProfile>(key: K, value: BudgetProfile[K]) =>
     setP(prev => ({ ...prev, [key]: value }));
 
+  // Sync state when sheet opens with latest profile
+  useEffect(() => {
+    if (open) setP({ ...profile });
+  }, [open]);
+
   const handleSave = () => {
     onSave(p);
     onClose();
+    toast({ title: "Ændringer gemt", description: "Dit budget er opdateret." });
   };
 
   return (

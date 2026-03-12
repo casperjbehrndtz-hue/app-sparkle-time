@@ -75,21 +75,31 @@ function StorySection({ id, title, subtitle, children, delay = 0 }: {
 // ─── Section nav ─────────────────────────────────────
 function SectionNav({ sections, activeSection }: { sections: { id: string; label: string; emoji: string }[]; activeSection: string }) {
   return (
-    <div className="sticky top-[57px] z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 overflow-x-auto scrollbar-hide">
-      <div className="max-w-2xl mx-auto px-5 py-2 flex gap-1">
-        {sections.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-              activeSection === s.id
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <span>{s.emoji}</span> {s.label}
-          </button>
-        ))}
+    <div className="sticky top-[57px] z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <div className="relative">
+        {/* Fade-out gradients to hint at overflow */}
+        <div className="pointer-events-none absolute left-0 inset-y-0 w-6 bg-gradient-to-r from-background/80 to-transparent z-10" />
+        <div className="pointer-events-none absolute right-0 inset-y-0 w-6 bg-gradient-to-l from-background/80 to-transparent z-10" />
+        <div
+          className="max-w-2xl mx-auto px-5 py-2 flex gap-1 overflow-x-auto scrollbar-hide"
+          role="navigation"
+          aria-label="Sektionstabs"
+        >
+          {sections.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              aria-current={activeSection === s.id ? "true" : undefined}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                activeSection === s.id
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <span aria-hidden="true">{s.emoji}</span> {s.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -83,18 +83,22 @@ export function LiveBudgetBar({ income, expenses, step }: { income: number; expe
 export function StepIndicator({ step }: { step: OnboardingStep }) {
   const idx = getStepIndex(step);
   if (idx <= 0) return null;
+  const totalSteps = STEPS.length - 1; // exclude welcome
   return (
-    <div className="flex items-center gap-2">
-      {STEPS.slice(1).map((s, i) => (
-        <motion.div
-          key={s}
-          className={`h-1 rounded-full transition-colors duration-300 ${
-            i < idx ? "bg-primary" : i === idx ? "bg-primary" : "bg-border"
-          }`}
-          animate={{ width: i === idx ? 24 : i < idx ? 16 : 8 }}
-          transition={{ duration: 0.3 }}
-        />
-      ))}
+    <div className="flex flex-col items-center gap-1.5" aria-label={`Trin ${idx} af ${totalSteps}`}>
+      <div className="flex items-center gap-2">
+        {STEPS.slice(1).map((s, i) => (
+          <motion.div
+            key={s}
+            className={`h-1 rounded-full transition-colors duration-300 ${
+              i < idx ? "bg-primary" : i === idx ? "bg-primary" : "bg-border"
+            }`}
+            animate={{ width: i === idx ? 24 : i < idx ? 16 : 8 }}
+            transition={{ duration: 0.3 }}
+          />
+        ))}
+      </div>
+      <span className="text-[10px] text-muted-foreground/60 tabular-nums">{idx}/{totalSteps}</span>
     </div>
   );
 }
@@ -108,7 +112,10 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`relative p-6 sm:p-8 rounded-2xl border-2 text-center transition-all duration-300 ${
+      role="radio"
+      aria-checked={active}
+      aria-label={label}
+      className={`relative p-6 sm:p-8 rounded-2xl border-2 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
         active
           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
           : "border-border hover:border-primary/30 hover:shadow-md"
@@ -224,7 +231,7 @@ export function ContinueButton({ onClick, disabled, label = "Fortsæt" }: { onCl
       whileTap={{ scale: 0.99 }}
       onClick={onClick}
       disabled={disabled}
-      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {label} <ArrowRight className="w-4 h-4" />
     </motion.button>

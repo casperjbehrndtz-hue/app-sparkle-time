@@ -20,7 +20,7 @@
     --secondary-foreground: 216 50% 25%;
 
     --muted: 150 8% 96%;
-    --muted-foreground: 160 5% 50%;
+    --muted-foreground: 160 5% 40%; /* Darkened for WCAG AA contrast on white */
 
     --accent: 216 20% 96%;
     --accent-foreground: 216 50% 25%;
@@ -287,6 +287,26 @@ input[type="range"]::-moz-range-thumb {
   .premium-card:active {
     transform: scale(0.97);
     transition-duration: 0.1s;
+  }
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .glow-ring {
+    animation: none;
+  }
+  .shimmer-bg {
+    animation: none;
+    background: hsl(var(--primary) / 0.04);
+  }
+  .premium-card {
+    transition: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -48,20 +48,20 @@ const ONBOARDING_SESSION_KEY = "kassen_onboarding_wip";
 
 function saveOnboardingState(step: OnboardingStep, profile: BudgetProfile, childAgeInputs: number[]) {
   try {
-    sessionStorage.setItem(ONBOARDING_SESSION_KEY, JSON.stringify({ step, profile, childAgeInputs }));
+    localStorage.setItem(ONBOARDING_SESSION_KEY, JSON.stringify({ step, profile, childAgeInputs }));
   } catch { /* ignore quota errors */ }
 }
 
 function loadOnboardingState(): { step: OnboardingStep; profile: BudgetProfile; childAgeInputs: number[] } | null {
   try {
-    const saved = sessionStorage.getItem(ONBOARDING_SESSION_KEY);
+    const saved = localStorage.getItem(ONBOARDING_SESSION_KEY);
     if (saved) return JSON.parse(saved);
   } catch { /* ignore */ }
   return null;
 }
 
 function clearOnboardingState() {
-  try { sessionStorage.removeItem(ONBOARDING_SESSION_KEY); } catch { /* ignore */ }
+  try { localStorage.removeItem(ONBOARDING_SESSION_KEY); } catch { /* ignore */ }
 }
 
 export function OnboardingFlow({ onComplete, initialProfile }: Props) {
@@ -626,7 +626,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
         </div>
       </header>
-      <div ref={contentRef} className="flex-1 px-5 py-8 overflow-y-auto" style={{ paddingBottom: liveBudget ? "5rem" : "2rem" }}>
+      <div ref={contentRef} className="flex-1 px-5 py-8 overflow-y-auto" style={{ paddingBottom: liveBudget ? "7rem" : "2rem" }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div key={step} custom={direction} variants={pageVariants} initial="enter" animate="center" exit="exit">
             {renderStepContent()}

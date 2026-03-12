@@ -82,8 +82,8 @@ export function WelcomePage({ onStart }: Props) {
           <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto">
             {config.hero.stats.map((stat) => (
               <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
-                <div className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-foreground">{stat.value}</div>
-                <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                <div className="font-display font-bold text-3xl sm:text-4xl md:text-5xl text-foreground">{stat.value}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1.5">{stat.label}</div>
               </motion.div>
             ))}
           </div>

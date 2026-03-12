@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, CheckCircle2 } from "lucide-react";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 
@@ -39,6 +39,17 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
           = <strong className="text-foreground">{formatKr(totalSavings * 12)} kr./år</strong> ved at følge planen
         </p>
       </motion.div>
+
+      {/* Empty state */}
+      {optimizations.length === 0 && (
+        <motion.div variants={fadeUp(1)} initial="hidden" animate="visible"
+          className="rounded-2xl border border-border bg-card p-8 text-center"
+        >
+          <CheckCircle2 className="w-10 h-10 text-primary/40 mx-auto mb-3" />
+          <p className="font-semibold text-foreground mb-1">Din økonomi ser stærk ud</p>
+          <p className="text-sm text-muted-foreground">Vi fandt ingen åbenlyse besparelser — godt gået!</p>
+        </motion.div>
+      )}
 
       {/* Actions */}
       <div className="space-y-3">

@@ -28,10 +28,10 @@ const BUCKET_COLORS = {
 };
 
 const BUCKET_LABELS = {
-  drift: { label: "Drift", emoji: "⚙️" },
-  frihed: { label: "Frihed", emoji: "✨" },
-  fremtid: { label: "Fremtid", emoji: "📈" },
-  risiko: { label: "Risiko", emoji: "🛡️" },
+  drift: { label: "Drift", emoji: "⚙️", tip: "Faste udgifter: bolig, mad, transport, forsikring" },
+  frihed: { label: "Frihed", emoji: "✨", tip: "Til overs efter faste udgifter — dit rådighedsbeløb" },
+  fremtid: { label: "Fremtid", emoji: "📈", tip: "Opsparing og pensionsbidrag" },
+  risiko: { label: "Risiko", emoji: "🛡️", tip: "Gæld og varierende udgifter" },
 };
 
 const FLOW_COLORS: Record<string, string> = {
@@ -183,22 +183,25 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
 
       {/* ── Alerts ── */}
       {alerts.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5" role="list" aria-label="Advarsler">
           {alerts.map((alert, i) => (
             <motion.div
               key={i}
+              role="listitem"
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06 }}
-              className={`rounded-xl p-3 flex items-center gap-2.5 border text-xs ${
-                alert.level === "critical" ? "bg-destructive/5 border-destructive/20 text-destructive"
-                : alert.level === "warning" ? "bg-kassen-gold/5 border-kassen-gold/20 text-kassen-gold"
-                : "bg-primary/5 border-primary/20 text-primary"
+              className={`rounded-xl p-3 flex items-center gap-2.5 border-l-4 border text-xs ${
+                alert.level === "critical"
+                  ? "bg-destructive/5 border-l-destructive border-destructive/20 text-destructive"
+                  : alert.level === "warning"
+                  ? "bg-kassen-gold/5 border-l-kassen-gold border-kassen-gold/20 text-kassen-gold"
+                  : "bg-primary/5 border-l-primary border-primary/20 text-primary"
               }`}
             >
-              {alert.level === "critical" ? <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-                : alert.level === "warning" ? <Zap className="w-3.5 h-3.5 flex-shrink-0" />
-                : <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" />}
+              {alert.level === "critical" ? <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" aria-label="Kritisk" />
+                : alert.level === "warning" ? <Zap className="w-3.5 h-3.5 flex-shrink-0" aria-label="Advarsel" />
+                : <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" aria-label="Indsigt" />}
               <span className="font-medium">{alert.message}</span>
             </motion.div>
           ))}
@@ -342,8 +345,8 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
             const info = BUCKET_LABELS[key];
             const pct = totalBuckets > 0 ? Math.round((val / totalBuckets) * 100) : 0;
             return (
-              <div key={key} className="text-center">
-                <span className="text-[10px] font-medium">{info.emoji} {info.label}</span>
+              <div key={key} className="text-center" title={info.tip}>
+                <span className="text-[10px] font-medium" aria-hidden="true">{info.emoji} {info.label}</span>
                 <p className="font-display font-bold text-xs tabular-nums">{pct}%</p>
                 <p className="text-[9px] text-muted-foreground">{formatKr(val)}</p>
               </div>
