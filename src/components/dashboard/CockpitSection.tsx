@@ -2,13 +2,14 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { EditableAmount } from "./EditableAmount";
+import { SankeyDiagram } from "./SankeyDiagram";
 import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { SocialProofNudge } from "./SocialProofNudge";
-import { getFieldMapping, INCOME_MAPPINGS } from "@/lib/fieldMappings";
+import { INCOME_MAPPINGS } from "@/lib/fieldMappings";
 import { useMarketData } from "@/hooks/useMarketData";
 import { hasLiveData, getLiveIncome, getLiveElPrice, getLiveMortgageRate } from "@/lib/marketData";
-import type { BudgetProfile, ComputedBudget, OptimizingAction, ExpenseItem } from "@/lib/types";
+import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 
 interface Props {
@@ -34,25 +35,6 @@ const BUCKET_LABELS = {
   risiko: { label: "Risiko", emoji: "🛡️", tip: "Gæld og varierende udgifter" },
 };
 
-const FLOW_COLORS: Record<string, string> = {
-  Bolig: "hsl(var(--kassen-blue))",
-  Transport: "hsl(var(--kassen-gold))",
-  Forsikring: "hsl(var(--kassen-green))",
-  "Mad & dagligvarer": "hsl(var(--flow-food))",
-  Mad: "hsl(var(--flow-food))",
-  Abonnementer: "hsl(var(--flow-subscriptions))",
-  Fritid: "hsl(var(--flow-leisure))",
-  Tøj: "hsl(var(--flow-clothing))",
-  Sundhed: "hsl(var(--flow-health))",
-  Restaurant: "hsl(var(--flow-restaurant))",
-  Børn: "hsl(var(--flow-children))",
-  Opsparing: "hsl(var(--flow-savings))",
-  Lån: "hsl(var(--destructive))",
-};
-
-function getColor(cat: string) {
-  return FLOW_COLORS[cat] ?? "hsl(var(--muted-foreground))";
-}
 
 export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
   const { t } = useI18n();
@@ -70,21 +52,6 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
   const updateField = (field: keyof BudgetProfile, value: number) => {
     onProfileChange({ ...profile, [field]: value });
   };
-
-  // Top expenses grouped by category, with editable items
-  const topExpenses = useMemo(() => {
-    const categoryMap = new Map<string, { total: number; items: ExpenseItem[] }>();
-    [...budget.fixedExpenses, ...budget.variableExpenses].forEach((e) => {
-      const existing = categoryMap.get(e.category) || { total: 0, items: [] };
-      existing.total += e.amount;
-      existing.items.push(e);
-      categoryMap.set(e.category, existing);
-    });
-    return Array.from(categoryMap.entries())
-      .map(([name, data]) => ({ name, value: data.total, items: data.items }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
-  }, [budget]);
 
   // Alerts
   const alerts = useMemo(() => {
@@ -208,93 +175,9 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
       )}
 
-      {/* ── Top Expenses — compact waterfall with EDITABLE items ── */}
-      <div className="rounded-2xl border border-border p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Top udgifter</p>
-          <p className="text-[9px] text-muted-foreground">Klik på beløb for at redigere</p>
-        </div>
-        <div className="space-y-2">
-          {topExpenses.map((expense, i) => {
-            const pct = budget.totalIncome > 0 ? (expense.value / budget.totalIncome) * 100 : 0;
-            // Find editable items within this category
-            const editableItems = expense.items.filter(item => getFieldMapping(item.label));
-            const hasEditable = editableItems.length > 0;
-
-            return (
-              <motion.div
-                key={expense.name}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + i * 0.06 }}
-                className="space-y-0.5"
-              >
-                {/* Category bar */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[10px] text-muted-foreground w-20 text-right truncate">{expense.name}</span>
-                  <div className="flex-1 h-5 rounded-md bg-muted/40 relative overflow-hidden">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 rounded-md"
-                      style={{ backgroundColor: getColor(expense.name) }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(pct, 2)}%` }}
-                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 + i * 0.06 }}
-                    />
-                    {pct > 18 && (
-                      <span className="absolute inset-0 flex items-center px-2 text-[10px] font-medium text-white drop-shadow-sm z-10">
-                        {formatKr(expense.value)}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground tabular-nums w-8 text-right">{Math.round(pct)}%</span>
-                </div>
-
-                {/* Editable sub-items */}
-                {hasEditable && (
-                  <div className="ml-[calc(5rem+10px)] space-y-0.5">
-                    {editableItems.map((item) => {
-                      const mapping = getFieldMapping(item.label)!;
-                      return (
-                        <div key={item.label} className="flex items-center justify-between">
-                          <span className="text-[9px] text-muted-foreground truncate max-w-[120px]">{item.label}</span>
-                          <EditableAmount
-                            value={item.amount}
-                            onChange={(v) => updateField(mapping.field, v)}
-                            min={mapping.min}
-                            max={mapping.max}
-                            step={mapping.step}
-                            className="text-[10px] font-medium tabular-nums text-foreground"
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Disposable bar */}
-        <div className="mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-center gap-2.5">
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider w-20 text-right">Frit</span>
-            <div className={`flex-1 h-5 rounded-md relative overflow-hidden ${budget.disposableIncome >= 0 ? "bg-primary/10" : "bg-destructive/10"}`}>
-              <motion.div
-                className={`absolute inset-y-0 left-0 rounded-md ${budget.disposableIncome >= 0 ? "bg-primary" : "bg-destructive"}`}
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.max(Math.abs(budget.disposableIncome) / budget.totalIncome * 100, 2)}%` }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-              />
-              <span className={`absolute inset-0 flex items-center justify-center text-[10px] font-bold z-10 ${budget.disposableIncome >= 0 ? "text-primary-foreground" : "text-destructive-foreground"}`}>
-                {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome)} kr.
-              </span>
-            </div>
-            <span className="text-[10px] text-muted-foreground tabular-nums w-8 text-right">
-              {Math.round(Math.max(0, budget.disposableIncome) / budget.totalIncome * 100)}%
-            </span>
-          </div>
-        </div>
+      {/* ── Sankey pengestrøm ── */}
+      <div className="rounded-2xl border border-border overflow-hidden">
+        <SankeyDiagram budget={budget} profile={profile} />
       </div>
 
       {/* ── Live Data Indicator ── */}
