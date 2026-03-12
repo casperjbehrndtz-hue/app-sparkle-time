@@ -5,9 +5,9 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import heroCouple from "@/assets/hero-couple.jpg";
-import featureAdvisor from "@/assets/feature-advisor.jpg";
-import featureFamily from "@/assets/feature-family.jpg";
+import heroCouple from "@/assets/hero-couple.webp";
+import featureAdvisor from "@/assets/feature-advisor.webp";
+import featureFamily from "@/assets/feature-family.webp";
 
 interface Props {
   onStart: () => void;

@@ -168,6 +168,27 @@ const translations: Record<string, Record<Language, string>> = {
   "step.review.fixedExpenses": { da: "Faste udgifter", en: "Fixed expenses" },
   "step.review.seeDashboard": { da: "Se fuldt dashboard", en: "See full dashboard" },
 
+  // ─── Onboarding extra ───
+  "step.income.netTip": { da: "Indtast løn efter skat (netto — det du får udbetalt)", en: "Enter salary after tax (net — what you receive)" },
+  "step.children.benefitTitle": { da: "Børnepenge (automatisk medregnet)", en: "Child benefits (automatically included)" },
+  "step.children.benefitTotal": { da: "I alt børnepenge", en: "Total child benefits" },
+  "step.expenses.utilities": { da: "Telefon, internet & forsyning", en: "Phone, internet & utilities" },
+  "step.expenses.internet": { da: "Internet", en: "Internet" },
+  "step.expenses.mobileSolo": { da: "Mobil", en: "Mobile" },
+  "step.expenses.mobilePar": { da: "Mobil (2 pers.)", en: "Mobile (2 pers.)" },
+  "step.expenses.electricity": { da: "El", en: "Electricity" },
+  "step.expenses.heating": { da: "Varme & vand", en: "Heating & water" },
+  "step.expenses.drLicens": { da: "DR (medielicens)", en: "DR (media license)" },
+  "step.expenses.included": { da: "(inkluderet)", en: "(included)" },
+  "step.expenses.utilitiesNote": { da: "Disse udgifter medregnes automatisk i dit budget.", en: "These expenses are automatically included in your budget." },
+
+  // ─── Dashboard nav section labels ───
+  "nav.cockpit": { da: "Cockpit", en: "Cockpit" },
+  "nav.overview": { da: "Overblik", en: "Overview" },
+  "nav.action": { da: "Handling", en: "Action" },
+  "nav.future": { da: "Fremtid", en: "Future" },
+  "nav.advanced": { da: "Dybdegående", en: "In-depth" },
+
   // ─── Frequencies ───
   "freq.monthly": { da: "Månedlig", en: "Monthly" },
   "freq.quarterly": { da: "Kvartalsvis", en: "Quarterly" },
@@ -186,6 +207,23 @@ const translations: Record<string, Record<Language, string>> = {
   "dash.resetShort": { da: "Nulstil", en: "Reset" },
   "dash.shareResult": { da: "Del dit resultat", en: "Share your result" },
   "dash.close": { da: "Luk", en: "Close" },
+  "dash.editInfo": { da: "Ret oplysninger", en: "Edit info" },
+  "dash.logOut": { da: "Log ud", en: "Log out" },
+  "dash.logIn": { da: "Log ind", en: "Log in" },
+  "dash.cloudSync": { da: "Log ind for at gemme dit budget på tværs af enheder", en: "Log in to save your budget across devices" },
+  "dash.subscriptions": { da: "Abonnementer", en: "Subscriptions" },
+
+  // ─── Dashboard section titles & subtitles ───
+  "section.cockpit": { da: "Cockpit", en: "Cockpit" },
+  "section.cockpitSub": { da: "Dit økonomiske overblik — alt på ét sted.", en: "Your financial overview — everything in one place." },
+  "section.overview": { da: "Overblik", en: "Overview" },
+  "section.overviewSub": { da: "Hvor går dine penge hen? Se det hele i ét blik.", en: "Where does your money go? See it all at a glance." },
+  "section.action": { da: "Handling", en: "Action" },
+  "section.actionSub": { da: "Konkrete besparelsesforslag baseret på dine tal.", en: "Concrete savings suggestions based on your numbers." },
+  "section.future": { da: "Fremtid", en: "Future" },
+  "section.futureSub": { da: "Se frem — formue, mål og tidslinje.", en: "Look ahead — wealth, goals and timeline." },
+  "section.advanced": { da: "Dybdegående", en: "In-depth" },
+  "section.advancedSub": { da: "Avancerede analyser og simulationer.", en: "Advanced analyses and simulations." },
 
   // ─── Dashboard tabs ───
   "tab.cockpit": { da: "Cockpit", en: "Cockpit" },

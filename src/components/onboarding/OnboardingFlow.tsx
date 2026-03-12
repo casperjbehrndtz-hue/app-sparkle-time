@@ -177,7 +177,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 {isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")}
               </h1>
             <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">💡 Indtast løn efter skat (netto — det du får udbetalt)</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">💡 {t("step.income.netTip")}</p>
             </motion.div>
             <BigSlider value={profile.income} onChange={(v) => update({ income: v })}
               label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500} />
@@ -352,19 +352,19 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 {/* Show børnepenge info */}
                 {childAgeInputs.length > 0 && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
-                    <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">Børnepenge (automatisk medregnet)</p>
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
                     {childAgeInputs.map((age, i) => {
                       const benefit = getChildBenefit(age);
                       return (
                         <div key={i} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Barn {i + 1} ({age} år)</span>
-                          <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} kr./md.</span>
+                          <span className="text-muted-foreground">{t("step.children.child")} {i + 1} ({age} {t("step.children.years")})</span>
+                          <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} {t("perMonth")}</span>
                         </div>
                       );
                     })}
                     <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-sm font-bold">
-                      <span>I alt børnepenge</span>
-                      <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} kr./md.</span>
+                      <span>{t("step.children.benefitTotal")}</span>
+                      <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} {t("perMonth")}</span>
                     </div>
                   </motion.div>
                 )}
@@ -433,27 +433,27 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               )}
             </div>
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Telefon, internet & forsyning</h3>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
               <div className="space-y-1.5">
                 {[
-                  { icon: "📡", label: "Internet", price: UTILITIES.internet.price },
-                  { icon: "📱", label: isPar ? "Mobil (2 pers.)" : "Mobil", price: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1) },
-                  { icon: "⚡", label: "El", price: isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo },
-                  { icon: "🔥", label: "Varme & vand", price: isPar ? UTILITIES.heating.price_par : UTILITIES.heating.price_solo },
-                  { icon: "📺", label: "DR (medielicens)", price: UTILITIES.dr_licens.price },
+                  { icon: "📡", label: t("step.expenses.internet"), price: UTILITIES.internet.price },
+                  { icon: "📱", label: isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo"), price: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1) },
+                  { icon: "⚡", label: t("step.expenses.electricity"), price: isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo },
+                  { icon: "🔥", label: t("step.expenses.heating"), price: isPar ? UTILITIES.heating.price_par : UTILITIES.heating.price_solo },
+                  { icon: "📺", label: t("step.expenses.drLicens"), price: UTILITIES.dr_licens.price },
                 ].map((u) => (
                   <div key={u.label} className="flex items-center justify-between rounded-2xl border-2 border-border bg-muted/30 px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <span className="text-base">{u.icon}</span>
                       <div>
                         <span className="text-sm font-medium">{u.label}</span>
-                        <span className="text-[10px] text-muted-foreground ml-1.5">(inkluderet)</span>
+                        <span className="text-[10px] text-muted-foreground ml-1.5">{t("step.expenses.included")}</span>
                       </div>
                     </div>
-                    <span className="text-sm font-semibold tabular-nums text-muted-foreground">{u.price} kr./md.</span>
+                    <span className="text-sm font-semibold tabular-nums text-muted-foreground">{u.price} {t("perMonth")}</span>
                   </div>
                 ))}
-                <p className="text-[10px] text-muted-foreground/60 mt-1">Disse udgifter medregnes automatisk i dit budget.</p>
+                <p className="text-[10px] text-muted-foreground/60 mt-1">{t("step.expenses.utilitiesNote")}</p>
               </div>
             </div>
             <div>

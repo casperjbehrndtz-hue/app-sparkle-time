@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud } from "lucide-react";
@@ -19,14 +19,25 @@ import { AppFooter } from "@/components/AppFooter";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
-// Lazy-load advanced views
-import { NaboeffektView } from "./NaboeffektView";
-import { HvadHvisView } from "./HvadHvisView";
-import { HistorikView } from "./HistorikView";
-import { ParSplitView } from "./ParSplitView";
-import { StressTestView } from "./StressTestView";
-import { AarshjulView } from "./AarshjulView";
-import { SubscriptionTracker } from "./SubscriptionTracker";
+// Lazy-load advanced views (only rendered on click inside collapsible sections)
+const NaboeffektView = lazy(() => import("./NaboeffektView").then(m => ({ default: m.NaboeffektView })));
+const HvadHvisView = lazy(() => import("./HvadHvisView").then(m => ({ default: m.HvadHvisView })));
+const HistorikView = lazy(() => import("./HistorikView").then(m => ({ default: m.HistorikView })));
+const ParSplitView = lazy(() => import("./ParSplitView").then(m => ({ default: m.ParSplitView })));
+const StressTestView = lazy(() => import("./StressTestView").then(m => ({ default: m.StressTestView })));
+const AarshjulView = lazy(() => import("./AarshjulView").then(m => ({ default: m.AarshjulView })));
+const SubscriptionTracker = lazy(() => import("./SubscriptionTracker").then(m => ({ default: m.SubscriptionTracker })));
+
+// Skeleton fallback for lazy-loaded sections
+function LazyFallback() {
+  return (
+    <div className="animate-pulse space-y-3 py-4">
+      <div className="h-4 bg-muted rounded w-2/3" />
+      <div className="h-32 bg-muted rounded-xl" />
+      <div className="h-4 bg-muted rounded w-1/2" />
+    </div>
+  );
+}
 
 interface Props {
   profile: BudgetProfile;
@@ -131,11 +142,11 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const smartSteps = useMemo(() => generateSmartSteps(profile, budget, health), [profile, budget, health]);
 
   const sections = [
-    { id: "cockpit", label: "Cockpit", emoji: "🎯" },
-    { id: "overblik", label: "Overblik", emoji: "📊" },
-    { id: "handling", label: "Handling", emoji: "⚡" },
-    { id: "fremad", label: "Fremtid", emoji: "📈" },
-    { id: "dybde", label: "Dybdegående", emoji: "🔬" },
+    { id: "cockpit", label: t("nav.cockpit"), emoji: "🎯" },
+    { id: "overblik", label: t("nav.overview"), emoji: "📊" },
+    { id: "handling", label: t("nav.action"), emoji: "⚡" },
+    { id: "fremad", label: t("nav.future"), emoji: "📈" },
+    { id: "dybde", label: t("nav.advanced"), emoji: "🔬" },
   ];
 
   // Track active section
@@ -172,7 +183,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <DarkModeToggle />
             <button onClick={onEditProfile}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold">
-              <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">Ret oplysninger</span>
+              <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.editInfo")}</span>
             </button>
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
@@ -181,12 +192,12 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             {user ? (
               <button onClick={signOut}
                 className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
-                <LogOut className="w-3 h-3" /> <span className="hidden sm:inline">Log ud</span>
+                <LogOut className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logOut")}</span>
               </button>
             ) : (
               <Link to="/login"
                 className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted font-semibold">
-                <LogIn className="w-3 h-3" /> <span className="hidden sm:inline">Log ind</span>
+                <LogIn className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logIn")}</span>
               </Link>
             )}
           </div>
@@ -201,7 +212,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           <Link to="/login"
             className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-primary hover:bg-primary/10 transition-colors">
             <Cloud className="w-3.5 h-3.5" />
-            <span>Log ind for at gemme dit budget på tværs af enheder</span>
+            <span>{t("dash.cloudSync")}</span>
           </Link>
         </div>
       )}
@@ -209,7 +220,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       <main className="max-w-2xl mx-auto px-5 py-6 space-y-12 flex-1 w-full">
 
         {/* ━━━ Section 1: COCKPIT — everything at a glance ━━━ */}
-        <StorySection id="cockpit" title="Cockpit" subtitle="Dit økonomiske overblik — alt på ét sted.">
+        <StorySection id="cockpit" title={t("section.cockpit")} subtitle={t("section.cockpitSub")}>
           <SectionErrorBoundary fallbackTitle="Cockpit">
             <CockpitSection
               profile={profile}
@@ -223,21 +234,21 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         </StorySection>
 
         {/* ━━━ Section 2: OVERBLIK — visual deep-dive ━━━ */}
-        <StorySection id="overblik" title="Overblik" subtitle="Hvor går dine penge hen? Se det hele i ét blik.">
+        <StorySection id="overblik" title={t("section.overview")} subtitle={t("section.overviewSub")}>
           <SectionErrorBoundary fallbackTitle="Overblik">
             <InlineChartsSection profile={profile} budget={budget} />
           </SectionErrorBoundary>
         </StorySection>
 
         {/* ━━━ Section 3: HANDLING — what to do ━━━ */}
-        <StorySection id="handling" title="Handling" subtitle="Konkrete besparelsesforslag baseret på dine tal.">
+        <StorySection id="handling" title={t("section.action")} subtitle={t("section.actionSub")}>
           <SectionErrorBoundary fallbackTitle="Handling">
             <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
           </SectionErrorBoundary>
         </StorySection>
 
         {/* ━━━ Section 4: FREMTID — projections ━━━ */}
-        <StorySection id="fremad" title="Fremtid" subtitle="Se frem — formue, mål og tidslinje.">
+        <StorySection id="fremad" title={t("section.future")} subtitle={t("section.futureSub")}>
           <SectionErrorBoundary fallbackTitle="Fremtid">
             <FremadView profile={profile} budget={budget} health={health} />
           </SectionErrorBoundary>
@@ -246,38 +257,52 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         {/* ━━━ Section 5: DYBDEGÅENDE — collapsible advanced ━━━ */}
         <section id="dybde" className="scroll-mt-20">
           <div className="mb-4">
-            <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">Dybdegående</h2>
-            <p className="text-sm text-muted-foreground mt-1">Avancerede analyser og simulationer.</p>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">{t("section.advanced")}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t("section.advancedSub")}</p>
           </div>
 
           <div className="rounded-2xl border border-border divide-y divide-border overflow-hidden">
-            <AdvancedSection id="hvadvis-inner" title="Hvad hvis?" emoji="🔮">
-              <HvadHvisView profile={profile} budget={budget} health={health} />
+            <AdvancedSection id="hvadvis-inner" title={t("tab.whatIf") + "?"} emoji="🔮">
+              <Suspense fallback={<LazyFallback />}>
+                <HvadHvisView profile={profile} budget={budget} health={health} />
+              </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="stresstest-inner" title="Stress-test" emoji="🔬">
-              <StressTestView profile={profile} budget={budget} />
+            <AdvancedSection id="stresstest-inner" title={t("tab.stressTest")} emoji="🔬">
+              <Suspense fallback={<LazyFallback />}>
+                <StressTestView profile={profile} budget={budget} />
+              </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="aarshjul-inner" title="Årshjul" emoji="📅">
-              <AarshjulView profile={profile} budget={budget} />
+            <AdvancedSection id="aarshjul-inner" title={t("tab.calendar")} emoji="📅">
+              <Suspense fallback={<LazyFallback />}>
+                <AarshjulView profile={profile} budget={budget} />
+              </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="abonnementer-inner" title="Abonnementer" emoji="💳">
-              <SubscriptionTracker profile={profile} />
+            <AdvancedSection id="abonnementer-inner" title={t("dash.subscriptions")} emoji="💳">
+              <Suspense fallback={<LazyFallback />}>
+                <SubscriptionTracker profile={profile} />
+              </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="naboeffekt-inner" title="Sammenlign" emoji="👥">
-              <NaboeffektView profile={profile} budget={budget} />
+            <AdvancedSection id="naboeffekt-inner" title={t("tab.compare")} emoji="👥">
+              <Suspense fallback={<LazyFallback />}>
+                <NaboeffektView profile={profile} budget={budget} />
+              </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="historik-inner" title="Historik" emoji="📊">
-              <HistorikView />
+            <AdvancedSection id="historik-inner" title={t("tab.history")} emoji="📊">
+              <Suspense fallback={<LazyFallback />}>
+                <HistorikView />
+              </Suspense>
             </AdvancedSection>
 
             {profile.householdType === "par" && (
-              <AdvancedSection id="parsplit-inner" title="Par-fordeling" emoji="💑">
-                <ParSplitView profile={profile} budget={budget} />
+              <AdvancedSection id="parsplit-inner" title={t("tab.coupleSplit")} emoji="💑">
+                <Suspense fallback={<LazyFallback />}>
+                  <ParSplitView profile={profile} budget={budget} />
+                </Suspense>
               </AdvancedSection>
             )}
           </div>
