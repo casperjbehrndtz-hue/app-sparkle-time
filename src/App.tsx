@@ -19,6 +19,7 @@ const Install = lazy(() => import("./pages/Install"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
+const B2BPage = lazy(() => import("./pages/B2BPage"));
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => {
                     <Route path="/login" element={<Auth />} />
                     <Route path="/guides" element={<Blog />} />
                     <Route path="/guides/:slug" element={<Article />} />
+                    <Route path="/b2b" element={<B2BPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>

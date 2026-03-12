@@ -212,4 +212,5 @@ export const AVAILABLE_CONFIGS: Record<string, WhiteLabelConfig> = {
   kassen: defaultConfig,
   nordea: nordeaConfig,
   danske: danskeConfig,
+  danskebank: danskeConfig,
 };

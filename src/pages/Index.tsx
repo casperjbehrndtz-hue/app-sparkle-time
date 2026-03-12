@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { DemoBanner } from "@/components/DemoBanner";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
@@ -10,18 +11,30 @@ import { calculateHealth } from "@/lib/healthScore";
 import { parseProfile } from "@/lib/profileSchema";
 import { useAuth } from "@/hooks/useAuth";
 import { useMarketData } from "@/hooks/useMarketData";
+import { demoProfile } from "@/lib/demoData";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
 
 const Index = () => {
   const config = useWhiteLabel();
+  const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
   const { data: marketData } = useMarketData();
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
+
+  // Demo mode: compute budget from demoProfile
+  const demoBudget = useMemo<ComputedBudget | null>(
+    () => isDemo ? computeBudget(demoProfile, marketData) : null,
+    [isDemo, marketData]
+  );
+  const demoOptimizations = useMemo<OptimizingAction[]>(
+    () => (isDemo && demoBudget) ? generateOptimizations(demoProfile, demoBudget) : [],
+    [isDemo, demoBudget]
+  );
 
   const budget = useMemo<ComputedBudget | null>(
     () => profile ? computeBudget(profile, marketData) : null,
@@ -120,6 +133,24 @@ const Index = () => {
     setEditingProfile(profile);
     setProfile(null);
   };
+
+  // Demo mode: skip onboarding, show dashboard with sample data
+  if (isDemo && demoBudget) {
+    const noop = () => {};
+    return (
+      <>
+        <DemoBanner brandName={config.brandName} />
+        <Dashboard
+          profile={demoProfile}
+          budget={demoBudget}
+          optimizations={demoOptimizations}
+          onReset={noop}
+          onProfileChange={noop}
+          onEditProfile={noop}
+        />
+      </>
+    );
+  }
 
   if (showWelcome && pendingProfile && pendingBudget) {
     return (
