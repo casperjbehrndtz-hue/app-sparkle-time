@@ -6,60 +6,126 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ─── Topic seed list — 60+ Danish personal finance topics ───────────────────
-// Ordered by search volume / relevance priority
+// ─── Topic seed list ──────────────────────────────────────────────────────────
 const TOPICS = [
-  { slug: "raadighedsbeloeb-beregning", title: "Hvad er rådighedsbeløb — og hvordan beregner du dit?", category: "Kom i gang", keywords: ["rådighedsbeløb", "beregning", "budget"] },
-  { slug: "50-30-20-reglen-budget", title: "50/30/20-reglen: Den nemmeste budgetmetode", category: "Kom i gang", keywords: ["50 30 20", "budgetmetode", "personlig økonomi"] },
-  { slug: "noedbuffer-hvad-er-det", title: "Nødbuffer: Hvor meget skal du have til siden?", category: "Opsparing", keywords: ["nødbuffer", "opsparing", "buffer"] },
-  { slug: "husleje-andelsbolig-vs-eje", title: "Andelsbolig vs. ejerbolig: Hvad er billigst i 2026?", category: "Boligøkonomi", keywords: ["andelsbolig", "ejerbolig", "husleje"] },
-  { slug: "aktiesparekonto-guide", title: "Aktiesparekonto: Hvad er det og hvem bør have en?", category: "Investering", keywords: ["aktiesparekonto", "investering", "skat"] },
-  { slug: "el-vs-benzin-bil-oekonomi", title: "Elbil vs. benzinbil: Hvad er billigst over 4 år?", category: "Transport", keywords: ["elbil", "benzinbil", "billige biler"] },
-  { slug: "pension-hvornaar-nok", title: "Hvornår har du nok til pension? En simpel beregning", category: "Pension", keywords: ["pension", "opsparing", "folkepension"] },
-  { slug: "forsikringer-du-ikke-behoever", title: "5 forsikringer de fleste danskere betaler for forgæves", category: "Besparelser", keywords: ["forsikringer", "spare penge", "unødvendige udgifter"] },
-  { slug: "dagligvarer-billigere-indkoeb", title: "Handl 30% billigere: En guide til strategisk indkøb", category: "Besparelser", keywords: ["dagligvarer", "billigt", "indkøb"] },
-  { slug: "gaelds-sneboldsystem", title: "Sneboldsystemet: Den psykologiske vej ud af gæld", category: "Gæld", keywords: ["gæld", "nedbringelse", "snowball"] },
-  { slug: "su-laan-afdrag-strategi", title: "SU-lån: Skal du betale det hurtigt af eller lade det stå?", category: "Gæld", keywords: ["SU-lån", "studiegæld", "afdrag"] },
-  { slug: "barsel-dagpenge-beregning", title: "Barselsdagpenge 2026: Hvad får du udbetalt?", category: "Familie", keywords: ["barselsdagpenge", "barsel", "orlov"] },
-  { slug: "boligstoette-hvem-kan-faa", title: "Boligstøtte: Hvem er berettiget og hvad kan du få?", category: "Boligøkonomi", keywords: ["boligstøtte", "tilskud", "husleje"] },
-  { slug: "pensionsopsparing-selvstaendig", title: "Selvstændig? Sådan sikrer du din pension uden arbejdsgiver", category: "Pension", keywords: ["selvstændig", "pension", "opsparing"] },
-  { slug: "boern-og-oekonomi-laer-dem-tidligt", title: "Lær dine børn om penge fra de er 5 år", category: "Familie", keywords: ["børn", "penge", "opdragelse"] },
-  { slug: "haandvaerkerfradrag-2026", title: "Håndværkerfradraget 2026: Hvad må du trække fra?", category: "Skat", keywords: ["håndværkerfradraget", "fradrag", "skat"] },
-  { slug: "aarsopgoerelse-fejl-ret-dem", title: "Årsopgørelse: De 7 fejl der koster dig penge", category: "Skat", keywords: ["årsopgørelse", "fejl", "skat"] },
-  { slug: "mobil-abonnement-bedste-pris", title: "Mobilabonnement: Sådan betaler du ikke for meget", category: "Besparelser", keywords: ["mobilabonnement", "billig mobil", "telefonabonnement"] },
-  { slug: "ratepension-vs-aldersopsparing", title: "Ratepension vs. aldersopsparing: Hvad vælger du?", category: "Pension", keywords: ["ratepension", "aldersopsparing", "pension"] },
-  { slug: "lejlighed-udland-skat", title: "Udlejning af din bolig på Airbnb: Hvad må du tjene skattefrit?", category: "Skat", keywords: ["Airbnb", "udlejning", "skat"] },
-  { slug: "bilopsparing-vs-billaan", title: "Bil kontant vs. billån: Hvornår giver hvert valg mening?", category: "Transport", keywords: ["billån", "bil opsparing", "finansiering"] },
-  { slug: "frikort-topskattegranse", title: "Frikort og topskat: Forstå grænsen for 2026", category: "Skat", keywords: ["frikort", "topskat", "personfradrag"] },
-  { slug: "groen-investering-etf", title: "Grøn investering: Kom i gang med bæredygtige ETF'er", category: "Investering", keywords: ["grøn investering", "ETF", "bæredygtig"] },
-  { slug: "sygeforsikring-danmark-loens-omt", title: "Sygeforsikring 'danmark': Hvad dækker den og er det det værd?", category: "Forsikring", keywords: ["sygeforsikring", "danmark", "dækning"] },
-  { slug: "huskop-opsparing-udbetaling", title: "Køb din første bolig: Hvor meget skal du spare op?", category: "Boligøkonomi", keywords: ["boligkøb", "udbetaling", "opsparing"] },
-  { slug: "formueprojektion-simpel-model", title: "Beregn din fremtidige formue med én simpel ligning", category: "Investering", keywords: ["formueprojektion", "opsparing", "rentes rente"] },
-  { slug: "stresstesting-privatoekonomi", title: "Hvad sker der med din økonomi hvis renten stiger 3%?", category: "Boligøkonomi", keywords: ["stress test", "rente", "boliglån"] },
-  { slug: "familiebudget-med-boern", title: "Familiebudget med børn: De skjulte udgifter ingen fortæller dig om", category: "Familie", keywords: ["familiebudget", "børn", "udgifter"] },
-  { slug: "kreditkort-cashback-guide", title: "Cashback kreditkort i Danmark: Tjener du penge på dem?", category: "Besparelser", keywords: ["kreditkort", "cashback", "fordele"] },
-  { slug: "freelance-skat-moms", title: "Freelancer: En simpel guide til moms og skat i Danmark", category: "Skat", keywords: ["freelancer", "moms", "skat"] },
-  { slug: "rejseforsikring-hvornaar-nok", title: "Rejseforsikring: Hvornår er din bankens dækning nok?", category: "Forsikring", keywords: ["rejseforsikring", "bank", "dækning"] },
-  { slug: "koebmands-konceptet-budget", title: "Købmandstanken: Derfor bør du tænke på dig selv som en virksomhed", category: "Kom i gang", keywords: ["privatøkonomi", "strategi", "budget"] },
-  { slug: "digitale-tjenester-overblik", title: "Gå dine digitale tjenester igennem: Du betaler nok for meget", category: "Besparelser", keywords: ["abonnementer", "digitale tjenester", "spare"] },
-  { slug: "investering-begynder-maanedlig", title: "Investering for begyndere: Start med 500 kr./md.", category: "Investering", keywords: ["investering", "begynder", "månedlig opsparing"] },
-  { slug: "inflationens-effekt-opsparing", title: "Inflation æder din opsparing — her er hvad du gør", category: "Investering", keywords: ["inflation", "opsparing", "købekraft"] },
+  { slug: "raadighedsbeloeb-beregning", title: "Hvad er rådighedsbeløb — og hvordan beregner du dit?", category: "Kom i gang", keywords: ["rådighedsbeløb", "beregning", "budget"], intent: "Den søger at forstå hvad rådighedsbeløb er og vil beregne sit eget" },
+  { slug: "50-30-20-reglen-budget", title: "50/30/20-reglen: Den nemmeste budgetmetode", category: "Kom i gang", keywords: ["50 30 20 regel", "budgetmetode", "privatøkonomi"], intent: "Søger en simpel budgetmetode de kan starte med i dag" },
+  { slug: "noedbuffer-hvad-er-det", title: "Nødbuffer: Hvor meget skal du egentlig have til siden?", category: "Opsparing", keywords: ["nødbuffer", "opsparing", "buffer beløb"], intent: "Vil vide det præcise beløb de bør spare som nødbuffer" },
+  { slug: "husleje-andelsbolig-vs-eje", title: "Andelsbolig vs. ejerbolig: Hvad er billigst over 10 år?", category: "Boligøkonomi", keywords: ["andelsbolig vs ejerbolig", "boligtype", "hvad er billigst"], intent: "Overvejer boligtype og vil have et konkret regnestykke" },
+  { slug: "aktiesparekonto-guide", title: "Aktiesparekonto: Alt du skal vide (og hvem der bør have en)", category: "Investering", keywords: ["aktiesparekonto", "ASK", "investering begynder"], intent: "Vil forstå aktiesparekontoen og om det giver mening for dem" },
+  { slug: "el-vs-benzin-bil-oekonomi", title: "Elbil vs. benzinbil: Det totale regnestykke over 4 år", category: "Transport", keywords: ["elbil vs benzinbil", "elbil økonomi", "billigste bil"], intent: "Vil have et konkret tal: hvad koster hhv. elbil og benzinbil" },
+  { slug: "pension-hvornaar-nok", title: "Hvornår har du nok opsparet til pension?", category: "Pension", keywords: ["pension opsparing nok", "hvornår kan jeg gå på pension", "pensionsberegner"], intent: "Vil vide om de er på rette spor med pension — konkret beløb" },
+  { slug: "forsikringer-du-ikke-behoever", title: "5 forsikringer du sandsynligvis betaler for uden grund", category: "Besparelser", keywords: ["unødvendige forsikringer", "spare på forsikring", "hvilke forsikringer behøver jeg"], intent: "Vil skære i forsikringsudgifter og ved ikke hvad de kan undvære" },
+  { slug: "dagligvarer-billigere-indkoeb", title: "Handl 30% billigere uden at ændre hvad du spiser", category: "Besparelser", keywords: ["billige dagligvarer", "spare penge mad", "budget indkøb"], intent: "Vil spare penge på dagligvarer med konkrete tips de kan bruge i dag" },
+  { slug: "gaelds-sneboldsystem", title: "Sneboldsystemet: Kom ud af gæld hurtigere end du tror", category: "Gæld", keywords: ["snowball metode gæld", "nedbring gæld", "gæld strategi"], intent: "Er i gæld og søger en konkret plan for at komme ud" },
+  { slug: "su-laan-afdrag-strategi", title: "SU-lån: Skal du betale det hurtigt af eller lade det stå?", category: "Gæld", keywords: ["SU-lån afdrag", "studiegæld strategi", "SU lån rente 2026"], intent: "Har SU-lån og vil vide den optimale strategi" },
+  { slug: "barsel-dagpenge-beregning", title: "Barselsdagpenge 2026: Hvad får du udbetalt — og hvornår?", category: "Familie", keywords: ["barselsdagpenge 2026", "barsel beregning", "orlov dagpenge"], intent: "Er gravid eller planlægger barsel og vil vide det præcise beløb" },
+  { slug: "boligstoette-hvem-kan-faa", title: "Boligstøtte: Tjek om du er berettiget (mange går glip)", category: "Boligøkonomi", keywords: ["boligstøtte berettiget", "boligstøtte beregning", "ansøg boligstøtte"], intent: "Vil vide om de kan få boligstøtte og hvor meget" },
+  { slug: "haandvaerkerfradrag-2026", title: "Håndværkerfradraget 2026: Hvad må du trække fra i skat?", category: "Skat", keywords: ["håndværkerfradraget 2026", "servicefradrag", "fradrag håndværker"], intent: "Har haft håndværker og vil vide hvad de kan trække fra" },
+  { slug: "aarsopgoerelse-fejl-ret-dem", title: "Årsopgørelse 2025: De 7 fejl der koster danskere penge hvert år", category: "Skat", keywords: ["årsopgørelse fejl", "ret årsopgørelse", "fradrag årsopgørelse"], intent: "Vil tjekke om årsopgørelsen er korrekt inden fristen" },
+  { slug: "mobil-abonnement-bedste-pris", title: "Mobilabonnement: Hvad betaler du for meget for?", category: "Besparelser", keywords: ["billigste mobilabonnement", "mobilabonnement sammenligning 2026", "skifte mobilselskab"], intent: "Vil finde billigere mobilabonnement" },
+  { slug: "ratepension-vs-aldersopsparing", title: "Ratepension vs. aldersopsparing: Hvad giver mest tilbage?", category: "Pension", keywords: ["ratepension vs aldersopsparing", "pensionstype forskel", "pension skat"], intent: "Vil vælge den rigtige pensionstype og forstå forskellen" },
+  { slug: "huskop-opsparing-udbetaling", title: "Første boligkøb: Hvor meget skal du spare op til udbetaling?", category: "Boligøkonomi", keywords: ["boligkøb opsparing", "udbetaling bolig", "første bolig krav"], intent: "Planlægger boligkøb og vil vide det præcise opsparingsmål" },
+  { slug: "investering-begynder-maanedlig", title: "Investering for begyndere: Sådan starter du med 500 kr./md.", category: "Investering", keywords: ["investering begynder", "start med at investere", "månedlig investering"], intent: "Vil i gang med at investere men ved ikke hvordan" },
+  { slug: "inflationens-effekt-opsparing", title: "Inflation æder din opsparing — her er hvad du gør ved det", category: "Investering", keywords: ["inflation opsparing", "realrente", "beskytte opsparing inflation"], intent: "Bekymret for at inflationen reducerer deres opsparing" },
+  { slug: "familiebudget-med-boern", title: "Familiebudget med børn: Udgifterne ingen fortæller dig om", category: "Familie", keywords: ["familiebudget børn", "hvad koster et barn", "børn økonomi"], intent: "Venter barn eller har småbørn og vil forstå de reelle udgifter" },
+  { slug: "kreditkort-cashback-guide", title: "Cashback kreditkort i Danmark 2026: Tjener du penge på dem?", category: "Besparelser", keywords: ["cashback kreditkort Danmark", "bedste kreditkort 2026", "kreditkort fordele"], intent: "Overvejer cashback kort og vil vide om det kan betale sig" },
+  { slug: "freelance-skat-moms", title: "Freelancer i Danmark: Din komplette guide til skat og moms", category: "Skat", keywords: ["freelancer skat Danmark", "moms selvstændig", "B-skat freelancer"], intent: "Er ny freelancer og vil forstå skatte- og momspligten" },
+  { slug: "digitale-tjenester-overblik", title: "Stop med at betale for digitale tjenester du ikke bruger", category: "Besparelser", keywords: ["abonnementer jeg ikke bruger", "opsig abonnementer", "spare digitale tjenester"], intent: "Vil gennemgå og rydde op i abonnementer med det samme" },
+  { slug: "formueprojektion-simpel-model", title: "Beregn din fremtidige formue: Hvad har du om 20 år?", category: "Investering", keywords: ["formueprojektion", "rentes rente beregning", "hvad har jeg om 20 år"], intent: "Vil se en konkret projektion af hvad de sparer op til over tid" },
+  { slug: "stresstesting-privatoekonomi", title: "Hvad sker der med dit budget hvis renten stiger 3%?", category: "Boligøkonomi", keywords: ["renteforhøjelse budget", "stress test boliglån", "variabel rente risiko"], intent: "Boligejer med variabel rente der er bekymret for rentestigninger" },
+  { slug: "pensionsopsparing-selvstaendig", title: "Selvstændig: Sådan bygger du en pension uden arbejdsgiver", category: "Pension", keywords: ["pension selvstændig", "IPS opsparing", "selvstændig pension Danmark"], intent: "Selvstændig der ingen arbejdsgiverpension har og vil vide hvad de skal gøre" },
+  { slug: "sygeforsikring-danmark-vaerd", title: "Sygeforsikring 'danmark': Er det pengene værd i 2026?", category: "Forsikring", keywords: ["sygeforsikring danmark", "privat sundhedsforsikring", "sygeforsikring dækning"], intent: "Overvejer om de skal melde sig ind eller ud af sygeforsikring" },
+  { slug: "boern-og-oekonomi-opdragelse", title: "Lær dine børn om penge: Hvad virker (og hvad ikke gør)", category: "Familie", keywords: ["børn penge opdragelse", "lommepenge børn", "børn økonomi lære"], intent: "Forælder der vil lære børn sunde pengevaner" },
+  { slug: "el-forbrug-spar-penge", title: "Sæt strømregningen ned: De tiltag der faktisk virker", category: "Besparelser", keywords: ["spar på el", "strøm billigere", "elregning reducer"], intent: "Vil sænke elregningen med konkrete tiltag" },
+  { slug: "frikort-topskattegranse-2026", title: "Frikort og topskat 2026: Forstå grænsen og undgå at betale for meget", category: "Skat", keywords: ["frikort 2026", "topskatgrænse 2026", "personfradrag"], intent: "Vil forstå frikortet og hvornår de rammer topskat" },
+  { slug: "groen-investering-etf-guide", title: "Bæredygtig investering i Danmark: Kom i gang med grønne ETF'er", category: "Investering", keywords: ["bæredygtig investering", "grøn ETF", "ESG investering Danmark"], intent: "Vil investere etisk og bæredygtigt men ved ikke hvordan" },
+  { slug: "rejseforsikring-bank-eller-separat", title: "Rejseforsikring: Hvornår er bankens dækning nok?", category: "Forsikring", keywords: ["rejseforsikring bank", "kreditkort rejseforsikring", "separat rejseforsikring"], intent: "Planlægger rejse og vil vide om de skal købe ekstra forsikring" },
+  { slug: "bilopsparing-vs-billaan-2026", title: "Bil kontant vs. billån i 2026: Hvornår kan det betale sig?", category: "Transport", keywords: ["billån vs kontant", "finansiering bil", "billån rente 2026"], intent: "Skal købe bil og vil vide om de skal låne eller betale kontant" },
 ];
 
-function generateSlug(seed: string): string {
-  return seed.toLowerCase().replace(/[æ]/g, "ae").replace(/[ø]/g, "oe").replace(/[å]/g, "aa").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+// ─── Fetch live Danish financial data ────────────────────────────────────────
+async function fetchLiveData(category: string): Promise<string> {
+  const dataPoints: string[] = [];
+
+  try {
+    // Nationalbanken: current Danish lending rate
+    const nbRes = await fetch(
+      "https://api.statbank.dk/v1/data/DNRENTD/CSV?lang=da&RENTTYPE=UDLN&Tid=2025M01,2025M06,2026M01",
+      { headers: { "Accept": "text/csv" }, signal: AbortSignal.timeout(5000) }
+    );
+    if (nbRes.ok) {
+      const csv = await nbRes.text();
+      const lines = csv.split("\n").filter(l => l.includes(";"));
+      if (lines.length > 1) {
+        dataPoints.push(`Nationalbanken udlånsrente (seneste data): ${lines[lines.length - 1]}`);
+      }
+    }
+  } catch { /* non-fatal */ }
+
+  try {
+    // Danmarks Statistik: average Danish disposable income
+    const dstRes = await fetch(
+      "https://api.statbank.dk/v1/data/INDKP101/CSV?lang=da&ENHED=KR&KOEN=TOT&Tid=2023,2024",
+      { headers: { "Accept": "text/csv" }, signal: AbortSignal.timeout(5000) }
+    );
+    if (dstRes.ok) {
+      const csv = await dstRes.text();
+      const lines = csv.split("\n").filter(l => l.trim() && !l.startsWith("ENHED"));
+      if (lines.length > 0) {
+        dataPoints.push(`Danmarks Statistik gennemsnitlig disponibel indkomst: ${lines[lines.length - 1]}`);
+      }
+    }
+  } catch { /* non-fatal */ }
+
+  try {
+    // Consumer price index (inflation)
+    const cpiRes = await fetch(
+      "https://api.statbank.dk/v1/data/PRIS9/CSV?lang=da&GRUPPE=000&Tid=2024M09,2024M10,2024M11,2024M12,2025M01,2025M02",
+      { headers: { "Accept": "text/csv" }, signal: AbortSignal.timeout(5000) }
+    );
+    if (cpiRes.ok) {
+      const csv = await cpiRes.text();
+      const lines = csv.split("\n").filter(l => l.trim() && !l.startsWith("GRUPPE"));
+      if (lines.length > 0) {
+        dataPoints.push(`Forbrugerprisindeks (inflation): ${lines.slice(-3).join(" | ")}`);
+      }
+    }
+  } catch { /* non-fatal */ }
+
+  // Category-specific data
+  if (category === "Boligøkonomi" || category === "Investering") {
+    try {
+      const rateRes = await fetch(
+        "https://api.statbank.dk/v1/data/MPKRENTA/CSV?lang=da&RENTTYPE=LAAN30&Tid=2024M10,2024M11,2024M12,2025M01,2025M02",
+        { headers: { "Accept": "text/csv" }, signal: AbortSignal.timeout(5000) }
+      );
+      if (rateRes.ok) {
+        const csv = await rateRes.text();
+        const lines = csv.split("\n").filter(l => l.trim() && !l.startsWith("RENTTYPE"));
+        if (lines.length > 0) {
+          dataPoints.push(`30-årig realkreditrente: ${lines.slice(-3).join(" | ")}`);
+        }
+      }
+    } catch { /* non-fatal */ }
+  }
+
+  if (dataPoints.length === 0) {
+    return "Bemærk: Brug de senest kendte tal fra Danmarks Statistik, Finanstilsynet og Nationalbanken. Angiv altid kilden.";
+  }
+
+  return `LIVE DANSKE FINANSDATA (hentet lige nu fra offentlige API'er — brug disse tal i artiklen):\n${dataPoints.join("\n")}`;
 }
 
 function estimateReadTime(content: string): string {
   const words = content.split(/\s+/).length;
-  const minutes = Math.round(words / 200);
-  return `${Math.max(3, minutes)} min`;
+  return `${Math.max(3, Math.round(words / 200))} min`;
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
-  // ─── Authenticate cron requests ──────────────────────────────────────────
+  // ─── Auth ─────────────────────────────────────────────────────────────────
   const cronSecret = Deno.env.get("CRON_SECRET");
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
@@ -83,45 +149,96 @@ serve(async (req) => {
   }
 
   try {
-    // ─── Find next unused topic ─────────────────────────────────────────────
-    const [{ data: usedDrafts }, { data: publishedArticles }] = await Promise.all([
+    // ─── Pick next unused topic ───────────────────────────────────────────
+    const [{ data: usedDrafts }, { data: published }] = await Promise.all([
       supabase.from("article_drafts").select("slug"),
       supabase.from("articles").select("slug"),
     ]);
 
-    const usedSlugs = new Set([
+    const used = new Set([
       ...(usedDrafts ?? []).map((d: { slug: string }) => d.slug),
-      ...(publishedArticles ?? []).map((a: { slug: string }) => a.slug),
+      ...(published ?? []).map((a: { slug: string }) => a.slug),
     ]);
 
-    const nextTopic = TOPICS.find((t) => !usedSlugs.has(t.slug));
-    if (!nextTopic) {
-      return new Response(JSON.stringify({ message: "All topics used — add more topics to seed list" }), {
+    const topic = TOPICS.find(t => !used.has(t.slug));
+    if (!topic) {
+      return new Response(JSON.stringify({ message: "All topics used" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ─── Generate article with Claude ──────────────────────────────────────
-    const prompt = `Du er en erfaren dansk privatøkonomi-journalist, der skriver til Kassen — et gratis budgetværktøj for danskere.
+    // ─── Fetch live data in parallel with topic selection ─────────────────
+    const liveData = await fetchLiveData(topic.category);
 
-Skriv en artikel på dansk med titlen: "${nextTopic.title}"
+    // ─── Build Google E-E-A-T optimised prompt ────────────────────────────
+    const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
 
-Krav:
-- 700-1000 ord, velstruktureret med H2 og H3 overskrifter (brug ## og ###)
-- Skriv i et naturligt, conversationelt dansk — som en klog ven der forklarer det, ikke som et AI-system
-- Brug konkrete danske tal og eksempler fra den virkelige verden (Statistikbanken, Boliga, DR, Finanstilsynet)
-- Undgå generiske sætninger som "Det er vigtigt at..." eller "Man bør overveje..." — vær konkret
-- Brug **fed tekst** til nøgletal og pointer
-- Inkludér en tabel eller bullet-liste med faktapoint
-- Afslut med en naturlig overgang til at prøve Kassen
-- Kategorien er: ${nextTopic.category}
-- Søgeord der skal indgå naturligt: ${nextTopic.keywords.join(", ")}
+    const prompt = `Du er chefredaktør på Kassen — Danmarks skarpeste privatøkonomiske medie. Du skriver i dag (${today}) en artikel til vores guides-sektion.
 
-Artiklen skal føles som noget fra Finans.dk eller DR Penge — ikke som AI-genereret indhold.
+EMNE: ${topic.title}
+KATEGORI: ${topic.category}
+SØGEINTENTION: ${topic.intent}
+PRIMÆRE SØGEORD: ${topic.keywords.join(", ")}
 
-Start artiklen direkte med ## (første sektion) — ingen introduction eller titel øverst.`;
+${liveData}
 
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+─── GOOGLES RANKING-SIGNALER DU SKAL FØLGE I 2026 ───────────────────────────
+
+**E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness):**
+- Skriv som en der HAR erfaring med emnet — brug "da vi kiggede på tallene", "i vores beregninger", "det overraskede os"
+- Angiv altid konkrete tal med kilde: "(kilde: Danmarks Statistik, 2024)" eller "(Nationalbanken, marts 2026)"
+- Vær villig til at have en holdning: "Vi mener at...", "Det er faktisk en dårlig idé fordi..."
+
+**Søgeintention og featured snippets:**
+- Start artiklen med en direkte, kort svarblok der besvarer søgeintentionen på 2-3 linjer (dette fanger featured snippet)
+- Brug H2/H3 overskrifter som spørgsmål folk faktisk søger på
+
+**People Also Ask (PAA) sektion:**
+- Afslut med 3-4 FAQ spørgsmål og korte svar (disse rangerer i "Folk spørger også"-boksen)
+
+**Helpful Content Update:**
+- Gå DYBERE end hvad folk finder alle andre steder — giv det unikke perspektiv
+- Inkludér en konkret beregning eller tabel med tal
+- Nævn en common mistake folk begår (giver troværdighed)
+
+─── SKRIVESTIL ───────────────────────────────────────────────────────────────
+
+- Dansk, direkte, lidt personlig — som en klog ven der arbejder med økonomi
+- Bland korte sætninger med lidt længere. Undgå monoton rytme.
+- ALDRIG: "Det er vigtigt at...", "Man bør overveje...", "I en verden hvor...", "I denne artikel vil vi..."
+- Brug gerne "faktisk", "overraskende nok", "det fleste glemmer", "her er hvad vi fandt"
+- Skriv "vi" og "dig" — ikke "man" og "borgeren"
+
+─── STRUKTUR (følg denne nøjagtigt) ─────────────────────────────────────────
+
+## [Direkte svar på søgeintentionen — 2-3 linjer som featured snippet]
+
+## [H2 der besvarer det primære spørgsmål]
+[300-400 ord med konkrete tal og en tabel eller bullet-liste]
+
+## [H2 der uddyber eller giver et alternativt perspektiv]
+[250-300 ord]
+
+## [H2 med den "common mistake" folk begår — praktisk og konkret]
+[200-250 ord]
+
+## Ofte stillede spørgsmål
+**[Spørgsmål 1 folk søger på]**
+[Kort, direkte svar — 2-4 linjer]
+
+**[Spørgsmål 2]**
+[Svar]
+
+**[Spørgsmål 3]**
+[Svar]
+
+─── SLUTNING ─────────────────────────────────────────────────────────────────
+Afslut naturligt med en overgang til at beregne i Kassen — ikke som en reklame, men som et logisk næste skridt for læseren.
+
+Samlet længde: 900-1200 ord. Start direkte med ## — ingen titel øverst.`;
+
+    // ─── Call Claude Opus ─────────────────────────────────────────────────
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "anthropic-version": "2023-06-01",
@@ -130,48 +247,47 @@ Start artiklen direkte med ## (første sektion) — ingen introduction eller tit
       },
       body: JSON.stringify({
         model: "claude-opus-4-6",
-        max_tokens: 2000,
+        max_tokens: 2500,
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const err = await anthropicRes.text();
-      throw new Error(`Anthropic error: ${err}`);
-    }
+    if (!res.ok) throw new Error(`Anthropic: ${await res.text()}`);
 
-    const anthropicData = await anthropicRes.json();
-    const content = anthropicData.content[0].text as string;
-    const readTime = estimateReadTime(content);
+    const data = await res.json();
+    const content = data.content[0].text as string;
 
-    // ─── Generate excerpt from first paragraph ──────────────────────────────
-    const lines = content.split("\n").filter((l: string) => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith("|"));
-    const excerpt = lines[0]?.replace(/\*\*/g, "").slice(0, 160) ?? nextTopic.title;
+    // Extract excerpt from first real paragraph
+    const excerpt = content
+      .split("\n")
+      .find(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith("|") && l.length > 60)
+      ?.replace(/\*\*/g, "")
+      .slice(0, 160) ?? topic.title;
 
-    // ─── Save to article_drafts ─────────────────────────────────────────────
-    const { data: draft, error: insertError } = await supabase
+    const { data: draft, error } = await supabase
       .from("article_drafts")
       .insert({
-        slug: nextTopic.slug,
-        title: nextTopic.title,
+        slug: topic.slug,
+        title: topic.title,
         excerpt,
-        category: nextTopic.category,
-        read_time: readTime,
+        category: topic.category,
+        read_time: estimateReadTime(content),
         content,
-        keywords: nextTopic.keywords,
+        keywords: topic.keywords,
         status: "pending",
       })
       .select()
       .single();
 
-    if (insertError) throw insertError;
+    if (error) throw error;
 
-    console.log(`Generated draft: ${nextTopic.title} (id: ${draft.id})`);
+    console.log(`✓ Draft created: "${topic.title}" (id: ${draft.id})`);
 
     return new Response(
-      JSON.stringify({ success: true, draft_id: draft.id, title: nextTopic.title }),
+      JSON.stringify({ success: true, draft_id: draft.id, title: topic.title }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
+
   } catch (err) {
     console.error("generate-article error:", err);
     return new Response(
