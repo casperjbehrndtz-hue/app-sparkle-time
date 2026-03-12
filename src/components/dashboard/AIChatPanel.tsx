@@ -6,6 +6,7 @@ import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { useAIStream } from "@/hooks/useAIStream";
+import { usePartnerTracking } from "@/hooks/usePartnerTracking";
 
 // ─── Freemium: 5 AI interactions free per month ────────────────────────────
 const FREE_LIMIT = 5;
@@ -67,6 +68,7 @@ function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang:
 export function AIChatPanel({ profile, budget }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
+  const { track } = usePartnerTracking(config.brandKey ?? "kassen");
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -122,6 +124,7 @@ export function AIChatPanel({ profile, budget }: Props) {
     if (!text.trim() || isLoading || isLimitReached) return;
     incrementUsage();
     setRemaining(getRemainingFree());
+    track("ai_message_sent");
     const userMsg: Msg = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -152,6 +155,7 @@ export function AIChatPanel({ profile, budget }: Props) {
 
   const handleOpen = () => {
     setIsOpen(true);
+    track("ai_chat_open");
     if (!hasInitialAnalysis && messages.length === 0) {
       setTimeout(runOptimize, 300);
     }

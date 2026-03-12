@@ -5,6 +5,7 @@ import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud } from "lucide-reac
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
+import { usePartnerTracking } from "@/hooks/usePartnerTracking";
 import { SectionErrorBoundary } from "@/components/SectionErrorBoundary";
 import { CockpitSection } from "./CockpitSection";
 import { OptimeringView } from "./OptimeringView";
@@ -136,9 +137,14 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
+  const { track } = usePartnerTracking(config.brandKey ?? "kassen");
+  const isEmbed = new URLSearchParams(window.location.search).get("embed") === "true";
   const [showReport, setShowReport] = useState(false);
   const [showEditSheet, setShowEditSheet] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
+
+  // Track dashboard view for B2B partners
+  useEffect(() => { track("dashboard_view"); }, []);
 
   const health = useMemo(() => calculateHealth(profile, budget), [profile, budget]);
   const smartSteps = useMemo(() => generateSmartSteps(profile, budget, health), [profile, budget, health]);
@@ -174,7 +180,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-safe">
-      <SuiteNav />
+      {!isEmbed && <SuiteNav />}
 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
@@ -311,7 +317,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         </section>
       </main>
 
-      <AppFooter />
+      {!isEmbed && <AppFooter />}
       <AIChatPanel profile={profile} budget={budget} />
       <ProfileEditSheet
         open={showEditSheet}

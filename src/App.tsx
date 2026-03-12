@@ -21,10 +21,10 @@ const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
 const B2BPage = lazy(() => import("./pages/B2BPage"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Partner = lazy(() => import("./pages/Partner"));
 
 const queryClient = new QueryClient();
 
-// Determine white-label config from URL param or default
 function getConfig() {
   const params = new URLSearchParams(window.location.search);
   const brand = params.get("brand");
@@ -33,6 +33,9 @@ function getConfig() {
   }
   return AVAILABLE_CONFIGS.kassen;
 }
+
+// Embed mode: hide cookie banner and external navigation when inside an iframe
+const isEmbed = new URLSearchParams(window.location.search).get("embed") === "true";
 
 const App = () => {
   const config = getConfig();
@@ -58,11 +61,12 @@ const App = () => {
                     <Route path="/guides/:slug" element={<Article />} />
                     <Route path="/b2b" element={<B2BPage />} />
                     <Route path="/admin" element={<Admin />} />
+                    <Route path="/partner" element={<Partner />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
               </BrowserRouter>
-              <CookieBanner />
+              {!isEmbed && <CookieBanner />}
             </TooltipProvider>
             </MarketDataProvider>
           </WhiteLabelProvider>

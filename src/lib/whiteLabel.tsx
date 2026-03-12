@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from "react";
 
 export interface WhiteLabelConfig {
   // Brand
+  brandKey?: string; // matches partner brand_key for tracking
   brandName: string;
   brandLogo?: string; // URL or import path
   brandTagline?: string;
@@ -209,8 +210,8 @@ export function useWhiteLabel() {
 // ─── Available configs (for demo/showcase) ───────────────────
 
 export const AVAILABLE_CONFIGS: Record<string, WhiteLabelConfig> = {
-  kassen: defaultConfig,
-  nordea: nordeaConfig,
+  kassen: { ...defaultConfig, brandKey: "kassen" },
+  nordea: { ...nordeaConfig, brandKey: "nordea" },
   danske: danskeConfig,
   danskebank: danskeConfig,
 };
