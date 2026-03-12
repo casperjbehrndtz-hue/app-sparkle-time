@@ -1,10 +1,13 @@
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { supabase } from "@/integrations/supabase/client";
 
-const articles: Record<string, { title: string; category: string; readTime: string; content: string }> = {
+// ─── Static fallback articles ─────────────────────────────────────────────────
+const STATIC_ARTICLES: Record<string, { title: string; category: string; readTime: string; content: string }> = {
   "hvad-koster-det-at-bo-i-koebenhavn": {
     title: "Hvad koster det at bo i København i 2026?",
     category: "Boligøkonomi",
@@ -194,7 +197,6 @@ function renderContent(content: string) {
       return <tr key={i}>{cells.map((c, j) => <td key={j} className="border border-border px-3 py-1.5 text-sm">{c.replace(/\*\*/g, "")}</td>)}</tr>;
     }
     if (line.trim() === "") return <br key={i} />;
-    // Inline bold
     const parts = line.split(/\*\*(.*?)\*\*/g);
     if (parts.length > 1) return <p key={i} className="text-sm text-foreground/80 leading-relaxed my-1">{parts.map((p, j) => j % 2 === 1 ? <strong key={j}>{p}</strong> : p)}</p>;
     return <p key={i} className="text-sm text-foreground/80 leading-relaxed my-1">{line}</p>;
@@ -204,12 +206,48 @@ function renderContent(content: string) {
 export default function Article() {
   const { slug } = useParams<{ slug: string }>();
   const config = useWhiteLabel();
-  const article = slug ? articles[slug] : null;
+  const [article, setArticle] = useState<{ title: string; category: string; readTime: string; content: string } | null | "loading">("loading");
+
+  useEffect(() => {
+    if (!slug) { setArticle(null); return; }
+
+    // Check static first (instant)
+    if (STATIC_ARTICLES[slug]) {
+      setArticle(STATIC_ARTICLES[slug]);
+      return;
+    }
+
+    // Then try Supabase for AI-generated articles
+    supabase
+      .from("articles")
+      .select("title, category, read_time, content")
+      .eq("slug", slug)
+      .eq("status", "published")
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setArticle({ title: data.title, category: data.category, readTime: data.read_time, content: data.content });
+        } else {
+          setArticle(null);
+        }
+      });
+  }, [slug]);
+
+  const title = article && article !== "loading" ? article.title : "";
+  const content = article && article !== "loading" ? article.content : "";
 
   usePageMeta(
-    article ? `${article.title} — Kassen` : "Guide — Kassen",
-    article ? article.content.slice(0, 155).replace(/[#\n*]/g, "").trim() : "Læs guides om dansk privatøkonomi."
+    title ? `${title} — Kassen` : "Guide — Kassen",
+    content ? content.slice(0, 155).replace(/[#\n*]/g, "").trim() : "Læs guides om dansk privatøkonomi."
   );
+
+  if (article === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!article) return <Navigate to="/guides" replace />;
 

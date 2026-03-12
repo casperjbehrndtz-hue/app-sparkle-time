@@ -1,0 +1,33 @@
+name: SEO Content Generator
+
+on:
+  # Run every 4 days at 08:00 UTC (10:00 dansk tid)
+  schedule:
+    - cron: "0 8 */4 * *"
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  generate-article:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate SEO article
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/generate-article")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | head -n-1)
+
+          echo "Response: $BODY"
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Error: edge function returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Article draft created successfully"
+          echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Title: {d.get(\"title\", \"N/A\")}')" || true

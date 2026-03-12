@@ -1,11 +1,42 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, X, Loader2, Bell } from "lucide-react";
+import { Sparkles, Send, X, Loader2, Bell, Lock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { useAIStream } from "@/hooks/useAIStream";
+
+// ─── Freemium: 5 AI interactions free per month ────────────────────────────
+const FREE_LIMIT = 5;
+const STORAGE_KEY = "kassen_ai_usage";
+
+function getUsage(): { count: number; month: string } {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { count: 0, month: "" };
+    return JSON.parse(raw);
+  } catch {
+    return { count: 0, month: "" };
+  }
+}
+
+function incrementUsage(): number {
+  const now = new Date();
+  const month = `${now.getFullYear()}-${now.getMonth()}`;
+  const prev = getUsage();
+  const count = prev.month === month ? prev.count + 1 : 1;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ count, month }));
+  return count;
+}
+
+function getRemainingFree(): number {
+  const now = new Date();
+  const month = `${now.getFullYear()}-${now.getMonth()}`;
+  const { count, month: savedMonth } = getUsage();
+  if (savedMonth !== month) return FREE_LIMIT;
+  return Math.max(0, FREE_LIMIT - count);
+}
 
 interface Props {
   profile: BudgetProfile;
@@ -42,6 +73,8 @@ export function AIChatPanel({ profile, budget }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
   const [hasProactiveNudge, setHasProactiveNudge] = useState(false);
+  const [remaining, setRemaining] = useState(getRemainingFree);
+  const isLimitReached = remaining <= 0;
   const scrollRef = useRef<HTMLDivElement>(null);
   const aiStream = useAIStream();
 
@@ -54,7 +87,9 @@ export function AIChatPanel({ profile, budget }: Props) {
   }, [messages]);
 
   const runOptimize = useCallback(() => {
-    if (hasInitialAnalysis || isLoading) return;
+    if (hasInitialAnalysis || isLoading || isLimitReached) return;
+    incrementUsage();
+    setRemaining(getRemainingFree());
     setIsLoading(true);
     let assistantSoFar = "";
 
@@ -74,6 +109,7 @@ export function AIChatPanel({ profile, budget }: Props) {
       onDone: () => {
         setIsLoading(false);
         setHasInitialAnalysis(true);
+        setRemaining(getRemainingFree());
       },
       onError: (err) => {
         setIsLoading(false);
@@ -83,7 +119,9 @@ export function AIChatPanel({ profile, budget }: Props) {
   }, [hasInitialAnalysis, isLoading, profile, budget, aiStream]);
 
   const sendMessage = useCallback((text: string) => {
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || isLimitReached) return;
+    incrementUsage();
+    setRemaining(getRemainingFree());
     const userMsg: Msg = { role: "user", content: text.trim() };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
@@ -225,28 +263,47 @@ export function AIChatPanel({ profile, budget }: Props) {
               </div>
             )}
 
-            <div className="px-4 py-3 border-t border-border bg-muted/20">
-              <form
-                onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
-                className="flex gap-2"
-              >
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Stil et spørgsmål om din økonomi..."
-                  disabled={isLoading}
-                  className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 placeholder:text-muted-foreground/40 disabled:opacity-50"
-                />
-                <button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 hover:brightness-110 transition-all flex-shrink-0"
+            {isLimitReached ? (
+              <div className="px-4 py-4 border-t border-border bg-muted/20">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+                  <Lock className="w-5 h-5 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-semibold text-foreground mb-1">Du har brugt dine 5 gratis AI-svar</p>
+                  <p className="text-xs text-muted-foreground mb-3">Månedlig grænse nået. Nulstilles automatisk næste måned.</p>
+                  <a
+                    href="/login"
+                    className="inline-block px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all"
+                  >
+                    Opret konto — hold øje med premium
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="px-4 py-3 border-t border-border bg-muted/20">
+                {remaining < FREE_LIMIT && (
+                  <p className="text-[10px] text-muted-foreground/60 text-right mb-1.5">{remaining} AI-svar tilbage denne måned</p>
+                )}
+                <form
+                  onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
+                  className="flex gap-2"
                 >
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Stil et spørgsmål om din økonomi..."
+                    disabled={isLoading}
+                    className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 placeholder:text-muted-foreground/40 disabled:opacity-50"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 hover:brightness-110 transition-all flex-shrink-0"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

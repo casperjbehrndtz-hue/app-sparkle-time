@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Search, TrendingUp, Calculator, PiggyBank, Home } from "lucide-react";
+import { ArrowLeft, Search, TrendingUp, Calculator, PiggyBank, Home, FileText } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { supabase } from "@/integrations/supabase/client";
 
-const articles = [
+// ─── Static seed articles (always shown, no DB required) ─────────────────────
+const STATIC_ARTICLES = [
   {
     slug: "hvad-koster-det-at-bo-i-koebenhavn",
     title: "Hvad koster det at bo i København i 2026?",
@@ -41,6 +43,14 @@ const articles = [
   },
 ];
 
+type DBArticle = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  read_time: string;
+};
+
 export default function Blog() {
   const config = useWhiteLabel();
   usePageMeta(
@@ -48,8 +58,35 @@ export default function Blog() {
     "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget."
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [dbArticles, setDbArticles] = useState<DBArticle[]>([]);
 
-  const filtered = articles.filter(
+  useEffect(() => {
+    supabase
+      .from("articles")
+      .select("slug, title, excerpt, category, read_time")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setDbArticles(data as DBArticle[]);
+      });
+  }, []);
+
+  // Merge: static first, then DB articles that aren't already in static list
+  const staticSlugs = new Set(STATIC_ARTICLES.map(a => a.slug));
+  const dynamicArticles = dbArticles
+    .filter(a => !staticSlugs.has(a.slug))
+    .map(a => ({
+      slug: a.slug,
+      title: a.title,
+      excerpt: a.excerpt,
+      icon: <FileText className="w-5 h-5" />,
+      category: a.category,
+      readTime: a.read_time,
+    }));
+
+  const allArticles = [...STATIC_ARTICLES, ...dynamicArticles];
+
+  const filtered = allArticles.filter(
     (a) =>
       a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       a.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -57,7 +94,6 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <header className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -67,7 +103,6 @@ export default function Blog() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="bg-muted/30 py-10 sm:py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-3">
@@ -88,7 +123,6 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Articles */}
       <section className="flex-1 py-8">
         <div className="max-w-3xl mx-auto px-4 grid sm:grid-cols-2 gap-4">
           {filtered.map((article, i) => (
@@ -96,7 +130,7 @@ export default function Blog() {
               key={article.slug}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
+              transition={{ delay: i * 0.06 }}
             >
               <Link
                 to={`/guides/${article.slug}`}
@@ -117,7 +151,6 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="bg-primary py-12">
         <div className="max-w-md mx-auto px-4 text-center">
           <h3 className="font-display font-bold text-xl text-primary-foreground mb-2">Prøv {config.brandName} gratis</h3>

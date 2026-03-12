@@ -11,3 +11,14 @@ verify_jwt = false
 
 [functions.market-data]
 verify_jwt = false
+
+# generate-article: called by GitHub Actions cron (uses CRON_SECRET header auth)
+[functions.generate-article]
+verify_jwt = false
+
+# get-drafts + publish-article: verify admin JWT internally
+[functions.get-drafts]
+verify_jwt = false
+
+[functions.publish-article]
+verify_jwt = false
