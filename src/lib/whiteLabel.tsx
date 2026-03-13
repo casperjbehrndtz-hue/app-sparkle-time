@@ -84,10 +84,10 @@ export const defaultConfig: WhiteLabelConfig = {
     showNeighborComparison: true,
   },
   hero: {
-    title: "Find ud af hvad du",
-    titleHighlight: "reelt har til overs.",
-    subtitle: "De fleste familier har tusindvis af kroner i skjulte udgifter. Vi finder dem på 3 minutter.",
-    ctaLabel: "Beregn dit rådighedsbeløb",
+    title: "Tag kontrol over",
+    titleHighlight: "din privatøkonomi.",
+    subtitle: "Find skjulte udgifter, se hvad du reelt har til overs og stå stærkt til fremtiden — gratis og på 3 minutter.",
+    ctaLabel: "Tjek din økonomi gratis",
     stats: [
       { value: "3 min", label: "At udfylde" },
       { value: "2.400 kr.", label: "Gns. besparelse/md." },
@@ -207,6 +207,46 @@ export function useWhiteLabel() {
   return useContext(WhiteLabelContext);
 }
 
+// ─── Norwegian default config ─────────────────────────────────
+
+export const kassenNoConfig: WhiteLabelConfig = {
+  brandName: "Kassen NO",
+  brandTagline: "Smart budsjetteringsverktøy",
+  theme: {
+    primary: "216 56% 22%",
+    primaryForeground: "0 0% 100%",
+  },
+  ctaLinks: {
+    mortgage: { label: "Sammenlign boliglån →", url: "https://www.finansportalen.no/bank/boliglan" },
+    insurance: { label: "Sammenlign forsikringer →", url: "https://www.finansportalen.no/forsikring" },
+    savings: { label: "Les mer om buffersparing →", url: "https://www.dinepenger.no/sparing" },
+    investment: { label: "Les mer om investering →", url: "https://www.finansportalen.no/investering" },
+  },
+  features: {
+    showAIChat: true,
+    showShareCard: true,
+    showBankReport: true,
+    showOptimizations: true,
+    showNeighborComparison: true,
+  },
+  hero: {
+    title: "Ta kontroll over",
+    titleHighlight: "din privatøkonomi.",
+    subtitle: "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden — gratis og på 3 minutter.",
+    ctaLabel: "Sjekk økonomien din gratis",
+    stats: [
+      { value: "3 min", label: "Å fylle ut" },
+      { value: "2 400 kr.", label: "Gj.sn. besparelse/md." },
+      { value: "100%", label: "Privat & gratis" },
+    ],
+  },
+  testimonials: [
+    { quote: "Jeg fant 3 200 kr. jeg ikke visste jeg brukte. På 3 minutter.", name: "Line, 34", location: "Oslo" },
+    { quote: "Vi tok rapporten med til banken. Rådgiveren var imponert.", name: "Mikkel & Sarah", location: "Bergen" },
+    { quote: "Endelig et budsjetteringsverktøy som ikke krever et regnearkskurs.", name: "Thomas, 28", location: "Trondheim" },
+  ],
+};
+
 // ─── Available configs (for demo/showcase) ───────────────────
 
 export const AVAILABLE_CONFIGS: Record<string, WhiteLabelConfig> = {
@@ -214,4 +254,7 @@ export const AVAILABLE_CONFIGS: Record<string, WhiteLabelConfig> = {
   nordea: { ...nordeaConfig, brandKey: "nordea" },
   danske: danskeConfig,
   danskebank: danskeConfig,
+  no: { ...kassenNoConfig, brandKey: "no" },
+  sparebank1: { ...kassenNoConfig, brandName: "SpareBank 1 Budsjett", brandKey: "sparebank1" },
+  dnb: { ...kassenNoConfig, brandName: "DNB Budsjett", brandKey: "dnb" },
 };

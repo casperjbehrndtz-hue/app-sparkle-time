@@ -9,6 +9,7 @@ import {
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocale } from "@/lib/locale";
 import type { ComputedBudget, BudgetProfile } from "@/lib/types";
 
 interface Props {
@@ -46,10 +47,11 @@ type SNode = D3SankeyNode<NodeExtra, LinkExtra>;
 type SLink = D3SankeyLink<NodeExtra, LinkExtra>;
 
 // ─── Stacked Bar (mobile) ──────────────────────
-function StackedBarView({ categories, income, disposable }: {
+function StackedBarView({ categories, income, disposable, lc }: {
   categories: { name: string; total: number; color: string }[];
   income: number;
   disposable: number;
+  lc: string;
 }) {
   return (
     <div className="space-y-3">
@@ -67,7 +69,7 @@ function StackedBarView({ categories, income, disposable }: {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.04 }}
                 style={{ backgroundColor: cat.color }}
                 className="h-full"
-                title={`${cat.name}: ${formatKr(cat.total)} kr.`}
+                title={`${cat.name}: ${formatKr(cat.total, lc)} kr.`}
               />
             );
           })}
@@ -77,7 +79,7 @@ function StackedBarView({ categories, income, disposable }: {
               animate={{ width: `${(disposable / income) * 100}%` }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: categories.length * 0.04 }}
               className="h-full bg-primary/30"
-              title={`Til overs: ${formatKr(disposable)} kr.`}
+              title={`Til overs: ${formatKr(disposable, lc)} kr.`}
             />
           )}
         </div>
@@ -97,7 +99,7 @@ function StackedBarView({ categories, income, disposable }: {
             >
               <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: cat.color }} />
               <span className="text-xs text-muted-foreground flex-1 truncate">{cat.name}</span>
-              <span className="text-xs font-medium tabular-nums">{formatKr(cat.total)}</span>
+              <span className="text-xs font-medium tabular-nums">{formatKr(cat.total, lc)}</span>
               <span className="text-[10px] text-muted-foreground/60 tabular-nums w-7 text-right">{pct}%</span>
             </motion.div>
           );
@@ -111,7 +113,7 @@ function StackedBarView({ categories, income, disposable }: {
           >
             <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 bg-primary/30" />
             <span className="text-xs font-medium text-primary flex-1">Til overs</span>
-            <span className="text-xs font-bold text-primary tabular-nums">{formatKr(disposable)}</span>
+            <span className="text-xs font-bold text-primary tabular-nums">{formatKr(disposable, lc)}</span>
             <span className="text-[10px] text-primary/60 tabular-nums w-7 text-right">{Math.round((disposable / income) * 100)}%</span>
           </motion.div>
         )}
@@ -121,11 +123,12 @@ function StackedBarView({ categories, income, disposable }: {
 }
 
 // ─── Sankey (desktop) ──────────────────────
-function SankeyView({ budget, profile, categories, disposable }: {
+function SankeyView({ budget, profile, categories, disposable, lc }: {
   budget: ComputedBudget;
   profile?: BudgetProfile;
   categories: { name: string; total: number; color: string }[];
   disposable: number;
+  lc: string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -274,7 +277,7 @@ function SankeyView({ budget, profile, categories, disposable }: {
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
                 <tspan fontWeight={700}>{node.name}</tspan>
-                <tspan dx={-((node.name.length * 7) + 6)} dy={16} fontWeight={500} opacity={0.6} fontSize={12}>{formatKr(node.value ?? 0)} kr.</tspan>
+                <tspan dx={-((node.name.length * 7) + 6)} dy={16} fontWeight={500} opacity={0.6} fontSize={12}>{formatKr(node.value ?? 0, lc)} kr.</tspan>
               </text>
             ) : (
               // Right label
@@ -282,7 +285,7 @@ function SankeyView({ budget, profile, categories, disposable }: {
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
                 <tspan fontWeight={700}>{node.name}</tspan>
-                <tspan dx={6} fontWeight={500} opacity={0.6}>{formatKr(node.value ?? 0)} kr.</tspan>
+                <tspan dx={6} fontWeight={500} opacity={0.6}>{formatKr(node.value ?? 0, lc)} kr.</tspan>
               </text>
             )}
           </g>
@@ -295,6 +298,8 @@ function SankeyView({ budget, profile, categories, disposable }: {
 // ─── Main export ──────────────────────
 export function SankeyDiagram({ budget, profile }: Props) {
   const isMobile = useIsMobile();
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
 
   const { categories, disposable } = useMemo(() => {
     const categoryMap = new Map<string, number>();
@@ -321,7 +326,7 @@ export function SankeyDiagram({ budget, profile }: Props) {
         ].map(s => (
           <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
-            <p className={`font-display font-bold text-xs sm:text-sm ${s.accent}`}>{formatKr(s.value)} kr.</p>
+            <p className={`font-display font-bold text-xs sm:text-sm ${s.accent}`}>{formatKr(s.value, lc)} kr.</p>
           </div>
         ))}
       </div>
@@ -329,9 +334,9 @@ export function SankeyDiagram({ budget, profile }: Props) {
       {/* Sankey (desktop) or Stacked Bar (mobile) */}
       <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4">
         {isMobile ? (
-          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} />
+          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} />
         ) : (
-          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} />
+          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} />
         )}
       </div>
     </div>

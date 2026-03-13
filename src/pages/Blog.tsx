@@ -60,6 +60,8 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dbArticles, setDbArticles] = useState<DBArticle[]>([]);
 
+  const [dbLoaded, setDbLoaded] = useState(false);
+
   useEffect(() => {
     supabase
       .from("articles")
@@ -68,23 +70,24 @@ export default function Blog() {
       .order("published_at", { ascending: false })
       .then(({ data }) => {
         if (data) setDbArticles(data as DBArticle[]);
+        setDbLoaded(true);
+      })
+      .catch(() => {
+        setDbLoaded(true); // DB unreachable — fall back to static
       });
   }, []);
 
-  // Merge: static first, then DB articles that aren't already in static list
-  const staticSlugs = new Set(STATIC_ARTICLES.map(a => a.slug));
-  const dynamicArticles = dbArticles
-    .filter(a => !staticSlugs.has(a.slug))
-    .map(a => ({
-      slug: a.slug,
-      title: a.title,
-      excerpt: a.excerpt,
-      icon: <FileText className="w-5 h-5" />,
-      category: a.category,
-      readTime: a.read_time,
-    }));
+  // DB is primary. Static articles are shown only if DB returned nothing.
+  const dynamicArticles = dbArticles.map(a => ({
+    slug: a.slug,
+    title: a.title,
+    excerpt: a.excerpt,
+    icon: <FileText className="w-5 h-5" />,
+    category: a.category,
+    readTime: a.read_time,
+  }));
 
-  const allArticles = [...STATIC_ARTICLES, ...dynamicArticles];
+  const allArticles = dbLoaded && dbArticles.length > 0 ? dynamicArticles : STATIC_ARTICLES;
 
   const filtered = allArticles.filter(
     (a) =>

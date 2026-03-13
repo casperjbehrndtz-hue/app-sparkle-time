@@ -97,7 +97,7 @@ export function AIChatPanel({ profile, budget }: Props) {
 
     aiStream.stream({
       functionName: "budget-ai",
-      body: { profile, budget, mode: "optimize" },
+      body: { profile, budget, mode: "optimize", lang },
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         setMessages((prev) => {
@@ -135,7 +135,7 @@ export function AIChatPanel({ profile, budget }: Props) {
 
     aiStream.stream({
       functionName: "budget-ai",
-      body: { profile, budget, mode: "chat", messages: newMessages },
+      body: { profile, budget, mode: "chat", messages: newMessages, lang },
       onDelta: (chunk) => {
         assistantSoFar += chunk;
         setMessages((prev) => {

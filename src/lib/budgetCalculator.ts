@@ -6,28 +6,56 @@ import {
   PUBLIC_TRANSPORT,
   HEALTH,
   HOMEOWNER_ASSOCIATION,
-  PROPERTY_TAX,
   TAX_DEDUCTION_RATE,
   getChildcarePrice,
   getChildBenefit,
+  getPropertyValueEstimate,
 } from "@/data/priceDatabase";
+import {
+  NO_SUBSCRIPTIONS, NO_UTILITIES, NO_FOOD, NO_PUBLIC_TRANSPORT,
+  NO_HOMEOWNER_ASSOCIATION, noGetChildcarePrice, noGetChildBenefit,
+  noGetPropertyValueEstimate, noCalcPropertyTax,
+} from "@/data/priceDatabase.no";
 import type { BudgetProfile, ComputedBudget, ExpenseItem } from "./types";
 import { frequencyToMonthly, frequencyLabel } from "./types";
 import type { MarketData } from "./marketData";
 import { getLiveElCost } from "./marketData";
+import type { LocaleConfig } from "./locale";
+import { DK_LOCALE } from "./locale";
 
 // Average annual kWh usage
 const ANNUAL_KWH_SOLO = 2000;
 const ANNUAL_KWH_PAR = 3500;
 
-export function computeBudget(profile: BudgetProfile, marketData?: MarketData | null): ComputedBudget {
+// Ejendomsværdiskat 2026 (L211/2022 — ny boligbeskatning gældende fra 2024)
+// Sats 1: 0,51 % af vurderingspris op til 9.200.000 kr.
+// Sats 2: 1,40 % af vurderingspris over 9.200.000 kr.
+// Kilde: Skattestyrelsen / Boligskatteloven § 7
+function calcEjendomsvaerdiskat(propertyValue: number): number {
+  if (propertyValue <= 0) return 800; // fallback
+  const THRESHOLD = 9_200_000;
+  const annual =
+    propertyValue <= THRESHOLD
+      ? propertyValue * 0.0051
+      : THRESHOLD * 0.0051 + (propertyValue - THRESHOLD) * 0.014;
+  return Math.round(annual / 12);
+}
+
+export { calcEjendomsvaerdiskat };
+
+export function computeBudget(profile: BudgetProfile, marketData?: MarketData | null, locale: LocaleConfig = DK_LOCALE): ComputedBudget {
+  const isNO = locale.code === "no";
   const isPar = profile.householdType === "par";
   const additionalMonthly = (profile.additionalIncome || []).reduce((sum, s) => sum + frequencyToMonthly(s.amount, s.frequency), 0);
-  
-  // Børnepenge (child benefits) — tax-free income
+
+  // Børnepenge / Barnetrygd — tax-free income
   let childBenefitTotal = 0;
   if (profile.hasChildren && profile.childrenAges.length > 0) {
-    childBenefitTotal = profile.childrenAges.reduce((sum, age) => sum + getChildBenefit(age).monthly, 0);
+    if (isNO) {
+      childBenefitTotal = profile.childrenAges.reduce((sum, age) => sum + noGetChildBenefit(age).monthly, 0);
+    } else {
+      childBenefitTotal = profile.childrenAges.reduce((sum, age) => sum + getChildBenefit(age).monthly, 0);
+    }
   }
   
   const totalIncome = profile.income + (isPar ? profile.partnerIncome : 0) + additionalMonthly + childBenefitTotal;
@@ -68,38 +96,40 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Rentefradrag (mortgage interest tax deduction) for homeowners and andel with loans
+  // Rentefradrag / Rentefradrag NO (mortgage interest tax deduction)
   if ((profile.housingType === "ejer" || profile.housingType === "andel") && profile.mortgageAmount > 0) {
-    // Use interest rate if available, otherwise estimate ~60% of payment is interest
     const interestRatePct = profile.interestRate > 0 ? profile.interestRate : 4.0;
-    // Approximate: monthly interest ≈ (outstanding_principal × rate) / 12
-    // Since we only have monthly payment, estimate interest portion based on rate
-    // Higher rates = more interest portion. At 4%, roughly 55-65% of payment is interest.
     const interestFraction = Math.min(0.85, 0.4 + (interestRatePct * 0.06));
     const estimatedMonthlyInterest = Math.round(profile.mortgageAmount * interestFraction);
-    const monthlyDeduction = Math.round(estimatedMonthlyInterest * TAX_DEDUCTION_RATE);
+    const deductionRate = locale.taxDeductionRate;
+    const monthlyDeduction = Math.round(estimatedMonthlyInterest * deductionRate);
     if (monthlyDeduction > 0) {
+      const deductionLabel = isNO
+        ? `Rentefradrag (skattefordel ~${Math.round(deductionRate * 100)}%)`
+        : `Rentefradrag (skatteværdi ~${Math.round(deductionRate * 100)}%)`;
       fixedExpenses.push({
         category: "Bolig",
-        label: `Rentefradrag (−${Math.round(TAX_DEDUCTION_RATE * 100)}%)`,
+        label: deductionLabel,
         amount: -monthlyDeduction,
         colorVar: "--kassen-green",
       });
     }
   }
 
-  // Utilities — always included
+  // Utilities — always included, user can override amounts
+  const utilDb = isNO ? NO_UTILITIES : UTILITIES;
   fixedExpenses.push({
     category: "Forsyning",
-    label: "Internet",
-    amount: UTILITIES.internet.price,
+    label: isNO ? "Internett" : "Internet",
+    amount: profile.internetAmount ?? utilDb.internet.price,
     colorVar: "--kassen-blue",
   });
 
-  // Electricity: use live price if available
-  const liveElCost = getLiveElCost(marketData ?? null, isPar ? ANNUAL_KWH_PAR : ANNUAL_KWH_SOLO);
-  const elAmount = liveElCost ?? (isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo);
-  const elLabel = liveElCost ? "El (live-pris)" : "El";
+  // Electricity: use profile override > live price > default (live price only for DK)
+  const liveElCost = !isNO ? getLiveElCost(marketData ?? null, isPar ? ANNUAL_KWH_PAR : ANNUAL_KWH_SOLO) : null;
+  const elDefault = liveElCost ?? (isPar ? utilDb.electricity.price_par : utilDb.electricity.price_solo);
+  const elAmount = profile.electricityAmount ?? elDefault;
+  const elLabel = isNO ? "Strøm" : ((!profile.electricityAmount && liveElCost) ? "El (live-pris)" : "El");
   fixedExpenses.push({
     category: "Forsyning",
     label: elLabel,
@@ -109,34 +139,37 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
 
   fixedExpenses.push({
     category: "Forsyning",
-    label: "Varme & vand",
-    amount: isPar ? UTILITIES.heating.price_par : UTILITIES.heating.price_solo,
+    label: isNO ? "Oppvarming/vann" : "Varme & vand",
+    amount: profile.heatingAmount ?? (isPar ? utilDb.heating.price_par : utilDb.heating.price_solo),
     colorVar: "--kassen-blue",
   });
   fixedExpenses.push({
     category: "Forsyning",
     label: isPar ? "Mobil (2 pers.)" : "Mobil",
-    amount: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1),
+    amount: profile.mobileAmount ?? utilDb.mobile.price_per_person * (isPar ? 2 : 1),
     colorVar: "--kassen-blue",
   });
 
-  // DR medielicens — mandatory for all Danish households
-  fixedExpenses.push({
-    category: "Forsyning",
-    label: "DR (medielicens)",
-    amount: UTILITIES.dr_licens.price,
-    colorVar: "--kassen-blue",
-  });
+  // DR medielicens — only in Denmark (Norway abolished NRK license Jan 2020)
+  if (!isNO) {
+    fixedExpenses.push({
+      category: "Forsyning",
+      label: "DR (medielicens)",
+      amount: profile.drAmount ?? UTILITIES.dr_licens.price,
+      colorVar: "--kassen-blue",
+    });
+  }
 
   // Subscriptions
+  const subDb = isNO ? NO_SUBSCRIPTIONS : SUBSCRIPTIONS;
   const subMap: { key: keyof BudgetProfile; label: string; amount: number }[] = [
-    { key: "hasNetflix", label: "Netflix", amount: SUBSCRIPTIONS.netflix.price },
-    { key: "hasSpotify", label: "Spotify", amount: isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo },
-    { key: "hasHBO", label: "HBO Max", amount: SUBSCRIPTIONS.hbo.price },
-    { key: "hasViaplay", label: "Viaplay", amount: SUBSCRIPTIONS.viaplay.price },
-    { key: "hasAppleTV", label: "Apple TV+", amount: SUBSCRIPTIONS.appleTV.price },
-    { key: "hasDisney", label: "Disney+", amount: SUBSCRIPTIONS.disney.price },
-    { key: "hasAmazonPrime", label: "Amazon Prime", amount: SUBSCRIPTIONS.amazonPrime.price },
+    { key: "hasNetflix", label: "Netflix", amount: subDb.netflix.price },
+    { key: "hasSpotify", label: "Spotify", amount: isPar ? subDb.spotify.price_par : subDb.spotify.price_solo },
+    { key: "hasHBO", label: isNO ? "Max" : "HBO Max", amount: subDb.hbo.price },
+    { key: "hasViaplay", label: "Viaplay", amount: subDb.viaplay.price },
+    { key: "hasAppleTV", label: "Apple TV+", amount: subDb.appleTV.price },
+    { key: "hasDisney", label: "Disney+", amount: subDb.disney.price },
+    { key: "hasAmazonPrime", label: "Amazon Prime", amount: subDb.amazonPrime.price },
   ];
   subMap.forEach(({ key, label, amount }) => {
     if (profile[key]) {
@@ -171,20 +204,28 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Grundejerforening + ejendomsskat (auto for ejere)
+  // Grundejerforening / huseierforbund + ejendomsværdiskat / eiendomsskatt (auto for ejere)
   if (profile.housingType === "ejer") {
     fixedExpenses.push({
       category: "Bolig",
-      label: "Grundejerforening / ejerforening",
-      amount: HOMEOWNER_ASSOCIATION.default.price,
+      label: isNO ? "Huseierforbund / sameie" : "Grundejerforening / ejerforening",
+      amount: isNO ? NO_HOMEOWNER_ASSOCIATION.default.price : HOMEOWNER_ASSOCIATION.default.price,
       colorVar: "--kassen-blue",
     });
-    fixedExpenses.push({
-      category: "Bolig",
-      label: "Ejendomsskat",
-      amount: PROPERTY_TAX.default.price,
-      colorVar: "--kassen-blue",
-    });
+    const propValue = profile.propertyValue > 0
+      ? profile.propertyValue
+      : (isNO ? noGetPropertyValueEstimate(profile.postalCode) : getPropertyValueEstimate(profile.postalCode));
+    const propertySkat = isNO
+      ? noCalcPropertyTax(propValue, profile.postalCode)
+      : calcEjendomsvaerdiskat(propValue);
+    if (propertySkat > 0) {
+      fixedExpenses.push({
+        category: "Bolig",
+        label: locale.propertyTaxLabel,
+        amount: propertySkat,
+        colorVar: "--kassen-blue",
+      });
+    }
   }
 
   // Insurance
@@ -237,14 +278,15 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     });
   }
 
-  // Children
+  // Children — childcare costs
   if (profile.hasChildren && profile.childrenAges.length > 0) {
     profile.childrenAges.forEach((age, i) => {
-      const care = getChildcarePrice(age);
+      const care = isNO ? noGetChildcarePrice(age) : getChildcarePrice(age);
       if (care.price > 0) {
+        const childLabel = `barn ${i + 1}`;
         fixedExpenses.push({
-          category: "Børn",
-          label: `${care.label} (barn ${i + 1})`,
+          category: isNO ? "Barn" : "Børn",
+          label: `${care.label} (${childLabel})`,
           amount: care.price,
           colorVar: "--kassen-gold",
         });
@@ -280,26 +322,26 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
 
   // Variable expenses (use profile values — user can edit these)
   variableExpenses.push({
-    category: "Mad & dagligvarer",
-    label: "Mad & dagligvarer",
+    category: isNO ? "Mat & dagligvarer" : "Mad & dagligvarer",
+    label: isNO ? "Mat & dagligvarer" : "Mad & dagligvarer",
     amount: profile.foodAmount,
     colorVar: "--kassen-red",
   });
   variableExpenses.push({
     category: "Fritid",
-    label: "Fritid & oplevelser",
+    label: isNO ? "Fritid & opplevelser" : "Fritid & oplevelser",
     amount: profile.leisureAmount,
     colorVar: "--kassen-red",
   });
   variableExpenses.push({
-    category: "Tøj",
-    label: "Tøj & personlig pleje",
+    category: isNO ? "Klær" : "Tøj",
+    label: isNO ? "Klær & personlig pleie" : "Tøj & personlig pleje",
     amount: profile.clothingAmount,
     colorVar: "--kassen-red",
   });
   variableExpenses.push({
-    category: "Sundhed",
-    label: "Læge, tandlæge & medicin",
+    category: isNO ? "Helse" : "Sundhed",
+    label: isNO ? "Lege, tannlege & medisin" : "Læge, tandlæge & medicin",
     amount: profile.healthAmount,
     colorVar: "--kassen-red",
   });
@@ -319,62 +361,94 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
 
 export function generateOptimizations(
   profile: BudgetProfile,
-  budget: ComputedBudget
+  budget: ComputedBudget,
+  locale: LocaleConfig = DK_LOCALE,
 ) {
   const actions = [];
   const isPar = profile.householdType === "par";
+  const isNO = locale.code === "no";
+  const utilDb = isNO ? NO_UTILITIES : UTILITIES;
+  const opt = locale.optimization;
 
   // Mobile savings
-  const currentMobile = UTILITIES.mobile.price_per_person * (isPar ? 2 : 1);
-  const cheapMobile = isPar ? 258 : 129;
+  const currentMobile = utilDb.mobile.price_per_person * (isPar ? 2 : 1);
+  const cheapMobile = opt.mobile.cheapPricePerPerson * (isPar ? 2 : 1);
   if (currentMobile > cheapMobile) {
     actions.push({
-      rank: 0, handling: "Skift til billigere mobilabonnement",
+      rank: 0,
+      handling: isNO ? "Bytt til billigere mobilabonnement" : "Skift til billigere mobilabonnement",
       beskrivelse: isPar
-        ? "Oister eller Lebara tilbyder samme dækning til 129 kr./md. per linje."
-        : "Oister tilbyder fuld dækning til 129 kr./md.",
+        ? (isNO
+          ? `Chilimobil eller Fjordkraft tilbyr samme dekning til ${opt.mobile.cheapPricePerPerson} kr./md. per linje.`
+          : `Oister eller Lebara tilbyder samme dækning til ${opt.mobile.cheapPricePerPerson} kr./md. per linje.`)
+        : (isNO
+          ? `Chilimobil tilbyr full dekning til ${opt.mobile.cheapPricePerPerson} kr./md.`
+          : `Oister tilbyder fuld dækning til ${opt.mobile.cheapPricePerPerson} kr./md.`),
       besparelse_kr: currentMobile - cheapMobile,
-      cta_tekst: "Se Oister →", cta_url: "https://oister.dk", category: "Forsyning",
+      cta_tekst: opt.mobile.label,
+      cta_url: opt.mobile.url,
+      category: "Forsyning",
     });
   }
 
   // Streaming overlap
   const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
   if (streamingCount >= 3) {
+    const streamSaving = isNO ? 179 : 149;
     actions.push({
-      rank: 0, handling: "Skær én streamingtjeneste",
-      beskrivelse: `I har ${streamingCount} streamingtjenester. Skær den mindst brugte og spar ~149 kr./md.`,
-      besparelse_kr: 149,
-      cta_tekst: "Sammenlign →", cta_url: "https://www.tjekdette.dk/streaming", category: "Abonnementer",
+      rank: 0,
+      handling: isNO ? "Kutt én strømmetjeneste" : "Skær én streamingtjeneste",
+      beskrivelse: isNO
+        ? `Du har ${streamingCount} strømmetjenester. Kutt den minst brukte og spar ~${streamSaving} kr./md.`
+        : `I har ${streamingCount} streamingtjenester. Skær den mindst brugte og spar ~${streamSaving} kr./md.`,
+      besparelse_kr: streamSaving,
+      cta_tekst: opt.streaming.cta,
+      cta_url: opt.streaming.url,
+      category: "Abonnementer",
     });
   }
 
   // Food
-  const foodExpense = budget.variableExpenses.find((e) => e.category === "Mad & dagligvarer");
+  const foodCategory = isNO ? "Mat & dagligvarer" : "Mad & dagligvarer";
+  const foodExpense = budget.variableExpenses.find((e) => e.category === foodCategory);
   if (foodExpense) {
     const saving = Math.round(foodExpense.amount * 0.12);
     actions.push({
-      rank: 0, handling: "Reducer madbudgettet med 12%",
-      beskrivelse: `Familier med samme profil bruger 12% mindre ved at handle tilbud og planlægge. Spar ${saving} kr./md.`,
-      besparelse_kr: saving, cta_tekst: "Se madplan-guide →", cta_url: "https://www.nemlig.com", category: "Mad",
+      rank: 0,
+      handling: isNO ? "Reduser matbudsjettet med 12%" : "Reducer madbudgettet med 12%",
+      beskrivelse: isNO
+        ? `Andre med samme profil bruker 12% mindre ved å handle tilbud og planlegge. Spar ${saving} kr./md.`
+        : `Andre med samme profil bruger 12% mindre ved at handle tilbud og planlægge. Spar ${saving} kr./md.`,
+      besparelse_kr: saving,
+      cta_tekst: opt.food.cta,
+      cta_url: opt.food.url,
+      category: isNO ? "Mat" : "Mad",
     });
   }
 
   // Mortgage
   if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
     actions.push({
-      rank: 0, handling: "Refinansier boliglånet",
-      beskrivelse: "Mange familier kan spare 1.000–2.000 kr./md. ved at omlægge deres lån.",
-      besparelse_kr: 1580, cta_tekst: "Se besparelse →", cta_url: "https://parfinans.dk", category: "Bolig",
+      rank: 0,
+      handling: isNO ? "Refinansier boliglånet" : "Refinansier boliglånet",
+      beskrivelse: opt.mortgage.description,
+      besparelse_kr: 1580,
+      cta_tekst: opt.mortgage.cta,
+      cta_url: opt.mortgage.url,
+      category: "Bolig",
     });
   }
 
   // Insurance
   if (profile.hasInsurance) {
     actions.push({
-      rank: 0, handling: "Tjek jeres forsikringer",
-      beskrivelse: "Familier der sammenligner forsikringer hvert 2. år sparer i gennemsnit 200 kr./md.",
-      besparelse_kr: 200, cta_tekst: "Sammenlign →", cta_url: "https://www.forsikringsguiden.dk", category: "Forsikring",
+      rank: 0,
+      handling: isNO ? "Sjekk forsikringene dine" : "Tjek jeres forsikringer",
+      beskrivelse: opt.insurance.description,
+      besparelse_kr: 200,
+      cta_tekst: opt.insurance.cta,
+      cta_url: opt.insurance.url,
+      category: "Forsikring",
     });
   }
 
@@ -384,8 +458,8 @@ export function generateOptimizations(
     .map((a, i) => ({ ...a, rank: i + 1 }));
 }
 
-export function formatKr(amount: number): string {
-  return new Intl.NumberFormat("da-DK", {
+export function formatKr(amount: number, localeCode = "da-DK"): string {
+  return new Intl.NumberFormat(localeCode, {
     style: "decimal",
     maximumFractionDigits: 0,
   }).format(amount);

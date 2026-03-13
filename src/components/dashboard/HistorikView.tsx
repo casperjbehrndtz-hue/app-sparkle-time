@@ -4,9 +4,12 @@ import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import { getSnapshots } from "@/lib/snapshots";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
 
 export function HistorikView() {
   const snapshots = useMemo(() => getSnapshots(), []);
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
 
   if (snapshots.length < 2) {
     return (
@@ -54,7 +57,7 @@ export function HistorikView() {
             disposableDelta >= 0 ? "text-primary" : "text-destructive"
           }`}>
             {disposableDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {disposableDelta >= 0 ? "+" : ""}{formatKr(disposableDelta)} kr.
+            {disposableDelta >= 0 ? "+" : ""}{formatKr(disposableDelta, lc)} kr.
           </div>
           <p className="text-[10px] text-muted-foreground">Rådighedsbeløb siden start</p>
         </motion.div>
@@ -94,7 +97,7 @@ export function HistorikView() {
               <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number) => [`${formatKr(v)} kr.`, "Rådighed"]}
+                formatter={(v: number) => [`${formatKr(v, lc)} kr.`, "Rådighed"]}
               />
               <Area type="monotone" dataKey="rådighed" stroke="hsl(var(--primary))" fill="url(#colorRaad)" strokeWidth={2} />
             </AreaChart>

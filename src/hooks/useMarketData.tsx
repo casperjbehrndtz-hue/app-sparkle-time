@@ -15,7 +15,7 @@ export function MarketDataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     fetchMarketData()
       .then(d => setData(d))
-      .catch(() => {})
+      .catch((err) => { console.error("[MarketData] Failed to fetch:", err); })
       .finally(() => setLoading(false));
   }, []);
 

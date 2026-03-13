@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendarDays, AlertCircle, ChevronRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
+import { formatKr, calcEjendomsvaerdiskat } from "@/lib/budgetCalculator";
+import { getPropertyValueEstimate } from "@/data/priceDatabase";
+import { noCalcPropertyTax, noGetPropertyValueEstimate } from "@/data/priceDatabase.no";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
@@ -21,12 +24,14 @@ interface AnnualEvent {
 
 const MONTH_NAMES_DA = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
 const MONTH_NAMES_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_NAMES_NO = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"];
 
 const fadeUp = { hidden: { opacity: 0, y: 10 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05 } }) };
 
 export function AarshjulView({ profile, budget }: Props) {
   const { t, lang } = useI18n();
-  const monthNames = lang === "da" ? MONTH_NAMES_DA : MONTH_NAMES_EN;
+  const locale = useLocale();
+  const monthNames = lang === "nb" ? MONTH_NAMES_NO : lang === "da" ? MONTH_NAMES_DA : MONTH_NAMES_EN;
   const currentMonth = new Date().getMonth();
 
   const events = useMemo(() => {
@@ -49,10 +54,20 @@ export function AarshjulView({ profile, budget }: Props) {
       ev.push({ month: 9, label: t("wheel.carService") + " (2/2)", amount: profile.carService, category: "Transport", icon: "🔧", recurring: true });
     }
 
-    // Property tax (ejer — June & December)
+    // Property tax (DK: ejendomsværdiskat halvårligt / NO: eiendomsskatt where applicable)
     if (profile.housingType === "ejer") {
-      ev.push({ month: 5, label: t("wheel.propertyTax") + " (1/2)", amount: 8500, category: "Bolig", icon: "🏠", recurring: true });
-      ev.push({ month: 11, label: t("wheel.propertyTax") + " (2/2)", amount: 8500, category: "Bolig", icon: "🏠", recurring: true });
+      const isNO = locale.code === "no";
+      const propValue = profile.propertyValue > 0
+        ? profile.propertyValue
+        : isNO ? noGetPropertyValueEstimate(profile.postalCode) : getPropertyValueEstimate(profile.postalCode);
+      const annualTax = isNO
+        ? noCalcPropertyTax(propValue, profile.postalCode)
+        : calcEjendomsvaerdiskat(propValue) * 12;
+      if (annualTax > 0) {
+        const halfYearlyTax = Math.round(annualTax / 2);
+        ev.push({ month: 5, label: t("wheel.propertyTax") + " (1/2)", amount: halfYearlyTax, category: "Bolig", icon: "🏠", recurring: true });
+        ev.push({ month: 11, label: t("wheel.propertyTax") + " (2/2)", amount: halfYearlyTax, category: "Bolig", icon: "🏠", recurring: true });
+      }
     }
 
     // Insurance renewal (typically April)
@@ -140,7 +155,7 @@ export function AarshjulView({ profile, budget }: Props) {
           <CalendarDays className="w-5 h-5 text-primary" />
           <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("wheel.annual")}</span>
         </div>
-        <p className="text-3xl font-black font-display text-foreground">{formatKr(totalAnnual)} {t("currency")}</p>
+        <p className="text-3xl font-black font-display text-foreground">{formatKr(totalAnnual, locale.currencyLocale)} {t("currency")}</p>
         <p className="text-xs text-muted-foreground mt-1">{t("wheel.annualSub")}</p>
       </motion.div>
 
@@ -172,7 +187,7 @@ export function AarshjulView({ profile, budget }: Props) {
                   {monthNames[i]}
                 </span>
                 {total > 0 && (
-                  <span className="text-[9px] text-muted-foreground">{formatKr(total)}</span>
+                  <span className="text-[9px] text-muted-foreground">{formatKr(total, locale.currencyLocale)}</span>
                 )}
               </div>
             );
@@ -198,7 +213,7 @@ export function AarshjulView({ profile, budget }: Props) {
               </div>
               {ev.amount > 0 && (
                 <span className="text-sm font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                  {formatKr(ev.amount)} {t("currency")}
+                  {formatKr(ev.amount, locale.currencyLocale)} {t("currency")}
                 </span>
               )}
             </motion.div>
@@ -221,7 +236,7 @@ export function AarshjulView({ profile, budget }: Props) {
                   {monthNames[i]}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {formatKr(monthlyTotals[i])} {t("currency")}
+                  {formatKr(monthlyTotals[i], locale.currencyLocale)} {t("currency")}
                 </span>
                 {i === currentMonth && <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">{t("wheel.now")}</span>}
               </div>
@@ -230,7 +245,7 @@ export function AarshjulView({ profile, budget }: Props) {
                   <div key={j} className="flex items-center gap-2 text-xs">
                     <span>{ev.icon}</span>
                     <span className="flex-1 truncate text-muted-foreground">{ev.label}</span>
-                    {ev.amount > 0 && <span className="font-medium">{formatKr(ev.amount)} {t("currency")}</span>}
+                    {ev.amount > 0 && <span className="font-medium">{formatKr(ev.amount, locale.currencyLocale)} {t("currency")}</span>}
                   </div>
                 ))}
               </div>

@@ -9,6 +9,7 @@ export interface MarketData {
     dk1: number;      // DKK/kWh spot (west)
     dk2: number;      // DKK/kWh spot (east)
     avgKwhDkk: number; // total price incl. transport+afgifter
+    hourlyToday: { hour: number; allInPrice: number }[]; // today's hourly prices
   };
   mortgageRate: number;               // estimated 30-year fixed rate %
 }
@@ -96,6 +97,31 @@ export function getLiveIncome(data: MarketData | null, postalCode: string): numb
   if (!data || !data.income || Object.keys(data.income).length === 0) return null;
   // Try exact postal code, then national average
   return data.income[postalCode] ?? data.income["000"] ?? null;
+}
+
+/** Get cheapest hours today (returns sorted array of { hour, price, label }) */
+export function getCheapestHours(data: MarketData | null, topN = 4): { hour: number; allInPrice: number; label: string }[] {
+  if (!data?.electricity.hourlyToday?.length) return [];
+  return [...data.electricity.hourlyToday]
+    .sort((a, b) => a.allInPrice - b.allInPrice)
+    .slice(0, topN)
+    .sort((a, b) => a.hour - b.hour)
+    .map(h => ({
+      hour: h.hour,
+      allInPrice: h.allInPrice,
+      label: `${String(h.hour).padStart(2, "0")}–${String(h.hour + 1).padStart(2, "0")}`,
+    }));
+}
+
+/**
+ * Get monthly income gap vs area average.
+ * Compare take-home income (totalIncome) to DST disponibel indkomst — both are after-tax.
+ * Returns positive if user earns more than area average.
+ */
+export function getNeighborIncomeGap(data: MarketData | null, postalCode: string, userTotalIncome: number): number | null {
+  const areaAvg = getLiveIncome(data, postalCode);
+  if (!areaAvg || postalCode === "000" || !postalCode) return null;
+  return userTotalIncome - areaAvg;
 }
 
 /** Check if market data has real values (not just fallbacks) */

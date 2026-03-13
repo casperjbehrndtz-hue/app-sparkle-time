@@ -2,6 +2,25 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
+// ─── HMAC-signed unsubscribe token ───────────────────────────────────────────
+// Token format: <base64url(email)>.<hex(HMAC-SHA256(email, secret))>
+// Never exposes raw email in URLs — safe against CDN/proxy logging.
+async function makeUnsubToken(email: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(email));
+  const sigHex = Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  const emailB64 = btoa(email).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return `${emailB64}.${sigHex}`;
+}
+
 serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -21,35 +40,54 @@ serve(async (req) => {
     });
   }
 
+  const unsubSecret = Deno.env.get("UNSUB_HMAC_SECRET");
+  if (!unsubSecret) {
+    return new Response(JSON.stringify({ error: "UNSUB_HMAC_SECRET not configured" }), {
+      status: 500, headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Get all users who haven't been emailed this month
   const month = new Date().toISOString().slice(0, 7); // "2026-03"
   const { data: users } = await supabase.auth.admin.listUsers();
   if (!users) return new Response(JSON.stringify({ sent: 0 }), { headers: cors });
 
-  // Check which users have a saved budget (cloud_profiles table)
-  const { data: profiles } = await supabase
-    .from("cloud_profiles")
-    .select("user_id, profile_data")
-    .not("profile_data", "is", null);
+  const [{ data: profiles }, { data: optOuts }] = await Promise.all([
+    supabase.from("cloud_profiles").select("user_id, profile_data").not("profile_data", "is", null),
+    supabase.from("email_opt_outs").select("email"),
+  ]);
 
-  const profileMap = new Map((profiles ?? []).map((p: { user_id: string; profile_data: unknown }) => [p.user_id, p.profile_data]));
+  const optOutSet = new Set((optOuts ?? []).map((o: { email: string }) => o.email.toLowerCase()));
+  const profileMap = new Map(
+    (profiles ?? []).map((p: { user_id: string; profile_data: unknown }) => [p.user_id, p.profile_data]),
+  );
 
   let sent = 0;
   const monthName = new Date().toLocaleDateString("da-DK", { month: "long" });
+  const baseUrl = Deno.env.get("PUBLIC_APP_URL") ?? "https://app-sparkle-time.vercel.app";
+  const unsubBaseUrl = Deno.env.get("SUPABASE_URL");
 
   for (const user of users.users) {
     if (!user.email) continue;
+    if (optOutSet.has(user.email.toLowerCase())) continue;
+
     const profile = profileMap.get(user.id) as Record<string, unknown> | undefined;
 
-    const income = profile ? (profile.income as number ?? 0) : 0;
+    // GDPR: only send to users who explicitly opted in
+    if (!profile || profile.emailReminders !== true) continue;
+
+    const income = profile.income as number ?? 0;
     const greeting = income > 0
-      ? `Du har ${(income).toLocaleString("da-DK")} kr./md. at arbejde med.`
+      ? `Du har ${income.toLocaleString("da-DK")} kr./md. at arbejde med.`
       : "Dit budget venter på dig.";
+
+    // Generate signed token — email is never in plaintext in the URL
+    const token = await makeUnsubToken(user.email, unsubSecret);
+    const unsubUrl = `${unsubBaseUrl}/functions/v1/unsubscribe?t=${encodeURIComponent(token)}`;
 
     const html = `
 <!DOCTYPE html>
@@ -69,16 +107,16 @@ serve(async (req) => {
         <p style="margin:0;font-size:15px;color:#1a1a2e;line-height:1.6;">Har du set vores nye guides? Vi har skrevet om hvad der faktisk virker når man vil spare penge — baseret på aktuelle danske tal.</p>
       </div>
 
-      <a href="https://app-sparkle-time.vercel.app/" style="display:block;background:#1a1a2e;color:#fff;text-decoration:none;text-align:center;padding:14px 24px;border-radius:10px;font-weight:700;font-size:15px;margin-bottom:16px;">
+      <a href="${baseUrl}/" style="display:block;background:#1a1a2e;color:#fff;text-decoration:none;text-align:center;padding:14px 24px;border-radius:10px;font-weight:700;font-size:15px;margin-bottom:16px;">
         Åbn mit budget →
       </a>
-      <a href="https://app-sparkle-time.vercel.app/guides" style="display:block;background:#f5f5f0;color:#1a1a2e;text-decoration:none;text-align:center;padding:14px 24px;border-radius:10px;font-weight:600;font-size:14px;">
+      <a href="${baseUrl}/guides" style="display:block;background:#f5f5f0;color:#1a1a2e;text-decoration:none;text-align:center;padding:14px 24px;border-radius:10px;font-weight:600;font-size:14px;">
         Læs nye guides
       </a>
     </div>
     <div style="padding:20px 32px;border-top:1px solid #eee;text-align:center;">
-      <p style="color:#aaa;font-size:12px;margin:0;">Du modtager denne mail fordi du har en konto på Kassen.<br>
-      <a href="https://app-sparkle-time.vercel.app/login" style="color:#aaa;">Afmeld her</a></p>
+      <p style="color:#aaa;font-size:12px;margin:0;">Du modtager denne mail fordi du har tilmeldt dig månedlige påmindelser fra Kassen.<br>
+      <a href="${unsubUrl}" style="color:#aaa;">Afmeld månedlige påmindelser</a></p>
     </div>
   </div>
 </body>

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, TrendingDown, Zap, Briefcase, ShieldAlert, Heart } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useLocale } from "@/lib/locale";
 import { formatKr } from "@/lib/budgetCalculator";
 import { calculateHealth } from "@/lib/healthScore";
 import { useMarketData } from "@/hooks/useMarketData";
@@ -23,6 +24,8 @@ const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: (i: number) => ({ opaci
 
 export function StressTestView({ profile, budget }: Props) {
   const { t } = useI18n();
+  const locale = useLocale();
+  const isNO = locale.code === "no";
   const [inflationRate, setInflationRate] = useState(5);
   const [rateHike, setRateHike] = useState(2);
   const [incomeDrop, setIncomeDrop] = useState(30);
@@ -52,8 +55,11 @@ export function StressTestView({ profile, budget }: Props) {
     // 3. Job loss / income drop
     const lostIncome = Math.round(totalIncome * (incomeDrop / 100));
     const jobLossDisposable = totalIncome - lostIncome - budget.totalExpenses;
-    const dagpenge = isPar ? 19800 : 19800; // 2026 max dagpengesats
-    const withDagpenge = dagpenge + (totalIncome - lostIncome) - budget.totalExpenses;
+    // Dagpenge DK 2026: maks. 19.845 kr./md. (Beskæftigelsesministeriet)
+    // Dagpenger NO 2026: maks. ~16.361 kr./md. (755 kr/dag × 260 dage / 12, Nav.no)
+    const MAX_DAGPENGE = isNO ? 16361 : 19845;
+    const eligibleDagpenge = Math.min(MAX_DAGPENGE, Math.round(lostIncome * 0.9));
+    const withDagpenge = eligibleDagpenge + (totalIncome - lostIncome) - budget.totalExpenses;
     const jobLossMonths = jobLossDisposable < 0
       ? Math.max(0, Math.floor((profile.hasSavings ? profile.savingsAmount * 6 : 0) / Math.abs(jobLossDisposable)))
       : null;
@@ -120,12 +126,12 @@ export function StressTestView({ profile, budget }: Props) {
           <div>
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.newDisposable")}</span>
             <p className={`text-lg font-bold ${scenarios.inflation.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
-              {formatKr(scenarios.inflation.disposable)} {t("currency")}
+              {formatKr(scenarios.inflation.disposable, locale.currencyLocale)} {t("currency")}
             </p>
           </div>
           <div className="text-right">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.impact")}</span>
-            <p className="text-lg font-bold text-red-500">{formatKr(scenarios.inflation.delta)} {t("currency")}</p>
+            <p className="text-lg font-bold text-red-500">{formatKr(scenarios.inflation.delta, locale.currencyLocale)} {t("currency")}</p>
           </div>
         </div>
       </motion.div>
@@ -147,12 +153,12 @@ export function StressTestView({ profile, budget }: Props) {
           <div className="flex justify-between items-center bg-muted/50 rounded-xl p-3">
             <div>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.mortgageUp")}</span>
-              <p className="text-lg font-bold text-red-500">+{formatKr(scenarios.rateHike.increase)} {t("perMonth")}</p>
+              <p className="text-lg font-bold text-red-500">+{formatKr(scenarios.rateHike.increase, locale.currencyLocale)} {t("perMonth")}</p>
             </div>
             <div className="text-right">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.newDisposable")}</span>
               <p className={`text-lg font-bold ${scenarios.rateHike.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
-                {formatKr(scenarios.rateHike.disposable)} {t("currency")}
+                {formatKr(scenarios.rateHike.disposable, locale.currencyLocale)} {t("currency")}
               </p>
             </div>
           </div>
@@ -176,13 +182,13 @@ export function StressTestView({ profile, budget }: Props) {
           <div className="bg-muted/50 rounded-xl p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.withoutHelp")}</span>
             <p className={`text-lg font-bold ${scenarios.jobLoss.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
-              {formatKr(scenarios.jobLoss.disposable)} {t("currency")}
+              {formatKr(scenarios.jobLoss.disposable, locale.currencyLocale)} {t("currency")}
             </p>
           </div>
           <div className="bg-muted/50 rounded-xl p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.withDagpenge")}</span>
             <p className={`text-lg font-bold ${scenarios.jobLoss.withDagpenge < 0 ? "text-red-500" : "text-foreground"}`}>
-              {formatKr(scenarios.jobLoss.withDagpenge)} {t("currency")}
+              {formatKr(scenarios.jobLoss.withDagpenge, locale.currencyLocale)} {t("currency")}
             </p>
           </div>
         </div>
@@ -208,7 +214,7 @@ export function StressTestView({ profile, budget }: Props) {
           <div>
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.newDisposable")}</span>
             <p className={`text-2xl font-black ${scenarios.combined.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
-              {formatKr(scenarios.combined.disposable)} {t("currency")}
+              {formatKr(scenarios.combined.disposable, locale.currencyLocale)} {t("currency")}
             </p>
           </div>
           {scenarios.combined.months !== null && (

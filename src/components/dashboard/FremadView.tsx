@@ -6,6 +6,8 @@ import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   profile: BudgetProfile;
@@ -21,31 +23,52 @@ interface TimelineEvent {
   type: "advarsel" | "info" | "ros";
 }
 
-function generateEvents(profile: BudgetProfile): TimelineEvent[] {
+function generateEvents(profile: BudgetProfile, lang: "da" | "en" | "nb", isNO: boolean): TimelineEvent[] {
   const events: TimelineEvent[] = [];
   const currentYear = 2026;
 
   profile.childrenAges.forEach((age, i) => {
-    const childLabel = profile.childrenAges.length > 1 ? `Barn ${i + 1}` : "Dit barn";
-    if (age < 6) {
-      events.push({ year: currentYear + (6 - age), title: `${childLabel} starter i SFO`, description: "SFO-udgift 2.100 kr./md.", impact: -2100, type: "info" });
-    }
-    if (age >= 3 && age < 6) {
-      events.push({ year: currentYear + (6 - age), title: `${childLabel} forlader børnehave`, description: "Institutionsudgift falder 2.600 kr./md.", impact: 2600, type: "ros" });
-    }
-    if (age < 7) {
-      events.push({ year: currentYear + (7 - age), title: `${childLabel} fylder 7 – børneydelse falder`, description: "Reduceres med 1.130 kr./md.", impact: -1130, type: "advarsel" });
-    }
-    if (age < 10) {
-      events.push({ year: currentYear + (10 - age), title: `${childLabel} ud af SFO`, description: "SFO-udgift bortfalder.", impact: 2100, type: "ros" });
-    }
-    if (age < 18) {
-      events.push({ year: currentYear + (18 - age), title: `${childLabel} fylder 18`, description: "Børneydelse bortfalder.", impact: -940, type: "advarsel" });
+    const childLabel = profile.childrenAges.length > 1
+      ? (lang === "en" ? `Child ${i + 1}` : `Barn ${i + 1}`)
+      : (lang === "nb" ? "Barnet ditt" : lang === "en" ? "Your child" : "Dit barn");
+
+    if (isNO) {
+      // Norwegian: barnehage max price ~3315 kr/md, barnetrygd ~1766 kr flat
+      if (age < 6) {
+        events.push({ year: currentYear + (6 - age), title: `${childLabel} begynner på SFO`, description: "SFO-utgift ca. 2 000 kr./md.", impact: -2000, type: "info" });
+      }
+      if (age >= 1 && age < 6) {
+        events.push({ year: currentYear + (6 - age), title: `${childLabel} slutter i barnehage`, description: "Barnehageutgift faller 3 315 kr./md.", impact: 3315, type: "ros" });
+      }
+      if (age < 18) {
+        events.push({ year: currentYear + (18 - age), title: `${childLabel} fyller 18`, description: "Barnetrygd bortfaller (1 766 kr./md.).", impact: -1766, type: "advarsel" });
+      }
+    } else {
+      if (age < 6) {
+        events.push({ year: currentYear + (6 - age), title: `${childLabel} ${lang === "en" ? "starts SFO" : "starter i SFO"}`, description: lang === "en" ? "SFO cost 2,100 DKK/mo." : "SFO-udgift 2.100 kr./md.", impact: -2100, type: "info" });
+      }
+      if (age >= 3 && age < 6) {
+        events.push({ year: currentYear + (6 - age), title: `${childLabel} ${lang === "en" ? "leaves kindergarten" : "forlader børnehave"}`, description: lang === "en" ? "Childcare cost drops 2,600 DKK/mo." : "Institutionsudgift falder 2.600 kr./md.", impact: 2600, type: "ros" });
+      }
+      if (age < 7) {
+        events.push({ year: currentYear + (7 - age), title: `${childLabel} ${lang === "en" ? "turns 7 – child benefit drops" : "fylder 7 – børneydelse falder"}`, description: lang === "en" ? "Reduced by 1,130 DKK/mo." : "Reduceres med 1.130 kr./md.", impact: -1130, type: "advarsel" });
+      }
+      if (age < 10) {
+        events.push({ year: currentYear + (10 - age), title: `${childLabel} ${lang === "en" ? "leaves SFO" : "ud af SFO"}`, description: lang === "en" ? "SFO cost ends." : "SFO-udgift bortfalder.", impact: 2100, type: "ros" });
+      }
+      if (age < 18) {
+        events.push({ year: currentYear + (18 - age), title: `${childLabel} ${lang === "en" ? "turns 18" : "fylder 18"}`, description: lang === "en" ? "Child benefit ends." : "Børneydelse bortfalder.", impact: -940, type: "advarsel" });
+      }
     }
   });
 
   if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
-    events.push({ year: 2028, title: "Tjek afdragsfrihed", description: "Mange lån fra 2018–2020 har 10-årig afdragsfrihed.", impact: -3400, type: "advarsel" });
+    events.push({
+      year: 2028,
+      title: lang === "nb" ? "Sjekk avdragsfrihet" : lang === "en" ? "Check interest-only period" : "Tjek afdragsfrihed",
+      description: lang === "nb" ? "Mange lån fra 2018–2020 har 10-årig avdragsfrihet." : lang === "en" ? "Many loans from 2018–2020 have 10-year interest-only periods." : "Mange lån fra 2018–2020 har 10-årig afdragsfrihed.",
+      impact: -3400, type: "advarsel",
+    });
   }
 
   return events.sort((a, b) => a.year - b.year);
@@ -64,8 +87,12 @@ const typeStyles = {
 
 export function FremadView({ profile, budget, health }: Props) {
   const config = useWhiteLabel();
+  const locale = useLocale();
+  const { lang } = useI18n();
+  const isNO = locale.code === "no";
+  const lc = locale.currencyLocale;
   const [rentRate, setRentRate] = useState(profile.interestRate || 5.0);
-  const events = generateEvents(profile);
+  const events = generateEvents(profile, lang, isNO);
 
   const mortgageBase = budget.fixedExpenses.find((e) => e.label.includes("oliglån"))?.amount ?? 0;
   const rentImpact = mortgageBase > 0 ? Math.round(((rentRate - (profile.interestRate || 5.0)) * 0.005) * mortgageBase) : 0;
@@ -105,7 +132,9 @@ export function FremadView({ profile, budget, health }: Props) {
           </div>
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Formue-projektion</p>
-            <p className="text-[10px] text-muted-foreground">Baseret på {formatKr(monthlySavings)} kr./md. investeret</p>
+            <p className="text-[10px] text-muted-foreground">
+              {lang === "nb" ? `Basert på ${formatKr(monthlySavings, lc)} kr./md. investert` : lang === "en" ? `Based on ${formatKr(monthlySavings, lc)} DKK/mo. invested` : `Baseret på ${formatKr(monthlySavings, lc)} kr./md. investeret`}
+            </p>
           </div>
         </div>
         
@@ -119,7 +148,7 @@ export function FremadView({ profile, budget, health }: Props) {
               className="text-center p-3 rounded-xl bg-muted/50 border border-border"
             >
               <p className="text-[10px] text-muted-foreground mb-1">{p.years} år</p>
-              <p className="font-display font-bold text-sm text-primary">{formatKr(p.amount)}</p>
+              <p className="font-display font-bold text-sm text-primary">{formatKr(p.amount, lc)}</p>
               <p className="text-[9px] text-muted-foreground">kr.</p>
             </motion.div>
           ))}
@@ -133,7 +162,7 @@ export function FremadView({ profile, budget, health }: Props) {
               <XAxis dataKey="years" tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${v} år`} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} axisLine={false} tickLine={false} width={40} />
               <Tooltip
-                formatter={(val: number) => [`${formatKr(val)} kr.`, "Forventet formue"]}
+                formatter={(val: number) => [`${formatKr(val, lc)} kr.`, "Forventet formue"]}
                 contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
               />
               <Bar dataKey="amount" fill="hsl(213, 80%, 50%)" radius={[6, 6, 0, 0]} maxBarSize={40} />
@@ -143,8 +172,12 @@ export function FremadView({ profile, budget, health }: Props) {
 
         <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
           <p className="text-xs text-muted-foreground">
-            💡 {formatKr(monthlySavings)} kr./md. med 7% årligt afkast giver estimeret ca. <span className="font-semibold text-primary">{formatKr(projections[2].amount)} kr.</span> på 5 år 
-            og ca. <span className="font-semibold text-primary">{formatKr(projections[3].amount)} kr.</span> på 10 år. Investering indebærer risiko.
+            {lang === "nb"
+              ? <>💡 {formatKr(monthlySavings, lc)} kr./md. med 7% årlig avkastning gir estimert ca. <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} kr.</span> på 5 år og ca. <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} kr.</span> på 10 år. Investering innebærer risiko.</>
+              : lang === "en"
+              ? <>💡 {formatKr(monthlySavings, lc)} DKK/mo. at 7% annual return gives approx. <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} DKK</span> in 5 years and <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} DKK</span> in 10 years. Investment involves risk.</>
+              : <>💡 {formatKr(monthlySavings, lc)} kr./md. med 7% årligt afkast giver estimeret ca. <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} kr.</span> på 5 år og ca. <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} kr.</span> på 10 år. Investering indebærer risiko.</>
+            }
           </p>
         </div>
       </motion.div>
@@ -163,15 +196,15 @@ export function FremadView({ profile, budget, health }: Props) {
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">Boligværdi</p>
-              <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue)} kr.</p>
+              <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue, lc)} kr.</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">Est. gæld (~70%)</p>
-              <p className="font-display font-bold text-sm text-destructive">{formatKr(estimatedDebt)} kr.</p>
+              <p className="font-display font-bold text-sm text-destructive">{formatKr(estimatedDebt, lc)} kr.</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">Net worth</p>
-              <p className="font-display font-bold text-sm text-primary">{formatKr(netWorth)} kr.</p>
+              <p className="font-display font-bold text-sm text-primary">{formatKr(netWorth, lc)} kr.</p>
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-3">
@@ -197,7 +230,7 @@ export function FremadView({ profile, budget, health }: Props) {
                 <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs font-medium">Nødbuffer (3 mdr.)</span>
               </div>
-              <span className="text-xs text-muted-foreground">{formatKr(currentBuffer)} / {formatKr(bufferGoal)} kr.</span>
+              <span className="text-xs text-muted-foreground">{formatKr(currentBuffer, lc)} / {formatKr(bufferGoal, lc)} kr.</span>
             </div>
             <div className="h-2.5 rounded-full bg-muted overflow-hidden">
               <motion.div
@@ -228,9 +261,13 @@ export function FremadView({ profile, budget, health }: Props) {
               />
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              {health.savingsRate >= 20 
-                ? "✅ Du overstiger anbefalingen!" 
-                : `Øg med ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome)} kr./md. for at nå 20%`}
+              {health.savingsRate >= 20
+                ? (lang === "nb" ? "✅ Du overstiger anbefalingen!" : lang === "en" ? "✅ You exceed the recommendation!" : "✅ Du overstiger anbefalingen!")
+                : lang === "nb"
+                ? `Øk med ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome, lc)} kr./md. for å nå 20%`
+                : lang === "en"
+                ? `Increase by ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome, lc)} DKK/mo. to reach 20%`
+                : `Øg med ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome, lc)} kr./md. for at nå 20%`}
             </p>
           </div>
         </div>
@@ -243,7 +280,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
             <span className={`font-display font-bold text-lg ${simulatedDisposable > 5000 ? "text-primary" : simulatedDisposable > 0 ? "text-kassen-gold" : "text-destructive"}`}>
-              {formatKr(simulatedDisposable)} kr. tilbage
+              {formatKr(simulatedDisposable, lc)} kr. tilbage
             </span>
           </div>
           <input
@@ -287,7 +324,7 @@ export function FremadView({ profile, budget, health }: Props) {
                         <p className="text-xs opacity-70 mt-0.5">{event.description}</p>
                       </div>
                       <span className="font-display font-bold text-sm whitespace-nowrap">
-                        {event.impact > 0 ? "+" : ""}{formatKr(event.impact)} kr.
+                        {event.impact > 0 ? "+" : ""}{formatKr(event.impact, lc)} kr.
                       </span>
                     </div>
                   </div>

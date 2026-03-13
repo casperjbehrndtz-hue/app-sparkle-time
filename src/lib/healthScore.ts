@@ -71,7 +71,7 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   // --- Health Score (0-100) ---
   const bufferScore = Math.min(100, bufferMonths * 12);
   const debtScore = debtRatio <= 0 ? 40 : debtRatio <= 25 ? 90 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
-  const savingsScore = savingsRate >= 30 ? 85 : savingsRate >= 20 ? 95 : savingsRate >= 15 ? 80 : Math.min(75, savingsRate * 5);
+  const savingsScore = savingsRate >= 30 ? 95 : savingsRate >= 20 ? 85 : savingsRate >= 15 ? 70 : Math.min(60, savingsRate * 5);
 
   const hasInsuranceCheck = profile.hasInsurance ? 1 : 0;
   const hasSavingsCheck = savingsRate >= 10 ? 1 : 0;

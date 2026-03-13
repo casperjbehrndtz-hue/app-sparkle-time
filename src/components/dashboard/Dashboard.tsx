@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud } from "lucide-react";
+import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -12,6 +12,7 @@ import { OptimeringView } from "./OptimeringView";
 import { FremadView } from "./FremadView";
 import { InlineChartsSection } from "./InlineChartsSection";
 import { AIChatPanel } from "./AIChatPanel";
+import { GuidedSavingSession } from "./GuidedSavingSession";
 import { ProfileEditSheet } from "./ProfileEditSheet";
 import { BudgetReport } from "./BudgetReport";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
@@ -48,6 +49,7 @@ interface Props {
   onReset: () => void;
   onProfileChange: (profile: BudgetProfile) => void;
   onEditProfile: () => void;
+  onHome?: () => void;
 }
 
 // ─── Scroll section wrapper ──────────────────────────────
@@ -143,7 +145,7 @@ function AdvancedSection({ id, title, emoji, children }: { id: string; title: st
   );
 }
 
-export function Dashboard({ profile, budget, optimizations, onReset, onProfileChange, onEditProfile }: Props) {
+export function Dashboard({ profile, budget, optimizations, onReset, onProfileChange, onEditProfile, onHome }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
@@ -151,6 +153,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const isEmbed = new URLSearchParams(window.location.search).get("embed") === "true";
   const [showReport, setShowReport] = useState(false);
   const [showEditSheet, setShowEditSheet] = useState(false);
+  const [showGuidedSession, setShowGuidedSession] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
 
   // Track dashboard view for B2B partners
@@ -195,7 +198,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
-          <span className="font-display font-black text-lg text-primary">{config.brandName}</span>
+          <button onClick={onHome} className="font-display font-black text-lg text-primary hover:text-primary/70 transition-colors bg-transparent border-none cursor-pointer p-0">{config.brandName}</button>
           <div className="flex items-center gap-0.5 sm:gap-1">
             <LanguageToggle />
             <DarkModeToggle />
@@ -206,6 +209,11 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <button onClick={() => setShowReport(true)}
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <FileText className="w-3 h-3" /> {t("dash.report")}
+            </button>
+            <button onClick={onReset}
+              title="Start forfra"
+              className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-destructive/5">
+              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Nulstil</span>
             </button>
             {user ? (
               <button onClick={signOut}
@@ -223,6 +231,14 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       </header>
 
       <SectionNav sections={sections} activeSection={activeSection} />
+
+      {/* Financial disclaimer */}
+      <div className="max-w-2xl mx-auto px-5 pt-3">
+        <p className="text-[10px] text-muted-foreground/60 text-center">
+          Kassen er et budgetværktøj — ikke finansiel rådgivning.{" "}
+          <Link to="/vilkaar" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Vilkår</Link>
+        </p>
+      </div>
 
       {/* Login CTA for unauthenticated users */}
       {!user && (
@@ -248,6 +264,18 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               optimizations={optimizations}
               onProfileChange={onProfileChange}
             />
+            {/* ── Guided session entry ── */}
+            <button
+              onClick={() => setShowGuidedSession(true)}
+              className="w-full mt-2 py-3.5 rounded-2xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-center gap-2.5 group"
+            >
+              <span className="text-lg">✨</span>
+              <div className="text-left">
+                <p className="text-sm font-bold text-primary">Lad AI finde dine besparelser</p>
+                <p className="text-xs text-muted-foreground">Guidet gennemgang — du bestemmer hvad du vil gøre</p>
+              </div>
+              <span className="ml-auto text-primary/50 group-hover:text-primary transition-colors text-lg">→</span>
+            </button>
           </SectionErrorBoundary>
         </StorySection>
 
@@ -335,6 +363,16 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         profile={profile}
         onSave={onProfileChange}
       />
+      <AnimatePresence>
+        {showGuidedSession && (
+          <GuidedSavingSession
+            profile={profile}
+            budget={budget}
+            onClose={() => setShowGuidedSession(false)}
+            onProfileChange={onProfileChange}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

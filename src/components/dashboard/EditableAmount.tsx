@@ -11,6 +11,7 @@ interface EditableAmountProps {
   max?: number;
   step?: number;
   suffix?: string;
+  localeCode?: string;
   className?: string;
   /** If false, shows as plain text */
   editable?: boolean;
@@ -23,6 +24,7 @@ export function EditableAmount({
   max = 80000,
   step = 100,
   suffix = "kr.",
+  localeCode = "da-DK",
   className = "",
   editable = true,
 }: EditableAmountProps) {
@@ -90,7 +92,7 @@ export function EditableAmount({
   };
 
   if (!editable) {
-    return <span className={className}>{formatKr(value)} {suffix}</span>;
+    return <span className={className}>{formatKr(value, localeCode)} {suffix}</span>;
   }
 
   return (
@@ -106,7 +108,7 @@ export function EditableAmount({
             className={`group inline-flex items-center gap-1 rounded-lg px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer ${className}`}
             title="Klik for at redigere"
           >
-            <span>{formatKr(value)} {suffix}</span>
+            <span>{formatKr(value, localeCode)} {suffix}</span>
             <Pencil className="w-2.5 h-2.5 text-muted-foreground/0 group-hover:text-primary/60 transition-colors" />
           </motion.button>
         ) : (
@@ -133,20 +135,22 @@ export function EditableAmount({
             </div>
 
             {/* Slider */}
-            <Slider
-              min={min}
-              max={max}
-              step={step}
-              value={[tempValue]}
-              onValueChange={([v]) => {
-                setTempValue(v);
-                setInputValue(String(v));
-              }}
-              className="w-full"
-            />
+            <div style={{ touchAction: "none" }}>
+              <Slider
+                min={min}
+                max={max}
+                step={step}
+                value={[tempValue]}
+                onValueChange={([v]) => {
+                  setTempValue(v);
+                  setInputValue(String(v));
+                }}
+                className="w-full"
+              />
+            </div>
             <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>{formatKr(min)} {suffix}</span>
-              <span>{formatKr(max)} {suffix}</span>
+              <span>{formatKr(min, localeCode)} {suffix}</span>
+              <span>{formatKr(max, localeCode)} {suffix}</span>
             </div>
 
             {/* Actions */}

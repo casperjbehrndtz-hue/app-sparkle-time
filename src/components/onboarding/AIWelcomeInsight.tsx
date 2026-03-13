@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [showContent, setShowContent] = useState(false);
   const [numberAnimDone, setNumberAnimDone] = useState(false);
   const aiStream = useAIStream();
@@ -54,7 +54,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
 
     aiStream.stream({
       functionName: "onboarding-ai",
-      body: { mode: "welcome-insight", profile, budget },
+      body: { mode: "welcome-insight", profile, budget, lang },
       onError: () => {
         // Fallback insight if streaming fails
         if (!aiStream.text) {

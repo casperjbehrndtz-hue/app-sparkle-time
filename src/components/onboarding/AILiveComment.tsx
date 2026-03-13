@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import type { BudgetProfile, OnboardingStep } from "@/lib/types";
+import { useI18n } from "@/lib/i18n";
 
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/onboarding-ai`;
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function AILiveComment({ profile, step }: Props) {
+  const { lang } = useI18n();
   const [comment, setComment] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -42,7 +44,7 @@ export function AILiveComment({ profile, step }: Props) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ mode: "live-comment", profile, step }),
+          body: JSON.stringify({ mode: "live-comment", profile, step, lang }),
           signal: controller.signal,
         });
 

@@ -6,19 +6,31 @@ import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import heroCouple from "@/assets/hero-couple.webp";
-import featureAdvisor from "@/assets/feature-advisor.webp";
-import featureFamily from "@/assets/feature-family.webp";
 
 interface Props {
   onStart: () => void;
+  hasExistingProfile?: boolean;
+  onGoToApp?: () => void;
 }
 
-export function WelcomePage({ onStart }: Props) {
+export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
   const config = useWhiteLabel();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  // Set html lang attribute so search engines index the correct language
+  if (typeof document !== "undefined") {
+    document.documentElement.lang = lang === "nb" ? "nb" : lang === "en" ? "en" : "da";
+  }
   usePageMeta(
-    "Kassen — Danmarks nemmeste budgetværktøj",
-    "Find ud af hvad du reelt har til overs. Beregn dit rådighedsbeløb på 3 minutter — gratis, privat og uden login."
+    lang === "nb"
+      ? "Kassen — Ta kontroll over privatøkonomien din"
+      : lang === "en"
+      ? "Kassen — Take control of your personal finances"
+      : "Kassen — Tag kontrol over din privatøkonomi",
+    lang === "nb"
+      ? "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden. Gratis, privat og på 3 minutter — ingen pålogging."
+      : lang === "en"
+      ? "Find hidden expenses, see what you really have left and be prepared for the future. Free, private and in 3 minutes — no login."
+      : "Find skjulte udgifter, se hvad du reelt har til overs og stå stærkt til fremtiden. Gratis, privat og på 3 minutter — ingen login."
   );
 
   return (
@@ -30,7 +42,7 @@ export function WelcomePage({ onStart }: Props) {
           <div className="flex items-center gap-3 sm:gap-6">
             <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.products")}</button>
             <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.howItWorks")}</button>
-            <LanguageToggle />
+            {lang !== "nb" && <LanguageToggle />}
             <button onClick={onStart}
               className="px-4 sm:px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors">
               {t("hero.cta")}
@@ -42,16 +54,24 @@ export function WelcomePage({ onStart }: Props) {
       {/* Hero */}
       <section className="bg-hero-navy">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0">
             <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
               {t("hero.title")}<br />
               <span className="text-white">{t("hero.titleHighlight")}</span>
             </h1>
-            <p className="text-white/60 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8 max-w-md">{t("hero.subtitle")}</p>
-            <button onClick={onStart}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
-              {t("hero.cta")} <ArrowRight className="w-4 h-4" />
-            </button>
+            <p className="text-white/60 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <button onClick={onStart}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
+                {t("hero.cta")} <ArrowRight className="w-4 h-4" />
+              </button>
+              {hasExistingProfile && onGoToApp && (
+                <button onClick={onGoToApp}
+                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
+                  {t("action.goToDashboard")} <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }} className="hidden md:block">
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/30">
@@ -93,35 +113,22 @@ export function WelcomePage({ onStart }: Props) {
       {/* Feature cards */}
       <section id="produkter" className="bg-muted/30 py-10 sm:py-16 scroll-mt-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4 sm:gap-5">
-            <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
-              <img src={featureAdvisor} alt={t("feature.bankReport")} className="w-full h-full object-cover" />
-            </div>
-            <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
-              <span className="text-2xl">🔍</span>
-              <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.findHidden")}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.findHiddenDesc")}</p>
-            </div>
-            <div className="rounded-2xl overflow-hidden md:row-span-2 shadow-lg h-48 sm:h-auto">
-              <img src={featureFamily} alt={t("feature.compare")} className="w-full h-full object-cover" />
-            </div>
-            <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
-              <span className="text-2xl">🤖</span>
-              <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.aiInsight")}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.aiInsightDesc")}</p>
-            </div>
-            <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
-              <span className="text-2xl">📊</span>
-              <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.compare")}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.compareDesc")}</p>
-            </div>
-            <div className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
-              <span className="text-2xl">🏦</span>
-              <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{t("feature.bankReport")}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t("feature.bankReportDesc")}</p>
-            </div>
-          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
+            {[
+              { icon: "🔍", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
+              { icon: "🤖", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
+              { icon: "⚡", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
+              { icon: "📊", title: t("feature.compare"), desc: t("feature.compareDesc") },
+              { icon: "🏦", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
+            ].map((f, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
+                <span className="text-2xl">{f.icon}</span>
+                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -184,10 +191,10 @@ export function WelcomePage({ onStart }: Props) {
               <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">{t("footer.info")}</h4>
               <ul className="space-y-2 text-xs text-muted-foreground">
                 <li><Link to="/privatliv" className="hover:text-foreground transition-colors">{t("footer.privacy")}</Link></li>
-                <li>{t("footer.terms")}</li>
+                <li><Link to="/vilkaar" className="hover:text-foreground transition-colors">{t("footer.terms")}</Link></li>
                 <li>{t("footer.contact")}</li>
-                <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />Installér app</Link></li>
-                <li><Link to="/guides" className="hover:text-foreground transition-colors">Guides & tips</Link></li>
+                <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />{t("footer.installApp")}</Link></li>
+                <li><Link to="/guides" className="hover:text-foreground transition-colors">{t("footer.guides")}</Link></li>
               </ul>
             </div>
           </div>

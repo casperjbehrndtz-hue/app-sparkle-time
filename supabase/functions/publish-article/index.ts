@@ -77,6 +77,12 @@ serve(async (req) => {
     .update({ status: "approved", reviewed_at: new Date().toISOString() })
     .eq("id", draft_id);
 
+  // Trigger Vercel redeploy so the new article gets pre-rendered and added to sitemap
+  const deployHook = Deno.env.get("VERCEL_DEPLOY_HOOK");
+  if (deployHook) {
+    fetch(deployHook, { method: "POST" }).catch(() => {});
+  }
+
   return new Response(JSON.stringify({ success: true, action: "approved", slug: draft.slug }), {
     headers: { ...cors, "Content-Type": "application/json" },
   });

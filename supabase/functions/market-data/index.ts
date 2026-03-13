@@ -34,8 +34,12 @@ const MUNICIPALITY_TO_POSTAL: Record<string, string> = {
 // ─── Danmarks Statistik: Average disposable income by municipality ────
 async function fetchDSTIncome(): Promise<Record<string, number>> {
   try {
-    // Get latest year only (2024)
-    const res = await fetch("https://api.statbank.dk/v1/data", {
+    // DST income data is typically released with 1 year delay — try current-1, fallback to current-2
+    const currentYear = new Date().getFullYear();
+    const primaryYear = String(currentYear - 1);
+    const fallbackYear = String(currentYear - 2);
+
+    const tryYear = async (year: string) => fetch("https://api.statbank.dk/v1/data", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -43,14 +47,18 @@ async function fetchDSTIncome(): Promise<Record<string, number>> {
         format: "CSV",
         lang: "da",
         variables: [
-          { code: "INDKOMSTTYPE", values: ["100"] },   // Disponibel indkomst
-          { code: "ENHED", values: ["116"] },           // Gennemsnit for alle personer (kr.)
-          { code: "KOEN", values: ["MOK"] },            // Mænd og kvinder i alt
+          { code: "INDKOMSTTYPE", values: ["100"] },
+          { code: "ENHED", values: ["116"] },
+          { code: "KOEN", values: ["MOK"] },
           { code: "OMRÅDE", values: ["*"] },
-          { code: "Tid", values: ["2024"] },
+          { code: "Tid", values: [year] },
         ],
       }),
     });
+
+    let res = await tryYear(primaryYear);
+    // If primary year has no data yet, fall back
+    if (!res.ok) res = await tryYear(fallbackYear);
 
     if (!res.ok) {
       const text = await res.text();
@@ -87,45 +95,71 @@ async function fetchDSTIncome(): Promise<Record<string, number>> {
 }
 
 // ─── Energi Data Service: Current electricity spot prices ──────
-async function fetchElPrices(): Promise<{ dk1: number; dk2: number; avgKwhDkk: number }> {
+async function fetchElPrices(): Promise<{
+  dk1: number; dk2: number; avgKwhDkk: number;
+  hourlyToday: { hour: number; allInPrice: number }[];
+}> {
   try {
-    const url = `https://api.energidataservice.dk/dataset/Elspotprices?limit=48&sort=HourUTC%20DESC&filter=%7B%22PriceArea%22:%5B%22DK1%22,%22DK2%22%5D%7D`;
+    // Fetch next 48h of hourly prices
+    const url = `https://api.energidataservice.dk/dataset/Elspotprices?limit=48&sort=HourDK%20ASC&filter=%7B%22PriceArea%22:%5B%22DK1%22,%22DK2%22%5D%7D`;
 
     const res = await fetch(url);
     if (!res.ok) {
       const text = await res.text();
       console.warn("Energi Data Service failed:", res.status, text.slice(0, 200));
-      return { dk1: 0, dk2: 0, avgKwhDkk: 0 };
+      return { dk1: 0, dk2: 0, avgKwhDkk: 0, hourlyToday: [] };
     }
 
     const json = await res.json();
     const records = json?.records ?? [];
 
     let dk1Sum = 0, dk1Count = 0, dk2Sum = 0, dk2Count = 0;
+    // Collect hourly prices: average DK1+DK2 per hour
+    const hourlyMap = new Map<number, { sum: number; count: number }>();
+
+    const todayDate = new Date().toLocaleDateString("da-DK", { timeZone: "Europe/Copenhagen" }).slice(0, 10);
 
     for (const r of records) {
       const price = r.SpotPriceDKK;
       if (price == null || price === 0) continue;
-      const kwhPrice = price / 1000; // MWh → kWh
+      const kwhSpot = price / 1000; // MWh → kWh
 
-      if (r.PriceArea === "DK1") { dk1Sum += kwhPrice; dk1Count++; }
-      else if (r.PriceArea === "DK2") { dk2Sum += kwhPrice; dk2Count++; }
+      if (r.PriceArea === "DK1") { dk1Sum += kwhSpot; dk1Count++; }
+      else if (r.PriceArea === "DK2") { dk2Sum += kwhSpot; dk2Count++; }
+
+      // Parse hour for today's hourly breakdown
+      const hourDK: string = r.HourDK ?? "";
+      if (hourDK.startsWith(todayDate)) {
+        const hour = parseInt(hourDK.slice(11, 13), 10);
+        if (!isNaN(hour)) {
+          const existing = hourlyMap.get(hour) ?? { sum: 0, count: 0 };
+          existing.sum += kwhSpot;
+          existing.count++;
+          hourlyMap.set(hour, existing);
+        }
+      }
     }
 
     const dk1Avg = dk1Count > 0 ? Math.round(dk1Sum / dk1Count * 100) / 100 : 0;
     const dk2Avg = dk2Count > 0 ? Math.round(dk2Sum / dk2Count * 100) / 100 : 0;
-
-    // Total consumer price = spot + transport + PSO + elafgift + moms
-    // Approx. +1.10 kr/kWh for all extras (2026 rates)
     const avgSpot = dk1Count + dk2Count > 0 ? (dk1Sum + dk2Sum) / (dk1Count + dk2Count) : 0;
+    // Total consumer price = spot + transport + PSO + elafgift + moms (~1.10 kr/kWh, 2026 rates)
     const allInPrice = Math.round((avgSpot + 1.10) * 100) / 100;
 
-    console.log(`El prices: DK1=${dk1Avg}, DK2=${dk2Avg}, all-in=${allInPrice}`);
+    // Build sorted hourly array with all-in prices
+    const hourlyToday = Array.from(hourlyMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([hour, { sum, count }]) => ({
+        hour,
+        allInPrice: Math.round((sum / count + 1.10) * 100) / 100,
+      }));
 
-    return { dk1: dk1Avg, dk2: dk2Avg, avgKwhDkk: allInPrice };
+    console.log(`El prices: DK1=${dk1Avg}, DK2=${dk2Avg}, all-in=${allInPrice}, hours=${hourlyToday.length}`);
+
+    return { dk1: dk1Avg, dk2: dk2Avg, avgKwhDkk: allInPrice, hourlyToday };
   } catch (err) {
     console.error("El price fetch error:", err);
-    return { dk1: 0, dk2: 0, avgKwhDkk: 0 };
+    return { dk1: 0, dk2: 0, avgKwhDkk: 0, hourlyToday: [] };
   }
 }
 

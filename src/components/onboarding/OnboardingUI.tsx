@@ -115,7 +115,7 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
       role="radio"
       aria-checked={active}
       aria-label={label}
-      className={`relative p-6 sm:p-8 rounded-2xl border-2 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+      className={`relative p-4 sm:p-6 rounded-2xl border-2 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
         active
           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
           : "border-border hover:border-primary/30 hover:shadow-md"
@@ -128,7 +128,7 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
       >
         {icon}
       </motion.div>
-      <div className="font-display font-bold text-lg sm:text-xl">{label}</div>
+      <div className="font-display font-bold text-base sm:text-lg leading-tight break-words hyphens-auto">{label}</div>
       {sub && <div className="text-sm text-muted-foreground mt-1">{sub}</div>}
       {active && (
         <motion.div
@@ -177,12 +177,14 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
         />
         <span className="text-lg text-muted-foreground font-display">{suffix}</span>
       </div>
-      <Slider
-        min={min} max={max} step={step}
-        value={[value]}
-        onValueChange={([v]) => onChange(v)}
-        className="w-full"
-      />
+      <div style={{ touchAction: "none" }}>
+        <Slider
+          min={min} max={max} step={step}
+          value={[value]}
+          onValueChange={([v]) => onChange(v)}
+          className="w-full"
+        />
+      </div>
       <div className="flex justify-between text-[11px] text-muted-foreground">
         <span>{formatKr(min)} {suffix}</span>
         <span>{formatKr(max)} {suffix}</span>

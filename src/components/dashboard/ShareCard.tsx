@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
 
 interface Props {
   health: HealthMetrics;
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
   const scoreColor = health.score >= 75 ? "hsl(152, 55%, 40%)" : health.score >= 55 ? "hsl(38, 85%, 50%)" : "hsl(0, 72%, 51%)";
   const radius = 32;
   const circumference = 2 * Math.PI * radius;
@@ -50,7 +53,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
           <div className="flex-1 space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Frihedstal</span>
-              <span className="font-display font-bold">{formatKr(health.truths.freeCashFlow)} kr.</span>
+              <span className="font-display font-bold">{formatKr(health.truths.freeCashFlow, lc)} kr.</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Opsparingsrate</span>

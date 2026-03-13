@@ -44,8 +44,13 @@ export interface BudgetProfile {
   carInsurance: number; // annual
   carTax: number; // annual
   carService: number; // biannual
-  // Utilities
+  // Utilities (override defaults)
   hasInternet: boolean;
+  internetAmount?: number;
+  mobileAmount?: number;
+  electricityAmount?: number;
+  heatingAmount?: number;
+  drAmount?: number;
   // Insurance, union, fitness
   hasInsurance: boolean;
   insuranceAmount: number;
@@ -69,6 +74,8 @@ export interface BudgetProfile {
   restaurantAmount: number;
   // Custom
   customExpenses: CustomExpense[];
+  // Consent
+  emailReminders?: boolean;
 }
 
 export function frequencyToMonthly(amount: number, freq: PaymentFrequency): number {

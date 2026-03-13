@@ -1,20 +1,21 @@
 // Kassen Prisdatabase – alle priser i DKK/md.
 // Kilde: Officielle priser pr. februar 2026
 
+// Streaming priser – verificeret januar 2026 (officielle dk-priser)
 export const SUBSCRIPTIONS = {
-  netflix: { label: "Netflix", price: 149, icon: "🎬", category: "Streaming" },
+  netflix: { label: "Netflix", price: 129, icon: "🎬", category: "Streaming" },      // Standard HD
   spotify: {
     label: "Spotify",
-    price_solo: 99,
-    price_par: 159,
+    price_solo: 109,   // Premium Individual
+    price_par: 139,    // Premium Duo
     icon: "🎵",
     category: "Musik",
   },
-  hbo: { label: "HBO Max", price: 109, icon: "🎭", category: "Streaming" },
-  viaplay: { label: "Viaplay", price: 149, icon: "⚽", category: "Streaming" },
+  hbo: { label: "HBO Max", price: 89, icon: "🎭", category: "Streaming" },            // Standard
+  viaplay: { label: "Viaplay", price: 149, icon: "⚽", category: "Streaming" },       // Total
   appleTV: { label: "Apple TV+", price: 59, icon: "🍎", category: "Streaming" },
-  amazonPrime: { label: "Amazon Prime", price: 59, icon: "📦", category: "Streaming" },
-  disney: { label: "Disney+", price: 79, icon: "✨", category: "Streaming" },
+  amazonPrime: { label: "Amazon Prime", price: 89, icon: "📦", category: "Streaming" }, // Prime Monthly
+  disney: { label: "Disney+", price: 79, icon: "✨", category: "Streaming" },          // Standard
 };
 
 export const TRANSPORT = {
@@ -123,10 +124,11 @@ export function getChildBenefit(age: number): { label: string; monthly: number }
 }
 
 // Rentefradrag: skatteværdi af renteudgifter (2026)
-// Under bundgrænsen (50.000 single / 100.000 par): ~33,6%
-// Over bundgrænsen: ~25,6%
-// Simplificeret: vi bruger 33% for de fleste
-export const TAX_DEDUCTION_RATE = 0.33;
+// Efter 2012-reformens fulde indfasning (afsluttet 2019):
+// Negativ nettokapitalindkomst giver fradrag svarende til ~25,6%
+// (bundskat + kommuneskat, ekskl. AM-bidrag, ekskl. topskatteeffekt)
+// Kilde: Skattestyrelsen / Ligningsloven § 11C stk. 2-3 (L28/2012)
+export const TAX_DEDUCTION_RATE = 0.256;
 
 // Gennemsnitlig månedlig boligydelse (ydelse + bidrag) pr. postnummer
 // Beregnet ud fra typisk belåning (~70-80% af ejendomsværdi), blandet rente ~4%, 30 år

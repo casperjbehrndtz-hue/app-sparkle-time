@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Users, Scale, ArrowLeftRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
@@ -14,6 +15,8 @@ type SplitModel = "equal" | "proportional";
 
 export function ParSplitView({ profile, budget }: Props) {
   const [model, setModel] = useState<SplitModel>("proportional");
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
 
   const totalIncome = profile.income + profile.partnerIncome;
   const myShare = totalIncome > 0 ? profile.income / totalIncome : 0.5;
@@ -67,12 +70,12 @@ export function ParSplitView({ profile, budget }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Din indkomst</p>
-          <p className="text-lg font-bold text-foreground">{formatKr(profile.income)} kr.</p>
+          <p className="text-lg font-bold text-foreground">{formatKr(profile.income, lc)} kr.</p>
           <p className="text-xs text-muted-foreground">{Math.round(myShare * 100)}% af total</p>
         </div>
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Partners indkomst</p>
-          <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome)} kr.</p>
+          <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome, lc)} kr.</p>
           <p className="text-xs text-muted-foreground">{Math.round(partnerShare * 100)}% af total</p>
         </div>
       </div>
@@ -90,17 +93,17 @@ export function ParSplitView({ profile, budget }: Props) {
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-primary" />
             <p className="text-xs text-muted-foreground">Du betaler</p>
-            <p className="text-xl font-black text-foreground">{formatKr(splits.my)} kr.</p>
+            <p className="text-xl font-black text-foreground">{formatKr(splits.my, lc)} kr.</p>
             <p className={`text-xs font-medium ${myRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
-              {formatKr(myRemaining)} kr. tilbage
+              {formatKr(myRemaining, lc)} kr. tilbage
             </p>
           </div>
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-muted-foreground" />
             <p className="text-xs text-muted-foreground">Partner betaler</p>
-            <p className="text-xl font-black text-foreground">{formatKr(splits.partner)} kr.</p>
+            <p className="text-xl font-black text-foreground">{formatKr(splits.partner, lc)} kr.</p>
             <p className={`text-xs font-medium ${partnerRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
-              {formatKr(partnerRemaining)} kr. tilbage
+              {formatKr(partnerRemaining, lc)} kr. tilbage
             </p>
           </div>
         </div>
@@ -114,8 +117,8 @@ export function ParSplitView({ profile, budget }: Props) {
           {Math.abs(fairnessDelta) < 500
             ? "✓ Jævn fordeling — begge har ca. lige meget til rådighed"
             : fairnessDelta > 0
-              ? `Du har ${formatKr(fairnessDelta)} kr. mere til rådighed end din partner`
-              : `Din partner har ${formatKr(Math.abs(fairnessDelta))} kr. mere til rådighed end dig`
+              ? `Du har ${formatKr(fairnessDelta, lc)} kr. mere til rådighed end din partner`
+              : `Din partner har ${formatKr(Math.abs(fairnessDelta), lc)} kr. mere til rådighed end dig`
           }
         </div>
       </motion.div>
@@ -130,7 +133,7 @@ export function ParSplitView({ profile, budget }: Props) {
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={55} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${formatKr(v)} kr.`, name === "udgifter" ? "Udgifter" : "Rest"]}
+                formatter={(v: number, name: string) => [`${formatKr(v, lc)} kr.`, name === "udgifter" ? "Udgifter" : "Rest"]}
               />
               <Bar dataKey="udgifter" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
               <Bar dataKey="rest" stackId="a" fill="hsl(var(--muted))" radius={[0, 4, 4, 0]} />

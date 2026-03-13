@@ -5,7 +5,9 @@ import { EditableAmount } from "./EditableAmount";
 import { SankeyDiagram } from "./SankeyDiagram";
 import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useLocale } from "@/lib/locale";
 import { SocialProofNudge } from "./SocialProofNudge";
+import { LossAversionInsights } from "./LossAversionInsights";
 import { INCOME_MAPPINGS } from "@/lib/fieldMappings";
 import { useMarketData } from "@/hooks/useMarketData";
 import { hasLiveData, getLiveIncome, getLiveElPrice, getLiveMortgageRate } from "@/lib/marketData";
@@ -28,16 +30,16 @@ const BUCKET_COLORS = {
   risiko: "hsl(var(--flow-subscriptions))",
 };
 
-const BUCKET_LABELS = {
-  drift: { label: "Drift", emoji: "⚙️", tip: "Faste udgifter: bolig, mad, transport, forsikring" },
-  frihed: { label: "Frihed", emoji: "✨", tip: "Til overs efter faste udgifter — dit rådighedsbeløb" },
-  fremtid: { label: "Fremtid", emoji: "📈", tip: "Opsparing og pensionsbidrag" },
-  risiko: { label: "Risiko", emoji: "🛡️", tip: "Gæld og varierende udgifter" },
+const BUCKET_KEYS = ["drift", "frihed", "fremtid", "risiko"] as const;
+type BucketKey = typeof BUCKET_KEYS[number];
+const BUCKET_EMOJIS: Record<BucketKey, string> = {
+  drift: "⚙️", frihed: "✨", fremtid: "📈", risiko: "🛡️",
 };
 
 
 export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
   const { t } = useI18n();
+  const locale = useLocale();
   const { data: marketData } = useMarketData();
   const { score, label, color, truths } = health;
 
@@ -56,17 +58,17 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
   // Alerts
   const alerts = useMemo(() => {
     const a: { level: "critical" | "warning" | "insight"; message: string }[] = [];
-    if (budget.disposableIncome < 0) a.push({ level: "critical", message: `Du bruger ${formatKr(Math.abs(budget.disposableIncome))} kr. mere end du tjener` });
-    if (health.debtRatio > 35) a.push({ level: "warning", message: `Bolig udgør ${health.debtRatio}% af indkomsten — over anbefalede 35%` });
+    if (budget.disposableIncome < 0) a.push({ level: "critical", message: t("cockpit.alert.overBudget").replace("{amount}", formatKr(Math.abs(budget.disposableIncome), locale.currencyLocale)) });
+    if (health.debtRatio > 35) a.push({ level: "warning", message: t("cockpit.alert.housingHigh").replace("{pct}", String(health.debtRatio)) });
     const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
-    if (streamCount >= 4) a.push({ level: "warning", message: `${streamCount} streamingtjenester — gennemsnitsdansker har 2` });
-    if (health.savingsRate >= 20 && budget.disposableIncome > 3000) a.push({ level: "insight", message: `Stærk opsparingsrate på ${health.savingsRate}%` });
+    if (streamCount >= 4) a.push({ level: "warning", message: t("cockpit.alert.streamingMany").replace("{count}", String(streamCount)) });
+    if (health.savingsRate >= 20 && budget.disposableIncome > 3000) a.push({ level: "insight", message: t("cockpit.alert.savingsStrong").replace("{pct}", String(health.savingsRate)) });
     return a;
-  }, [profile, budget, health]);
+  }, [profile, budget, health, t, locale]);
 
   // 4 Buckets
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
-  const bucketEntries = Object.entries(health.buckets) as [keyof typeof BUCKET_LABELS, number][];
+  const bucketEntries = Object.entries(health.buckets) as [BucketKey, number][];
 
   const totalSavings = optimizations.reduce((s, o) => s + o.besparelse_kr, 0);
 
@@ -96,8 +98,8 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           </div>
 
           <div className="flex-1 space-y-1.5 min-w-0">
-            <TruthRow icon={<Wallet className="w-3 h-3" />} label={t("health.freedom")} value={`${formatKr(truths.freeCashFlow)} kr.`} positive={truths.freeCashFlow > 5000} />
-            <TruthRow icon={<Activity className="w-3 h-3" />} label={t("health.baseline")} value={`${formatKr(truths.monthlyBaseline)} kr.`} positive={true} />
+            <TruthRow icon={<Wallet className="w-3 h-3" />} label={t("health.freedom")} value={`${formatKr(truths.freeCashFlow, locale.currencyLocale)} ${t("currency")}`} positive={truths.freeCashFlow > 5000} />
+            <TruthRow icon={<Activity className="w-3 h-3" />} label={t("health.baseline")} value={`${formatKr(truths.monthlyBaseline, locale.currencyLocale)} ${t("currency")}`} positive={true} />
             <TruthRow icon={<Shield className="w-3 h-3" />} label={t("health.buffer")} value={truths.bufferScore} positive={health.bufferMonths >= 3} />
           </div>
         </div>
@@ -106,7 +108,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         <div className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Indkomst</p>
+              <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.income")}</p>
               <div className="font-display font-bold text-base text-primary">
                 <EditableAmount
                   value={profile.income}
@@ -114,33 +116,35 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
                   min={INCOME_MAPPINGS.income.min}
                   max={INCOME_MAPPINGS.income.max}
                   step={INCOME_MAPPINGS.income.step}
+                  localeCode={locale.currencyLocale}
                   className="font-display font-bold text-base text-primary"
                 />
               </div>
               {isPar && (
                 <div className="mt-1.5 pt-1.5 border-t border-primary/10">
-                  <p className="text-[8px] text-muted-foreground mb-0.5">Partner</p>
+                  <p className="text-[8px] text-muted-foreground mb-0.5">{t("cockpit.partner")}</p>
                   <EditableAmount
                     value={profile.partnerIncome}
                     onChange={(v) => updateField("partnerIncome", v)}
                     min={INCOME_MAPPINGS.partnerIncome.min}
                     max={INCOME_MAPPINGS.partnerIncome.max}
                     step={INCOME_MAPPINGS.partnerIncome.step}
+                    localeCode={locale.currencyLocale}
                     className="font-display font-bold text-sm text-primary/70"
                   />
                 </div>
               )}
-              <p className="text-[9px] text-muted-foreground mt-1 tabular-nums">I alt: {formatKr(budget.totalIncome)} kr.</p>
+              <p className="text-[9px] text-muted-foreground mt-1 tabular-nums">{t("cockpit.total")}: {formatKr(budget.totalIncome, locale.currencyLocale)} {t("currency")}</p>
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex-1 p-3 rounded-xl bg-muted/50 border border-border/50">
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Udgifter</p>
-                <p className="font-display font-bold text-base text-foreground">{formatKr(budget.totalExpenses)} kr.</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.expenses")}</p>
+                <p className="font-display font-bold text-base text-foreground">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</p>
               </div>
               <div className={`flex-1 p-3 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">Til rådighed</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.disposable")}</p>
                 <p className={`font-display font-bold text-base ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
-                  {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome)} kr.
+                  {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome, locale.currencyLocale)} {t("currency")}
                 </p>
               </div>
             </div>
@@ -184,11 +188,11 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
       {marketData && (() => {
         const live = hasLiveData(marketData);
         const liveItems: string[] = [];
-        if (live.electricity) liveItems.push(`El: ${getLiveElPrice(marketData)?.toFixed(2)} kr/kWh`);
-        if (live.mortgageRate) liveItems.push(`Rente: ${getLiveMortgageRate(marketData)}%`);
+        if (live.electricity) liveItems.push(t("cockpit.live.electricity").replace("{price}", getLiveElPrice(marketData)?.toFixed(2) ?? ""));
+        if (live.mortgageRate) liveItems.push(t("cockpit.live.rate").replace("{rate}", String(getLiveMortgageRate(marketData))));
         if (live.income) {
           const areaIncome = getLiveIncome(marketData, profile.postalCode || "000");
-          if (areaIncome) liveItems.push(`Gns. indkomst: ${formatKr(areaIncome)} kr.`);
+          if (areaIncome) liveItems.push(t("cockpit.live.income").replace("{amount}", formatKr(areaIncome, locale.currencyLocale)));
         }
         if (liveItems.length === 0) return null;
         return (
@@ -210,7 +214,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
 
       {/* ── 4 Buckets ── */}
       <div className="rounded-2xl border border-border p-4">
-        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2.5">Pengenes fordeling</p>
+        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2.5">{t("cockpit.distribution")}</p>
         <div className="h-2.5 rounded-full overflow-hidden flex mb-3">
           {bucketEntries.map(([key, val]) => (
             <motion.div
@@ -225,13 +229,15 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
         <div className="grid grid-cols-4 gap-1.5">
           {bucketEntries.map(([key, val]) => {
-            const info = BUCKET_LABELS[key];
+            const emoji = BUCKET_EMOJIS[key as BucketKey];
+            const label = t(`cockpit.bucket.${key}`);
+            const tip = t(`cockpit.bucket.${key}Tip`);
             const pct = totalBuckets > 0 ? Math.round((val / totalBuckets) * 100) : 0;
             return (
-              <div key={key} className="text-center" title={info.tip}>
-                <span className="text-[10px] font-medium" aria-hidden="true">{info.emoji} {info.label}</span>
+              <div key={key} className="text-center" title={tip}>
+                <span className="text-[10px] font-medium" aria-hidden="true">{emoji} {label}</span>
                 <p className="font-display font-bold text-xs tabular-nums">{pct}%</p>
-                <p className="text-[9px] text-muted-foreground">{formatKr(val)}</p>
+                <p className="text-[9px] text-muted-foreground">{formatKr(val, locale.currencyLocale)}</p>
               </div>
             );
           })}
@@ -249,23 +255,23 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-semibold tracking-widest uppercase text-primary/70 mb-0.5">Besparelsespotentiale</p>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-primary/70 mb-0.5">{t("cockpit.savingsPotential")}</p>
               <div className="flex items-baseline gap-1.5">
-                <span className="font-display font-black text-2xl text-primary">{formatKr(totalSavings)}</span>
-                <span className="text-primary/70 text-sm">kr./md.</span>
+                <span className="font-display font-black text-2xl text-primary">{formatKr(totalSavings, locale.currencyLocale)}</span>
+                <span className="text-primary/70 text-sm">{t("perMonth")}</span>
               </div>
             </div>
             <button
               onClick={() => document.getElementById("handling")?.scrollIntoView({ behavior: "smooth" })}
               className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-sm"
             >
-              Se plan ↓
+              {t("cockpit.seePlan")}
             </button>
           </div>
         </motion.div>
       )}
 
-      <SocialProofNudge profile={profile} budget={budget} health={health} context="cockpit" />
+      <LossAversionInsights profile={profile} budget={budget} health={health} />
     </div>
   );
 }

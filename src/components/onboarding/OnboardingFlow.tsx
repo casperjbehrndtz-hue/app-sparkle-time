@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Plus, X, Info, Sparkles } from "lucide-react";
+import { ChevronLeft, Plus, X, Info, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
 import { AILiveComment } from "./AILiveComment";
 import { WelcomePage } from "./WelcomePage";
 import {
@@ -18,6 +19,11 @@ import {
   getPostalName, getEstimateSource, getPropertyValueEstimate,
   getChildBenefit,
 } from "@/data/priceDatabase";
+import {
+  NO_SUBSCRIPTIONS, NO_FOOD, NO_INSURANCE, NO_UTILITIES,
+  noGetMortgageEstimate, noGetRentEstimate, noGetBorettslagEstimate,
+  noGetPostalName, noGetEstimateSource, noGetPropertyValueEstimate,
+} from "@/data/priceDatabase.no";
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 
@@ -87,6 +93,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
+  const [carExpanded, setCarExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Persist onboarding state to sessionStorage on changes
@@ -96,12 +103,14 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
     }
   }, [step, profile, childAgeInputs]);
 
+  const locale = useLocale();
   const isPar = profile.householdType === "par";
+  const isNO = locale.code === "no";
   const update = useCallback((partial: Partial<BudgetProfile>) => {
     setProfile((p) => ({ ...p, ...partial }));
   }, []);
 
-  const liveBudget = getStepIndex(step) >= 2 ? computeBudget(profile) : null;
+  const liveBudget = getStepIndex(step) >= 2 ? computeBudget(profile, null, locale) : null;
 
   const goNext = () => {
     setDirection(1);
@@ -145,8 +154,11 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     update({
                       householdType: opt.type,
                       partnerIncome: opt.type === "solo" ? 0 : profile.partnerIncome || 28000,
-                      insuranceAmount: isPairChoice ? INSURANCE.par.price : INSURANCE.solo.price,
-                      foodAmount: (isPairChoice ? 6000 : 3500) + (FOOD.per_child * childCount),
+                      insuranceAmount: isPairChoice
+                        ? (isNO ? NO_INSURANCE.par.price : INSURANCE.par.price)
+                        : (isNO ? NO_INSURANCE.solo.price : INSURANCE.solo.price),
+                      foodAmount: (isPairChoice ? (isNO ? 9000 : 6000) : (isNO ? 5500 : 3500))
+                        + ((isNO ? NO_FOOD.per_child : FOOD.per_child) * childCount),
                       leisureAmount: isPairChoice ? 2500 : 1500,
                       clothingAmount: isPairChoice ? 1200 : 800,
                       healthAmount: isPairChoice ? 500 : 350,
@@ -232,28 +244,50 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
       }
 
       case "housing": {
-        const postalName = profile.postalCode.length === 4 ? getPostalName(profile.postalCode) : null;
-        const sourceNote = profile.postalCode.length === 4 ? getEstimateSource(profile.housingType) : null;
+        const postalName = profile.postalCode.length === 4
+          ? (isNO ? noGetPostalName(profile.postalCode) : getPostalName(profile.postalCode))
+          : null;
+        const sourceNote = profile.postalCode.length === 4
+          ? (isNO ? noGetEstimateSource(profile.housingType) : getEstimateSource(profile.housingType))
+          : null;
         const handlePostalChange = (val: string) => {
           const clean = val.replace(/\D/g, "").slice(0, 4);
           update({ postalCode: clean });
           if (clean.length === 4) {
-            if (profile.housingType === "ejer") update({ postalCode: clean, mortgageAmount: getMortgageEstimate(clean), propertyValue: getPropertyValueEstimate(clean) });
-            else if (profile.housingType === "andel") update({ postalCode: clean, rentAmount: getAndelEstimate(clean, isPar) });
-            else update({ postalCode: clean, rentAmount: getRentEstimate(clean, isPar) });
+            if (profile.housingType === "ejer") {
+              const propVal = isNO ? noGetPropertyValueEstimate(clean) : getPropertyValueEstimate(clean);
+              const mortVal = isNO ? noGetMortgageEstimate(clean) : getMortgageEstimate(clean);
+              update({ postalCode: clean, mortgageAmount: mortVal, propertyValue: propVal });
+            } else if (profile.housingType === "andel") {
+              const andel = isNO ? noGetBorettslagEstimate(clean, isPar) : getAndelEstimate(clean, isPar);
+              update({ postalCode: clean, rentAmount: andel });
+            } else {
+              const rent = isNO ? noGetRentEstimate(clean, isPar) : getRentEstimate(clean, isPar);
+              update({ postalCode: clean, rentAmount: rent });
+            }
           }
         };
         const handleHousingType = (type: "lejer" | "ejer" | "andel") => {
           if (type === "ejer") {
-            const propVal = profile.postalCode.length === 4 ? getPropertyValueEstimate(profile.postalCode) : 2500000;
-            const mortVal = profile.postalCode.length === 4 ? getMortgageEstimate(profile.postalCode) : 8500;
-            update({ housingType: type, hasMortgage: true, mortgageAmount: mortVal, propertyValue: propVal, interestRate: 4.0 });
+            const propVal = profile.postalCode.length === 4
+              ? (isNO ? noGetPropertyValueEstimate(profile.postalCode) : getPropertyValueEstimate(profile.postalCode))
+              : (isNO ? 3500000 : 2500000);
+            const mortVal = profile.postalCode.length === 4
+              ? (isNO ? noGetMortgageEstimate(profile.postalCode) : getMortgageEstimate(profile.postalCode))
+              : (isNO ? 12000 : 8500);
+            update({ housingType: type, hasMortgage: true, mortgageAmount: mortVal, propertyValue: propVal, interestRate: isNO ? 5.0 : 4.0 });
           } else if (type === "andel") {
             update({ housingType: type, hasMortgage: true, mortgageAmount: profile.mortgageAmount || 3500, propertyValue: 0, interestRate: 0 });
-            if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: true, rentAmount: getAndelEstimate(profile.postalCode, isPar), mortgageAmount: profile.mortgageAmount || 3500 });
+            if (profile.postalCode.length === 4) {
+              const andel = isNO ? noGetBorettslagEstimate(profile.postalCode, isPar) : getAndelEstimate(profile.postalCode, isPar);
+              update({ housingType: type, hasMortgage: true, rentAmount: andel, mortgageAmount: profile.mortgageAmount || 3500 });
+            }
           } else {
             update({ housingType: type, hasMortgage: false, propertyValue: 0, interestRate: 0 });
-            if (profile.postalCode.length === 4) update({ housingType: type, hasMortgage: false, rentAmount: getRentEstimate(profile.postalCode, isPar) });
+            if (profile.postalCode.length === 4) {
+              const rent = isNO ? noGetRentEstimate(profile.postalCode, isPar) : getRentEstimate(profile.postalCode, isPar);
+              update({ housingType: type, hasMortgage: false, rentAmount: rent });
+            }
           }
         };
         return (
@@ -264,9 +298,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             </motion.div>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { type: "lejer" as const, emoji: "🏢", label: t("step.housing.renter") },
-                { type: "andel" as const, emoji: "🏘️", label: t("step.housing.coop") },
-                { type: "ejer" as const, emoji: "🏡", label: t("step.housing.owner") },
+                { type: "lejer" as const, emoji: "🏢", label: locale.housingTypeLabels.lejer },
+                { type: "andel" as const, emoji: "🏘️", label: locale.housingTypeLabels.andel },
+                { type: "ejer" as const, emoji: "🏡", label: locale.housingTypeLabels.ejer },
               ].map((opt) => (
                 <BigChoice key={opt.type} active={profile.housingType === opt.type} onClick={() => handleHousingType(opt.type)} icon={opt.emoji} label={opt.label} />
               ))}
@@ -384,12 +418,47 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
           }
         };
+        const carMonthly = profile.hasCar
+          ? profile.carLoan + profile.carFuel + Math.round(profile.carInsurance / 12) + Math.round(profile.carTax / 12) + Math.round(profile.carService / 6)
+          : 0;
+
+        const CompactSlider = ({ label, value, onChange, min, max, step, icon }: {
+          label: string; value: number; onChange: (v: number) => void;
+          min: number; max: number; step: number; icon: string;
+        }) => (
+          <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-base">{icon}</span>
+                <span className="text-sm font-medium">{label}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <input type="number" value={value}
+                  onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
+                  className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin" />
+                <span className="text-xs text-muted-foreground">kr./md.</span>
+              </div>
+            </div>
+            <input type="range" min={min} max={max} step={step} value={value}
+              onChange={(e) => onChange(Number(e.target.value))}
+              className="w-full h-1.5 rounded-full accent-primary cursor-pointer" />
+            <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+              <span>{formatKr(min)}</span><span>{formatKr(max)}</span>
+            </div>
+          </div>
+        );
+
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.expenses.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.expenses.subtitle")}</p>
+              <button onClick={goNext} className="text-xs text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
+                Brug standardtal og se mit resultat →
+              </button>
             </motion.div>
+
+            {/* ── Streaming ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
               <div className="space-y-1.5">
@@ -407,55 +476,76 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 ))}
               </div>
             </div>
+
+            {/* ── Transport (forenklet) ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
               <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
-                icon="🚗" label={t("step.expenses.car")} sublabel={profile.hasCar ? `${formatKr(profile.carLoan + profile.carFuel + Math.round(profile.carInsurance/12) + Math.round(profile.carTax/12) + Math.round(profile.carService/6))} ${t("perMonth")}` : t("step.expenses.carLoan")} />
+                icon="🚗" label={t("step.expenses.car")}
+                sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : t("step.expenses.carLoan")} />
               {profile.hasCar && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-1.5 ml-2 border-l-2 border-primary/10 pl-4">
-                  {[
-                    { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth") },
-                    { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth") },
-                    { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear") },
-                    { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear") },
-                    { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear") },
-                  ].map((f) => (
-                    <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
-                      <span className="text-xs text-muted-foreground">{f.label}</span>
-                      <div className="flex items-center gap-1">
-                        <input type="number" value={(profile as any)[f.key]} onChange={(e) => update({ [f.key]: Number(e.target.value) || 0 } as any)}
-                          className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                        <span className="text-[10px] text-muted-foreground">{f.freq}</span>
-                      </div>
-                    </div>
-                  ))}
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 ml-2 border-l-2 border-primary/10 pl-4 space-y-1">
+                  <button onClick={() => setCarExpanded(v => !v)}
+                    className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors py-1">
+                    {carExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                    {carExpanded ? "Skjul detaljer" : "Fordel udgifter på bil"}
+                  </button>
+                  {carExpanded && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-1.5">
+                      {[
+                        { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth") },
+                        { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth") },
+                        { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear") },
+                        { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear") },
+                        { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear") },
+                      ].map((f) => (
+                        <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
+                          <span className="text-xs text-muted-foreground">{f.label}</span>
+                          <div className="flex items-center gap-1">
+                            <input type="number" value={(profile as any)[f.key]} onChange={(e) => update({ [f.key]: Number(e.target.value) || 0 } as any)}
+                              className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
+                            <span className="text-[10px] text-muted-foreground">{f.freq}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </div>
+
+            {/* ── Forsyninger (redigerbare) ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
               <div className="space-y-1.5">
                 {[
-                  { icon: "📡", label: t("step.expenses.internet"), price: UTILITIES.internet.price },
-                  { icon: "📱", label: isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo"), price: UTILITIES.mobile.price_per_person * (isPar ? 2 : 1) },
-                  { icon: "⚡", label: t("step.expenses.electricity"), price: isPar ? UTILITIES.electricity.price_par : UTILITIES.electricity.price_solo },
-                  { icon: "🔥", label: t("step.expenses.heating"), price: isPar ? UTILITIES.heating.price_par : UTILITIES.heating.price_solo },
-                  { icon: "📺", label: t("step.expenses.drLicens"), price: UTILITIES.dr_licens.price },
+                  { icon: "📡", label: isNO ? "Internett" : t("step.expenses.internet"), field: "internetAmount" as const, def: isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price },
+                  { icon: "📱", label: isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo"), field: "mobileAmount" as const, def: (isNO ? NO_UTILITIES : UTILITIES).mobile.price_per_person * (isPar ? 2 : 1) },
+                  { icon: "⚡", label: isNO ? "Strøm" : t("step.expenses.electricity"), field: "electricityAmount" as const, def: isPar ? (isNO ? NO_UTILITIES : UTILITIES).electricity.price_par : (isNO ? NO_UTILITIES : UTILITIES).electricity.price_solo },
+                  { icon: "🔥", label: isNO ? "Oppvarming/vann" : t("step.expenses.heating"), field: "heatingAmount" as const, def: isPar ? (isNO ? NO_UTILITIES : UTILITIES).heating.price_par : (isNO ? NO_UTILITIES : UTILITIES).heating.price_solo },
+                  ...(!isNO ? [{ icon: "📺", label: t("step.expenses.drLicens"), field: "drAmount" as const, def: UTILITIES.dr_licens.price }] : []),
                 ].map((u) => (
-                  <div key={u.label} className="flex items-center justify-between rounded-2xl border-2 border-border bg-muted/30 px-4 py-3">
+                  <div key={u.field} className="flex items-center justify-between rounded-2xl border border-border bg-muted/30 px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       <span className="text-base">{u.icon}</span>
-                      <div>
-                        <span className="text-sm font-medium">{u.label}</span>
-                        <span className="text-[10px] text-muted-foreground ml-1.5">{t("step.expenses.included")}</span>
-                      </div>
+                      <span className="text-sm font-medium">{u.label}</span>
                     </div>
-                    <span className="text-sm font-semibold tabular-nums text-muted-foreground">{u.price} {t("perMonth")}</span>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min={0}
+                        value={profile[u.field] ?? u.def}
+                        onChange={(e) => update({ [u.field]: Math.max(0, Number(e.target.value)) })}
+                        className="w-20 text-right text-sm font-semibold tabular-nums bg-transparent border-b border-border focus:outline-none focus:border-primary"
+                      />
+                      <span className="text-xs text-muted-foreground">{t("freq.monthlyShort")}</span>
+                    </div>
                   </div>
                 ))}
-                <p className="text-[10px] text-muted-foreground/60 mt-1">{t("step.expenses.utilitiesNote")}</p>
               </div>
             </div>
+
+            {/* ── Forsikring / Fagforening / Fitness ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
               <div className="space-y-1.5">
@@ -470,6 +560,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   amount={profile.fitnessAmount} onAmountChange={(v) => update({ fitnessAmount: v })} />
               </div>
             </div>
+
+            {/* ── Kæledyr / Lån / Opsparing ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.petsLoans")}</h3>
               <div className="space-y-1.5">
@@ -484,6 +576,21 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   amount={profile.savingsAmount} onAmountChange={(v) => update({ savingsAmount: v })} />
               </div>
             </div>
+
+            {/* ── Hverdagsudgifter (kompakte sliders) ── */}
+            <div>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">Hverdagsudgifter</h3>
+              <p className="text-xs text-muted-foreground mb-3">Vi har estimeret disse — ret dem hvis de ikke passer</p>
+              <div className="space-y-2">
+                <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} />
+                <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} />
+                <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} />
+                <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} />
+                <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} />
+              </div>
+            </div>
+
+            {/* ── Egne udgifter ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
               {profile.customExpenses.map((ce, i) => (
@@ -516,6 +623,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20"><Plus className="w-4 h-4" /></button>
               </div>
             </div>
+
             <AILiveComment profile={profile} step="expenses" />
             <ContinueButton onClick={goNext} label={t("step.expenses.seeOverview")} />
           </div>
@@ -527,25 +635,22 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         const expenseRatio = Math.round((budget.totalExpenses / budget.totalIncome) * 100);
         const isHealthy = budget.disposableIncome > 8000;
         const isWarning = budget.disposableIncome > 3000;
-        const variableFields: { key: keyof BudgetProfile; label: string; icon: string }[] = [
-          { key: "foodAmount", label: t("step.review.food"), icon: "🛒" },
-          { key: "restaurantAmount", label: t("step.review.restaurant"), icon: "🍕" },
-          { key: "leisureAmount", label: t("step.review.leisure"), icon: "🎭" },
-          { key: "clothingAmount", label: t("step.review.clothing"), icon: "👕" },
-          { key: "healthAmount", label: t("step.review.health"), icon: "🏥" },
-        ];
         return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
+          <div className="space-y-6 max-w-md mx-auto w-full">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-1">
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.review.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.review.subtitle")}</p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center py-10 rounded-3xl border-2 border-border relative overflow-hidden">
+
+            {/* ── Stort resultat ── */}
+            <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="text-center py-12 rounded-3xl border-2 border-border relative overflow-hidden">
               <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"}`} />
               <div className="relative">
                 <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
-                <motion.div key={budget.disposableIncome} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-baseline justify-center gap-1">
+                <motion.div key={budget.disposableIncome} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                  className="flex items-baseline justify-center gap-1">
                   <span className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-kassen-gold" : "text-destructive"}`}>
                     {formatKr(budget.disposableIncome)}
                   </span>
@@ -554,55 +659,54 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <p className="text-sm text-muted-foreground mt-3">
                   {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
                 </p>
+                <p className="text-xs text-muted-foreground/60 mt-2">pr. måned efter alle udgifter</p>
               </div>
             </motion.div>
+
+            {/* ── 3 nøgletal ── */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: t("step.review.income"), amount: budget.totalIncome, color: "text-primary" },
-                { label: t("step.review.expenses"), amount: budget.totalExpenses, color: "text-destructive" },
-                { label: t("step.review.share"), amount: expenseRatio, color: "text-muted-foreground", suffix: "%" },
+                { label: t("step.review.income"), value: `${formatKr(budget.totalIncome)} kr.`, color: "text-primary" },
+                { label: t("step.review.expenses"), value: `${formatKr(budget.totalExpenses)} kr.`, color: "text-foreground" },
+                { label: "Udgiftsandel", value: `${expenseRatio}%`, color: expenseRatio > 85 ? "text-destructive" : "text-muted-foreground" },
               ].map((s) => (
-                <div key={s.label} className="rounded-2xl border-2 border-border p-3 text-center">
+                <div key={s.label} className="rounded-2xl border border-border p-3 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
-                  <p className={`font-display font-bold text-base ${s.color}`}>
-                    {s.suffix ? `${s.amount}${s.suffix}` : `${formatKr(s.amount)}`}
-                  </p>
+                  <p className={`font-display font-bold text-sm ${s.color}`}>{s.value}</p>
                 </div>
               ))}
             </div>
-            <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3 flex items-center gap-2">
-                <Info className="w-3.5 h-3.5" /> {t("step.review.variableExpenses")}
-              </h3>
-              <div className="space-y-1.5">
-                {variableFields.map(({ key, label, icon }) => (
-                  <div key={key} className="flex items-center justify-between rounded-2xl border-2 border-primary/15 bg-primary/[0.02] px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-base">{icon}</span>
-                      <span className="text-sm font-medium">{label}</span>
-                    </div>
-                    <div className="flex items-center gap-1 bg-muted rounded-xl px-3 py-1.5">
-                      <input type="number" value={profile[key] as number}
-                        onChange={(e) => update({ [key]: Number(e.target.value) || 0 } as any)}
-                        className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                      <span className="text-[10px] text-muted-foreground">{t("perMonth")}</span>
-                    </div>
+
+            {/* ── Udgiftsoversigt (read-only, sammenfoldelig) ── */}
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
+                <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
+                <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} kr. &rsaquo;</span>
+              </summary>
+              <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                {budget.fixedExpenses.map((e, i) => (
+                  <div key={i} className="px-4 py-2 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">{e.label}</span>
+                    <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="rounded-2xl border-2 border-border divide-y divide-border">
-              <div className="px-4 py-3 flex items-center justify-between">
-                <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.review.fixedExpenses")}</span>
-                <span className="text-sm font-display font-bold">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("currency")}</span>
-              </div>
-              {budget.fixedExpenses.map((e, i) => (
-                <div key={i} className="px-4 py-2 flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{e.label}</span>
-                  <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("currency")}</span>
-                </div>
-              ))}
-            </div>
+            </details>
+
+            {/* ── Email opt-in (GDPR-compliant, unchecked by default) ── */}
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={!!profile.emailReminders}
+                onChange={(e) => update({ emailReminders: e.target.checked })}
+                className="mt-0.5 w-4 h-4 rounded border-border accent-primary cursor-pointer"
+              />
+              <span className="text-xs text-muted-foreground leading-relaxed">
+                Ja tak, send mig en månedlig påmindelse om at opdatere mit budget.{" "}
+                <span className="text-muted-foreground/60">Du kan altid afmelde dig.</span>
+              </span>
+            </label>
+
             <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} label={t("step.review.seeDashboard")} />
           </div>
         );
@@ -626,7 +730,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
         </div>
       </header>
-      <div ref={contentRef} className="flex-1 px-5 py-8 overflow-y-auto" style={{ paddingBottom: liveBudget ? "7rem" : "2rem" }}>
+      <div ref={contentRef} className="flex-1 px-5 py-8 overflow-y-auto overscroll-contain" style={{ paddingBottom: liveBudget ? "7rem" : "2rem" }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div key={step} custom={direction} variants={pageVariants} initial="enter" animate="center" exit="exit">
             {renderStepContent()}

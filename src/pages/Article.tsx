@@ -211,13 +211,7 @@ export default function Article() {
   useEffect(() => {
     if (!slug) { setArticle(null); return; }
 
-    // Check static first (instant)
-    if (STATIC_ARTICLES[slug]) {
-      setArticle(STATIC_ARTICLES[slug]);
-      return;
-    }
-
-    // Then try Supabase for AI-generated articles
+    // Supabase is primary — static articles are fallback only
     supabase
       .from("articles")
       .select("title, category, read_time, content")
@@ -228,18 +222,65 @@ export default function Article() {
         if (data) {
           setArticle({ title: data.title, category: data.category, readTime: data.read_time, content: data.content });
         } else {
-          setArticle(null);
+          // Not in DB — try static fallback
+          setArticle(STATIC_ARTICLES[slug] ?? null);
         }
+      })
+      .catch(() => {
+        // DB unreachable — try static fallback
+        setArticle(STATIC_ARTICLES[slug] ?? null);
       });
   }, [slug]);
 
   const title = article && article !== "loading" ? article.title : "";
   const content = article && article !== "loading" ? article.content : "";
+  const description = content ? content.slice(0, 155).replace(/[#\n*|]/g, "").trim() : "Læs guides om dansk privatøkonomi.";
+  const canonicalUrl = `https://kassen.dk/guides/${slug}`;
 
   usePageMeta(
     title ? `${title} — Kassen` : "Guide — Kassen",
-    content ? content.slice(0, 155).replace(/[#\n*]/g, "").trim() : "Læs guides om dansk privatøkonomi."
+    description
   );
+
+  // Canonical link + JSON-LD Article schema
+  useEffect(() => {
+    if (!title) return;
+
+    // Canonical
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    const createdCanonical = !canonical;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = canonicalUrl;
+
+    // JSON-LD
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.id = "article-jsonld";
+    script.text = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": title,
+      "description": description,
+      "url": canonicalUrl,
+      "inLanguage": "da",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Kassen",
+        "url": "https://kassen.dk",
+      },
+    });
+    document.getElementById("article-jsonld")?.remove();
+    document.head.appendChild(script);
+
+    return () => {
+      if (createdCanonical) canonical?.remove();
+      document.getElementById("article-jsonld")?.remove();
+    };
+  }, [title, description, canonicalUrl]);
 
   if (article === "loading") {
     return (

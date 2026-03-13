@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
-import { Shield, Wallet, Activity, TrendingUp, ArrowLeft, Printer, Share2 } from "lucide-react";
+import { Shield, Wallet, Activity, ArrowLeft, Printer, Share2 } from "lucide-react";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
+import { useLocale } from "@/lib/locale";
 
 interface Props {
   profile: BudgetProfile;
@@ -19,15 +21,14 @@ const BUCKET_COLORS = {
   risiko: "hsl(280, 50%, 55%)",
 };
 
-const BUCKET_LABELS: Record<string, { label: string; emoji: string }> = {
-  drift: { label: "Drift", emoji: "⚙️" },
-  frihed: { label: "Frihed", emoji: "✨" },
-  fremtid: { label: "Fremtid", emoji: "📈" },
-  risiko: { label: "Risiko", emoji: "🛡️" },
+const BUCKET_EMOJIS: Record<string, string> = {
+  drift: "⚙️", frihed: "✨", fremtid: "📈", risiko: "🛡️",
 };
 
 export function BudgetReport({ profile, budget, health, onBack }: Props) {
   const config = useWhiteLabel();
+  const { t } = useI18n();
+  const locale = useLocale();
   const isPar = profile.householdType === "par";
   const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
   const bucketEntries = Object.entries(health.buckets) as [string, number][];
@@ -39,7 +40,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
   const offset = circumference - (health.score / 100) * circumference;
 
   const now = new Date();
-  const dateStr = `${now.getDate()}. ${["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"][now.getMonth()]} ${now.getFullYear()}`;
+  const dateStr = now.toLocaleDateString(locale.currencyLocale, { day: "numeric", month: "short", year: "numeric" });
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,24 +48,24 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
       <div className="print:hidden sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
           <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Tilbage
+            <ArrowLeft className="w-4 h-4" /> {t("report.back")}
           </button>
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 if (navigator.share) {
-                  navigator.share({ title: `${config.brandName} – Min økonomirapport`, text: `Health Score: ${health.score}/100 | Frihedstal: ${formatKr(health.truths.freeCashFlow)} kr./md.`, url: window.location.href });
+                  navigator.share({ title: `${config.brandName} – ${t("report.title")}`, text: `Health Score: ${health.score}/100 | ${t("health.freedom")}: ${formatKr(health.truths.freeCashFlow, locale.currencyLocale)} ${t("perMonth")}`, url: window.location.href });
                 }
               }}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
             >
-              <Share2 className="w-3.5 h-3.5" /> Del
+              <Share2 className="w-3.5 h-3.5" /> {t("report.share")}
             </button>
             <button
               onClick={() => window.print()}
               className="flex items-center gap-1.5 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
             >
-              <Printer className="w-3.5 h-3.5" /> Print / PDF
+              <Printer className="w-3.5 h-3.5" /> {t("report.print")}
             </button>
           </div>
         </div>
@@ -74,8 +75,8 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         {/* Report Header */}
         <div className="text-center space-y-1">
           <span className="font-display font-black text-2xl text-primary">{config.brandName}</span>
-          <p className="text-xs text-muted-foreground">Økonomirapport · {dateStr}</p>
-          <p className="text-[11px] text-muted-foreground/60">{isPar ? "Parbudget" : "Solobudget"} · Postnr. {profile.postalCode || "—"}</p>
+          <p className="text-xs text-muted-foreground">{t("report.title")} · {dateStr}</p>
+          <p className="text-[11px] text-muted-foreground/60">{isPar ? t("report.couple") : t("report.solo")} · {t("report.postalCode")} {profile.postalCode || "—"}</p>
         </div>
 
         {/* Health Score Hero */}
@@ -98,26 +99,26 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
             </div>
           </div>
           <div className="flex-1 space-y-3">
-            <h2 className="font-display font-bold text-lg">Økonomisk sundhed</h2>
+            <h2 className="font-display font-bold text-lg">{t("report.health")}</h2>
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <StatBox icon={<Wallet className="w-3 h-3" />} label="Frihedstal" value={`${formatKr(health.truths.freeCashFlow)} kr.`} />
-              <StatBox icon={<Activity className="w-3 h-3" />} label="Baseline" value={`${formatKr(health.truths.monthlyBaseline)} kr.`} />
-              <StatBox icon={<Shield className="w-3 h-3" />} label="Buffer" value={`${health.bufferMonths} md.`} />
+              <StatBox icon={<Wallet className="w-3 h-3" />} label={t("health.freedom")} value={`${formatKr(health.truths.freeCashFlow, locale.currencyLocale)} ${t("currency")}`} />
+              <StatBox icon={<Activity className="w-3 h-3" />} label={t("health.baseline")} value={`${formatKr(health.truths.monthlyBaseline, locale.currencyLocale)} ${t("currency")}`} />
+              <StatBox icon={<Shield className="w-3 h-3" />} label={t("report.buffer")} value={t("report.bufferMonths").replace("{n}", String(health.bufferMonths))} />
             </div>
           </div>
         </div>
 
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Månedlig indkomst" value={`${formatKr(budget.totalIncome)} kr.`} />
-          <MetricCard label="Samlede udgifter" value={`${formatKr(budget.totalExpenses)} kr.`} negative />
-          <MetricCard label="Opsparingsrate" value={`${health.savingsRate}%`} good={health.savingsRate >= 15} />
-          <MetricCard label="Bolig-ratio" value={`${health.debtRatio}%`} good={health.debtRatio <= 35} />
+          <MetricCard label={t("report.monthlyIncome")} value={`${formatKr(budget.totalIncome, locale.currencyLocale)} ${t("currency")}`} />
+          <MetricCard label={t("report.totalExpenses")} value={`${formatKr(budget.totalExpenses, locale.currencyLocale)} ${t("currency")}`} negative />
+          <MetricCard label={t("report.savingsRate")} value={`${health.savingsRate}%`} good={health.savingsRate >= 15} />
+          <MetricCard label={t("report.housingRatio")} value={`${health.debtRatio}%`} good={health.debtRatio <= 35} />
         </div>
 
         {/* 4 Buckets */}
         <div className="rounded-xl border border-border p-5">
-          <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Pengenes fordeling</h3>
+          <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("cockpit.distribution")}</h3>
           <div className="h-4 rounded-full overflow-hidden flex mb-4">
             {bucketEntries.map(([key, val]) => (
               <div
@@ -129,14 +130,13 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {bucketEntries.map(([key, val]) => {
-              const info = BUCKET_LABELS[key];
               const pct = totalBuckets > 0 ? Math.round((val / totalBuckets) * 100) : 0;
               return (
                 <div key={key} className="flex items-center gap-3 p-2">
                   <div className="w-2 h-8 rounded-full" style={{ backgroundColor: BUCKET_COLORS[key as keyof typeof BUCKET_COLORS] }} />
                   <div>
-                    <span className="text-xs font-medium">{info?.emoji} {info?.label} · {pct}%</span>
-                    <p className="text-[11px] text-muted-foreground">{formatKr(val)} kr./md.</p>
+                    <span className="text-xs font-medium">{BUCKET_EMOJIS[key]} {t(`cockpit.bucket.${key}`)} · {pct}%</span>
+                    <p className="text-[11px] text-muted-foreground">{formatKr(val, locale.currencyLocale)} {t("perMonth")}</p>
                   </div>
                 </div>
               );
@@ -147,26 +147,26 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         {/* Expense Breakdown */}
         <div className="rounded-xl border border-border overflow-hidden">
           <div className="px-5 py-3 bg-muted/30 flex items-center justify-between">
-            <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Udgiftsspecifikation</h3>
-            <span className="text-sm font-display font-bold text-destructive">{formatKr(budget.totalExpenses)} kr.</span>
+            <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("report.expenseBreakdown")}</h3>
+            <span className="text-sm font-display font-bold text-destructive">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</span>
           </div>
           <div className="divide-y divide-border">
             <div className="px-5 py-2 bg-muted/10">
-              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Faste udgifter</span>
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("report.fixedExpenses")}</span>
             </div>
             {budget.fixedExpenses.map((exp, i) => (
               <div key={`f-${i}`} className="px-5 py-2 flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{exp.label}</span>
-                <span className="text-sm font-medium tabular-nums">{formatKr(exp.amount)} kr.</span>
+                <span className="text-sm font-medium tabular-nums">{formatKr(exp.amount, locale.currencyLocale)} {t("currency")}</span>
               </div>
             ))}
             <div className="px-5 py-2 bg-muted/10">
-              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Variable udgifter</span>
+              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("report.variableExpenses")}</span>
             </div>
             {budget.variableExpenses.map((exp, i) => (
               <div key={`v-${i}`} className="px-5 py-2 flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">{exp.label}</span>
-                <span className="text-sm font-medium tabular-nums">{formatKr(exp.amount)} kr.</span>
+                <span className="text-sm font-medium tabular-nums">{formatKr(exp.amount, locale.currencyLocale)} {t("currency")}</span>
               </div>
             ))}
           </div>
@@ -175,14 +175,14 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         {/* Income breakdown for couples */}
         {isPar && (
           <div className="rounded-xl border border-border p-5">
-            <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Indkomstfordeling</h3>
+            <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("report.incomeDist")}</h3>
             <div className="h-3 rounded-full overflow-hidden bg-muted flex mb-2">
               <div className="h-full bg-primary rounded-l-full" style={{ width: `${(profile.income / budget.totalIncome) * 100}%` }} />
               <div className="h-full bg-kassen-blue rounded-r-full" style={{ width: `${(profile.partnerIncome / budget.totalIncome) * 100}%` }} />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Dig: {formatKr(profile.income)} kr. ({Math.round((profile.income / budget.totalIncome) * 100)}%)</span>
-              <span>Partner: {formatKr(profile.partnerIncome)} kr. ({Math.round((profile.partnerIncome / budget.totalIncome) * 100)}%)</span>
+              <span>{t("report.you")}: {formatKr(profile.income, locale.currencyLocale)} {t("currency")} ({Math.round((profile.income / budget.totalIncome) * 100)}%)</span>
+              <span>{t("report.partner")}: {formatKr(profile.partnerIncome, locale.currencyLocale)} {t("currency")} ({Math.round((profile.partnerIncome / budget.totalIncome) * 100)}%)</span>
             </div>
           </div>
         )}
@@ -190,8 +190,8 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         {/* Footer */}
         <div className="text-center pt-4 border-t border-border space-y-1">
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
-          <p className="text-[10px] text-muted-foreground">Genereret {dateStr} · Beregnet på danske gennemsnitstal 2026</p>
-          <p className="text-[10px] text-muted-foreground/50">{config.footer?.text || "Budgetværktøj — ikke finansiel rådgivning"}</p>
+          <p className="text-[10px] text-muted-foreground">{t("report.generated").replace("{date}", dateStr)}</p>
+          <p className="text-[10px] text-muted-foreground/50">{config.footer?.text || t("report.disclaimer")}</p>
         </div>
       </main>
     </div>

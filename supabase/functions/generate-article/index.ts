@@ -243,7 +243,7 @@ Samlet længde: 900-1200 ord. Start direkte med ## — ingen titel øverst.`;
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-opus-4-6",
+        model: "claude-sonnet-4-6",
         max_tokens: 2500,
         messages: [{ role: "user", content: prompt }],
       }),

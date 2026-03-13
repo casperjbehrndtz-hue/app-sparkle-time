@@ -1,30 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
-
-// ─── Simple in-memory rate limiter: max 20 requests per IP per hour ───
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 20;
-const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimitMap.get(ip);
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
-  entry.count++;
-  return true;
-}
-
-// Clean up stale entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of rateLimitMap) {
-    if (now > entry.resetAt) rateLimitMap.delete(ip);
-  }
-}, 10 * 60 * 1000);
+import { checkRateLimit } from "../_shared/rateLimit.ts";
 
 // Transform Anthropic SSE → OpenAI-compatible SSE so the client (useAIStream.ts) needs no changes.
 function anthropicToOpenAIStream(anthropicStream: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
@@ -69,13 +45,19 @@ serve(async (req) => {
     const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("cf-connecting-ip")
       || "unknown";
-    if (!checkRateLimit(clientIP)) {
+    if (!await checkRateLimit("onboarding-ai", clientIP)) {
       return new Response(JSON.stringify({ error: "For mange forespørgsler. Prøv igen om lidt." }), {
         status: 429, headers: { ...cors, "Content-Type": "application/json" },
       });
     }
 
-    const { mode, profile, step, budget } = await req.json();
+    const { mode, profile, step, budget, lang = "da" } = await req.json();
+    const isNO = lang === "nb";
+    const isEN = lang === "en";
+    const replyLang = isNO ? "norsk bokmål" : isEN ? "English" : "dansk";
+    const avgIncomeSolo = isNO ? "32 000" : "27.000";
+    const avgIncomeCouple = isNO ? "62 000" : "52.000";
+    const currency = isNO || lang === "da" ? "kr." : "DKK";
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
@@ -85,16 +67,16 @@ serve(async (req) => {
 
     if (mode === "live-comment") {
       const isPar = profile.householdType === "par";
-      systemPrompt = `Du er en varm, klog økonomisk assistent i et dansk budgetværktøj.
+      systemPrompt = `Du er en varm, klog økonomisk assistent i et budgetværktøj.
 Brugeren er i gang med at udfylde deres budget og er på trin "${step}".
 
 REGLER:
 - Svar med ÉN kort, personlig kommentar (max 25 ord)
 - Brug konkrete tal fra deres input
 - Vær opmuntrende og konstruktiv, aldrig dømmende
-- Sammenlign med danske gennemsnit når relevant
+- Sammenlign med lokale gennemsnit når relevant
 - Brug emoji sparsomt (max 1)
-- Svar ALTID på dansk
+- Svar ALTID på ${replyLang}
 - Du yder IKKE finansiel rådgivning, kun analyse af tal`;
 
       const profileContext = JSON.stringify({
@@ -113,7 +95,7 @@ REGLER:
       });
 
       const stepContextMap: Record<string, string> = {
-        income: `Brugerens indkomst: ${profile.income} kr./md.${isPar ? ` Partner: ${profile.partnerIncome} kr./md.` : ""}. Gennemsnit for ${isPar ? "par" : "enlige"}: ${isPar ? "52.000" : "27.000"} kr./md.`,
+        income: `Brugerens indkomst: ${profile.income} ${currency}/md.${isPar ? ` Partner: ${profile.partnerIncome} ${currency}/md.` : ""}. Gennemsnit for ${isPar ? "par" : "enlige"}: ${isPar ? avgIncomeCouple : avgIncomeSolo} ${currency}/md.`,
         housing: `Boligtype: ${profile.housingType}, ${profile.housingType === "ejer" ? `ydelse: ${profile.mortgageAmount}` : `husleje: ${profile.rentAmount}`} kr./md. i postnr. ${profile.postalCode}. Anbefalet max 33% af indkomst.`,
         children: `Børn: ${profile.hasChildren ? `Ja, aldre: ${profile.childrenAges?.join(", ")}` : "Ingen"}`,
         expenses: `Valgte: ${[profile.hasCar && "bil", profile.hasInsurance && "forsikring", profile.hasUnion && "fagforening", profile.hasFitness && "fitness"].filter(Boolean).join(", ") || "ingen endnu"}. Streaming: ${[profile.hasNetflix, profile.hasSpotify, profile.hasHBO, profile.hasViaplay, profile.hasDisney, profile.hasAppleTV, profile.hasAmazonPrime].filter(Boolean).length} tjenester.`,
@@ -158,28 +140,29 @@ REGLER:
 
     } else if (mode === "welcome-insight") {
       const isPar = profile.householdType === "par";
-      systemPrompt = `Du er en klog, varm økonomisk analytiker i et dansk budgetværktøj.
+      systemPrompt = `Du er en klog, varm økonomisk analytiker i et budgetværktøj.
 Brugeren har lige afsluttet onboarding og skal nu se deres personlige økonomiske profil for første gang.
 
 REGLER:
 - Skriv en KORT, engagerende analyse (max 80 ord)
 - Start med den vigtigste indsigt om deres økonomi
 - Nævn 1 styrke og 1 mulighed
-- Brug konkrete kronebeløb
+- Brug konkrete beløb
 - Afslut med en opmuntrende sætning
 - Brug formatering: **fed** for nøgletal
-- Svar ALTID på dansk
+- Svar ALTID på ${replyLang}
 - Du yder IKKE finansiel rådgivning`;
 
       userPrompt = `Husstand: ${isPar ? "Par" : "Enlig"}
-Indkomst: ${budget.totalIncome} kr./md.
-Udgifter: ${budget.totalExpenses} kr./md.
-Rådighedsbeløb: ${budget.disposableIncome} kr./md.
+Indkomst: ${budget.totalIncome} ${currency}/md.
+Udgifter: ${budget.totalExpenses} ${currency}/md.
+Rådighedsbeløb: ${budget.disposableIncome} ${currency}/md.
 Opsparingsrate: ${budget.disposableIncome > 0 ? Math.round((budget.disposableIncome / budget.totalIncome) * 100) : 0}%
-Bolig: ${profile.housingType}, ${profile.housingType === "ejer" ? profile.mortgageAmount : profile.rentAmount} kr./md.
+Bolig: ${profile.housingType}, ${profile.housingType === "ejer" ? profile.mortgageAmount : profile.rentAmount} ${currency}/md.
 Børn: ${profile.hasChildren ? profile.childrenAges.length : 0}
 Streaming: ${[profile.hasNetflix, profile.hasSpotify, profile.hasHBO, profile.hasViaplay, profile.hasDisney, profile.hasAppleTV, profile.hasAmazonPrime].filter(Boolean).length}
 Postnummer: ${profile.postalCode}
+Land: ${isNO ? "Norge" : "Danmark"}
 
 Giv en personlig, engagerende velkomst-analyse.`;
 

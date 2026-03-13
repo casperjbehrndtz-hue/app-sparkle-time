@@ -1,43 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://app-sparkle-time.vercel.app/</loc>
+    <loc>https://kassen.dk/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://app-sparkle-time.vercel.app/guides</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://kassen.dk/guides</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://app-sparkle-time.vercel.app/guides/hvad-koster-det-at-bo-i-koebenhavn</loc>
+    <loc>https://kassen.dk/b2b</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://app-sparkle-time.vercel.app/guides/spar-penge-paa-abonnementer</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://kassen.dk/install</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://app-sparkle-time.vercel.app/guides/budget-for-par</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://app-sparkle-time.vercel.app/guides/foerste-budget-guide</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://app-sparkle-time.vercel.app/privatliv</loc>
+    <loc>https://kassen.dk/privatliv</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://app-sparkle-time.vercel.app/install</loc>
+    <loc>https://kassen.dk/vilkaar</loc>
     <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://kassen.dk/guides/50-30-20-reglen-budget</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://kassen.dk/guides/raadighedsbeloeb-beregning</loc>
+    <lastmod>2026-03-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

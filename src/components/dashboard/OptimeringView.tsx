@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, ExternalLink, CheckCircle2 } from "lucide-react";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
 
 interface Props {
   profile: BudgetProfile;
@@ -21,6 +22,8 @@ const fadeUp = (i: number) => ({
 
 export function OptimeringView({ profile, budget, optimizations }: Props) {
   const [expanded, setExpanded] = useState<number | null>(0);
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
   const totalSavings = optimizations.reduce((s, o) => s + o.besparelse_kr, 0);
 
   return (
@@ -32,11 +35,11 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
       >
         <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">Samlet potentiale</p>
         <div className="flex items-end gap-2">
-          <span className="font-display font-black text-4xl text-primary">{formatKr(totalSavings)}</span>
+          <span className="font-display font-black text-4xl text-primary">{formatKr(totalSavings, lc)}</span>
           <span className="text-primary/70 text-lg mb-1">kr./md.</span>
         </div>
         <p className="text-sm text-muted-foreground mt-2">
-          = <strong className="text-foreground">{formatKr(totalSavings * 12)} kr./år</strong> ved at følge planen
+          = <strong className="text-foreground">{formatKr(totalSavings * 12, lc)} kr./år</strong> ved at følge planen
         </p>
       </motion.div>
 
@@ -64,7 +67,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs text-muted-foreground">{categoryEmoji[opt.category] || "💡"} {opt.category}</span>
-                  <span className="font-display font-bold text-primary text-sm">+{formatKr(opt.besparelse_kr)} kr.</span>
+                  <span className="font-display font-bold text-primary text-sm">+{formatKr(opt.besparelse_kr, lc)} kr.</span>
                 </div>
                 <p className="font-semibold text-sm">{opt.handling}</p>
               </div>
@@ -78,7 +81,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
                 >
                   🚀 Gør det nu — {opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
                 </a>
-                <p className="text-[11px] text-muted-foreground/60 mt-2">Åbner ekstern side · Spar {formatKr(opt.besparelse_kr)} kr./md.</p>
+                <p className="text-[11px] text-muted-foreground/60 mt-2">Åbner ekstern side · Spar {formatKr(opt.besparelse_kr, lc)} kr./md.</p>
               </motion.div>
             )}
           </motion.div>
@@ -96,7 +99,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">{item.label}</span>
               <span className={`font-bold ${item.isAvg ? "text-muted-foreground" : budget.disposableIncome > 12500 ? "text-primary" : "text-kassen-gold"}`}>
-                {formatKr(item.amount)} kr.
+                {formatKr(item.amount, lc)} kr.
               </span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">

@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { WelcomePage } from "@/components/onboarding/WelcomePage";
 import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { DemoBanner } from "@/components/DemoBanner";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useLocale } from "@/lib/locale";
 import { submitPriceObservations } from "@/lib/crowdsourcedPrices";
 import { saveSnapshot } from "@/lib/snapshots";
 import { calculateHealth } from "@/lib/healthScore";
@@ -18,35 +20,38 @@ const STORAGE_KEY = "kassen_profile_v2";
 
 const Index = () => {
   const config = useWhiteLabel();
+  const locale = useLocale();
   const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
   const { data: marketData } = useMarketData();
   const [profile, setProfile] = useState<BudgetProfile | null>(null);
+  const [showHome, setShowHome] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
 
   // Demo mode: compute budget from demoProfile
   const demoBudget = useMemo<ComputedBudget | null>(
-    () => isDemo ? computeBudget(demoProfile, marketData) : null,
-    [isDemo, marketData]
+    () => isDemo ? computeBudget(demoProfile, marketData, locale) : null,
+    [isDemo, marketData, locale]
   );
   const demoOptimizations = useMemo<OptimizingAction[]>(
-    () => (isDemo && demoBudget) ? generateOptimizations(demoProfile, demoBudget) : [],
-    [isDemo, demoBudget]
+    () => (isDemo && demoBudget) ? generateOptimizations(demoProfile, demoBudget, locale) : [],
+    [isDemo, demoBudget, locale]
   );
 
   const budget = useMemo<ComputedBudget | null>(
-    () => profile ? computeBudget(profile, marketData) : null,
-    [profile, marketData]
+    () => profile ? computeBudget(profile, marketData, locale) : null,
+    [profile, marketData, locale]
   );
   const optimizations = useMemo<OptimizingAction[]>(
-    () => (profile && budget) ? generateOptimizations(profile, budget) : [],
-    [profile, budget]
+    () => (profile && budget) ? generateOptimizations(profile, budget, locale) : [],
+    [profile, budget, locale]
   );
   const pendingBudget = useMemo<ComputedBudget | null>(
-    () => pendingProfile ? computeBudget(pendingProfile, marketData) : null,
-    [pendingProfile, marketData]
+    () => pendingProfile ? computeBudget(pendingProfile, marketData, locale) : null,
+    [pendingProfile, marketData, locale]
   );
 
   // Apply white-label theme
@@ -152,6 +157,17 @@ const Index = () => {
     );
   }
 
+  // Forside — vises når bruger klikker "Hjem" fra dashboard, eller ingen profil
+  if (showHome || (showLanding && !profile && !authLoading && !editingProfile)) {
+    return (
+      <WelcomePage
+        onStart={() => { setShowHome(false); setShowLanding(false); }}
+        hasExistingProfile={!!profile}
+        onGoToApp={() => setShowHome(false)}
+      />
+    );
+  }
+
   if (showWelcome && pendingProfile && pendingBudget) {
     return (
       <AIWelcomeInsight
@@ -171,6 +187,7 @@ const Index = () => {
         onReset={handleReset}
         onProfileChange={handleProfileChange}
         onEditProfile={handleEditProfile}
+        onHome={() => setShowHome(true)}
       />
     );
   }
