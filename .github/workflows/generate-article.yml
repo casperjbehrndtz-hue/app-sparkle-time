@@ -1,0 +1,19 @@
+name: Generate SEO Article
+
+on:
+  schedule:
+    # Runs every Monday and Thursday at 08:00 UTC (10:00 dansk tid)
+    - cron: "0 8 * * 1,4"
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call generate-article edge function
+        run: |
+          curl -s -X POST \
+            "https://gpzuhhfpwokevsljyumt.supabase.co/functions/v1/generate-article" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            --fail-with-body
