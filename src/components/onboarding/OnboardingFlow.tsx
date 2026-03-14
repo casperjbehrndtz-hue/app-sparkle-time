@@ -439,9 +439,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <span className="text-xs text-muted-foreground">kr./md.</span>
               </div>
             </div>
-            <input type="range" min={min} max={max} step={step} value={value}
-              onChange={(e) => onChange(Number(e.target.value))}
-              className="w-full h-1.5 rounded-full accent-primary cursor-pointer" />
+            <div style={{ touchAction: "pan-y" }}>
+              <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" />
+            </div>
             <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
               <span>{formatKr(min)}</span><span>{formatKr(max)}</span>
             </div>
