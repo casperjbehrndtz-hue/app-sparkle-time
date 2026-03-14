@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md
 
-> Last updated: 2026-03-11 (AI gateway migrated to Anthropic)
+> Last updated: 2026-03-14
 > Keep this file updated whenever major changes are made.
 
 ---
@@ -186,13 +186,6 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 ~~**AI gateway is Lovable-owned**~~ — **Resolved.** Both edge functions now call Anthropic directly (`api.anthropic.com/v1/messages`, model `claude-haiku-4-5-20251001`). The `ANTHROPIC_API_KEY` secret must be set in the Supabase project (Dashboard → Edge Functions → Secrets). Until it is set, AI features will return 500.
 
-### 🟡 Incomplete
-
-- **Blog** — `/guides` lists 4 stub articles with no detail/content pages. Clicking an article does nothing.
-- **NaboeffektView** — neighbour comparison only shows data when `price_averages` has ≥5 observations for a given category+household_type. The database is currently near-empty so most comparisons will show no data.
-- **Profile edit flow** — "Rediger profil" re-runs the full onboarding instead of an in-place edit form.
-- **`supabase/integrations/client.ts`** is auto-generated boilerplate (comments say "do not edit"). The env var name is `VITE_SUPABASE_PUBLISHABLE_KEY` (non-standard name for the anon key) — works fine as long as `.env` matches.
-
 ### 🟢 Minor
 
 - `tsconfig.json` has `strict: false` and several null-check options off — inherited from Lovable defaults. Not a runtime issue but worth tightening eventually.
@@ -200,16 +193,24 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 ---
 
-## Next priorities
+## Status of previous priorities
 
-1. ~~**Replace AI gateway**~~ — Done. Set `ANTHROPIC_API_KEY` secret in Supabase Dashboard → Edge Functions → Secrets.
+1. ~~**Replace AI gateway**~~ — Done. Still need to set `ANTHROPIC_API_KEY` in Supabase Dashboard → Edge Functions → Secrets.
 
-2. **Blog article pages** — add `/guides/:slug` route with full article content, or integrate a headless CMS.
+2. ~~**Blog article pages**~~ — Done. `Article.tsx` serves all 4 articles with full content (DB primary, static fallback). Route `/guides/:slug` registered in `App.tsx`.
 
-3. **Seed crowdsourced prices** — the neighbour comparison feature needs data. Either pre-seed the DB with realistic Danish averages or show a fallback until enough real observations accumulate.
+3. ~~**Seed crowdsourced prices**~~ — Done. Migration `20260314000000_seed_price_observations.sql` seeds 10 national observations per (category, household_type) pair for all tracked categories. Apply with `supabase db push`.
 
-4. **Profile edit UX** — replace the full onboarding re-run with a dedicated edit panel so users can change one field without re-doing everything.
+4. ~~**Profile edit UX**~~ — Done. `ProfileEditSheet` (in-place slide-over panel) is wired up in `Dashboard.tsx`. The pencil icon in the header opens it directly.
 
-5. **Prune unused packages** — remove the ~10 Radix UI primitives that have no components using them.
+5. ~~**Deploy**~~ — Done. Live on Vercel at `kassen-mauve.vercel.app` (project: kassen) and `app-sparkle-time.vercel.app`. GitHub → Vercel CD is active.
 
-6. **Deploy** — set up a proper hosting target (Vercel, Cloudflare Pages, or Netlify) to replace `app-sparkle-time.lovable.app`.
+---
+
+## Remaining action item
+
+**Set `ANTHROPIC_API_KEY`** in Supabase Dashboard → Edge Functions → Secrets → New secret:
+- Name: `ANTHROPIC_API_KEY`
+- Value: your Anthropic API key
+
+Without this, `budget-ai` and `onboarding-ai` edge functions return 500.
