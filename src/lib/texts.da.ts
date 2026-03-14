@@ -545,6 +545,12 @@ export const DA: Record<string, string> = {
   "guided.acceptedChanges": "Accepterede ændringer",
   "guided.noChanges": "Ingen ændringer valgt.",
   "guided.seeUpdated": "Se opdateret budget",
+  "guided.noResponse": "Ingen respons",
+  "guided.errorRetry": "Noget gik galt. Prøv igen.",
+  "guided.goalExtra": "— med {amount} kr. mere vil du have",
+  "guided.findGoal": "Find {amount}",
+  "guided.progressLabel": "{found} / {goal}",
+  "guided.withThis": "Med dette: {found} / {goal} fundet",
 
   // Forward view (extra)
   "forward.wealthProjection": "Formue-projektion",
@@ -712,8 +718,32 @@ export const DA: Record<string, string> = {
   "share.bucketFremtid": "Fremtid",
   "share.bucketRisiko": "Risiko",
 
+  // Units (extra)
+  "unit.krKwh": "kr/kWh",
+  "unit.possible": "muligt",
+
   // LossAversionInsights
   "insights.heading": "Indsigter baseret på dine tal",
+  "insights.incomeBadge": "Indkomst vs. nabolag",
+  "insights.neighborLabel": "postnummer {postal}",
+  "insights.incomeBelow": "Du tjener {amount} kr./md. under gennemsnittet i {postal}",
+  "insights.incomeBelowValue": "−{amount} {unit}/år",
+  "insights.incomeBelowSub": "Gennemsnitsindkomsten i dit postnummer er {avg} kr./md. efter skat. Det er ikke nødvendigvis et problem — men det er værd at vide. (Kilde: {source})",
+  "insights.incomeAbove": "Du tjener {amount} kr./md. over gennemsnittet i {postal}",
+  "insights.incomeAboveValue": "+{amount} {unit}/år",
+  "insights.incomeAboveSub": "Gennemsnitsindkomsten i dit postnummer er {avg} kr./md. efter skat. Du er altså over midten — udnytter dit budget det fuldt ud? (Kilde: {source})",
+  "insights.subsBadge": "Abonnementer pr. år",
+  "insights.subsTitle": "{count} streamingtjenester koster {amount} kr. om året",
+  "insights.subsSub": "De fleste bruger 1-2 aktivt. Koster de hver for sig: Netflix {netflix}, Viaplay {viaplay}, HBO {hbo} kr./år. Går du på skift, er der penge at hente.",
+  "insights.savingsBadge": "Opsparingsmulighed",
+  "insights.savingsTitle": "Du har {amount} kr./md. til overs — men sparer intet op",
+  "insights.savingsSub": "{monthly} kr./md. i et globalt indeksfond (historisk ~7%/år) giver {total} kr. om 15 år med rentes rente. For hver måned der går uden opsparing mister du dette potentiale.",
+  "insights.elCheapNowBadge": "El billigst nu ⚡",
+  "insights.elCheapBadge": "Billigste el i dag",
+  "insights.elCheapNowTitle": "El er billigst lige nu ({price} kr/kWh) — sæt opvasker og tørretumbler på",
+  "insights.elScheduleTitle": "Sæt opvasker og vaskemaskine til at køre kl. {hours}",
+  "insights.elSavingSub": "{saving} kr/kWh billigere end det dyreste tidspunkt i dag. Kører du tørretumbler (2 kWh) til {cheap} vs {expensive} kr/kWh sparer du {total} kr. på én tur. (Live data: Energi Data Service)",
+  "insights.elLiveSub": "Baseret på live Elspot-data fra Energi Data Service, opdateret i dag.",
 
   // B2B page
   "b2b.heroTag": "B2B Partnership",
@@ -837,4 +867,103 @@ export const DA: Record<string, string> = {
 
   // Dashboard extras
   "dash.sectionTabs": "Sektionstabs",
+
+  // FremadView timeline events
+  "forward.childN": "Barn",
+  "forward.yourChild": "Dit barn",
+  "forward.startsSFO": "starter i SFO",
+  "forward.sfoDesc": "SFO-udgift 2.100 kr./md.",
+  "forward.leavesKindergarten": "forlader børnehave",
+  "forward.kindergartenDesc": "Institutionsudgift falder 2.600 kr./md.",
+  "forward.turns7": "fylder 7 – børneydelse falder",
+  "forward.turns7Desc": "Reduceres med 1.130 kr./md.",
+  "forward.leavesSFO": "ud af SFO",
+  "forward.leavesSFODesc": "SFO-udgift bortfalder.",
+  "forward.turns18": "fylder 18",
+  "forward.childBenefitEnds": "Børneydelse bortfalder.",
+  "forward.checkInterestOnly": "Tjek afdragsfrihed",
+  "forward.checkInterestOnlyDesc": "Mange lån fra 2018–2020 har 10-årig afdragsfrihed.",
+  "forward.basedOnInvested": "Baseret på {amount} investeret",
+  "forward.projectionPrefix": "med 7% årligt afkast giver estimeret ca.",
+  "forward.projectionMid": "på 5 år og ca.",
+  "forward.projectionSuffix": "på 10 år. Investering indebærer risiko.",
+  "forward.increaseToReach20": "Øg med {amount} for at nå 20%",
+  "unit.krMonth": "kr./md.",
+  "unit.krYear": "kr./år",
+  "unit.currency": "kr.",
+
+  // AIChatPanel suggestion questions
+  "ai.q.christmasBudget": "Hvordan klarer mit budget julen?",
+  "ai.q.summerSavings": "Kan jeg spare op til sommerferie?",
+  "ai.q.switchInsurance": "Skal jeg skifte forsikring ved fornyelse?",
+  "ai.q.cutMost": "Hvor kan jeg skære mest?",
+  "ai.q.carCost": "Hvad koster min bil reelt?",
+  "ai.q.dropStreaming": "Hvilken streaming kan jeg droppe?",
+  "ai.q.rateRise": "Hvad hvis renten stiger 2%?",
+  "ai.q.startSaving": "Hvordan starter jeg med at spare op?",
+
+  // Dashboard terms link
+  "dash.termsLink": "Vilkår",
+
+  // Subscriptions (units)
+  "subs.activeCount": "aktive abonnementer",
+
+  // Optimization (units)
+  "optimize.perYearFollowPlan": "ved at følge planen",
+
+  // Couple split
+  "couple.remaining.suffix": "tilbage",
+
+  // History
+  "history.tooltipDisposable": "Rådighed",
+
+  // Onboarding
+  "onboarding.adjustAmount": "Ret beløbet ovenfor hvis det ikke passer.",
+  "onboarding.emailReminder": "Ja tak, send mig en månedlig påmindelse om at opdatere mit budget.",
+  "onboarding.emailUnsubscribe": "Du kan altid afmelde dig.",
+  "onboarding.expenseShare": "Udgiftsandel",
+
+  // Error boundary
+  "error.somethingWrong": "Noget gik galt",
+  "error.unexpectedError": "Der opstod en uventet fejl. Prøv at genindlæse siden.",
+  "error.reloadPage": "Genindlæs siden",
+
+  // Section error boundary
+  "error.sectionFailed": "kunne ikke vises",
+  "error.tryReload": "Prøv at genindlæse siden",
+  "error.tryAgain": "Prøv igen",
+
+  // Page loader
+  "loader.loading": "Indlæser...",
+
+  // Demo banner
+  "demo.text": "Demo — Kassen white-label til {brand}. Al data er eksempeldata.",
+  "demo.bookPresentation": "Book præsentation",
+  "demo.trySelf": "Prøv selv",
+  "demo.closeBanner": "Luk demo-banner",
+
+  // Suite nav
+  "nav.comingSoon": "Snart",
+
+  // Dark mode toggle
+  "darkMode.switchToLight": "Skift til lyst tema",
+  "darkMode.switchToDark": "Skift til mørkt tema",
+
+  // Cookie banner
+  "cookie.consent": "Cookie-samtykke",
+  "cookie.acceptAnalytics": "Accepter analytics-cookies",
+  "cookie.declineAnalytics": "Afvis analytics-cookies",
+
+  // Cockpit
+  "cockpit.alertsLabel": "Advarsler",
+  "cockpit.critical": "Kritisk",
+  "cockpit.warning": "Advarsel",
+  "cockpit.insight": "Indsigt",
+
+  // Share card
+  "share.bufferUnit": "md.",
+
+  // Index page
+  "confirm.resetBudget": "Er du sikker? Dette sletter dit nuværende budget og starter forfra.",
+  "confirm.editProfile": "Vil du redigere dine oplysninger? Dine nuværende data bruges som udgangspunkt.",
 };

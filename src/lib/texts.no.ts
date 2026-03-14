@@ -546,6 +546,12 @@ export const NO: Record<string, string> = {
   "guided.acceptedChanges": "Godkjente endringer",
   "guided.noChanges": "Ingen endringer valgt.",
   "guided.seeUpdated": "Se oppdatert budsjett",
+  "guided.noResponse": "Ingen respons",
+  "guided.errorRetry": "Noe gikk galt. Prøv igjen.",
+  "guided.goalExtra": "— med {amount} kr. mer vil du ha",
+  "guided.findGoal": "Finn {amount}",
+  "guided.progressLabel": "{found} / {goal}",
+  "guided.withThis": "Med dette: {found} / {goal} funnet",
 
   // Forward view (extra)
   "forward.wealthProjection": "Formue-projeksjon",
@@ -713,8 +719,32 @@ export const NO: Record<string, string> = {
   "share.bucketFremtid": "Fremtid",
   "share.bucketRisiko": "Risiko",
 
+  // Units (extra)
+  "unit.krKwh": "kr/kWh",
+  "unit.possible": "mulig",
+
   // LossAversionInsights
   "insights.heading": "Innsikt basert på tallene dine",
+  "insights.incomeBadge": "Inntekt vs. nabolag",
+  "insights.neighborLabel": "nabolaget",
+  "insights.incomeBelow": "Du tjener {amount} kr./md. under gjennomsnittet i {postal}",
+  "insights.incomeBelowValue": "−{amount} {unit}/år",
+  "insights.incomeBelowSub": "Gjennomsnittsinntekten i {neighborLabel} er {avg} kr./md. etter skatt. Det er ikke nødvendigvis et problem — men det er verdt å vite. (Kilde: {source})",
+  "insights.incomeAbove": "Du tjener {amount} kr./md. over gjennomsnittet i {postal}",
+  "insights.incomeAboveValue": "+{amount} {unit}/år",
+  "insights.incomeAboveSub": "Gjennomsnittsinntekten i {neighborLabel} er {avg} kr./md. etter skatt. Du er altså over midten — utnytter budsjettet ditt det fullt ut? (Kilde: {source})",
+  "insights.subsBadge": "Abonnementer pr. år",
+  "insights.subsTitle": "{count} strømmetjenester koster {amount} kr. i året",
+  "insights.subsSub": "De fleste bruker 1-2 aktivt. Koster de hver for seg: Netflix {netflix}, Viaplay {viaplay}, HBO {hbo} kr./år. Roterer du, er det penger å spare.",
+  "insights.savingsBadge": "Sparemulighet",
+  "insights.savingsTitle": "Du har {amount} kr./md. til overs — men sparer ingenting",
+  "insights.savingsSub": "{monthly} kr./md. i et globalt indeksfond (historisk ~7%/år) gir {total} kr. om 15 år med renters rente. For hver måned som går uten sparing mister du dette potensialet.",
+  "insights.elCheapNowBadge": "Strøm billigst nå ⚡",
+  "insights.elCheapBadge": "Billigste strøm i dag",
+  "insights.elCheapNowTitle": "Strøm er billigst nå ({price} kr/kWh) — start oppvaskmaskinen og tørketrommelen",
+  "insights.elScheduleTitle": "Start oppvaskmaskin og vaskemaskin kl. {hours}",
+  "insights.elSavingSub": "{saving} kr/kWh billigere enn det dyreste tidspunktet i dag. Kjører du tørketrommel (2 kWh) til {cheap} vs {expensive} kr/kWh sparer du {total} kr. på én runde. (Live data: Energi Data Service)",
+  "insights.elLiveSub": "Basert på live Elspot-data fra Energi Data Service, oppdatert i dag.",
 
   // B2B page
   "b2b.heroTag": "B2B Partnership",
@@ -838,4 +868,103 @@ export const NO: Record<string, string> = {
 
   // Dashboard extras
   "dash.sectionTabs": "Seksjonsfaner",
+
+  // FremadView timeline events
+  "forward.childN": "Barn",
+  "forward.yourChild": "Barnet ditt",
+  "forward.startsSFO": "begynner på SFO",
+  "forward.sfoDesc": "SFO-utgift ca. 2 000 kr./md.",
+  "forward.leavesKindergarten": "slutter i barnehage",
+  "forward.kindergartenDesc": "Barnehageutgift faller 3 315 kr./md.",
+  "forward.turns7": "fyller 7 – barnetrygd reduseres",
+  "forward.turns7Desc": "Reduseres med barnetrygd.",
+  "forward.leavesSFO": "ut av SFO",
+  "forward.leavesSFODesc": "SFO-utgift bortfaller.",
+  "forward.turns18": "fyller 18",
+  "forward.childBenefitEnds": "Barnetrygd bortfaller (1 766 kr./md.).",
+  "forward.checkInterestOnly": "Sjekk avdragsfrihet",
+  "forward.checkInterestOnlyDesc": "Mange lån fra 2018–2020 har 10-årig avdragsfrihet.",
+  "forward.basedOnInvested": "Basert på {amount} investert",
+  "forward.projectionPrefix": "med 7% årlig avkastning gir estimert ca.",
+  "forward.projectionMid": "på 5 år og ca.",
+  "forward.projectionSuffix": "på 10 år. Investering innebærer risiko.",
+  "forward.increaseToReach20": "Øk med {amount} for å nå 20%",
+  "unit.krMonth": "kr./md.",
+  "unit.krYear": "kr./år",
+  "unit.currency": "kr.",
+
+  // AIChatPanel suggestion questions
+  "ai.q.christmasBudget": "Hvordan klarer budsjettet mitt julen?",
+  "ai.q.summerSavings": "Kan jeg spare til sommerferie?",
+  "ai.q.switchInsurance": "Bør jeg bytte forsikring ved fornyelse?",
+  "ai.q.cutMost": "Hvor kan jeg kutte mest?",
+  "ai.q.carCost": "Hva koster bilen min egentlig?",
+  "ai.q.dropStreaming": "Hvilken strømmetjeneste kan jeg droppe?",
+  "ai.q.rateRise": "Hva hvis renten stiger 2%?",
+  "ai.q.startSaving": "Hvordan begynner jeg å spare?",
+
+  // Dashboard terms link
+  "dash.termsLink": "Vilkår",
+
+  // Subscriptions (units)
+  "subs.activeCount": "aktive abonnementer",
+
+  // Optimization (units)
+  "optimize.perYearFollowPlan": "ved å følge planen",
+
+  // Couple split
+  "couple.remaining.suffix": "igjen",
+
+  // History
+  "history.tooltipDisposable": "Disponibelt",
+
+  // Onboarding
+  "onboarding.adjustAmount": "Rett beløpet ovenfor hvis det ikke stemmer.",
+  "onboarding.emailReminder": "Ja takk, send meg en månedlig påminnelse om å oppdatere budsjettet.",
+  "onboarding.emailUnsubscribe": "Du kan alltid melde deg av.",
+  "onboarding.expenseShare": "Utgiftsandel",
+
+  // Error boundary
+  "error.somethingWrong": "Noe gikk galt",
+  "error.unexpectedError": "Det oppstod en uventet feil. Prøv å laste siden på nytt.",
+  "error.reloadPage": "Last siden på nytt",
+
+  // Section error boundary
+  "error.sectionFailed": "kunne ikke vises",
+  "error.tryReload": "Prøv å laste siden på nytt",
+  "error.tryAgain": "Prøv igjen",
+
+  // Page loader
+  "loader.loading": "Laster...",
+
+  // Demo banner
+  "demo.text": "Demo — Kassen white-label for {brand}. All data er eksempeldata.",
+  "demo.bookPresentation": "Book presentasjon",
+  "demo.trySelf": "Prøv selv",
+  "demo.closeBanner": "Lukk demo-banner",
+
+  // Suite nav
+  "nav.comingSoon": "Snart",
+
+  // Dark mode toggle
+  "darkMode.switchToLight": "Bytt til lyst tema",
+  "darkMode.switchToDark": "Bytt til mørkt tema",
+
+  // Cookie banner
+  "cookie.consent": "Informasjonskapsel-samtykke",
+  "cookie.acceptAnalytics": "Aksepter analyse-informasjonskapsler",
+  "cookie.declineAnalytics": "Avvis analyse-informasjonskapsler",
+
+  // Cockpit
+  "cockpit.alertsLabel": "Varsler",
+  "cockpit.critical": "Kritisk",
+  "cockpit.warning": "Advarsel",
+  "cockpit.insight": "Innsikt",
+
+  // Share card
+  "share.bufferUnit": "mnd.",
+
+  // Index page
+  "confirm.resetBudget": "Er du sikker? Dette sletter det nåværende budsjettet og starter på nytt.",
+  "confirm.editProfile": "Vil du redigere opplysningene dine? Nåværende data brukes som utgangspunkt.",
 };

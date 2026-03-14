@@ -14,6 +14,7 @@ import { parseProfile } from "@/lib/profileSchema";
 import { useAuth } from "@/hooks/useAuth";
 import { useMarketData } from "@/hooks/useMarketData";
 import { demoProfile } from "@/lib/demoData";
+import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "kassen_profile_v2";
@@ -21,6 +22,7 @@ const STORAGE_KEY = "kassen_profile_v2";
 const Index = () => {
   const config = useWhiteLabel();
   const locale = useLocale();
+  const { t } = useI18n();
   const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
   const { data: marketData } = useMarketData();
@@ -133,14 +135,14 @@ const Index = () => {
   };
 
   const handleReset = () => {
-    if (!window.confirm("Er du sikker? Dette sletter dit nuværende budget og starter forfra.")) return;
+    if (!window.confirm(t("confirm.resetBudget"))) return;
     localStorage.removeItem(STORAGE_KEY);
     setProfile(null);
     setEditingProfile(null);
   };
 
   const handleEditProfile = () => {
-    if (!window.confirm("Vil du redigere dine oplysninger? Dine nuværende data bruges som udgangspunkt.")) return;
+    if (!window.confirm(t("confirm.editProfile"))) return;
     // Go back to onboarding with current profile pre-filled
     setEditingProfile(profile);
     setProfile(null);

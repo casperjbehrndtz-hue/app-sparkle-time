@@ -41,7 +41,7 @@ export function CookieBanner() {
       {visible && (
         <motion.div
           role="dialog"
-          aria-label="Cookie-samtykke"
+          aria-label={t("cookie.consent")}
           aria-describedby="cookie-banner-text"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -59,14 +59,14 @@ export function CookieBanner() {
             <div className="flex gap-2">
               <button
                 onClick={accept}
-                aria-label="Accepter analytics-cookies"
+                aria-label={t("cookie.acceptAnalytics")}
                 className="flex-1 bg-primary text-primary-foreground text-sm font-medium py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 {t("cookie.accept")}
               </button>
               <button
                 onClick={decline}
-                aria-label="Afvis analytics-cookies"
+                aria-label={t("cookie.declineAnalytics")}
                 className="flex-1 bg-muted text-muted-foreground text-sm font-medium py-2 rounded-lg hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {t("cookie.decline")}

@@ -46,21 +46,20 @@ interface Props {
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, lang: string): string[] {
+function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, t: (key: string) => string): string[] {
   const month = new Date().getMonth();
   const questions: string[] = [];
-  const isDa = lang === "da";
 
-  if (month >= 10 || month === 0) questions.push(isDa ? "Hvordan klarer mit budget julen?" : "How does my budget handle Christmas?");
-  if (month >= 4 && month <= 6) questions.push(isDa ? "Kan jeg spare op til sommerferie?" : "Can I save for summer vacation?");
-  if (month >= 0 && month <= 2) questions.push(isDa ? "Skal jeg skifte forsikring ved fornyelse?" : "Should I switch insurance at renewal?");
+  if (month >= 10 || month === 0) questions.push(t("ai.q.christmasBudget"));
+  if (month >= 4 && month <= 6) questions.push(t("ai.q.summerSavings"));
+  if (month >= 0 && month <= 2) questions.push(t("ai.q.switchInsurance"));
 
-  if (budget.disposableIncome < 3000) questions.push(isDa ? "Hvor kan jeg skære mest?" : "Where can I cut the most?");
-  if (profile.hasCar) questions.push(isDa ? "Hvad koster min bil reelt?" : "What does my car really cost?");
+  if (budget.disposableIncome < 3000) questions.push(t("ai.q.cutMost"));
+  if (profile.hasCar) questions.push(t("ai.q.carCost"));
   const streamCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
-  if (streamCount >= 3) questions.push(isDa ? "Hvilken streaming kan jeg droppe?" : "Which streaming can I drop?");
-  if (profile.housingType === "ejer") questions.push(isDa ? "Hvad hvis renten stiger 2%?" : "What if rates rise 2%?");
-  if (!profile.hasSavings) questions.push(isDa ? "Hvordan starter jeg med at spare op?" : "How do I start saving?");
+  if (streamCount >= 3) questions.push(t("ai.q.dropStreaming"));
+  if (profile.housingType === "ejer") questions.push(t("ai.q.rateRise"));
+  if (!profile.hasSavings) questions.push(t("ai.q.startSaving"));
 
   return questions.slice(0, 4);
 }
@@ -80,7 +79,7 @@ export function AIChatPanel({ profile, budget }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const aiStream = useAIStream();
 
-  const smartQuestions = useMemo(() => getSmartQuestions(profile, budget, lang), [profile, budget, lang]);
+  const smartQuestions = useMemo(() => getSmartQuestions(profile, budget, t), [profile, budget, t]);
 
   useEffect(() => {
     if (scrollRef.current) {

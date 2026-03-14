@@ -34,7 +34,7 @@ function futureValue(monthly: number, annualRate: number, years: number): number
 export function LossAversionInsights({ profile, budget, health }: Props) {
   const { data: marketData } = useMarketData();
   const locale = useLocale();
-  const { lang, t } = useI18n();
+  const { t } = useI18n();
   const isNO = locale.code === "no";
   const lc = locale.currencyLocale;
 
@@ -46,41 +46,39 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
     const incomeGap = getNeighborIncomeGap(marketData, profile.postalCode || "", budget.totalIncome);
     if (incomeGap !== null) {
       const statSource = isNO ? "SSB" : "Danmarks Statistik";
-      const neighborLabel = lang === "nb" ? "nabolaget" : lang === "en" ? "your postal code" : `postnummer ${profile.postalCode}`;
+      const neighborLabel = t("insights.neighborLabel").replace("{postal}", profile.postalCode || "");
       if (incomeGap < -1000) {
         result.push({
           icon: <TrendingDown className="w-4 h-4" />,
-          badge: lang === "nb" ? "Inntekt vs. nabolag" : lang === "en" ? "Income vs. neighbors" : "Indkomst vs. nabolag",
+          badge: t("insights.incomeBadge"),
           badgeColor: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
-          title: lang === "nb"
-            ? `Du tjener ${formatKr(Math.abs(incomeGap), lc)} kr./md. under gjennomsnittet i ${profile.postalCode}`
-            : lang === "en"
-            ? `You earn ${formatKr(Math.abs(incomeGap), lc)} DKK/mo. below the average in ${profile.postalCode}`
-            : `Du tjener ${formatKr(Math.abs(incomeGap), lc)} kr./md. under gennemsnittet i ${profile.postalCode}`,
-          value: `−${formatKr(Math.abs(incomeGap) * 12, lc)} ${locale.currencyUnit}/år`,
-          sub: lang === "nb"
-            ? `Gjennomsnittsinntekten i ${neighborLabel} er ${formatKr(budget.totalIncome - incomeGap, lc)} kr./md. etter skatt. Det er ikke nødvendigvis et problem — men det er verdt å vite. (Kilde: ${statSource})`
-            : lang === "en"
-            ? `Average income in ${neighborLabel} is ${formatKr(budget.totalIncome - incomeGap, lc)} DKK/mo. after tax. Not necessarily a problem — but good to know. (Source: ${statSource})`
-            : `Gennemsnitsindkomsten i dit postnummer er ${formatKr(budget.totalIncome - incomeGap, lc)} kr./md. efter skat. Det er ikke nødvendigvis et problem — men det er værd at vide. (Kilde: ${statSource})`,
+          title: t("insights.incomeBelow")
+            .replace("{amount}", formatKr(Math.abs(incomeGap), lc))
+            .replace("{postal}", profile.postalCode || ""),
+          value: t("insights.incomeBelowValue")
+            .replace("{amount}", formatKr(Math.abs(incomeGap) * 12, lc))
+            .replace("{unit}", locale.currencyUnit),
+          sub: t("insights.incomeBelowSub")
+            .replace("{neighborLabel}", neighborLabel)
+            .replace("{avg}", formatKr(budget.totalIncome - incomeGap, lc))
+            .replace("{source}", statSource),
           borderColor: "border-amber-200 bg-amber-50/50 dark:border-amber-900/30 dark:bg-amber-950/10",
         });
       } else if (incomeGap > 2000) {
         result.push({
           icon: <TrendingUp className="w-4 h-4" />,
-          badge: lang === "nb" ? "Inntekt vs. nabolag" : lang === "en" ? "Income vs. neighbors" : "Indkomst vs. nabolag",
+          badge: t("insights.incomeBadge"),
           badgeColor: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-          title: lang === "nb"
-            ? `Du tjener ${formatKr(incomeGap, lc)} kr./md. over gjennomsnittet i ${profile.postalCode}`
-            : lang === "en"
-            ? `You earn ${formatKr(incomeGap, lc)} DKK/mo. above the average in ${profile.postalCode}`
-            : `Du tjener ${formatKr(incomeGap, lc)} kr./md. over gennemsnittet i ${profile.postalCode}`,
-          value: `+${formatKr(incomeGap * 12, lc)} ${locale.currencyUnit}/år`,
-          sub: lang === "nb"
-            ? `Gjennomsnittsinntekten i ${neighborLabel} er ${formatKr(budget.totalIncome - incomeGap, lc)} kr./md. etter skatt. Du er altså over midten — utnytter budsjettet ditt det fullt ut? (Kilde: ${statSource})`
-            : lang === "en"
-            ? `Average income in ${neighborLabel} is ${formatKr(budget.totalIncome - incomeGap, lc)} DKK/mo. after tax. You're above the median — is your budget making the most of it? (Source: ${statSource})`
-            : `Gennemsnitsindkomsten i dit postnummer er ${formatKr(budget.totalIncome - incomeGap, lc)} kr./md. efter skat. Du er altså over midten — udnytter dit budget det fuldt ud? (Kilde: ${statSource})`,
+          title: t("insights.incomeAbove")
+            .replace("{amount}", formatKr(incomeGap, lc))
+            .replace("{postal}", profile.postalCode || ""),
+          value: t("insights.incomeAboveValue")
+            .replace("{amount}", formatKr(incomeGap * 12, lc))
+            .replace("{unit}", locale.currencyUnit),
+          sub: t("insights.incomeAboveSub")
+            .replace("{neighborLabel}", neighborLabel)
+            .replace("{avg}", formatKr(budget.totalIncome - incomeGap, lc))
+            .replace("{source}", statSource),
           borderColor: "border-emerald-200 bg-emerald-50/50 dark:border-emerald-900/30 dark:bg-emerald-950/10",
         });
       }
@@ -101,19 +99,16 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
       const count = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime, profile.hasSpotify].filter(Boolean).length;
       result.push({
         icon: <Calendar className="w-4 h-4" />,
-        badge: lang === "nb" ? "Abonnementer pr. år" : lang === "en" ? "Subscriptions per year" : "Abonnementer pr. år",
+        badge: t("insights.subsBadge"),
         badgeColor: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
-        title: lang === "nb"
-          ? `${count} strømmetjenester koster ${formatKr(annualCost, lc)} kr. i året`
-          : lang === "en"
-          ? `${count} streaming services cost ${formatKr(annualCost, lc)} DKK per year`
-          : `${count} streamingtjenester koster ${formatKr(annualCost, lc)} kr. om året`,
-        value: `${formatKr(annualCost, lc)} ${locale.currencyUnit}/år`,
-        sub: lang === "nb"
-          ? `De fleste bruker 1-2 aktivt. Koster de hver for seg: Netflix ${formatKr(149 * 12, lc)}, Viaplay ${formatKr(99 * 12, lc)}, HBO ${formatKr(99 * 12, lc)} kr./år. Roterer du, er det penger å spare.`
-          : lang === "en"
-          ? `Most people actively use 1-2. Individual costs: Netflix ${formatKr(149 * 12, lc)}, Viaplay ${formatKr(99 * 12, lc)}, HBO ${formatKr(99 * 12, lc)} DKK/yr. Rotating can save money.`
-          : `De fleste bruger 1-2 aktivt. Koster de hver for sig: Netflix ${formatKr(149 * 12, lc)}, Viaplay ${formatKr(99 * 12, lc)}, HBO ${formatKr(99 * 12, lc)} kr./år. Går du på skift, er der penge at hente.`,
+        title: t("insights.subsTitle")
+          .replace("{count}", String(count))
+          .replace("{amount}", formatKr(annualCost, lc)),
+        value: `${formatKr(annualCost, lc)} ${t("unit.krYear")}`,
+        sub: t("insights.subsSub")
+          .replace("{netflix}", formatKr(149 * 12, lc))
+          .replace("{viaplay}", formatKr(99 * 12, lc))
+          .replace("{hbo}", formatKr(99 * 12, lc)),
         borderColor: "border-blue-200 bg-blue-50/50 dark:border-blue-900/30 dark:bg-blue-950/10",
       });
     }
@@ -127,19 +122,14 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
         const in15years = futureValue(suggestedMonthly, 0.07, 15);
         result.push({
           icon: <TrendingDown className="w-4 h-4" />,
-          badge: lang === "nb" ? "Sparemulighet" : lang === "en" ? "Savings opportunity" : "Opsparingsmulighed",
+          badge: t("insights.savingsBadge"),
           badgeColor: "bg-red-500/10 text-red-700 dark:text-red-400",
-          title: lang === "nb"
-            ? `Du har ${formatKr(budget.disposableIncome, lc)} kr./md. til overs — men sparer ingenting`
-            : lang === "en"
-            ? `You have ${formatKr(budget.disposableIncome, lc)} DKK/mo. left — but save nothing`
-            : `Du har ${formatKr(budget.disposableIncome, lc)} kr./md. til overs — men sparer intet op`,
-          value: `${formatKr(in15years, lc)} ${locale.currencyUnit} muligt`,
-          sub: lang === "nb"
-            ? `${formatKr(suggestedMonthly, lc)} kr./md. i et globalt indeksfond (historisk ~7%/år) gir ${formatKr(in15years, lc)} kr. om 15 år med renters rente. For hver måned som går uten sparing mister du dette potensialet.`
-            : lang === "en"
-            ? `${formatKr(suggestedMonthly, lc)} DKK/mo. in a global index fund (historical ~7%/yr) gives ${formatKr(in15years, lc)} DKK in 15 years with compound interest. Every month without saving, you lose this potential.`
-            : `${formatKr(suggestedMonthly, lc)} kr./md. i et globalt indeksfond (historisk ~7%/år) giver ${formatKr(in15years, lc)} kr. om 15 år med rentes rente. For hver måned der går uden opsparing mister du dette potentiale.`,
+          title: t("insights.savingsTitle")
+            .replace("{amount}", formatKr(budget.disposableIncome, lc)),
+          value: `${formatKr(in15years, lc)} ${locale.currencyUnit} ${t("unit.possible")}`,
+          sub: t("insights.savingsSub")
+            .replace("{monthly}", formatKr(suggestedMonthly, lc))
+            .replace("{total}", formatKr(in15years, lc)),
           borderColor: "border-red-200 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/10",
         });
       }
@@ -160,33 +150,19 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
 
       result.push({
         icon: <Zap className="w-4 h-4" />,
-        badge: isCheapNow
-          ? (lang === "nb" ? "Strøm billigst nå ⚡" : lang === "en" ? "Power cheapest now ⚡" : "El billigst nu ⚡")
-          : (lang === "nb" ? "Billigste strøm i dag" : lang === "en" ? "Cheapest power today" : "Billigste el i dag"),
+        badge: isCheapNow ? t("insights.elCheapNowBadge") : t("insights.elCheapBadge"),
         badgeColor: isCheapNow ? "bg-primary/10 text-primary" : "bg-slate-500/10 text-slate-700 dark:text-slate-400",
         title: isCheapNow
-          ? lang === "nb"
-            ? `Strøm er billigst nå (${cheapest.allInPrice.toFixed(2)} kr/kWh) — start oppvaskmaskinen og tørketrommelen`
-            : lang === "en"
-            ? `Electricity is cheapest now (${cheapest.allInPrice.toFixed(2)} kr/kWh) — run dishwasher and dryer`
-            : `El er billigst lige nu (${cheapest.allInPrice.toFixed(2)} kr/kWh) — sæt opvasker og tørretumbler på`
-          : lang === "nb"
-          ? `Start oppvaskmaskin og vaskemaskin kl. ${hoursStr}`
-          : lang === "en"
-          ? `Run dishwasher and washing machine at ${hoursStr}`
-          : `Sæt opvasker og vaskemaskine til at køre kl. ${hoursStr}`,
-        value: `${cheapest.allInPrice.toFixed(2)} kr/kWh`,
+          ? t("insights.elCheapNowTitle").replace("{price}", cheapest.allInPrice.toFixed(2))
+          : t("insights.elScheduleTitle").replace("{hours}", hoursStr),
+        value: `${cheapest.allInPrice.toFixed(2)} ${t("unit.krKwh")}`,
         sub: saving > 0
-          ? lang === "nb"
-            ? `${saving.toFixed(2)} kr/kWh billigere enn det dyreste tidspunktet i dag. Kjører du tørketrommel (2 kWh) til ${cheapest.allInPrice.toFixed(2)} vs ${mostExpensive!.allInPrice.toFixed(2)} kr/kWh sparer du ${(saving * 2).toFixed(1)} kr. på én runde. (Live data: Energi Data Service)`
-            : lang === "en"
-            ? `${saving.toFixed(2)} kr/kWh cheaper than the most expensive time today. Running a dryer (2 kWh) at ${cheapest.allInPrice.toFixed(2)} vs ${mostExpensive!.allInPrice.toFixed(2)} kr/kWh saves ${(saving * 2).toFixed(1)} kr. (Live data: Energi Data Service)`
-            : `${saving.toFixed(2)} kr/kWh billigere end det dyreste tidspunkt i dag. Kører du tørretumbler (2 kWh) til ${cheapest.allInPrice.toFixed(2)} vs ${mostExpensive!.allInPrice.toFixed(2)} kr/kWh sparer du ${(saving * 2).toFixed(1)} kr. på én tur. (Live data: Energi Data Service)`
-          : lang === "nb"
-          ? `Basert på live Elspot-data fra Energi Data Service, oppdatert i dag.`
-          : lang === "en"
-          ? `Based on live Elspot data from Energi Data Service, updated today.`
-          : `Baseret på live Elspot-data fra Energi Data Service, opdateret i dag.`,
+          ? t("insights.elSavingSub")
+              .replace("{saving}", saving.toFixed(2))
+              .replace("{cheap}", cheapest.allInPrice.toFixed(2))
+              .replace("{expensive}", mostExpensive!.allInPrice.toFixed(2))
+              .replace("{total}", (saving * 2).toFixed(1))
+          : t("insights.elLiveSub"),
         borderColor: isCheapNow
           ? "border-primary/20 bg-primary/5"
           : "border-slate-200 bg-slate-50/50 dark:border-slate-700/30 dark:bg-slate-900/10",
@@ -194,7 +170,7 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
     }
 
     return result;
-  }, [profile, budget, health, marketData]);
+  }, [profile, budget, health, marketData, t, locale, isNO, lc]);
 
   if (insights.length === 0) return null;
 

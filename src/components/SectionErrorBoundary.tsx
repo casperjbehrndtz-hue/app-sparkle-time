@@ -1,5 +1,18 @@
 import { Component, type ReactNode } from "react";
 import { AlertTriangle } from "lucide-react";
+import { DA } from "@/lib/texts.da";
+import { EN } from "@/lib/texts.en";
+import { NO } from "@/lib/texts.no";
+
+function getStaticT(): (key: string) => string {
+  try {
+    const saved = localStorage.getItem("kassen_lang");
+    if (saved === "en") return (key: string) => EN[key] ?? DA[key] ?? key;
+  } catch {}
+  const buildLocale = (import.meta.env.VITE_LOCALE ?? "da") as string;
+  if (buildLocale === "no") return (key: string) => NO[key] ?? key;
+  return (key: string) => DA[key] ?? key;
+}
 
 interface Props {
   children: ReactNode;
@@ -28,20 +41,21 @@ export class SectionErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const t = getStaticT();
       return (
         <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
           <AlertTriangle className="w-6 h-6 text-destructive mx-auto mb-2" />
           <p className="text-sm font-medium text-destructive">
-            {this.props.fallbackTitle ?? "Denne sektion"} kunne ikke vises
+            {this.props.fallbackTitle ?? "Section"} {t("error.sectionFailed")}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Prøv at genindlæse siden
+            {t("error.tryReload")}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}
             className="mt-3 text-xs text-primary hover:underline"
           >
-            Prøv igen
+            {t("error.tryAgain")}
           </button>
         </div>
       );

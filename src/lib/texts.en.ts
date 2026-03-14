@@ -545,6 +545,12 @@ export const EN: Record<string, string> = {
   "guided.acceptedChanges": "Accepted changes",
   "guided.noChanges": "No changes selected.",
   "guided.seeUpdated": "See updated budget",
+  "guided.noResponse": "No response",
+  "guided.errorRetry": "Something went wrong. Try again.",
+  "guided.goalExtra": "— with {amount} more you'll have",
+  "guided.findGoal": "Find {amount}",
+  "guided.progressLabel": "{found} / {goal}",
+  "guided.withThis": "With this: {found} / {goal} found",
 
   // Forward view (extra)
   "forward.wealthProjection": "Wealth projection",
@@ -712,8 +718,32 @@ export const EN: Record<string, string> = {
   "share.bucketFremtid": "Future",
   "share.bucketRisiko": "Risk",
 
+  // Units (extra)
+  "unit.krKwh": "DKK/kWh",
+  "unit.possible": "possible",
+
   // LossAversionInsights
   "insights.heading": "Insights based on your numbers",
+  "insights.incomeBadge": "Income vs. neighbors",
+  "insights.neighborLabel": "your postal code",
+  "insights.incomeBelow": "You earn {amount} DKK/mo. below the average in {postal}",
+  "insights.incomeBelowValue": "−{amount} {unit}/yr.",
+  "insights.incomeBelowSub": "Average income in {neighborLabel} is {avg} DKK/mo. after tax. Not necessarily a problem — but good to know. (Source: {source})",
+  "insights.incomeAbove": "You earn {amount} DKK/mo. above the average in {postal}",
+  "insights.incomeAboveValue": "+{amount} {unit}/yr.",
+  "insights.incomeAboveSub": "Average income in {neighborLabel} is {avg} DKK/mo. after tax. You're above the median — is your budget making the most of it? (Source: {source})",
+  "insights.subsBadge": "Subscriptions per year",
+  "insights.subsTitle": "{count} streaming services cost {amount} DKK per year",
+  "insights.subsSub": "Most people actively use 1-2. Individual costs: Netflix {netflix}, Viaplay {viaplay}, HBO {hbo} DKK/yr. Rotating can save money.",
+  "insights.savingsBadge": "Savings opportunity",
+  "insights.savingsTitle": "You have {amount} DKK/mo. left — but save nothing",
+  "insights.savingsSub": "{monthly} DKK/mo. in a global index fund (historical ~7%/yr) gives {total} DKK in 15 years with compound interest. Every month without saving, you lose this potential.",
+  "insights.elCheapNowBadge": "Power cheapest now ⚡",
+  "insights.elCheapBadge": "Cheapest power today",
+  "insights.elCheapNowTitle": "Electricity is cheapest now ({price} DKK/kWh) — run dishwasher and dryer",
+  "insights.elScheduleTitle": "Run dishwasher and washing machine at {hours}",
+  "insights.elSavingSub": "{saving} DKK/kWh cheaper than the most expensive time today. Running a dryer (2 kWh) at {cheap} vs {expensive} DKK/kWh saves {total} DKK. (Live data: Energi Data Service)",
+  "insights.elLiveSub": "Based on live Elspot data from Energi Data Service, updated today.",
 
   // B2B page
   "b2b.heroTag": "B2B Partnership",
@@ -837,4 +867,103 @@ export const EN: Record<string, string> = {
 
   // Dashboard extras
   "dash.sectionTabs": "Section tabs",
+
+  // FremadView timeline events
+  "forward.childN": "Child",
+  "forward.yourChild": "Your child",
+  "forward.startsSFO": "starts SFO",
+  "forward.sfoDesc": "SFO cost 2,100 DKK/mo.",
+  "forward.leavesKindergarten": "leaves kindergarten",
+  "forward.kindergartenDesc": "Childcare cost drops 2,600 DKK/mo.",
+  "forward.turns7": "turns 7 – child benefit drops",
+  "forward.turns7Desc": "Reduced by 1,130 DKK/mo.",
+  "forward.leavesSFO": "leaves SFO",
+  "forward.leavesSFODesc": "SFO cost ends.",
+  "forward.turns18": "turns 18",
+  "forward.childBenefitEnds": "Child benefit ends.",
+  "forward.checkInterestOnly": "Check interest-only period",
+  "forward.checkInterestOnlyDesc": "Many loans from 2018–2020 have 10-year interest-only periods.",
+  "forward.basedOnInvested": "Based on {amount} invested",
+  "forward.projectionPrefix": "at 7% annual return gives approx.",
+  "forward.projectionMid": "in 5 years and",
+  "forward.projectionSuffix": "in 10 years. Investment involves risk.",
+  "forward.increaseToReach20": "Increase by {amount} to reach 20%",
+  "unit.krMonth": "DKK/mo.",
+  "unit.krYear": "DKK/yr.",
+  "unit.currency": "DKK",
+
+  // AIChatPanel suggestion questions
+  "ai.q.christmasBudget": "How does my budget handle Christmas?",
+  "ai.q.summerSavings": "Can I save for summer vacation?",
+  "ai.q.switchInsurance": "Should I switch insurance at renewal?",
+  "ai.q.cutMost": "Where can I cut the most?",
+  "ai.q.carCost": "What does my car really cost?",
+  "ai.q.dropStreaming": "Which streaming can I drop?",
+  "ai.q.rateRise": "What if rates rise 2%?",
+  "ai.q.startSaving": "How do I start saving?",
+
+  // Dashboard terms link
+  "dash.termsLink": "Terms",
+
+  // Subscriptions (units)
+  "subs.activeCount": "active subscriptions",
+
+  // Optimization (units)
+  "optimize.perYearFollowPlan": "by following the plan",
+
+  // Couple split
+  "couple.remaining.suffix": "remaining",
+
+  // History
+  "history.tooltipDisposable": "Disposable",
+
+  // Onboarding
+  "onboarding.adjustAmount": "Adjust the amount above if it doesn't match.",
+  "onboarding.emailReminder": "Yes, send me a monthly reminder to update my budget.",
+  "onboarding.emailUnsubscribe": "You can unsubscribe at any time.",
+  "onboarding.expenseShare": "Expense share",
+
+  // Error boundary
+  "error.somethingWrong": "Something went wrong",
+  "error.unexpectedError": "An unexpected error occurred. Try reloading the page.",
+  "error.reloadPage": "Reload page",
+
+  // Section error boundary
+  "error.sectionFailed": "could not be displayed",
+  "error.tryReload": "Try reloading the page",
+  "error.tryAgain": "Try again",
+
+  // Page loader
+  "loader.loading": "Loading...",
+
+  // Demo banner
+  "demo.text": "Demo — Kassen white-label for {brand}. All data is sample data.",
+  "demo.bookPresentation": "Book presentation",
+  "demo.trySelf": "Try it yourself",
+  "demo.closeBanner": "Close demo banner",
+
+  // Suite nav
+  "nav.comingSoon": "Soon",
+
+  // Dark mode toggle
+  "darkMode.switchToLight": "Switch to light mode",
+  "darkMode.switchToDark": "Switch to dark mode",
+
+  // Cookie banner
+  "cookie.consent": "Cookie consent",
+  "cookie.acceptAnalytics": "Accept analytics cookies",
+  "cookie.declineAnalytics": "Decline analytics cookies",
+
+  // Cockpit
+  "cockpit.alertsLabel": "Alerts",
+  "cockpit.critical": "Critical",
+  "cockpit.warning": "Warning",
+  "cockpit.insight": "Insight",
+
+  // Share card
+  "share.bufferUnit": "mo.",
+
+  // Index page
+  "confirm.resetBudget": "Are you sure? This will delete your current budget and start over.",
+  "confirm.editProfile": "Do you want to edit your details? Your current data will be used as a starting point.",
 };

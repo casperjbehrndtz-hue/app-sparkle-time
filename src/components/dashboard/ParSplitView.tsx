@@ -72,12 +72,12 @@ export function ParSplitView({ profile, budget }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.yourIncome")}</p>
-          <p className="text-lg font-bold text-foreground">{formatKr(profile.income, lc)} kr.</p>
+          <p className="text-lg font-bold text-foreground">{formatKr(profile.income, lc)} {t("unit.currency")}</p>
           <p className="text-xs text-muted-foreground">{Math.round(myShare * 100)}% af total</p>
         </div>
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.partnerIncome")}</p>
-          <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome, lc)} kr.</p>
+          <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome, lc)} {t("unit.currency")}</p>
           <p className="text-xs text-muted-foreground">{Math.round(partnerShare * 100)}% af total</p>
         </div>
       </div>
@@ -95,17 +95,17 @@ export function ParSplitView({ profile, budget }: Props) {
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-primary" />
             <p className="text-xs text-muted-foreground">{t("couple.youPay")}</p>
-            <p className="text-xl font-black text-foreground">{formatKr(splits.my, lc)} kr.</p>
+            <p className="text-xl font-black text-foreground">{formatKr(splits.my, lc)} {t("unit.currency")}</p>
             <p className={`text-xs font-medium ${myRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
-              {formatKr(myRemaining, lc)} kr. tilbage
+              {formatKr(myRemaining, lc)} {t("unit.currency")} {t("couple.remaining.suffix")}
             </p>
           </div>
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-muted-foreground" />
             <p className="text-xs text-muted-foreground">{t("couple.partnerPays")}</p>
-            <p className="text-xl font-black text-foreground">{formatKr(splits.partner, lc)} kr.</p>
+            <p className="text-xl font-black text-foreground">{formatKr(splits.partner, lc)} {t("unit.currency")}</p>
             <p className={`text-xs font-medium ${partnerRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
-              {formatKr(partnerRemaining, lc)} kr. tilbage
+              {formatKr(partnerRemaining, lc)} {t("unit.currency")} {t("couple.remaining.suffix")}
             </p>
           </div>
         </div>
@@ -135,7 +135,7 @@ export function ParSplitView({ profile, budget }: Props) {
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={55} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${formatKr(v, lc)} kr.`, name === "udgifter" ? t("couple.expenses") : t("couple.remaining")]}
+                formatter={(v: number, name: string) => [`${formatKr(v, lc)} ${t("unit.currency")}`, name === "udgifter" ? t("couple.expenses") : t("couple.remaining")]}
               />
               <Bar dataKey="udgifter" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
               <Bar dataKey="rest" stackId="a" fill="hsl(var(--muted))" radius={[0, 4, 4, 0]} />

@@ -154,7 +154,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
 
       {/* ── Alerts ── */}
       {alerts.length > 0 && (
-        <div className="space-y-1.5" role="list" aria-label="Advarsler">
+        <div className="space-y-1.5" role="list" aria-label={t("cockpit.alertsLabel")}>
           {alerts.map((alert, i) => (
             <motion.div
               key={i}
@@ -170,9 +170,9 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
                   : "bg-primary/5 border-l-primary border-primary/20 text-primary"
               }`}
             >
-              {alert.level === "critical" ? <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" aria-label="Kritisk" />
-                : alert.level === "warning" ? <Zap className="w-3.5 h-3.5 flex-shrink-0" aria-label="Advarsel" />
-                : <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" aria-label="Indsigt" />}
+              {alert.level === "critical" ? <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" aria-label={t("cockpit.critical")} />
+                : alert.level === "warning" ? <Zap className="w-3.5 h-3.5 flex-shrink-0" aria-label={t("cockpit.warning")} />
+                : <TrendingUp className="w-3.5 h-3.5 flex-shrink-0" aria-label={t("cockpit.insight")} />}
               <span className="font-medium">{alert.message}</span>
             </motion.div>
           ))}

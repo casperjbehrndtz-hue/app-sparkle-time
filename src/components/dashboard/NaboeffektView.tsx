@@ -99,7 +99,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         yours: profile.foodAmount,
         avg: BENCHMARKS.food[b],
         action: { label: t("neighbor.adjustFood"), section: "handling" },
-        unit: "kr./md.",
+        unit: t("unit.krMonth"),
       },
       {
         icon: "🍽️",
@@ -107,7 +107,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         yours: profile.restaurantAmount,
         avg: BENCHMARKS.restaurant[b],
         action: { label: t("neighbor.seeSavings"), section: "handling" },
-        unit: "kr./md.",
+        unit: t("unit.krMonth"),
       },
       {
         icon: "🚗",
@@ -115,7 +115,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         yours: profile.hasCar ? transportCost : 0,
         avg: profile.hasCar ? BENCHMARKS.transport[b] : 0,
         action: { label: t("neighbor.seeTransport"), section: "handling" },
-        unit: "kr./md.",
+        unit: t("unit.krMonth"),
         skip: !profile.hasCar,
       },
       {
@@ -124,7 +124,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         yours: streamingCost,
         avg: BENCHMARKS.streaming[b],
         action: { label: t("neighbor.reviewSubs"), section: "handling" },
-        unit: "kr./md.",
+        unit: t("unit.krMonth"),
       },
       {
         icon: "🎉",
@@ -132,7 +132,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         yours: profile.leisureAmount,
         avg: BENCHMARKS.leisure[b],
         action: { label: t("neighbor.seeLeisure"), section: "handling" },
-        unit: "kr./md.",
+        unit: t("unit.krMonth"),
       },
     ].filter(c => !c.skip);
   }, [profile, isPar, transportCost, streamingCost]);
@@ -171,7 +171,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         ) : (
           <div>
             <p className="font-display font-bold text-xl">
-              {t("neighbor.potentialSaving")} <span className="text-amber-600 dark:text-amber-400">{formatKr(overallDiff)} kr./md.</span>
+              {t("neighbor.potentialSaving")} <span className="text-amber-600 dark:text-amber-400">{formatKr(overallDiff)} {t("unit.krMonth")}</span>
             </p>
             {biggest && biggest.delta > 0 && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -215,14 +215,14 @@ export function NaboeffektView({ profile, budget }: Props) {
                     <span className="text-sm font-semibold text-foreground truncate">{card.label}</span>
                     <span className={`inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${styles.badge}`}>
                       {styles.icon}
-                      {delta === 0 ? t("neighbor.onPar") : delta > 0 ? `+${formatKr(delta)} kr.` : `${formatKr(delta)} kr.`}
+                      {delta === 0 ? t("neighbor.onPar") : delta > 0 ? `+${formatKr(delta)} ${t("unit.currency")}` : `${formatKr(delta)} ${t("unit.currency")}`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-xs text-muted-foreground">
-                      {isPar ? t("neighbor.youLabelPar") : t("neighbor.youLabel")}: <span className="text-foreground font-medium">{formatKr(card.yours)} kr.</span>
+                      {isPar ? t("neighbor.youLabelPar") : t("neighbor.youLabel")}: <span className="text-foreground font-medium">{formatKr(card.yours)} {t("unit.currency")}</span>
                       <span className="mx-1.5 opacity-40">·</span>
-                      {t("neighbor.typicalLabel")}: {formatKr(card.avg)} kr.
+                      {t("neighbor.typicalLabel")}: {formatKr(card.avg)} {t("unit.currency")}
                     </p>
                     {status !== "good" && (
                       <button

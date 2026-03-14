@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Target, Play } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
+import { useI18n } from "@/lib/i18n";
 
 const SESSION_KEY = "kassen_demo_banner_dismissed";
 
@@ -10,6 +11,7 @@ interface DemoBannerProps {
 
 export function DemoBanner({ brandName }: DemoBannerProps) {
   const config = useWhiteLabel();
+  const { t } = useI18n();
   const [dismissed, setDismissed] = useState(
     () => sessionStorage.getItem(SESSION_KEY) === "true"
   );
@@ -29,7 +31,7 @@ export function DemoBanner({ brandName }: DemoBannerProps) {
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <Target className="h-4 w-4 shrink-0" />
           <span className="text-sm font-medium truncate">
-            Demo — Kassen white-label til {displayBrand}. Al data er eksempeldata.
+            {t("demo.text").replace("{brand}", displayBrand)}
           </span>
         </div>
 
@@ -38,19 +40,19 @@ export function DemoBanner({ brandName }: DemoBannerProps) {
             href="mailto:casper@kassen.dk?subject=B2B%20Demo%20interesse"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-950 text-amber-100 text-xs font-semibold rounded-md hover:bg-amber-900 transition-colors"
           >
-            Book praesentation
+            {t("demo.bookPresentation")}
           </a>
           <a
             href="/"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/80 text-amber-950 text-xs font-semibold rounded-md hover:bg-white transition-colors"
           >
             <Play className="h-3 w-3" />
-            Proev selv
+            {t("demo.trySelf")}
           </a>
           <button
             onClick={handleDismiss}
             className="p-1 rounded hover:bg-amber-600/30 transition-colors"
-            aria-label="Luk demo-banner"
+            aria-label={t("demo.closeBanner")}
           >
             <X className="h-4 w-4" />
           </button>

@@ -102,11 +102,11 @@ export function SubscriptionTracker({ profile }: Props) {
           </div>
           <div className="text-right">
             <span className="font-display font-black text-2xl text-primary">{formatKr(totalMonthly, lc)}</span>
-            <span className="text-sm text-muted-foreground ml-1">kr./md.</span>
+            <span className="text-sm text-muted-foreground ml-1">{t("unit.krMonth")}</span>
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          = {formatKr(totalMonthly * 12, lc)} kr./år · {detected.length + customSubs.length} aktive abonnementer
+          = {formatKr(totalMonthly * 12, lc)} {t("unit.krYear")} · {detected.length + customSubs.length} {t("subs.activeCount")}
         </p>
         {totalMonthly > 2000 && (
           <div className="mt-3 flex items-center gap-2 text-xs text-kassen-gold">
@@ -126,7 +126,7 @@ export function SubscriptionTracker({ profile }: Props) {
               <span className="text-lg">{sub.category === "streaming" ? "📺" : sub.category === "fitness" ? "💪" : sub.category === "insurance" ? "🛡️" : "📋"}</span>
               <span className="text-sm font-medium">{sub.name}</span>
             </div>
-            <span className="text-sm font-bold text-foreground">{formatKr(sub.amount, lc)} kr.</span>
+            <span className="text-sm font-bold text-foreground">{formatKr(sub.amount, lc)} {t("unit.currency")}</span>
           </motion.div>
         ))}
       </div>
@@ -142,7 +142,7 @@ export function SubscriptionTracker({ profile }: Props) {
                 <span className="text-sm font-medium">{sub.name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold">{formatKr(sub.amount, lc)} kr.</span>
+                <span className="text-sm font-bold">{formatKr(sub.amount, lc)} {t("unit.currency")}</span>
                 <button onClick={() => removeSub(sub.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>

@@ -326,7 +326,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             {sourceNote && (
               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
                 <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground leading-relaxed">{sourceNote}{postalName ? ` (${postalName})` : ""}. Ret beløbet ovenfor hvis det ikke passer.</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{sourceNote}{postalName ? ` (${postalName})` : ""}. {t("onboarding.adjustAmount")}</p>
               </motion.div>
             )}
             <AILiveComment profile={profile} step="housing" />
@@ -426,7 +426,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <input type="number" value={value}
                   onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
                   className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin" />
-                <span className="text-xs text-muted-foreground">kr./md.</span>
+                <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
               </div>
             </div>
             <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" />
@@ -653,9 +653,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             {/* ── 3 nøgletal ── */}
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: t("step.review.income"), value: `${formatKr(budget.totalIncome)} kr.`, color: "text-primary" },
-                { label: t("step.review.expenses"), value: `${formatKr(budget.totalExpenses)} kr.`, color: "text-foreground" },
-                { label: "Udgiftsandel", value: `${expenseRatio}%`, color: expenseRatio > 85 ? "text-destructive" : "text-muted-foreground" },
+                { label: t("step.review.income"), value: `${formatKr(budget.totalIncome)} ${t("unit.currency")}`, color: "text-primary" },
+                { label: t("step.review.expenses"), value: `${formatKr(budget.totalExpenses)} ${t("unit.currency")}`, color: "text-foreground" },
+                { label: t("onboarding.expenseShare"), value: `${expenseRatio}%`, color: expenseRatio > 85 ? "text-destructive" : "text-muted-foreground" },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl border border-border p-3 text-center">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
@@ -668,13 +668,13 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             <details className="group">
               <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                 <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
-                <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} kr. &rsaquo;</span>
+                <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
               </summary>
               <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
                 {budget.fixedExpenses.map((e, i) => (
                   <div key={i} className="px-4 py-2 flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">{e.label}</span>
-                    <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} kr.</span>
+                    <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("unit.currency")}</span>
                   </div>
                 ))}
               </div>
@@ -689,8 +689,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 className="mt-0.5 w-4 h-4 rounded border-border accent-primary cursor-pointer"
               />
               <span className="text-xs text-muted-foreground leading-relaxed">
-                Ja tak, send mig en månedlig påmindelse om at opdatere mit budget.{" "}
-                <span className="text-muted-foreground/60">Du kan altid afmelde dig.</span>
+                {t("onboarding.emailReminder")}{" "}
+                <span className="text-muted-foreground/60">{t("onboarding.emailUnsubscribe")}</span>
               </span>
             </label>
 

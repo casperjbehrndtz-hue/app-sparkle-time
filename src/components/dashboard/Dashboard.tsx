@@ -236,7 +236,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       <div className="max-w-2xl mx-auto px-5 pt-3">
         <p className="text-[10px] text-muted-foreground/60 text-center">
           {t("dash.disclaimer")}{" "}
-          <Link to="/vilkaar" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Vilkår</Link>
+          <Link to="/vilkaar" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">{t("dash.termsLink")}</Link>
         </p>
       </div>
 

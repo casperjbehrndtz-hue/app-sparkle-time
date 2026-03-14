@@ -72,7 +72,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
         },
       });
 
-      if (error || !data) throw new Error("Ingen respons");
+      if (error || !data) throw new Error(t("guided.noResponse"));
 
       setMessages(prev => [...prev, { type: "ai", text: data.message }]);
 
@@ -84,7 +84,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
         setPhase("suggestion");
       }
     } catch {
-      setMessages(prev => [...prev, { type: "ai", text: "Noget gik galt. Prøv igen." }]);
+      setMessages(prev => [...prev, { type: "ai", text: t("guided.errorRetry") }]);
       setPhase("suggestion");
     }
   };
@@ -169,7 +169,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  {formatKr(opt, lc)} kr.
+                  {formatKr(opt, lc)} {t("currency")}
                 </button>
               ))}
             </div>
@@ -177,8 +177,8 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             <div className="rounded-2xl bg-muted/50 p-4 text-left">
               <p className="text-xs text-muted-foreground">
                 {t("guided.currentDisposable").replace("{amount}", formatKr(budget.disposableIncome, lc))}
-                {" "}— med {formatKr(goalAmount, lc)} kr. mere vil du have{" "}
-                <span className="font-bold text-primary">{formatKr(budget.disposableIncome + goalAmount, lc)} kr./md.</span>
+                {" "}{t("guided.goalExtra").replace("{amount}", formatKr(goalAmount, lc))}{" "}
+                <span className="font-bold text-primary">{formatKr(budget.disposableIncome + goalAmount, lc)} {t("unit.krMonth")}</span>
               </p>
             </div>
 
@@ -187,7 +187,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
               onClick={startSession}
               className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
             >
-              Find {formatKr(goalAmount, lc)} kr./md. <ArrowRight className="w-4 h-4" />
+              {t("guided.findGoal").replace("{amount}", `${formatKr(goalAmount, lc)} ${t("unit.krMonth")}`)} <ArrowRight className="w-4 h-4" />
             </motion.button>
           </motion.div>
         </div>
@@ -201,7 +201,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             <div className="max-w-lg mx-auto">
               <div className="flex justify-between text-xs mb-1.5">
                 <span className="text-muted-foreground">{t("guided.found")}</span>
-                <span className="font-bold text-foreground">{formatKr(totalFound, lc)} / {formatKr(goalAmount, lc)} kr./md.</span>
+                <span className="font-bold text-foreground">{t("guided.progressLabel").replace("{found}", formatKr(totalFound, lc)).replace("{goal}", formatKr(goalAmount, lc))} {t("unit.krMonth")}</span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <motion.div
@@ -238,7 +238,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                       <div className="rounded-2xl rounded-tr-sm bg-primary/10 border border-primary/20 px-4 py-2.5 text-sm max-w-[85%] flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                         <span className="text-primary font-medium">{msg.text}</span>
-                        <span className="text-primary/70 text-xs ml-auto">+{formatKr(msg.saving!, lc)} kr.</span>
+                        <span className="text-primary/70 text-xs ml-auto">+{formatKr(msg.saving!, lc)} {t("currency")}</span>
                       </div>
                     </div>
                   )}
@@ -286,7 +286,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                   </div>
                   <div className="text-right">
                     <p className="font-display font-black text-lg text-primary">+{formatKr(suggestion.monthly_saving, lc)}</p>
-                    <p className="text-[10px] text-muted-foreground">kr./md.</p>
+                    <p className="text-[10px] text-muted-foreground">{t("unit.krMonth")}</p>
                   </div>
                 </div>
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
@@ -296,7 +296,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  Med dette: {formatKr(totalFound + suggestion.monthly_saving, lc)} / {formatKr(goalAmount, lc)} kr. fundet
+                  {t("guided.withThis").replace("{found}", formatKr(totalFound + suggestion.monthly_saving, lc)).replace("{goal}", `${formatKr(goalAmount, lc)} ${t("currency")}`)}
                 </p>
               </div>
 
@@ -350,12 +350,12 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                         <span>{c.emoji}</span>
                         <span>{c.label}</span>
                       </div>
-                      <span className="text-sm font-bold text-primary">+{formatKr(c.monthly_saving, lc)} kr./md.</span>
+                      <span className="text-sm font-bold text-primary">+{formatKr(c.monthly_saving, lc)} {t("unit.krMonth")}</span>
                     </div>
                   ))}
                   <div className="pt-2 border-t border-border flex items-center justify-between">
                     <span className="text-sm font-bold">{t("guided.totalFreed")}</span>
-                    <span className="font-display font-black text-lg text-primary">+{formatKr(totalFound, lc)} kr./md.</span>
+                    <span className="font-display font-black text-lg text-primary">+{formatKr(totalFound, lc)} {t("unit.krMonth")}</span>
                   </div>
                 </>
               )}

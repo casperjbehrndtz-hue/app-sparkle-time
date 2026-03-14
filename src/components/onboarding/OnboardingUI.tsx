@@ -59,7 +59,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               animate={{ opacity: 1, y: 0 }}
               className={`font-display font-black text-lg ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-kassen-gold" : "text-destructive"}`}
             >
-              {formatKr(remaining)} kr.
+              {formatKr(remaining)} {t("currency")}
             </motion.span>
           </div>
           {onNext ? (
@@ -155,9 +155,11 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
 }
 
 // ─── Cinematic slider with big number ─────────────────────
-export function BigSlider({ value, onChange, label, min = 0, max = 100000, step = 500, suffix = "kr." }: {
+export function BigSlider({ value, onChange, label, min = 0, max = 100000, step = 500, suffix }: {
   value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number; suffix?: string;
 }) {
+  const { t } = useI18n();
+  const resolvedSuffix = suffix ?? t("currency");
   const [localValue, setLocalValue] = useState<string>(String(value));
   
   useEffect(() => { setLocalValue(String(value)); }, [value]);
@@ -187,7 +189,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
           className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
         />
-        <span className="text-lg text-muted-foreground font-display">{suffix}</span>
+        <span className="text-lg text-muted-foreground font-display">{resolvedSuffix}</span>
       </div>
       <div style={{ touchAction: "pan-y" }}>
         <Slider
@@ -198,8 +200,8 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
         />
       </div>
       <div className="flex justify-between text-[11px] text-muted-foreground">
-        <span>{formatKr(min)} {suffix}</span>
-        <span>{formatKr(max)} {suffix}</span>
+        <span>{formatKr(min)} {resolvedSuffix}</span>
+        <span>{formatKr(max)} {resolvedSuffix}</span>
       </div>
     </div>
   );
@@ -210,6 +212,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
   active: boolean; onClick: () => void; icon: string; label: string; sublabel?: string;
   amount?: number; onAmountChange?: (v: number) => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className={`rounded-2xl border-2 transition-all duration-200 ${active ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-border"}`}>
       <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
@@ -229,7 +232,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
           <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
             <input type="number" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
               className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-20" />
-            <span className="text-xs text-muted-foreground">kr./md.</span>
+            <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
           </div>
         </motion.div>
       )}

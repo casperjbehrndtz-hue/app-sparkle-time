@@ -35,7 +35,7 @@ export function SuiteNav() {
             {link.label}
             {link.comingSoon && (
               <span className="text-[8px] font-semibold bg-primary-foreground/20 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                Snart
+                {t("nav.comingSoon")}
               </span>
             )}
           </a>

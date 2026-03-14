@@ -55,7 +55,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
           <div className="flex-1 space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">{t("share.freedomNumber")}</span>
-              <span className="font-display font-bold">{formatKr(health.truths.freeCashFlow, lc)} kr.</span>
+              <span className="font-display font-bold">{formatKr(health.truths.freeCashFlow, lc)} {t("unit.currency")}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">{t("share.savingsRate")}</span>
@@ -63,7 +63,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">{t("share.buffer")}</span>
-              <span className="font-display font-bold">{health.bufferMonths} md.</span>
+              <span className="font-display font-bold">{health.bufferMonths} {t("share.bufferUnit")}</span>
             </div>
           </div>
         </div>

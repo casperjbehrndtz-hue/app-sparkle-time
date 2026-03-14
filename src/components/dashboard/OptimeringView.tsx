@@ -38,10 +38,10 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
         <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">{t("optimize.totalPotential")}</p>
         <div className="flex items-end gap-2">
           <span className="font-display font-black text-4xl text-primary">{formatKr(totalSavings, lc)}</span>
-          <span className="text-primary/70 text-lg mb-1">kr./md.</span>
+          <span className="text-primary/70 text-lg mb-1">{t("unit.krMonth")}</span>
         </div>
         <p className="text-sm text-muted-foreground mt-2">
-          = <strong className="text-foreground">{formatKr(totalSavings * 12, lc)} kr./år</strong> ved at følge planen
+          = <strong className="text-foreground">{formatKr(totalSavings * 12, lc)} {t("unit.krYear")}</strong> {t("optimize.perYearFollowPlan")}
         </p>
       </motion.div>
 
@@ -69,7 +69,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
                   <span className="text-xs text-muted-foreground">{categoryEmoji[opt.category] || "💡"} {opt.category}</span>
-                  <span className="font-display font-bold text-primary text-sm">+{formatKr(opt.besparelse_kr, lc)} kr.</span>
+                  <span className="font-display font-bold text-primary text-sm">+{formatKr(opt.besparelse_kr, lc)} {t("unit.currency")}</span>
                 </div>
                 <p className="font-semibold text-sm">{opt.handling}</p>
               </div>
@@ -101,7 +101,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">{item.label}</span>
               <span className={`font-bold ${item.isAvg ? "text-muted-foreground" : budget.disposableIncome > 12500 ? "text-primary" : "text-kassen-gold"}`}>
-                {formatKr(item.amount, lc)} kr.
+                {formatKr(item.amount, lc)} {t("unit.currency")}
               </span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
