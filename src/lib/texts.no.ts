@@ -379,4 +379,116 @@ export const NO: Record<string, string> = {
   "cockpit.live.electricity": "Strøm: {price} kr/kWh",
   "cockpit.live.rate": "Rente: {rate}%",
   "cockpit.live.income": "Gj.sn. inntekt: {amount} kr.",
+
+  // Categories
+  "cat.Bolig": "Bolig",
+  "cat.Forsyning": "Forsyning",
+  "cat.Transport": "Transport",
+  "cat.Abonnementer": "Abonnementer",
+  "cat.Forsikring": "Forsikring",
+  "cat.Fagforening": "Fagforening",
+  "cat.Børn": "Barn",
+  "cat.Kæledyr": "Kjæledyr",
+  "cat.Lån": "Lån",
+  "cat.Fitness": "Fitness",
+  "cat.Opsparing": "Sparing",
+  "cat.Mad & dagligvarer": "Mat & dagligvarer",
+  "cat.Fritid": "Fritid",
+  "cat.Tøj": "Klær",
+  "cat.Sundhed": "Helse",
+  "cat.Restaurant": "Restaurant",
+  "cat.Andet": "Annet",
+
+  // Sankey / overview
+  "sankey.incomeDistribution": "Inntekt fordelt på utgifter",
+  "sankey.leftOver": "Til overs",
+  "sankey.salary": "Lønn",
+  "sankey.partner": "Partner",
+  "sankey.otherIncome": "Øvrig",
+  "sankey.income": "Inntekt",
+  "sankey.expenses": "Utgifter",
+
+  // Dashboard misc
+  "dash.startOver": "Start på nytt",
+  "dash.reset": "Nullstill",
+  "dash.disclaimer": "Kassen er et budsjetteringsverktøy — ikke finansiell rådgivning.",
+  "dash.aiTitle": "La AI finne dine besparelser",
+  "dash.aiSubtitle": "Guidet gjennomgang — du bestemmer hva du vil gjøre",
+  "dash.useDefaults": "Bruk standardtall og se mitt resultat →",
+  "dash.hideDetails": "Skjul detaljer",
+  "dash.showCarDetails": "Fordel utgifter på bil",
+
+  // Neighbor comparison
+  "neighbor.comparedWith": "Sammenlignet med din inntektsgruppe",
+  "neighbor.pair": "par",
+  "neighbor.single": "enslig",
+  "neighbor.housingCost": "Boligutgift:",
+  "neighbor.categoryByCategory": "Kategori for kategori",
+  "neighbor.onPar": "På nivå",
+  "neighbor.savingsIfLowered": "Hvis du senker til typisk nivå, sparer du",
+  "neighbor.food": "Mat & dagligvarer",
+  "neighbor.restaurant": "Restaurant & takeaway",
+  "neighbor.transportCar": "Transport (bil)",
+  "neighbor.transport": "Transport",
+  "neighbor.streaming": "Strømming & abonnementer",
+  "neighbor.leisure": "Fritid & opplevelser",
+
+  // Optimization
+  "optimize.totalPotential": "Samlet potensial",
+  "optimize.lookingGood": "Økonomien din ser sterk ut",
+  "optimize.noSavings": "Vi fant ingen åpenbare besparelser — bra jobba!",
+  "optimize.doItNow": "Gjør det nå — ",
+  "optimize.dstBenchmark": "SSB-referanse",
+  "optimize.dkAverage": "NO-gjennomsnitt",
+  "optimize.yourDisposable": "Ditt disponibelt beløp",
+
+  // Couple split
+  "couple.incomeBasedSplit": "Inntektsfordelt",
+  "couple.partnerIncome": "Partners inntekt",
+  "couple.partnerPays": "Partner betaler",
+  "couple.expenses": "Utgifter",
+  "couple.remaining": "Rest",
+
+  // Profile edit
+  "profile.householdIncome": "Husstand & Inntekt",
+  "profile.partnerIncomeNet": "Partners inntekt (netto)",
+  "profile.housing": "Bolig",
+  "profile.housingType": "Boligtype",
+  "profile.food": "Mat & dagligvarer",
+  "profile.leisure": "Fritid & opplevelser",
+  "profile.clothing": "Klær & sko",
+
+  // Forward view
+  "forward.propertyValue": "Boligverdi",
+  "forward.propertyEstimate": "Boligverdi er et estimat — juster i profilen din",
+  "forward.emergencyBuffer": "Nødbuffer (3 mnd.)",
+  "forward.savingsRate": "Sparerate",
+
+  // Charts
+  "charts.disposable": "Disponibelt beløp",
+  "charts.average": "Gjennomsnitt",
+  "charts.lowest": "Laveste",
+  "charts.highest": "Høyeste",
+  "charts.monthNames": "Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Des",
+
+  // AI chat
+  "ai.askAbout": "Spør AI om økonomien din",
+  "ai.askShort": "Spør AI",
+  "ai.limitReached": "Månedlig grense nådd. Nullstilles automatisk neste måned.",
+
+  // Guided saving
+  "guided.title": "Guidet sparesession",
+  "guided.found": "Funnet",
+  "guided.totalFreed": "Totalt frigjort",
+
+  // Share card
+  "share.economyCheck": "Økonomi-sjekk",
+  "share.freedomNumber": "Frihetstall",
+  "share.savingsRate": "Sparerate",
+  "share.buffer": "Buffer",
+  "share.footer": "Beregnet med Kassen · 2026",
+
+  // Subscriptions
+  "subs.warning": "Over 2 000 kr/mnd. i abonnementer — vurder å kutte ned",
+  "subs.foundInBudget": "Funnet i budsjettet ditt",
 };

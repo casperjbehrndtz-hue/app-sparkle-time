@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowDownRight, Minus, ChevronRight } from "lucide-react"
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 import { useMarketData } from "@/hooks/useMarketData";
 import { getLiveIncome } from "@/lib/marketData";
 
@@ -50,6 +51,7 @@ const fadeUp = (d: number) => ({
 });
 
 export function NaboeffektView({ profile, budget }: Props) {
+  const { t } = useI18n();
   const locale = useLocale();
   const { data: marketData } = useMarketData();
   const isPar = profile.householdType === "par";
@@ -93,7 +95,7 @@ export function NaboeffektView({ profile, budget }: Props) {
     return [
       {
         icon: "🛒",
-        label: "Mad & dagligvarer",
+        label: t("neighbor.food"),
         yours: profile.foodAmount,
         avg: BENCHMARKS.food[b],
         action: { label: "Justér madbudget", section: "handling" },
@@ -101,7 +103,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       },
       {
         icon: "🍽️",
-        label: "Restaurant & takeaway",
+        label: t("neighbor.restaurant"),
         yours: profile.restaurantAmount,
         avg: BENCHMARKS.restaurant[b],
         action: { label: "Se besparelsesforslag", section: "handling" },
@@ -109,7 +111,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       },
       {
         icon: "🚗",
-        label: profile.hasCar ? "Transport (bil)" : "Transport",
+        label: profile.hasCar ? t("neighbor.transportCar") : t("neighbor.transport"),
         yours: profile.hasCar ? transportCost : 0,
         avg: profile.hasCar ? BENCHMARKS.transport[b] : 0,
         action: { label: "Se transportoptimering", section: "handling" },
@@ -118,7 +120,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       },
       {
         icon: "📺",
-        label: "Streaming & abonnementer",
+        label: t("neighbor.streaming"),
         yours: streamingCost,
         avg: BENCHMARKS.streaming[b],
         action: { label: "Gennemgå abonnementer", section: "handling" },
@@ -126,7 +128,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       },
       {
         icon: "🎉",
-        label: "Fritid & oplevelser",
+        label: t("neighbor.leisure"),
         yours: profile.leisureAmount,
         avg: BENCHMARKS.leisure[b],
         action: { label: "Se fritidsbudget", section: "handling" },
@@ -155,7 +157,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       <motion.div variants={fadeUp(0)} initial="hidden" animate="visible"
         className="rounded-2xl border border-border bg-card p-5">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
-          Sammenlignet med din indkomstgruppe · {isPar ? "Par" : "Enlig"}
+          {t("neighbor.comparedWith")} · {isPar ? t("neighbor.pair") : t("neighbor.single")}
         </p>
         {isAboveAvg ? (
           <div>
@@ -186,7 +188,7 @@ export function NaboeffektView({ profile, budget }: Props) {
           className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
           <span className="text-xl">🏠</span>
           <div className="flex-1">
-            <p className="text-sm font-semibold">Boligudgift: {housingPct}% af indkomsten</p>
+            <p className="text-sm font-semibold">{t("neighbor.housingCost")} {housingPct}% af indkomsten</p>
             <p className="text-xs text-muted-foreground">Eksperter anbefaler maks 33% — {isPar ? "I bruger" : "du bruger"} {housingPct - BENCHMARKS.housing_pct} procentpoint mere</p>
           </div>
         </motion.div>
@@ -195,7 +197,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       {/* Delta cards */}
       <div className="space-y-2.5">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground px-1">
-          Kategori for kategori
+          {t("neighbor.categoryByCategory")}
         </p>
         {cards.map((card, i) => {
           const delta = card.yours - card.avg;
@@ -213,7 +215,7 @@ export function NaboeffektView({ profile, budget }: Props) {
                     <span className="text-sm font-semibold text-foreground truncate">{card.label}</span>
                     <span className={`inline-flex items-center gap-0.5 text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${styles.badge}`}>
                       {styles.icon}
-                      {delta === 0 ? "På niveau" : delta > 0 ? `+${formatKr(delta)} kr.` : `${formatKr(delta)} kr.`}
+                      {delta === 0 ? t("neighbor.onPar") : delta > 0 ? `+${formatKr(delta)} kr.` : `${formatKr(delta)} kr.`}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-1">
@@ -235,7 +237,7 @@ export function NaboeffektView({ profile, budget }: Props) {
               {/* Context sentence for red cards */}
               {status === "over" && delta > 0 && (
                 <p className="text-xs text-muted-foreground mt-2 ml-11">
-                  Hvis du sænker til typisk niveau, sparer du <strong className="text-foreground">{formatKr(delta * 12)} kr. om året</strong>.
+                  {t("neighbor.savingsIfLowered")} <strong className="text-foreground">{formatKr(delta * 12)} kr. om året</strong>.
                 </p>
               )}
             </motion.div>

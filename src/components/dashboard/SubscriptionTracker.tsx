@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile } from "@/lib/types";
 
 interface Subscription {
@@ -35,6 +36,7 @@ interface Props {
 
 export function SubscriptionTracker({ profile }: Props) {
   const { user } = useAuth();
+  const { t } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
   const [customSubs, setCustomSubs] = useState<Subscription[]>([]);
@@ -109,14 +111,14 @@ export function SubscriptionTracker({ profile }: Props) {
         {totalMonthly > 2000 && (
           <div className="mt-3 flex items-center gap-2 text-xs text-kassen-gold">
             <AlertTriangle className="w-3.5 h-3.5" />
-            <span>Over 2.000 kr./md. i abonnementer — overvej at skære ned</span>
+            <span>{t("subs.warning")}</span>
           </div>
         )}
       </motion.div>
 
       {/* Detected */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Fundet i dit budget</p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("subs.foundInBudget")}</p>
         {detected.map((sub, i) => (
           <motion.div key={sub.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
             className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">

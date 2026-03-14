@@ -31,7 +31,7 @@ interface Props {
 const GOAL_OPTIONS = [500, 1000, 1500, 2000, 3000, 5000];
 
 export function GuidedSavingSession({ profile, budget, onClose, onProfileChange }: Props) {
-  const { lang } = useI18n();
+  const { t, lang } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
   const [phase, setPhase] = useState<"goal" | "loading" | "suggestion" | "complete">("goal");
@@ -141,7 +141,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
       <div className="flex items-center justify-between px-5 py-4 border-b border-border">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="font-display font-bold text-sm">Guidet besparelses-session</span>
+          <span className="font-display font-bold text-sm">{t("guided.title")}</span>
         </div>
         <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
           <X className="w-4 h-4" />
@@ -200,7 +200,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
           <div className="px-5 py-3 border-b border-border/50">
             <div className="max-w-lg mx-auto">
               <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-muted-foreground">Fundet</span>
+                <span className="text-muted-foreground">{t("guided.found")}</span>
                 <span className="font-bold text-foreground">{formatKr(totalFound, lc)} / {formatKr(goalAmount, lc)} kr./md.</span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -354,7 +354,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                     </div>
                   ))}
                   <div className="pt-2 border-t border-border flex items-center justify-between">
-                    <span className="text-sm font-bold">I alt frigjort</span>
+                    <span className="text-sm font-bold">{t("guided.totalFreed")}</span>
                     <span className="font-display font-black text-lg text-primary">+{formatKr(totalFound, lc)} kr./md.</span>
                   </div>
                 </>

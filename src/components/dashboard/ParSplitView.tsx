@@ -4,6 +4,7 @@ import { Users, Scale, ArrowLeftRight } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
@@ -16,6 +17,7 @@ type SplitModel = "equal" | "proportional";
 export function ParSplitView({ profile, budget }: Props) {
   const [model, setModel] = useState<SplitModel>("proportional");
   const locale = useLocale();
+  const { t } = useI18n();
   const lc = locale.currencyLocale;
 
   const totalIncome = profile.income + profile.partnerIncome;
@@ -62,7 +64,7 @@ export function ParSplitView({ profile, budget }: Props) {
           }`}
         >
           <ArrowLeftRight className="w-3.5 h-3.5 inline mr-1.5" />
-          Indkomstfordelt
+          {t("couple.incomeBasedSplit")}
         </button>
       </div>
 
@@ -74,7 +76,7 @@ export function ParSplitView({ profile, budget }: Props) {
           <p className="text-xs text-muted-foreground">{Math.round(myShare * 100)}% af total</p>
         </div>
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Partners indkomst</p>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.partnerIncome")}</p>
           <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome, lc)} kr.</p>
           <p className="text-xs text-muted-foreground">{Math.round(partnerShare * 100)}% af total</p>
         </div>
@@ -100,7 +102,7 @@ export function ParSplitView({ profile, budget }: Props) {
           </div>
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-muted-foreground" />
-            <p className="text-xs text-muted-foreground">Partner betaler</p>
+            <p className="text-xs text-muted-foreground">{t("couple.partnerPays")}</p>
             <p className="text-xl font-black text-foreground">{formatKr(splits.partner, lc)} kr.</p>
             <p className={`text-xs font-medium ${partnerRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
               {formatKr(partnerRemaining, lc)} kr. tilbage
@@ -133,7 +135,7 @@ export function ParSplitView({ profile, budget }: Props) {
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={55} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${formatKr(v, lc)} kr.`, name === "udgifter" ? "Udgifter" : "Rest"]}
+                formatter={(v: number, name: string) => [`${formatKr(v, lc)} kr.`, name === "udgifter" ? t("couple.expenses") : t("couple.remaining")]}
               />
               <Bar dataKey="udgifter" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
               <Bar dataKey="rest" stackId="a" fill="hsl(var(--muted))" radius={[0, 4, 4, 0]} />

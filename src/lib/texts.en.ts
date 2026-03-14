@@ -378,4 +378,116 @@ export const EN: Record<string, string> = {
   "cockpit.live.electricity": "Power: {price} DKK/kWh",
   "cockpit.live.rate": "Rate: {rate}%",
   "cockpit.live.income": "Avg. income: {amount}",
+
+  // Categories
+  "cat.Bolig": "Housing",
+  "cat.Forsyning": "Utilities",
+  "cat.Transport": "Transport",
+  "cat.Abonnementer": "Subscriptions",
+  "cat.Forsikring": "Insurance",
+  "cat.Fagforening": "Union",
+  "cat.Børn": "Children",
+  "cat.Kæledyr": "Pets",
+  "cat.Lån": "Loans",
+  "cat.Fitness": "Fitness",
+  "cat.Opsparing": "Savings",
+  "cat.Mad & dagligvarer": "Food & groceries",
+  "cat.Fritid": "Leisure",
+  "cat.Tøj": "Clothing",
+  "cat.Sundhed": "Health",
+  "cat.Restaurant": "Restaurant",
+  "cat.Andet": "Other",
+
+  // Sankey / overview
+  "sankey.incomeDistribution": "Income distributed across expenses",
+  "sankey.leftOver": "Left over",
+  "sankey.salary": "Salary",
+  "sankey.partner": "Partner",
+  "sankey.otherIncome": "Other",
+  "sankey.income": "Income",
+  "sankey.expenses": "Expenses",
+
+  // Dashboard misc
+  "dash.startOver": "Start over",
+  "dash.reset": "Reset",
+  "dash.disclaimer": "Kassen is a budgeting tool — not financial advice.",
+  "dash.aiTitle": "Let AI find your savings",
+  "dash.aiSubtitle": "Guided walkthrough — you decide what to do",
+  "dash.useDefaults": "Use defaults and see my result →",
+  "dash.hideDetails": "Hide details",
+  "dash.showCarDetails": "Break down car expenses",
+
+  // Neighbor comparison
+  "neighbor.comparedWith": "Compared with your income group",
+  "neighbor.pair": "couples",
+  "neighbor.single": "singles",
+  "neighbor.housingCost": "Housing cost:",
+  "neighbor.categoryByCategory": "Category by category",
+  "neighbor.onPar": "On par",
+  "neighbor.savingsIfLowered": "If you lower to typical level, you save",
+  "neighbor.food": "Food & groceries",
+  "neighbor.restaurant": "Restaurant & takeaway",
+  "neighbor.transportCar": "Transport (car)",
+  "neighbor.transport": "Transport",
+  "neighbor.streaming": "Streaming & subscriptions",
+  "neighbor.leisure": "Leisure & experiences",
+
+  // Optimization
+  "optimize.totalPotential": "Total potential",
+  "optimize.lookingGood": "Your finances look strong",
+  "optimize.noSavings": "We found no obvious savings — well done!",
+  "optimize.doItNow": "Do it now — ",
+  "optimize.dstBenchmark": "Statistics Denmark benchmark",
+  "optimize.dkAverage": "DK average",
+  "optimize.yourDisposable": "Your disposable income",
+
+  // Couple split
+  "couple.incomeBasedSplit": "Income-based",
+  "couple.partnerIncome": "Partner's income",
+  "couple.partnerPays": "Partner pays",
+  "couple.expenses": "Expenses",
+  "couple.remaining": "Remaining",
+
+  // Profile edit
+  "profile.householdIncome": "Household & Income",
+  "profile.partnerIncomeNet": "Partner's income (net)",
+  "profile.housing": "Housing",
+  "profile.housingType": "Housing type",
+  "profile.food": "Food & groceries",
+  "profile.leisure": "Leisure & experiences",
+  "profile.clothing": "Clothing & shoes",
+
+  // Forward view
+  "forward.propertyValue": "Property value",
+  "forward.propertyEstimate": "Property value is an estimate — adjust in your profile",
+  "forward.emergencyBuffer": "Emergency buffer (3 mo.)",
+  "forward.savingsRate": "Savings rate",
+
+  // Charts
+  "charts.disposable": "Disposable income",
+  "charts.average": "Average",
+  "charts.lowest": "Lowest",
+  "charts.highest": "Highest",
+  "charts.monthNames": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec",
+
+  // AI chat
+  "ai.askAbout": "Ask AI about your finances",
+  "ai.askShort": "Ask AI",
+  "ai.limitReached": "Monthly limit reached. Resets automatically next month.",
+
+  // Guided saving
+  "guided.title": "Guided savings session",
+  "guided.found": "Found",
+  "guided.totalFreed": "Total freed up",
+
+  // Share card
+  "share.economyCheck": "Finance check",
+  "share.freedomNumber": "Freedom number",
+  "share.savingsRate": "Savings rate",
+  "share.buffer": "Buffer",
+  "share.footer": "Calculated with Kassen · 2026",
+
+  // Subscriptions
+  "subs.warning": "Over 2,000 DKK/mo. on subscriptions — consider cutting back",
+  "subs.foundInBudget": "Found in your budget",
 };

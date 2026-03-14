@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import type { BudgetProfile } from "@/lib/types";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   open: boolean;
@@ -55,6 +56,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 
 export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [p, setP] = useState<BudgetProfile>({ ...profile });
   const set = <K extends keyof BudgetProfile>(key: K, value: BudgetProfile[K]) =>
     setP(prev => ({ ...prev, [key]: value }));
@@ -81,7 +83,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Husstand & Indkomst ─────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Husstand & Indkomst</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.householdIncome")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
               <Field label="Husstandstype">
                 <select
@@ -97,7 +99,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
                 <NumberInput value={p.income} onChange={(v) => set("income", v)} />
               </Field>
               {p.householdType === "par" && (
-                <Field label="Partners indkomst (netto)">
+                <Field label={t("profile.partnerIncomeNet")}>
                   <NumberInput value={p.partnerIncome} onChange={(v) => set("partnerIncome", v)} />
                 </Field>
               )}
@@ -115,9 +117,9 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Bolig ───────────────────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Bolig</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.housing")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
-              <Field label="Boligtype">
+              <Field label={t("profile.housingType")}>
                 <select
                   value={p.housingType}
                   onChange={(e) => set("housingType", e.target.value as BudgetProfile["housingType"])}
@@ -151,16 +153,16 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Forbrug</h3>
             <div className="rounded-xl border border-border/60 px-4">
-              <Field label="Mad & dagligvarer">
+              <Field label={t("profile.food")}>
                 <NumberInput value={p.foodAmount} onChange={(v) => set("foodAmount", v)} />
               </Field>
               <Field label="Restauranter & takeaway">
                 <NumberInput value={p.restaurantAmount} onChange={(v) => set("restaurantAmount", v)} />
               </Field>
-              <Field label="Fritid & oplevelser">
+              <Field label={t("profile.leisure")}>
                 <NumberInput value={p.leisureAmount} onChange={(v) => set("leisureAmount", v)} />
               </Field>
-              <Field label="Tøj & sko">
+              <Field label={t("profile.clothing")}>
                 <NumberInput value={p.clothingAmount} onChange={(v) => set("clothingAmount", v)} />
               </Field>
               <Field label="Sundhed & medicin">

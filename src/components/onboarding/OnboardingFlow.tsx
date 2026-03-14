@@ -454,7 +454,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.expenses.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.expenses.subtitle")}</p>
               <button onClick={goNext} className="text-xs text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
-                Brug standardtal og se mit resultat →
+                {t("dash.useDefaults")}
               </button>
             </motion.div>
 
@@ -488,7 +488,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   <button onClick={() => setCarExpanded(v => !v)}
                     className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors py-1">
                     {carExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    {carExpanded ? "Skjul detaljer" : "Fordel udgifter på bil"}
+                    {carExpanded ? t("dash.hideDetails") : t("dash.showCarDetails")}
                   </button>
                   {carExpanded && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-1.5">

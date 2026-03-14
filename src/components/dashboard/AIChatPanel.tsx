@@ -177,10 +177,10 @@ export function AIChatPanel({ profile, budget }: Props) {
           transition={{ delay: 1, type: "spring", bounce: 0.4 }}
           onClick={handleOpen}
           className="fixed bottom-6 right-6 z-50 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all px-5 gap-2"
-          title="Spørg AI om din økonomi"
+          title={t("ai.askAbout")}
         >
           <Sparkles className="w-5 h-5" />
-          <span className="text-sm font-semibold hidden sm:inline">Spørg AI</span>
+          <span className="text-sm font-semibold hidden sm:inline">{t("ai.askShort")}</span>
           {hasProactiveNudge && !hasInitialAnalysis && (
             <motion.div
               initial={{ scale: 0 }}
@@ -272,7 +272,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
                   <Lock className="w-5 h-5 text-primary mx-auto mb-2" />
                   <p className="text-sm font-semibold text-foreground mb-1">Du har brugt dine 5 gratis AI-svar</p>
-                  <p className="text-xs text-muted-foreground mb-3">Månedlig grænse nået. Nulstilles automatisk næste måned.</p>
+                  <p className="text-xs text-muted-foreground mb-3">{t("ai.limitReached")}</p>
                   <a
                     href="/login"
                     className="inline-block px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all"

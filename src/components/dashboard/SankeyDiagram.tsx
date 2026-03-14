@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 import type { ComputedBudget, BudgetProfile } from "@/lib/types";
 
 interface Props {
@@ -47,17 +48,19 @@ type SNode = D3SankeyNode<NodeExtra, LinkExtra>;
 type SLink = D3SankeyLink<NodeExtra, LinkExtra>;
 
 // ─── Stacked Bar (mobile) ──────────────────────
-function StackedBarView({ categories, income, disposable, lc }: {
+function StackedBarView({ categories, income, disposable, lc, t, tc }: {
   categories: { name: string; total: number; color: string }[];
   income: number;
   disposable: number;
   lc: string;
+  t: (key: string) => string;
+  tc: (name: string) => string;
 }) {
   return (
     <div className="space-y-3">
       {/* Stacked bar */}
       <div>
-        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2">Indkomst fordelt på udgifter</p>
+        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2">{t("sankey.incomeDistribution")}</p>
         <div className="h-6 rounded-lg overflow-hidden flex">
           {categories.map((cat, i) => {
             const pct = income > 0 ? (cat.total / income) * 100 : 0;
@@ -69,7 +72,7 @@ function StackedBarView({ categories, income, disposable, lc }: {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.04 }}
                 style={{ backgroundColor: cat.color }}
                 className="h-full"
-                title={`${cat.name}: ${formatKr(cat.total, lc)} kr.`}
+                title={`${tc(cat.name)}: ${formatKr(cat.total, lc)} kr.`}
               />
             );
           })}
@@ -79,7 +82,7 @@ function StackedBarView({ categories, income, disposable, lc }: {
               animate={{ width: `${(disposable / income) * 100}%` }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: categories.length * 0.04 }}
               className="h-full bg-primary/30"
-              title={`Til overs: ${formatKr(disposable, lc)} kr.`}
+              title={`${t("sankey.leftOver")}: ${formatKr(disposable, lc)} kr.`}
             />
           )}
         </div>
@@ -98,7 +101,7 @@ function StackedBarView({ categories, income, disposable, lc }: {
               className="flex items-center gap-2"
             >
               <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: cat.color }} />
-              <span className="text-xs text-muted-foreground flex-1 truncate">{cat.name}</span>
+              <span className="text-xs text-muted-foreground flex-1 truncate">{tc(cat.name)}</span>
               <span className="text-xs font-medium tabular-nums">{formatKr(cat.total, lc)}</span>
               <span className="text-[10px] text-muted-foreground/60 tabular-nums w-7 text-right">{pct}%</span>
             </motion.div>
@@ -112,7 +115,7 @@ function StackedBarView({ categories, income, disposable, lc }: {
             className="flex items-center gap-2 pt-1 border-t border-border/50"
           >
             <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 bg-primary/30" />
-            <span className="text-xs font-medium text-primary flex-1">Til overs</span>
+            <span className="text-xs font-medium text-primary flex-1">{t("sankey.leftOver")}</span>
             <span className="text-xs font-bold text-primary tabular-nums">{formatKr(disposable, lc)}</span>
             <span className="text-[10px] text-primary/60 tabular-nums w-7 text-right">{Math.round((disposable / income) * 100)}%</span>
           </motion.div>
@@ -123,12 +126,14 @@ function StackedBarView({ categories, income, disposable, lc }: {
 }
 
 // ─── Sankey (desktop) ──────────────────────
-function SankeyView({ budget, profile, categories, disposable, lc }: {
+function SankeyView({ budget, profile, categories, disposable, lc, t, tc }: {
   budget: ComputedBudget;
   profile?: BudgetProfile;
   categories: { name: string; total: number; color: string }[];
   disposable: number;
   lc: string;
+  t: (key: string) => string;
+  tc: (name: string) => string;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -139,8 +144,8 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
     // Col 0: Income sources
     const incomeSources: { name: string; amount: number }[] = [];
     if (profile) {
-      if (profile.income > 0) incomeSources.push({ name: "Løn", amount: profile.income });
-      if (profile.partnerIncome > 0) incomeSources.push({ name: "Partner", amount: profile.partnerIncome });
+      if (profile.income > 0) incomeSources.push({ name: t("sankey.salary"), amount: profile.income });
+      if (profile.partnerIncome > 0) incomeSources.push({ name: t("sankey.partner"), amount: profile.partnerIncome });
       if (profile.additionalIncome?.length) {
         profile.additionalIncome.forEach(src => {
           if (src.amount > 0) {
@@ -148,14 +153,14 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
               : src.frequency === "quarterly" ? Math.round(src.amount / 3)
               : src.frequency === "biannual" ? Math.round(src.amount / 6)
               : Math.round(src.amount / 12);
-            if (monthly > 0) incomeSources.push({ name: src.label || "Øvrig", amount: monthly });
+            if (monthly > 0) incomeSources.push({ name: src.label || t("sankey.otherIncome"), amount: monthly });
           }
         });
       }
     }
     // Fallback: single node if no profile or only one source
     if (incomeSources.length === 0) {
-      incomeSources.push({ name: "Indkomst", amount: budget.totalIncome });
+      incomeSources.push({ name: t("sankey.income"), amount: budget.totalIncome });
     }
 
     const INCOME_COLOR = "#1565c0";
@@ -170,7 +175,7 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
       nodeList.push({ name: cat.name, color: cat.color });
     });
     if (disposable > 0) {
-      nodeList.push({ name: "Til overs", color: "#2e86c1" });
+      nodeList.push({ name: t("sankey.leftOver"), color: "#2e86c1" });
     }
 
     // Links: each income source → each category (proportional)
@@ -214,7 +219,7 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
     });
 
     return { nodes: graph.nodes, links: graph.links, width: W, height: H, incomeCount: incomeNodeCount };
-  }, [categories, disposable, profile, budget.totalIncome]);
+  }, [categories, disposable, profile, budget.totalIncome, t]);
 
   const linkPathGen = sankeyLinkHorizontal();
 
@@ -258,7 +263,8 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
         const w = x1 - x0;
         const h = y1 - y0;
         const isSource = i < incomeCount;
-        const active = !hovered || hovered === node.name || (isSource && !categories.some(c => c.name === hovered) && hovered !== "Til overs") || (!isSource && !nodes.slice(0, incomeCount).some(n => n.name === hovered));
+        const leftOverLabel = t("sankey.leftOver");
+        const active = !hovered || hovered === node.name || (isSource && !categories.some(c => c.name === hovered) && hovered !== leftOverLabel) || (!isSource && !nodes.slice(0, incomeCount).some(n => n.name === hovered));
 
         return (
           <g
@@ -284,7 +290,7 @@ function SankeyView({ budget, profile, categories, disposable, lc }: {
               <text x={x1 + 10} y={y0 + h / 2} dominantBaseline="central"
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
-                <tspan fontWeight={700}>{node.name}</tspan>
+                <tspan fontWeight={700}>{tc(node.name)}</tspan>
                 <tspan dx={6} fontWeight={500} opacity={0.6}>{formatKr(node.value ?? 0, lc)} kr.</tspan>
               </text>
             )}
@@ -300,6 +306,8 @@ export function SankeyDiagram({ budget, profile }: Props) {
   const isMobile = useIsMobile();
   const locale = useLocale();
   const lc = locale.currencyLocale;
+  const { t } = useI18n();
+  const tc = (name: string) => t(`cat.${name}`) || name;
 
   const { categories, disposable } = useMemo(() => {
     const categoryMap = new Map<string, number>();
@@ -320,9 +328,9 @@ export function SankeyDiagram({ budget, profile }: Props) {
       {/* Summary pills */}
       <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         {[
-          { label: "Indkomst", value: budget.totalIncome, accent: "text-primary" },
-          { label: "Udgifter", value: budget.totalExpenses, accent: "text-foreground" },
-          { label: "Til overs", value: budget.disposableIncome, accent: budget.disposableIncome >= 0 ? "text-primary" : "text-destructive" },
+          { label: t("sankey.income"), value: budget.totalIncome, accent: "text-primary" },
+          { label: t("sankey.expenses"), value: budget.totalExpenses, accent: "text-foreground" },
+          { label: t("sankey.leftOver"), value: budget.disposableIncome, accent: budget.disposableIncome >= 0 ? "text-primary" : "text-destructive" },
         ].map(s => (
           <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
@@ -334,9 +342,9 @@ export function SankeyDiagram({ budget, profile }: Props) {
       {/* Sankey (desktop) or Stacked Bar (mobile) */}
       <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4">
         {isMobile ? (
-          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} />
+          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} t={t} tc={tc} />
         ) : (
-          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} />
+          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} />
         )}
       </div>
     </div>

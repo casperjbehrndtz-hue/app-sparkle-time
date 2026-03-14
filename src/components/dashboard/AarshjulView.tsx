@@ -22,16 +22,13 @@ interface AnnualEvent {
   recurring: boolean;
 }
 
-const MONTH_NAMES_DA = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
-const MONTH_NAMES_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const MONTH_NAMES_NO = ["Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Des"];
 
 const fadeUp = { hidden: { opacity: 0, y: 10 }, visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.05 } }) };
 
 export function AarshjulView({ profile, budget }: Props) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const locale = useLocale();
-  const monthNames = lang === "nb" ? MONTH_NAMES_NO : lang === "da" ? MONTH_NAMES_DA : MONTH_NAMES_EN;
+  const monthNames = t("charts.monthNames").split(",");
   const currentMonth = new Date().getMonth();
 
   const events = useMemo(() => {

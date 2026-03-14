@@ -88,7 +88,7 @@ const typeStyles = {
 export function FremadView({ profile, budget, health }: Props) {
   const config = useWhiteLabel();
   const locale = useLocale();
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const isNO = locale.code === "no";
   const lc = locale.currencyLocale;
   const [rentRate, setRentRate] = useState(profile.interestRate || 5.0);
@@ -195,7 +195,7 @@ export function FremadView({ profile, budget, health }: Props) {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
-              <p className="text-[10px] text-muted-foreground mb-1">Boligværdi</p>
+              <p className="text-[10px] text-muted-foreground mb-1">{t("forward.propertyValue")}</p>
               <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue, lc)} kr.</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
@@ -208,7 +208,7 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-3">
-            💡 Rente: {profile.interestRate.toFixed(1)}% · Boligværdi er et estimat — justér i din profil.
+            💡 Rente: {profile.interestRate.toFixed(1)}% · {t("forward.propertyEstimate")}
           </p>
         </motion.div>
       )}
@@ -228,7 +228,7 @@ export function FremadView({ profile, budget, health }: Props) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-medium">Nødbuffer (3 mdr.)</span>
+                <span className="text-xs font-medium">{t("forward.emergencyBuffer")}</span>
               </div>
               <span className="text-xs text-muted-foreground">{formatKr(currentBuffer, lc)} / {formatKr(bufferGoal, lc)} kr.</span>
             </div>
@@ -248,7 +248,7 @@ export function FremadView({ profile, budget, health }: Props) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <PiggyBank className="w-3.5 h-3.5 text-kassen-gold" />
-                <span className="text-xs font-medium">Opsparingsrate</span>
+                <span className="text-xs font-medium">{t("forward.savingsRate")}</span>
               </div>
               <span className="text-xs text-muted-foreground">{health.savingsRate}% / 20% mål</span>
             </div>

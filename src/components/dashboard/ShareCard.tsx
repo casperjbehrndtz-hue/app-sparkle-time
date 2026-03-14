@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import type { HealthMetrics } from "@/lib/healthScore";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   health: HealthMetrics;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
+  const { t } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
   const scoreColor = health.score >= 75 ? "hsl(152, 55%, 40%)" : health.score >= 55 ? "hsl(38, 85%, 50%)" : "hsl(0, 72%, 51%)";
@@ -28,7 +30,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <span className="font-display font-black text-lg text-primary">Kassen</span>
-          <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">Økonomi-check</span>
+          <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">{t("share.economyCheck")}</span>
         </div>
 
         {/* Score + Key Metrics */}
@@ -52,15 +54,15 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Frihedstal</span>
+              <span className="text-muted-foreground">{t("share.freedomNumber")}</span>
               <span className="font-display font-bold">{formatKr(health.truths.freeCashFlow, lc)} kr.</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Opsparingsrate</span>
+              <span className="text-muted-foreground">{t("share.savingsRate")}</span>
               <span className="font-display font-bold">{health.savingsRate}%</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Buffer</span>
+              <span className="text-muted-foreground">{t("share.buffer")}</span>
               <span className="font-display font-bold">{health.bufferMonths} md.</span>
             </div>
           </div>
@@ -94,7 +96,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
 
       {/* Footer */}
       <div className="px-6 py-3 bg-primary/5 border-t border-border flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground">Beregnet med Kassen · 2026</span>
+        <span className="text-[10px] text-muted-foreground">{t("share.footer")}</span>
         <span className="text-[10px] font-semibold text-primary">kassen.dk</span>
       </div>
     </motion.div>

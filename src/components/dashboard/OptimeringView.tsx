@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, ExternalLink, CheckCircle2 } from "lucide-react
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 
 interface Props {
   profile: BudgetProfile;
@@ -23,6 +24,7 @@ const fadeUp = (i: number) => ({
 export function OptimeringView({ profile, budget, optimizations }: Props) {
   const [expanded, setExpanded] = useState<number | null>(0);
   const locale = useLocale();
+  const { t } = useI18n();
   const lc = locale.currencyLocale;
   const totalSavings = optimizations.reduce((s, o) => s + o.besparelse_kr, 0);
 
@@ -33,7 +35,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
         className="rounded-2xl p-6 border border-primary/20"
         style={{ background: "linear-gradient(135deg, hsl(150 100% 65% / 0.08), hsl(213 100% 65% / 0.05))" }}
       >
-        <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">Samlet potentiale</p>
+        <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">{t("optimize.totalPotential")}</p>
         <div className="flex items-end gap-2">
           <span className="font-display font-black text-4xl text-primary">{formatKr(totalSavings, lc)}</span>
           <span className="text-primary/70 text-lg mb-1">kr./md.</span>
@@ -49,8 +51,8 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
           className="rounded-2xl border border-border bg-card p-8 text-center"
         >
           <CheckCircle2 className="w-10 h-10 text-primary/40 mx-auto mb-3" />
-          <p className="font-semibold text-foreground mb-1">Din økonomi ser stærk ud</p>
-          <p className="text-sm text-muted-foreground">Vi fandt ingen åbenlyse besparelser — godt gået!</p>
+          <p className="font-semibold text-foreground mb-1">{t("optimize.lookingGood")}</p>
+          <p className="text-sm text-muted-foreground">{t("optimize.noSavings")}</p>
         </motion.div>
       )}
 
@@ -79,7 +81,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
                 <a href={opt.cta_url} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all shadow-sm"
                 >
-                  🚀 Gør det nu — {opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
+                  🚀 {t("optimize.doItNow")}{opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
                 </a>
                 <p className="text-[11px] text-muted-foreground/60 mt-2">Åbner ekstern side · Spar {formatKr(opt.besparelse_kr, lc)} kr./md.</p>
               </motion.div>
@@ -90,10 +92,10 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
 
       {/* Benchmark */}
       <motion.div variants={fadeUp(optimizations.length + 2)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
-        <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Danmarks Statistik benchmark</p>
+        <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("optimize.dstBenchmark")}</p>
         {[
-          { label: "DK-gennemsnit", amount: profile.householdType === "par" ? 12500 : 7200, isAvg: true },
-          { label: "Jeres rådighedsbeløb", amount: budget.disposableIncome, isAvg: false },
+          { label: t("optimize.dkAverage"), amount: profile.householdType === "par" ? 12500 : 7200, isAvg: true },
+          { label: t("optimize.yourDisposable"), amount: budget.disposableIncome, isAvg: false },
         ].map((item) => (
           <div key={item.label} className="mb-3 last:mb-0">
             <div className="flex justify-between text-sm mb-1">

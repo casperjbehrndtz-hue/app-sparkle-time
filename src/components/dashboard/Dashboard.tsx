@@ -211,9 +211,9 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               <FileText className="w-3 h-3" /> {t("dash.report")}
             </button>
             <button onClick={onReset}
-              title="Start forfra"
+              title={t("dash.startOver")}
               className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-destructive/5">
-              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">Nulstil</span>
+              <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.reset")}</span>
             </button>
             {user ? (
               <button onClick={signOut}
@@ -235,7 +235,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       {/* Financial disclaimer */}
       <div className="max-w-2xl mx-auto px-5 pt-3">
         <p className="text-[10px] text-muted-foreground/60 text-center">
-          Kassen er et budgetværktøj — ikke finansiel rådgivning.{" "}
+          {t("dash.disclaimer")}{" "}
           <Link to="/vilkaar" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Vilkår</Link>
         </p>
       </div>
@@ -271,8 +271,8 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             >
               <span className="text-lg">✨</span>
               <div className="text-left">
-                <p className="text-sm font-bold text-primary">Lad AI finde dine besparelser</p>
-                <p className="text-xs text-muted-foreground">Guidet gennemgang — du bestemmer hvad du vil gøre</p>
+                <p className="text-sm font-bold text-primary">{t("dash.aiTitle")}</p>
+                <p className="text-xs text-muted-foreground">{t("dash.aiSubtitle")}</p>
               </div>
               <span className="ml-auto text-primary/50 group-hover:text-primary transition-colors text-lg">→</span>
             </button>

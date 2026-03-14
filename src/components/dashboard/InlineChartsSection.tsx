@@ -4,6 +4,7 @@ import {
 } from "recharts";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
@@ -30,23 +31,25 @@ export function InlineChartsSection({ profile: _profile, budget }: Props) {
 }
 
 function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: string }) {
+  const { t } = useI18n();
   const monthly = budget.disposableIncome;
   const seasonalFactors = [0.85, 0.95, 1.0, 1.05, 1.0, 0.9, 0.7, 0.95, 1.0, 1.05, 0.95, 0.6];
-  const months = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
+  const monthNames = t("charts.monthNames").split(",");
+  const disposableLabel = t("charts.disposable");
 
-  const data = months.map((m, i) => ({
+  const data = monthNames.map((m, i) => ({
     name: m,
-    Rådighedsbeløb: Math.round(monthly * seasonalFactors[i]),
+    value: Math.round(monthly * seasonalFactors[i]),
   }));
-  const avg = Math.round(data.reduce((s, d) => s + d.Rådighedsbeløb, 0) / 12);
+  const avg = Math.round(data.reduce((s, d) => s + d.value, 0) / 12);
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-3 gap-1.5">
         {[
-          { label: "Gennemsnit", value: avg },
-          { label: "Laveste", value: Math.min(...data.map((d) => d.Rådighedsbeløb)) },
-          { label: "Højeste", value: Math.max(...data.map((d) => d.Rådighedsbeløb)) },
+          { label: t("charts.average"), value: avg },
+          { label: t("charts.lowest"), value: Math.min(...data.map((d) => d.value)) },
+          { label: t("charts.highest"), value: Math.max(...data.map((d) => d.value)) },
         ].map((s) => (
           <div key={s.label} className="text-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
@@ -74,12 +77,12 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
                 return (
                   <ChartTooltipBox>
                     <p className="font-semibold text-foreground mb-1">{d.name}</p>
-                    <p className="font-display font-bold text-base text-primary">{formatKr(d.Rådighedsbeløb, lc)} kr.</p>
+                    <p className="font-display font-bold text-base text-primary">{formatKr(d.value, lc)} kr.</p>
                   </ChartTooltipBox>
                 );
               }}
             />
-            <Area type="monotone" dataKey="Rådighedsbeløb" stroke="#2563eb" strokeWidth={2.5} fill="url(#inlineAreaGrad)" dot={{ r: 3, fill: "#2563eb", stroke: "#fff", strokeWidth: 2 }} activeDot={{ r: 5 }} />
+            <Area type="monotone" dataKey="value" name={disposableLabel} stroke="#2563eb" strokeWidth={2.5} fill="url(#inlineAreaGrad)" dot={{ r: 3, fill: "#2563eb", stroke: "#fff", strokeWidth: 2 }} activeDot={{ r: 5 }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
