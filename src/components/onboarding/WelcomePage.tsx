@@ -55,7 +55,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       <section className="bg-hero-navy overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0 relative z-10">
-            <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
+            <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] md:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5 break-words">
               {t("hero.title")}<br />
               <span className="text-white">{t("hero.titleHighlight")}</span>
             </h1>
