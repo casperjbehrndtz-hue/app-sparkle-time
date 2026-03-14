@@ -966,4 +966,16 @@ export const DA: Record<string, string> = {
   // Index page
   "confirm.resetBudget": "Er du sikker? Dette sletter dit nuværende budget og starter forfra.",
   "confirm.editProfile": "Vil du redigere dine oplysninger? Dine nuværende data bruges som udgangspunkt.",
+
+  // Admin
+  "admin.title": "SEO Indholdskø",
+  "admin.draftsAwait": "udkast afventer godkendelse",
+  "admin.refresh": "Opdater",
+  "admin.emptyQueue": "Ingen udkast i kø. Næste artikel genereres automatisk.",
+  "admin.readTime": "læsetid",
+  "admin.approve": "Godkend",
+  "admin.reject": "Afvis",
+  "admin.published": "Artikel publiceret!",
+  "admin.rejected": "Udkast afvist",
+  "admin.error": "Fejl",
 };

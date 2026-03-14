@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle, XCircle, Loader2, Eye, EyeOff, Clock, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useI18n } from "@/lib/i18n";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 // Admin emails — set VITE_ADMIN_EMAILS in .env (comma-separated)
@@ -39,6 +40,7 @@ function renderMarkdown(content: string) {
 }
 
 export default function Admin() {
+  const { t } = useI18n();
   usePageMeta("Admin — Kassen", "");
 
   const [user, setUser] = useState<{ email?: string } | null | undefined>(undefined);
@@ -92,11 +94,11 @@ export default function Admin() {
     setActionLoading(null);
 
     if (json.success) {
-      setToast({ msg: action === "approve" ? "Artikel publiceret!" : "Udkast afvist", type: "ok" });
+      setToast({ msg: action === "approve" ? t("admin.published") : t("admin.rejected"), type: "ok" });
       setDrafts(prev => prev.filter(d => d.id !== draftId));
       setPreviewId(null);
     } else {
-      setToast({ msg: json.error ?? "Fejl", type: "err" });
+      setToast({ msg: json.error ?? t("admin.error"), type: "err" });
     }
 
     setTimeout(() => setToast(null), 3000);
@@ -132,7 +134,7 @@ export default function Admin() {
           </Link>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />
-            <h1 className="font-display font-bold text-base">SEO Indholdskø</h1>
+            <h1 className="font-display font-bold text-base">{t("admin.title")}</h1>
           </div>
           <span className="text-xs text-muted-foreground">{user?.email}</span>
         </div>
@@ -143,13 +145,13 @@ export default function Admin() {
         <div className="flex items-center gap-4 mb-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
-            <span><strong className="text-foreground">{drafts.length}</strong> udkast afventer godkendelse</span>
+            <span><strong className="text-foreground">{drafts.length}</strong> {t("admin.draftsAwait")}</span>
           </div>
           <button
             onClick={fetchDrafts}
             className="text-xs text-primary hover:underline"
           >
-            Opdater
+            {t("admin.refresh")}
           </button>
         </div>
 
@@ -160,7 +162,7 @@ export default function Admin() {
         ) : drafts.length === 0 ? (
           <div className="text-center py-20">
             <CheckCircle className="w-10 h-10 text-green-500/40 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">Ingen udkast i kø. Næste artikel genereres automatisk.</p>
+            <p className="text-muted-foreground text-sm">{t("admin.emptyQueue")}</p>
           </div>
         ) : (
           <div className="grid lg:grid-cols-2 gap-4">
@@ -183,7 +185,7 @@ export default function Admin() {
                   </div>
                   <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{draft.excerpt}</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground/60">{draft.read_time} læsetid · {new Date(draft.created_at).toLocaleDateString("da-DK")}</span>
+                    <span className="text-[10px] text-muted-foreground/60">{draft.read_time} {t("admin.readTime")} · {new Date(draft.created_at).toLocaleDateString("da-DK")}</span>
                     <div className="flex gap-1 ml-auto">
                       {draft.keywords?.map(k => (
                         <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{k}</span>
@@ -199,7 +201,7 @@ export default function Admin() {
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
                     >
                       {actionLoading === draft.id + "approve" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                      Godkend
+                      {t("admin.approve")}
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAction(draft.id, "reject"); }}
@@ -207,7 +209,7 @@ export default function Admin() {
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-border text-sm text-muted-foreground hover:bg-muted/50 transition-colors disabled:opacity-50"
                     >
                       {actionLoading === draft.id + "reject" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
-                      Afvis
+                      {t("admin.reject")}
                     </button>
                   </div>
                 </div>
@@ -217,7 +219,7 @@ export default function Admin() {
             {/* Preview panel */}
             {previewing && (
               <div className="rounded-2xl border border-border bg-card p-6 overflow-y-auto max-h-[80vh] sticky top-20">
-                <p className="text-xs text-muted-foreground mb-2">{previewing.read_time} læsetid</p>
+                <p className="text-xs text-muted-foreground mb-2">{previewing.read_time} {t("admin.readTime")}</p>
                 <h1 className="font-display font-black text-xl mb-6 leading-tight">{previewing.title}</h1>
                 <div className="prose-content space-y-0.5">
                   {renderMarkdown(previewing.content)}

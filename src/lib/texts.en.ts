@@ -966,4 +966,16 @@ export const EN: Record<string, string> = {
   // Index page
   "confirm.resetBudget": "Are you sure? This will delete your current budget and start over.",
   "confirm.editProfile": "Do you want to edit your details? Your current data will be used as a starting point.",
+
+  // Admin
+  "admin.title": "SEO Content Queue",
+  "admin.draftsAwait": "drafts awaiting approval",
+  "admin.refresh": "Refresh",
+  "admin.emptyQueue": "No drafts in queue. Next article will be generated automatically.",
+  "admin.readTime": "read time",
+  "admin.approve": "Approve",
+  "admin.reject": "Reject",
+  "admin.published": "Article published!",
+  "admin.rejected": "Draft rejected",
+  "admin.error": "Error",
 };
