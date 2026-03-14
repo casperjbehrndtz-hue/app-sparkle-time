@@ -53,9 +53,9 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
 
       {/* Hero */}
       <section className="bg-hero-navy overflow-hidden">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24 grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-24 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0 relative z-10">
-            <h1 className="font-display font-black text-[1.75rem] sm:text-[2.25rem] lg:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
+            <h1 className="font-display font-black text-[1.75rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5">
               {t("hero.title")}<br />
               <span className="text-white">{t("hero.titleHighlight")}</span>
             </h1>
@@ -73,7 +73,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               )}
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }} className="hidden md:block">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }} className="hidden lg:block">
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/30 bg-hero-navy">
               <img src={heroCouple} alt="" aria-hidden="true" className="w-full h-full object-cover" />
             </div>
