@@ -7,7 +7,6 @@ import { useI18n } from "@/lib/i18n";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
 import { AILiveComment } from "./AILiveComment";
-import { WelcomePage } from "./WelcomePage";
 import {
   pageVariants, STEPS, getStepIndex,
   LiveBudgetBar, StepIndicator,
@@ -79,7 +78,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const restored = !isEditing ? loadOnboardingState() : null;
 
   const [step, setStep] = useState<OnboardingStep>(
-    isEditing ? "household" : restored?.step ?? "welcome"
+    isEditing ? "household" : (restored?.step && restored.step !== "welcome") ? restored.step : "household"
   );
   const [direction, setDirection] = useState(1);
   const [profile, setProfile] = useState<BudgetProfile>(
@@ -98,9 +97,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
   // Persist onboarding state to sessionStorage on changes
   useEffect(() => {
-    if (step !== "welcome") {
-      saveOnboardingState(step, profile, childAgeInputs);
-    }
+    saveOnboardingState(step, profile, childAgeInputs);
   }, [step, profile, childAgeInputs]);
 
   const locale = useLocale();
@@ -123,13 +120,6 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
     const idx = getStepIndex(step);
     if (idx > 1) setStep(STEPS[idx - 1]);
   };
-  const startOnboarding = () => { setDirection(1); setStep("household"); };
-
-  // ─── WELCOME ─────────────────────────────
-  if (step === "welcome") {
-    return <WelcomePage onStart={startOnboarding} />;
-  }
-
   // ─── STEP CONTENT RENDERER ───────────────
   const renderStepContent = () => {
     switch (step) {
@@ -439,9 +429,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <span className="text-xs text-muted-foreground">kr./md.</span>
               </div>
             </div>
-            <div style={{ touchAction: "pan-y" }}>
-              <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" />
-            </div>
+            <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" />
             <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
               <span>{formatKr(min)}</span><span>{formatKr(max)}</span>
             </div>
