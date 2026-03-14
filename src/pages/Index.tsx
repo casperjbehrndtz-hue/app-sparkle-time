@@ -24,7 +24,14 @@ const Index = () => {
   const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
   const { data: marketData } = useMarketData();
-  const [profile, setProfile] = useState<BudgetProfile | null>(null);
+  const [profile, setProfile] = useState<BudgetProfile | null>(() => {
+    // Sync init from localStorage so returning users skip WelcomePage immediately
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return parseProfile(JSON.parse(saved));
+    } catch {}
+    return null;
+  });
   const [showHome, setShowHome] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -158,7 +165,7 @@ const Index = () => {
   }
 
   // Forside — vises når bruger klikker "Hjem" fra dashboard, eller ingen profil
-  if (showHome || (showLanding && !profile && !authLoading && !editingProfile)) {
+  if (showHome || (showLanding && !profile && !editingProfile)) {
     return (
       <WelcomePage
         onStart={() => { setShowHome(false); setShowLanding(false); }}

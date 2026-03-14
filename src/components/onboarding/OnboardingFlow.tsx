@@ -730,7 +730,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
         </div>
       </header>
-      <div ref={contentRef} className="flex-1 px-5 py-8 overflow-y-auto overscroll-contain" style={{ paddingBottom: liveBudget ? "7rem" : "2rem" }}>
+      <div ref={contentRef} className="flex-1 min-h-0 px-5 py-8 overflow-y-auto overscroll-contain" style={{ paddingBottom: liveBudget ? "10rem" : "3rem" }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div key={step} custom={direction} variants={pageVariants} initial="enter" animate="center" exit="exit">
             {renderStepContent()}

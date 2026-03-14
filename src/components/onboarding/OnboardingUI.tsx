@@ -177,7 +177,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
         />
         <span className="text-lg text-muted-foreground font-display">{suffix}</span>
       </div>
-      <div style={{ touchAction: "none" }}>
+      <div style={{ touchAction: "pan-y" }}>
         <Slider
           min={min} max={max} step={step}
           value={[value]}
