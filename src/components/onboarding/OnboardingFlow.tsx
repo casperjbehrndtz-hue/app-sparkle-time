@@ -717,7 +717,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-dvh bg-background flex flex-col">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 1 ? (
