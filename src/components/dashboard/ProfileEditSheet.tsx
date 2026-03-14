@@ -125,10 +125,10 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
                   onChange={(e) => set("housingType", e.target.value as BudgetProfile["housingType"])}
                   className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
                 >
-                  <option value="leje">Leje</option>
-                  <option value="ejer">Ejer</option>
-                  <option value="andel">Andel</option>
-                  <option value="ungdomsbolig">Ungdomsbolig</option>
+                  <option value="leje">{t("profile.housingLeje")}</option>
+                  <option value="ejer">{t("profile.housingEjer")}</option>
+                  <option value="andel">{t("profile.housingAndel")}</option>
+                  <option value="ungdomsbolig">{t("profile.housingUngdomsbolig")}</option>
                 </select>
               </Field>
               {(p.housingType === "leje" || p.housingType === "andel" || p.housingType === "ungdomsbolig") && (
@@ -199,13 +199,13 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.subscriptions")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
               {([
-                ["Netflix (149 kr.)", "hasNetflix"],
-                ["Spotify (109 kr.)", "hasSpotify"],
-                ["HBO Max (99 kr.)", "hasHBO"],
-                ["Viaplay (99 kr.)", "hasViaplay"],
-                ["Disney+ (99 kr.)", "hasDisney"],
-                ["Apple TV+ (59 kr.)", "hasAppleTV"],
-                ["Amazon Prime (89 kr.)", "hasAmazonPrime"],
+                [t("profile.netflix"), "hasNetflix"],
+                [t("profile.spotify"), "hasSpotify"],
+                [t("profile.hboMax"), "hasHBO"],
+                [t("profile.viaplay"), "hasViaplay"],
+                [t("profile.disneyPlus"), "hasDisney"],
+                [t("profile.appleTvPlus"), "hasAppleTV"],
+                [t("profile.amazonPrime"), "hasAmazonPrime"],
               ] as [string, keyof BudgetProfile][]).map(([label, key]) => (
                 <Field key={key} label={label}>
                   <Toggle checked={!!p[key]} onChange={(v) => set(key, v as never)} />

@@ -94,7 +94,7 @@ export function FremadView({ profile, budget, health }: Props) {
   const [rentRate, setRentRate] = useState(profile.interestRate || 5.0);
   const events = generateEvents(profile, lang, isNO);
 
-  const mortgageBase = budget.fixedExpenses.find((e) => e.label.includes("oliglån"))?.amount ?? 0;
+  const mortgageBase = budget.fixedExpenses.find((e) => e.label.includes(t("forward.mortgageSearch")))?.amount ?? 0;
   const rentImpact = mortgageBase > 0 ? Math.round(((rentRate - (profile.interestRate || 5.0)) * 0.005) * mortgageBase) : 0;
   const simulatedDisposable = budget.disposableIncome - rentImpact;
 
@@ -162,7 +162,7 @@ export function FremadView({ profile, budget, health }: Props) {
               <XAxis dataKey="years" tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${v} ${t("forward.years")}`} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} axisLine={false} tickLine={false} width={40} />
               <Tooltip
-                formatter={(val: number) => [`${formatKr(val, lc)} kr.`, "Forventet formue"]}
+                formatter={(val: number) => [`${formatKr(val, lc)} kr.`, t("forward.expectedWealth")]}
                 contentStyle={{ background: "white", border: "1px solid hsl(150,8%,91%)", borderRadius: "10px", fontSize: "13px", boxShadow: "0 4px 12px hsl(0 0% 0% / 0.06)" }}
               />
               <Bar dataKey="amount" fill="hsl(213, 80%, 50%)" radius={[6, 6, 0, 0]} maxBarSize={40} />
@@ -208,7 +208,7 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-3">
-            💡 Rente: {profile.interestRate.toFixed(1)}% · {t("forward.propertyEstimate")}
+            💡 {t("forward.interestLabel")} {profile.interestRate.toFixed(1)}% · {t("forward.propertyEstimate")}
           </p>
         </motion.div>
       )}
@@ -240,7 +240,7 @@ export function FremadView({ profile, budget, health }: Props) {
                 className="h-full rounded-full bg-primary"
               />
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{bufferProgress}% af mål</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{bufferProgress}% {t("forward.ofGoal")}</p>
           </div>
 
           {/* Savings rate goal */}
@@ -250,7 +250,7 @@ export function FremadView({ profile, budget, health }: Props) {
                 <PiggyBank className="w-3.5 h-3.5 text-kassen-gold" />
                 <span className="text-xs font-medium">{t("forward.savingsRate")}</span>
               </div>
-              <span className="text-xs text-muted-foreground">{health.savingsRate}% / 20% mål</span>
+              <span className="text-xs text-muted-foreground">{health.savingsRate}% / 20% {t("forward.goalLabel")}</span>
             </div>
             <div className="h-2.5 rounded-full bg-muted overflow-hidden">
               <motion.div
@@ -262,7 +262,7 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
               {health.savingsRate >= 20
-                ? (lang === "nb" ? "✅ Du overstiger anbefalingen!" : lang === "en" ? "✅ You exceed the recommendation!" : "✅ Du overstiger anbefalingen!")
+                ? `✅ ${t("forward.exceedsRecommendation")}`
                 : lang === "nb"
                 ? `Øk med ${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome, lc)} kr./md. for å nå 20%`
                 : lang === "en"
@@ -280,7 +280,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
             <span className={`font-display font-bold text-lg ${simulatedDisposable > 5000 ? "text-primary" : simulatedDisposable > 0 ? "text-kassen-gold" : "text-destructive"}`}>
-              {formatKr(simulatedDisposable, lc)} kr. tilbage
+              {formatKr(simulatedDisposable, lc)} {t("forward.leftAfter")}
             </span>
           </div>
           <input
@@ -290,14 +290,14 @@ export function FremadView({ profile, budget, health }: Props) {
             style={{ accentColor: "hsl(var(--primary))" }}
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>1%</span><span>Aktuel ~{(profile.interestRate || 5.0).toFixed(1)}%</span><span>10%</span>
+            <span>1%</span><span>{t("forward.currentLabel")} ~{(profile.interestRate || 5.0).toFixed(1)}%</span><span>10%</span>
           </div>
           {simulatedDisposable < 3000 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">
               <p className="text-sm text-destructive font-semibold mb-1">⚠️ {t("forward.vulnerableEconomy")}</p>
               <p className="text-xs text-muted-foreground mb-2">{t("forward.refinanceAdvice")}</p>
               <a href={config.ctaLinks.mortgage?.url || "https://parfinans.dk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
-                {config.ctaLinks.mortgage?.label || "Se hvad refinansiering kan gøre →"}
+                {config.ctaLinks.mortgage?.label || t("forward.seeRefinance")}
               </a>
             </motion.div>
           )}

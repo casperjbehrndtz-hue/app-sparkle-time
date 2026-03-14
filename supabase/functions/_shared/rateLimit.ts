@@ -33,7 +33,7 @@ export async function checkRateLimit(
     await supabase.from("api_rate_limits").update({ count: data.count + 1 }).eq("id", id);
     return true;
   } catch {
-    // If rate limit check fails, allow the request (fail open)
-    return true;
+    // Fail closed — reject request if rate limit check fails
+    return false;
   }
 }

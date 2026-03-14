@@ -6,6 +6,7 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 
 // ─── Static seed articles (always shown, no DB required) ─────────────────────
 const STATIC_ARTICLES = [
@@ -53,6 +54,7 @@ type DBArticle = {
 
 export default function Blog() {
   const config = useWhiteLabel();
+  const { t } = useI18n();
   usePageMeta(
     "Guides & tips — Kassen",
     "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget."
@@ -102,22 +104,22 @@ export default function Blog() {
           <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" /> {config.brandName}
           </Link>
-          <h1 className="font-display font-bold text-base">Guides & tips</h1>
+          <h1 className="font-display font-bold text-base">{t("blog.headerTitle")}</h1>
         </div>
       </header>
 
       <section className="bg-muted/30 py-10 sm:py-16">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-3">
-            Bliv klogere på din økonomi
+            {t("blog.heroTitle")}
           </h2>
           <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-            Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi.
+            {t("blog.heroSubtitle")}
           </p>
           <div className="relative max-w-sm mx-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
-              placeholder="Søg i guides..."
+              placeholder={t("blog.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -147,7 +149,7 @@ export default function Blog() {
                 </div>
                 <h3 className="font-semibold text-[15px] mb-2 text-foreground leading-snug">{article.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-3">{article.excerpt}</p>
-                <span className="text-xs text-muted-foreground/60">{article.readTime} læsetid</span>
+                <span className="text-xs text-muted-foreground/60">{article.readTime} {t("blog.readTime")}</span>
               </Link>
             </motion.div>
           ))}
@@ -156,10 +158,10 @@ export default function Blog() {
 
       <section className="bg-primary py-12">
         <div className="max-w-md mx-auto px-4 text-center">
-          <h3 className="font-display font-bold text-xl text-primary-foreground mb-2">Prøv {config.brandName} gratis</h3>
-          <p className="text-primary-foreground/60 text-sm mb-5">Beregn dit rådighedsbeløb på 3 minutter</p>
+          <h3 className="font-display font-bold text-xl text-primary-foreground mb-2">{t("blog.ctaTitle").replace("{brand}", config.brandName)}</h3>
+          <p className="text-primary-foreground/60 text-sm mb-5">{t("blog.ctaSubtitle")}</p>
           <Link to="/" className="inline-block px-6 py-3 rounded-xl bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
-            Kom i gang →
+            {t("blog.ctaButton")}
           </Link>
         </div>
       </section>

@@ -70,7 +70,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               {t("onboarding.seeOverview")} <ArrowRight className="w-3 h-3" />
             </button>
           ) : (
-            <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% af indkomst</span>
+            <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% {t("onboarding.ofIncome")}</span>
           )}
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden flex">
@@ -238,7 +238,9 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
 }
 
 // ─── Continue button ──────────────────────────────────────
-export function ContinueButton({ onClick, disabled, label = "Fortsæt" }: { onClick: () => void; disabled?: boolean; label?: string }) {
+export function ContinueButton({ onClick, disabled, label }: { onClick: () => void; disabled?: boolean; label?: string }) {
+  const { t: tFn } = useI18n();
+  const resolvedLabel = label ?? tFn("continue");
   return (
     <motion.button
       whileHover={{ scale: 1.01, y: -1 }}
@@ -247,7 +249,7 @@ export function ContinueButton({ onClick, disabled, label = "Fortsæt" }: { onCl
       disabled={disabled}
       className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
-      {label} <ArrowRight className="w-4 h-4" />
+      {resolvedLabel} <ArrowRight className="w-4 h-4" />
     </motion.button>
   );
 }

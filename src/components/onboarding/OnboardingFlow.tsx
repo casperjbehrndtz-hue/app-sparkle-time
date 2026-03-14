@@ -567,8 +567,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Hverdagsudgifter (kompakte sliders) ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">Hverdagsudgifter</h3>
-              <p className="text-xs text-muted-foreground mb-3">Vi har estimeret disse — ret dem hvis de ikke passer</p>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{t("onboarding.everydayExpenses")}</h3>
+              <p className="text-xs text-muted-foreground mb-3">{t("onboarding.estimatedAdjust")}</p>
               <div className="space-y-2">
                 <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} />
                 <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} />
@@ -646,7 +646,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <p className="text-sm text-muted-foreground mt-3">
                   {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
                 </p>
-                <p className="text-xs text-muted-foreground/60 mt-2">pr. måned efter alle udgifter</p>
+                <p className="text-xs text-muted-foreground/60 mt-2">{t("onboarding.perMonthAfterExpenses")}</p>
               </div>
             </motion.div>
 

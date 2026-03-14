@@ -75,7 +75,7 @@ function StorySection({ id, title, subtitle, children, delay = 0 }: {
 }
 
 // ─── Section nav ─────────────────────────────────────
-function SectionNav({ sections, activeSection }: { sections: { id: string; label: string; emoji: string }[]; activeSection: string }) {
+function SectionNav({ sections, activeSection, ariaLabel }: { sections: { id: string; label: string; emoji: string }[]; activeSection: string; ariaLabel: string }) {
   return (
     <div className="sticky top-[57px] z-30 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <div className="relative">
@@ -85,7 +85,7 @@ function SectionNav({ sections, activeSection }: { sections: { id: string; label
         <div
           className="max-w-2xl mx-auto px-5 py-2 flex gap-1 overflow-x-auto scrollbar-hide"
           role="navigation"
-          aria-label="Sektionstabs"
+          aria-label={ariaLabel}
         >
           {sections.map((s) => (
             <button
@@ -230,7 +230,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         </div>
       </header>
 
-      <SectionNav sections={sections} activeSection={activeSection} />
+      <SectionNav sections={sections} activeSection={activeSection} ariaLabel={t("dash.sectionTabs")} />
 
       {/* Financial disclaimer */}
       <div className="max-w-2xl mx-auto px-5 pt-3">

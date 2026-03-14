@@ -29,7 +29,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
       <div className="p-6 space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <span className="font-display font-black text-lg text-primary">Kassen</span>
+          <span className="font-display font-black text-lg text-primary">{t("share.brandName")}</span>
           <span className="text-[10px] text-muted-foreground/60 uppercase tracking-widest">{t("share.economyCheck")}</span>
         </div>
 
@@ -89,7 +89,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
             })}
           </div>
           <div className="flex justify-between mt-1.5 text-[9px] text-muted-foreground">
-            <span>⚙️ Drift</span><span>✨ Frihed</span><span>📈 Fremtid</span><span>🛡️ Risiko</span>
+            <span>⚙️ {t("share.bucketDrift")}</span><span>✨ {t("share.bucketFrihed")}</span><span>📈 {t("share.bucketFremtid")}</span><span>🛡️ {t("share.bucketRisiko")}</span>
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
       {/* Footer */}
       <div className="px-6 py-3 bg-primary/5 border-t border-border flex items-center justify-between">
         <span className="text-[10px] text-muted-foreground">{t("share.footer")}</span>
-        <span className="text-[10px] font-semibold text-primary">kassen.dk</span>
+        <span className="text-[10px] font-semibold text-primary">{t("share.brandUrl")}</span>
       </div>
     </motion.div>
   );

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Download, CheckCircle, Smartphone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useI18n } from "@/lib/i18n";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -14,9 +15,10 @@ const Install = () => {
   const [installed, setInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const navigate = useNavigate();
+  const { t } = useI18n();
   usePageMeta(
-    "Installér Kassen — Gratis budget-app",
-    "Installér Kassen som app på din telefon — uden app store. Få hurtigt overblik over dit budget."
+    t("install.pageTitle"),
+    t("install.pageDesc")
   );
 
   useEffect(() => {
@@ -60,12 +62,12 @@ const Install = () => {
 
         <div>
           <h1 className="font-display font-black text-2xl text-foreground mb-2">
-            {installed ? "Kassen er installeret!" : "Installér Kassen"}
+            {installed ? t("install.installed") : t("install.title")}
           </h1>
           <p className="text-muted-foreground text-sm">
             {installed
-              ? "Åbn appen fra din hjemmeskærm for den bedste oplevelse."
-              : "Få Kassen som app på din telefon — uden app store."}
+              ? t("install.installedDesc")
+              : t("install.desc")}
           </p>
         </div>
 
@@ -74,7 +76,7 @@ const Install = () => {
             onClick={() => navigate("/")}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
           >
-            Gå til Kassen →
+            {t("install.goToApp")}
           </button>
         ) : deferredPrompt ? (
           <button
@@ -82,29 +84,29 @@ const Install = () => {
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Installér nu
+            {t("install.installNow")}
           </button>
         ) : isIOS ? (
           <div className="rounded-xl border border-border bg-card p-5 text-left space-y-3">
-            <p className="text-sm font-medium text-foreground">Sådan installerer du på iPhone:</p>
+            <p className="text-sm font-medium text-foreground">{t("install.iosTitle")}</p>
             <ol className="text-sm text-muted-foreground space-y-2">
               <li className="flex gap-2">
                 <span className="font-bold text-foreground">1.</span>
-                Tryk på <span className="inline-flex items-center px-1.5 py-0.5 bg-muted rounded text-xs font-medium">Del ↑</span> i Safari
+                {t("install.iosStep1")} <span className="inline-flex items-center px-1.5 py-0.5 bg-muted rounded text-xs font-medium">{t("install.iosStep1Share")}</span> {t("install.iosStep1Suffix")}
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-foreground">2.</span>
-                Vælg &quot;Føj til hjemmeskærm&quot;
+                {t("install.iosStep2")}
               </li>
               <li className="flex gap-2">
                 <span className="font-bold text-foreground">3.</span>
-                Tryk &quot;Tilføj&quot;
+                {t("install.iosStep3")}
               </li>
             </ol>
           </div>
         ) : (
           <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
-            Åbn denne side i Chrome eller Safari for at installere appen.
+            {t("install.openInBrowser")}
           </div>
         )}
 
@@ -112,7 +114,7 @@ const Install = () => {
           onClick={() => navigate("/")}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          ← Tilbage til Kassen
+          {t("install.back")}
         </button>
       </motion.div>
     </div>

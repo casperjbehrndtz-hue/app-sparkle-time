@@ -98,7 +98,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         label: t("neighbor.food"),
         yours: profile.foodAmount,
         avg: BENCHMARKS.food[b],
-        action: { label: "Justér madbudget", section: "handling" },
+        action: { label: t("neighbor.adjustFood"), section: "handling" },
         unit: "kr./md.",
       },
       {
@@ -106,7 +106,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         label: t("neighbor.restaurant"),
         yours: profile.restaurantAmount,
         avg: BENCHMARKS.restaurant[b],
-        action: { label: "Se besparelsesforslag", section: "handling" },
+        action: { label: t("neighbor.seeSavings"), section: "handling" },
         unit: "kr./md.",
       },
       {
@@ -114,7 +114,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         label: profile.hasCar ? t("neighbor.transportCar") : t("neighbor.transport"),
         yours: profile.hasCar ? transportCost : 0,
         avg: profile.hasCar ? BENCHMARKS.transport[b] : 0,
-        action: { label: "Se transportoptimering", section: "handling" },
+        action: { label: t("neighbor.seeTransport"), section: "handling" },
         unit: "kr./md.",
         skip: !profile.hasCar,
       },
@@ -123,7 +123,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         label: t("neighbor.streaming"),
         yours: streamingCost,
         avg: BENCHMARKS.streaming[b],
-        action: { label: "Gennemgå abonnementer", section: "handling" },
+        action: { label: t("neighbor.reviewSubs"), section: "handling" },
         unit: "kr./md.",
       },
       {
@@ -131,7 +131,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         label: t("neighbor.leisure"),
         yours: profile.leisureAmount,
         avg: BENCHMARKS.leisure[b],
-        action: { label: "Se fritidsbudget", section: "handling" },
+        action: { label: t("neighbor.seeLeisure"), section: "handling" },
         unit: "kr./md.",
       },
     ].filter(c => !c.skip);
@@ -162,20 +162,20 @@ export function NaboeffektView({ profile, budget }: Props) {
         {isAboveAvg ? (
           <div>
             <p className="font-display font-bold text-xl text-primary">
-              {isPar ? "I er" : "Du er"} foran gennemsnittet 🎉
+              {isPar ? t("neighbor.aheadOfAvgPar") : t("neighbor.aheadOfAvgSolo")} 🎉
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              {isPar ? "I har" : "Du har"} <strong className="text-foreground">{formatKr(overallDiff)} kr. mere</strong> til overs end andre med din profil.
+              {isPar ? t("neighbor.moreLeftPar") : t("neighbor.moreLeftSolo")} <strong className="text-foreground">{formatKr(overallDiff)} {t("neighbor.moreLeftSuffix")}</strong>
             </p>
           </div>
         ) : (
           <div>
             <p className="font-display font-bold text-xl">
-              Potentiel besparelse: <span className="text-amber-600 dark:text-amber-400">{formatKr(overallDiff)} kr./md.</span>
+              {t("neighbor.potentialSaving")} <span className="text-amber-600 dark:text-amber-400">{formatKr(overallDiff)} kr./md.</span>
             </p>
             {biggest && biggest.delta > 0 && (
               <p className="text-sm text-muted-foreground mt-1">
-                Største mulighed: <strong className="text-foreground">{biggest.label}</strong> — {formatKr(biggest.delta)} kr. over typisk
+                {t("neighbor.biggestOpportunity")} <strong className="text-foreground">{biggest.label}</strong> — {formatKr(biggest.delta)} {t("neighbor.overTypical")}
               </p>
             )}
           </div>
@@ -188,8 +188,8 @@ export function NaboeffektView({ profile, budget }: Props) {
           className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
           <span className="text-xl">🏠</span>
           <div className="flex-1">
-            <p className="text-sm font-semibold">{t("neighbor.housingCost")} {housingPct}% af indkomsten</p>
-            <p className="text-xs text-muted-foreground">Eksperter anbefaler maks 33% — {isPar ? "I bruger" : "du bruger"} {housingPct - BENCHMARKS.housing_pct} procentpoint mere</p>
+            <p className="text-sm font-semibold">{t("neighbor.housingCost")} {housingPct}% {t("neighbor.ofIncome")}</p>
+            <p className="text-xs text-muted-foreground">{t("neighbor.expertsRecommend")} {isPar ? t("neighbor.youUsePar") : t("neighbor.youUseSolo")} {housingPct - BENCHMARKS.housing_pct} {t("neighbor.percentPointMore")}</p>
           </div>
         </motion.div>
       )}
@@ -220,15 +220,15 @@ export function NaboeffektView({ profile, budget }: Props) {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-xs text-muted-foreground">
-                      {isPar ? "Jer" : "Dig"}: <span className="text-foreground font-medium">{formatKr(card.yours)} kr.</span>
+                      {isPar ? t("neighbor.youLabelPar") : t("neighbor.youLabel")}: <span className="text-foreground font-medium">{formatKr(card.yours)} kr.</span>
                       <span className="mx-1.5 opacity-40">·</span>
-                      Typisk: {formatKr(card.avg)} kr.
+                      {t("neighbor.typicalLabel")}: {formatKr(card.avg)} kr.
                     </p>
                     {status !== "good" && (
                       <button
                         onClick={() => document.getElementById("handling")?.scrollIntoView({ behavior: "smooth" })}
                         className="inline-flex items-center gap-0.5 text-[11px] font-medium text-primary hover:text-primary/70 transition-colors shrink-0">
-                        Optimer <ChevronRight className="w-3 h-3" />
+                        {t("neighbor.optimize")} <ChevronRight className="w-3 h-3" />
                       </button>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export function NaboeffektView({ profile, budget }: Props) {
               {/* Context sentence for red cards */}
               {status === "over" && delta > 0 && (
                 <p className="text-xs text-muted-foreground mt-2 ml-11">
-                  {t("neighbor.savingsIfLowered")} <strong className="text-foreground">{formatKr(delta * 12)} kr. om året</strong>.
+                  {t("neighbor.savingsIfLowered")} <strong className="text-foreground">{formatKr(delta * 12)} {t("neighbor.perYear")}</strong>.
                 </p>
               )}
             </motion.div>
@@ -247,7 +247,7 @@ export function NaboeffektView({ profile, budget }: Props) {
 
       {/* Footnote */}
       <p className="text-[10px] text-muted-foreground/50 text-center pb-2">
-        Benchmarks baseret på Danmarks Statistik — {isPar ? "par" : "enlige"} i din indkomstgruppe · 2025
+        {t("neighbor.benchmarkFootnote")} {isPar ? t("neighbor.benchmarkCouples") : t("neighbor.benchmarkSingles")} {t("neighbor.benchmarkSuffix")}
       </p>
     </div>
   );

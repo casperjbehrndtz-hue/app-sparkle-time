@@ -65,7 +65,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
     });
   }, [showContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const insightText = aiStream.text || (showContent && !aiStream.isStreaming ? "Din økonomi er klar til analyse. Gå videre til dit dashboard for det fulde overblik." : "");
+  const insightText = aiStream.text || (showContent && !aiStream.isStreaming ? t("ai.fallback") : "");
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5">
@@ -132,10 +132,10 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className={`w-3.5 h-3.5 text-primary ${aiStream.isStreaming ? "animate-pulse" : ""}`} />
                 </div>
-                <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">AI Indsigt</span>
+                <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("ai.insightLabel")}</span>
               </div>
               <div className="prose prose-sm prose-neutral max-w-none text-sm [&_p]:mb-2 [&_strong]:text-foreground">
-                <ReactMarkdown>{insightText || "Analyserer din økonomi..."}</ReactMarkdown>
+                <ReactMarkdown>{insightText || t("ai.analyzing")}</ReactMarkdown>
               </div>
               {aiStream.isStreaming && (
                 <motion.div

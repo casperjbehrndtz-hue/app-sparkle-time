@@ -2,61 +2,63 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, Palette, Brain, ShieldCheck, Check, ArrowRight, Monitor, Send } from "lucide-react";
 import { AppFooter } from "@/components/AppFooter";
-
-const pricingPlans = [
-  {
-    name: "Starter",
-    price: "15.000",
-    period: "kr./md.",
-    users: "Op til 10.000 brugere",
-    features: [
-      "White-label design",
-      "Setup & onboarding",
-      "Drift & hosting",
-      "Email-support",
-      "Maanedlig rapport",
-    ],
-    highlighted: false,
-  },
-  {
-    name: "Growth",
-    price: "35.000",
-    period: "kr./md.",
-    users: "Op til 50.000 brugere",
-    features: [
-      "Alt i Starter",
-      "AI-raadgivning",
-      "Prioriteret support",
-      "Custom integrationer",
-      "Kvartalsvise review-moeder",
-    ],
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Kontakt os",
-    period: "",
-    users: "Ubegraenset brugere",
-    features: [
-      "Alt i Growth",
-      "Dedicated account manager",
-      "SLA-garanti",
-      "On-premise mulighed",
-      "API-adgang",
-    ],
-    highlighted: false,
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function B2BPage() {
+  const { t } = useI18n();
   const [form, setForm] = useState({ name: "", company: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 
+  const pricingPlans = [
+    {
+      name: "Starter",
+      price: "15.000",
+      period: t("perMonth"),
+      users: t("b2b.starter.users"),
+      features: [
+        t("b2b.starter.f1"),
+        t("b2b.starter.f2"),
+        t("b2b.starter.f3"),
+        t("b2b.starter.f4"),
+        t("b2b.starter.f5"),
+      ],
+      highlighted: false,
+    },
+    {
+      name: "Growth",
+      price: "35.000",
+      period: t("perMonth"),
+      users: t("b2b.growth.users"),
+      features: [
+        t("b2b.growth.f1"),
+        t("b2b.growth.f2"),
+        t("b2b.growth.f3"),
+        t("b2b.growth.f4"),
+        t("b2b.growth.f5"),
+      ],
+      highlighted: true,
+    },
+    {
+      name: "Enterprise",
+      price: t("b2b.enterprise.price"),
+      period: "",
+      users: t("b2b.enterprise.users"),
+      features: [
+        t("b2b.enterprise.f1"),
+        t("b2b.enterprise.f2"),
+        t("b2b.enterprise.f3"),
+        t("b2b.enterprise.f4"),
+        t("b2b.enterprise.f5"),
+      ],
+      highlighted: false,
+    },
+  ];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`B2B henvendelse fra ${form.company}`);
+    const subject = encodeURIComponent(t("b2b.emailSubject").replace("{company}", form.company));
     const body = encodeURIComponent(
-      `Navn: ${form.name}\nVirksomhed: ${form.company}\nEmail: ${form.email}\n\nBesked:\n${form.message}`
+      `${t("b2b.labelName")}: ${form.name}\n${t("b2b.labelCompany")}: ${form.company}\n${t("b2b.labelEmail")}: ${form.email}\n\n${t("b2b.labelMessage")}:\n${form.message}`
     );
     window.location.href = `mailto:casper@kassen.dk?subject=${subject}&body=${body}`;
     setSubmitted(true);
@@ -70,16 +72,15 @@ export default function B2BPage() {
         <div className="max-w-6xl mx-auto px-4 py-20 sm:py-28 relative">
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="h-5 w-5 text-amber-400" />
-            <span className="text-amber-400 font-medium text-sm tracking-wide uppercase">B2B Partnership</span>
+            <span className="text-amber-400 font-medium text-sm tracking-wide uppercase">{t("b2b.heroTag")}</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
-            Giv jeres kunder Danmarks smarteste{" "}
-            <span className="text-amber-400">budgetvaerktoj</span>{" "}
-            — under jeres eget brand
+            {t("b2b.heroTitle")}{" "}
+            <span className="text-amber-400">{t("b2b.heroTitleHighlight")}</span>{" "}
+            {t("b2b.heroTitleSuffix")}
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-white/80 max-w-2xl">
-            Kassen er en AI-drevet budget-platform klar til white-label. Integrer den i jeres kundeoplevelse
-            paa under 2 uger — ingen bankkobling paakraevet.
+            {t("b2b.heroSubtitle")}
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
@@ -87,13 +88,13 @@ export default function B2BPage() {
               className="inline-flex items-center gap-2 px-6 py-3 bg-amber-400 text-amber-950 font-semibold rounded-lg hover:bg-amber-300 transition-colors"
             >
               <Monitor className="h-5 w-5" />
-              Se live demo
+              {t("b2b.liveDemo")}
             </Link>
             <a
               href="#kontakt"
               className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
             >
-              Kontakt os
+              {t("b2b.contactUs")}
               <ArrowRight className="h-4 w-4" />
             </a>
           </div>
@@ -103,36 +104,33 @@ export default function B2BPage() {
       {/* USPs */}
       <section className="py-20 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Hvorfor banker vaelger Kassen</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t("b2b.whyTitle")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-card rounded-2xl p-8 shadow-sm border">
               <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                 <Palette className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">White-label klar</h3>
+              <h3 className="text-xl font-semibold mb-3">{t("b2b.whiteLabelReady")}</h3>
               <p className="text-muted-foreground">
-                Jeres logo, farver og branding. Kunderne oplever det som jeres eget produkt.
-                Ingen synlig reference til Kassen.
+                {t("b2b.whiteLabelDesc")}
               </p>
             </div>
             <div className="bg-card rounded-2xl p-8 shadow-sm border">
               <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                 <Brain className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">AI-drevet</h3>
+              <h3 className="text-xl font-semibold mb-3">{t("b2b.aiPowered")}</h3>
               <p className="text-muted-foreground">
-                Personlige anbefalinger, optimeringsforslag og intelligent chat.
-                Powered by Claude — verdens mest avancerede AI.
+                {t("b2b.aiPoweredDesc")}
               </p>
             </div>
             <div className="bg-card rounded-2xl p-8 shadow-sm border">
               <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
                 <ShieldCheck className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">Privacy-first</h3>
+              <h3 className="text-xl font-semibold mb-3">{t("b2b.privacyFirst")}</h3>
               <p className="text-muted-foreground">
-                Ingen bankkobling nødvendig. Brugerne indtaster selv — fuld kontrol,
-                ingen compliance-hovedpine.
+                {t("b2b.privacyFirstDesc")}
               </p>
             </div>
           </div>
@@ -142,18 +140,18 @@ export default function B2BPage() {
       {/* Feature showcase */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Alt hvad jeres kunder har brug for</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.featureTitle")}</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Cockpit-overblik, Sankey-flow, AI-optimering, fremtidsprojektion og meget mere.
+            {t("b2b.featureSubtitle")}
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { title: "Budget-cockpit", desc: "Overblik over indkomst, udgifter og raadighed paa eet dashboard." },
-              { title: "Sankey-diagram", desc: "Visualiser pengestroemme fra indkomst til udgifter." },
-              { title: "AI-optimering", desc: "Personlige forslag til besparelser baseret paa brugerens profil." },
-              { title: "Fremtidsprojektion", desc: "Se hvordan oekonomien udvikler sig over 1-5 aar." },
-              { title: "Stress-test", desc: "Hvad sker der ved rentesteigning eller jobskifte?" },
-              { title: "Naboeffekten", desc: "Sammenlign med andre i samme postnummer." },
+              { title: t("b2b.feat.cockpit"), desc: t("b2b.feat.cockpitDesc") },
+              { title: t("b2b.feat.sankey"), desc: t("b2b.feat.sankeyDesc") },
+              { title: t("b2b.feat.aiOpt"), desc: t("b2b.feat.aiOptDesc") },
+              { title: t("b2b.feat.projection"), desc: t("b2b.feat.projectionDesc") },
+              { title: t("b2b.feat.stress"), desc: t("b2b.feat.stressDesc") },
+              { title: t("b2b.feat.neighbor"), desc: t("b2b.feat.neighborDesc") },
             ].map((f) => (
               <div key={f.title} className="border rounded-xl p-6 hover:shadow-md transition-shadow">
                 <h3 className="font-semibold mb-2">{f.title}</h3>
@@ -167,9 +165,9 @@ export default function B2BPage() {
       {/* White-label demos */}
       <section className="py-20 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Se det i jeres brand</h2>
+          <h2 className="text-3xl font-bold mb-4">{t("b2b.brandTitle")}</h2>
           <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
-            Proev vores live demos med Nordea og Danske Bank branding.
+            {t("b2b.brandSubtitle")}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -200,9 +198,9 @@ export default function B2BPage() {
       {/* Pricing */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Simpel og gennemsigtig prissaetning</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.pricingTitle")}</h2>
           <p className="text-center text-muted-foreground mb-12">
-            Alle planer inkluderer setup, white-label design, drift og support.
+            {t("b2b.pricingSubtitle")}
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             {pricingPlans.map((plan) => (
@@ -216,7 +214,7 @@ export default function B2BPage() {
               >
                 {plan.highlighted && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                    Mest populaer
+                    {t("b2b.mostPopular")}
                   </span>
                 )}
                 <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
@@ -241,7 +239,7 @@ export default function B2BPage() {
                       : "border border-primary text-primary hover:bg-primary/5"
                   }`}
                 >
-                  Kom i gang
+                  {t("b2b.getStarted")}
                 </a>
               </div>
             ))}
@@ -252,16 +250,16 @@ export default function B2BPage() {
       {/* Testimonials placeholder */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-4">Hvad vores partnere siger</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("b2b.testimonialTitle")}</h2>
           <div className="bg-card border rounded-2xl p-10 max-w-lg mx-auto">
             <p className="text-muted-foreground italic mb-4">
-              "Vi er i gang med at onboarde vores foerste bankpartnere. Kontakt os for referencer."
+              "{t("b2b.testimonialQuote")}"
             </p>
             <a
               href="mailto:casper@kassen.dk?subject=B2B%20-%20Anmod%20om%20referencer"
               className="text-primary font-medium hover:underline"
             >
-              Kontakt os for referencer
+              {t("b2b.testimonialLink")}
             </a>
           </div>
         </div>
@@ -270,25 +268,25 @@ export default function B2BPage() {
       {/* Contact form */}
       <section id="kontakt" className="py-20">
         <div className="max-w-2xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">Kontakt os</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.contactTitle")}</h2>
           <p className="text-center text-muted-foreground mb-10">
-            Udfyld formularen, saa vender vi tilbage inden for 24 timer.
+            {t("b2b.contactSubtitle")}
           </p>
 
           {submitted ? (
             <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-2xl p-8 text-center">
               <h3 className="text-xl font-semibold text-green-800 dark:text-green-300 mb-2">
-                Tak for din henvendelse!
+                {t("b2b.thankYou")}
               </h3>
               <p className="text-green-700 dark:text-green-400">
-                Din email-klient aabner nu med en forudfyldt besked. Vi vender tilbage hurtigst muligt.
+                {t("b2b.thankYouDesc")}
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="b2b-name" className="block text-sm font-medium mb-1.5">Navn</label>
+                  <label htmlFor="b2b-name" className="block text-sm font-medium mb-1.5">{t("b2b.labelName")}</label>
                   <input
                     id="b2b-name"
                     type="text"
@@ -296,11 +294,11 @@ export default function B2BPage() {
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
-                    placeholder="Dit navn"
+                    placeholder={t("b2b.placeholderName")}
                   />
                 </div>
                 <div>
-                  <label htmlFor="b2b-company" className="block text-sm font-medium mb-1.5">Virksomhed</label>
+                  <label htmlFor="b2b-company" className="block text-sm font-medium mb-1.5">{t("b2b.labelCompany")}</label>
                   <input
                     id="b2b-company"
                     type="text"
@@ -308,12 +306,12 @@ export default function B2BPage() {
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
                     className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
-                    placeholder="Virksomhedens navn"
+                    placeholder={t("b2b.placeholderCompany")}
                   />
                 </div>
               </div>
               <div>
-                <label htmlFor="b2b-email" className="block text-sm font-medium mb-1.5">Email</label>
+                <label htmlFor="b2b-email" className="block text-sm font-medium mb-1.5">{t("b2b.labelEmail")}</label>
                 <input
                   id="b2b-email"
                   type="email"
@@ -325,7 +323,7 @@ export default function B2BPage() {
                 />
               </div>
               <div>
-                <label htmlFor="b2b-message" className="block text-sm font-medium mb-1.5">Besked</label>
+                <label htmlFor="b2b-message" className="block text-sm font-medium mb-1.5">{t("b2b.labelMessage")}</label>
                 <textarea
                   id="b2b-message"
                   rows={4}
@@ -333,7 +331,7 @@ export default function B2BPage() {
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition resize-y"
-                  placeholder="Fortael os om jeres behov..."
+                  placeholder={t("b2b.placeholderMessage")}
                 />
               </div>
               <button
@@ -341,7 +339,7 @@ export default function B2BPage() {
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Send className="h-4 w-4" />
-                Send henvendelse
+                {t("b2b.submit")}
               </button>
             </form>
           )}

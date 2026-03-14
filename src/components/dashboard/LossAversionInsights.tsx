@@ -34,7 +34,7 @@ function futureValue(monthly: number, annualRate: number, years: number): number
 export function LossAversionInsights({ profile, budget, health }: Props) {
   const { data: marketData } = useMarketData();
   const locale = useLocale();
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
   const isNO = locale.code === "no";
   const lc = locale.currencyLocale;
 
@@ -201,7 +201,7 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
   return (
     <div className="space-y-2.5">
       <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">
-        {lang === "nb" ? "Innsikt basert på dine tall" : lang === "en" ? "Insights based on your numbers" : "Indsigter baseret på dine tal"}
+        {t("insights.heading")}
       </p>
       {insights.map((insight, i) => (
         <motion.div

@@ -20,13 +20,13 @@ export default function Auth() {
   const { t } = useI18n();
   const navigate = useNavigate();
   usePageMeta(
-    "Log ind — Kassen",
-    "Log ind eller opret en gratis konto for at synkronisere dit budget på tværs af enheder."
+    t("auth.pageTitle"),
+    t("auth.pageDesc")
   );
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
-      toast({ title: "Indtast e-mail", description: "Skriv din e-mail ovenfor, så sender vi et link til nulstilling.", variant: "destructive" });
+      toast({ title: t("auth.enterEmail"), description: t("auth.enterEmailDesc"), variant: "destructive" });
       return;
     }
     setBusy(true);
@@ -35,9 +35,9 @@ export default function Auth() {
     });
     setBusy(false);
     if (error) {
-      toast({ title: "Fejl", description: error.message, variant: "destructive" });
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Tjek din e-mail", description: "Vi har sendt et link til nulstilling af din adgangskode." });
+      toast({ title: t("auth.checkEmail"), description: t("auth.checkEmailDesc") });
     }
   };
 
@@ -50,7 +50,7 @@ export default function Auth() {
     setBusy(false);
 
     if (error) {
-      toast({ title: "Fejl", description: error.message, variant: "destructive" });
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
       return;
     }
 
@@ -67,7 +67,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           <span className="font-display font-black text-2xl text-primary">{config.brandName}</span>
           <p className="text-muted-foreground text-sm mt-2">
-            {isLogin ? "Log ind for at synkronisere dit budget" : "Opret konto og gem dit budget i skyen"}
+            {isLogin ? t("auth.loginSubtitle") : t("auth.signupSubtitle")}
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export default function Auth() {
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="email"
-              placeholder="E-mail"
+              placeholder={t("auth.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -87,7 +87,7 @@ export default function Auth() {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type={showPw ? "text" : "password"}
-              placeholder="Adgangskode"
+              placeholder={t("auth.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -104,7 +104,7 @@ export default function Auth() {
             disabled={busy}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {busy ? "Vent..." : isLogin ? "Log ind" : "Opret konto"}
+            {busy ? t("auth.waiting") : isLogin ? t("auth.login") : t("auth.signup")}
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -116,21 +116,21 @@ export default function Auth() {
               disabled={busy}
               className="text-xs text-muted-foreground hover:text-primary bg-transparent border-none cursor-pointer hover:underline"
             >
-              Glemt kodeord?
+              {t("auth.forgotPassword")}
             </button>
           )}
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-primary hover:underline bg-transparent border-none cursor-pointer"
           >
-            {isLogin ? "Har du ingen konto? Opret gratis" : "Har du allerede en konto? Log ind"}
+            {isLogin ? t("auth.noAccount") : t("auth.hasAccount")}
           </button>
           <div>
             <button
               onClick={() => navigate("/")}
               className="text-xs text-muted-foreground hover:text-foreground bg-transparent border-none cursor-pointer"
             >
-              ← Fortsæt uden login
+              {t("auth.continueWithout")}
             </button>
           </div>
         </div>

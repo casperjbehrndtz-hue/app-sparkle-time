@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Users, MessageSquare, TrendingUp, Activity, FileText, ArrowUpRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
+import { useI18n } from "@/lib/i18n";
 
 type Stats = {
   totalSessions: number;
@@ -25,6 +26,7 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
 }
 
 export default function Partner() {
+  const { t } = useI18n();
   usePageMeta("Partner Dashboard — Kassen", "");
   const [params] = useSearchParams();
   const token = params.get("token");
@@ -35,7 +37,7 @@ export default function Partner() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!token) { setError("Ingen token"); setLoading(false); return; }
+    if (!token) { setError(t("partner.noToken")); setLoading(false); return; }
 
     // Verify token via service (we use RPC or direct query with service role via edge function)
     // For simplicity: query partners table directly — partners.token is not exposed via anon RLS
@@ -43,17 +45,17 @@ export default function Partner() {
     verifyAndLoad(token);
   }, [token]);
 
-  async function verifyAndLoad(t: string) {
+  async function verifyAndLoad(t_token: string) {
     setLoading(true);
 
     // Check token against partners table via Supabase (using service role key via edge fn)
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-partner-stats`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: t }),
+      body: JSON.stringify({ token: t_token }),
     });
 
-    if (!res.ok) { setError("Ugyldigt token"); setLoading(false); return; }
+    if (!res.ok) { setError(t("partner.invalidToken")); setLoading(false); return; }
 
     const data = await res.json();
     if (data.error) { setError(data.error); setLoading(false); return; }
@@ -106,7 +108,7 @@ export default function Partner() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <p className="text-muted-foreground text-sm">{error}</p>
-        <p className="text-xs text-muted-foreground/50 mt-2">Kontakt hej@kassen.dk</p>
+        <p className="text-xs text-muted-foreground/50 mt-2">{t("partner.contactEmail")}</p>
       </div>
     </div>
   );
@@ -121,7 +123,7 @@ export default function Partner() {
             <span className="font-display font-black text-lg text-primary">Kassen</span>
             <span className="text-muted-foreground text-sm ml-2">/ {partnerName}</span>
           </div>
-          <span className="text-xs text-muted-foreground">Partner Dashboard</span>
+          <span className="text-xs text-muted-foreground">{t("partner.dashboard")}</span>
         </div>
       </header>
 
@@ -129,17 +131,17 @@ export default function Partner() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={<Users className="w-4 h-4" />} label="Unikke sessioner" value={stats?.totalSessions ?? 0} sub="Unikke brugere der har åbnet værktøjet" />
-          <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Budgetter oprettet" value={stats?.onboardingCompletes ?? 0} sub={`${stats?.conversionRate ?? 0}% konvertering`} />
-          <StatCard icon={<MessageSquare className="w-4 h-4" />} label="AI-spørgsmål" value={stats?.aiInteractions ?? 0} sub="Spørgsmål til AI-rådgiveren" />
-          <StatCard icon={<FileText className="w-4 h-4" />} label="Rapporter" value={stats?.reportsGenerated ?? 0} sub="Downloadede økonomirapporter" />
+          <StatCard icon={<Users className="w-4 h-4" />} label={t("partner.uniqueSessions")} value={stats?.totalSessions ?? 0} sub={t("partner.uniqueSessionsSub")} />
+          <StatCard icon={<TrendingUp className="w-4 h-4" />} label={t("partner.budgetsCreated")} value={stats?.onboardingCompletes ?? 0} sub={t("partner.conversion").replace("{pct}", String(stats?.conversionRate ?? 0))} />
+          <StatCard icon={<MessageSquare className="w-4 h-4" />} label={t("partner.aiQuestions")} value={stats?.aiInteractions ?? 0} sub={t("partner.aiQuestionsSub")} />
+          <StatCard icon={<FileText className="w-4 h-4" />} label={t("partner.reports")} value={stats?.reportsGenerated ?? 0} sub={t("partner.reportsSub")} />
         </div>
 
         {/* Daily activity chart */}
         <div className="rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center gap-2 mb-5">
             <Activity className="w-4 h-4 text-muted-foreground" />
-            <h2 className="font-semibold text-sm">Daglig aktivitet — seneste 30 dage</h2>
+            <h2 className="font-semibold text-sm">{t("partner.dailyActivity")}</h2>
           </div>
           {stats && stats.dailyActive.length > 0 ? (
             <div className="flex items-end gap-1 h-32">
@@ -157,27 +159,20 @@ export default function Partner() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">Ingen aktivitet endnu</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("partner.noActivity")}</p>
           )}
         </div>
 
         {/* Event breakdown */}
         <div className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="font-semibold text-sm mb-4">Hvad bruger dine medlemmer?</h2>
+          <h2 className="font-semibold text-sm mb-4">{t("partner.memberUsage")}</h2>
           <div className="space-y-2">
             {stats?.topEvents.map(({ event, count }) => {
-              const labels: Record<string, string> = {
-                onboarding_start: "Startede onboarding",
-                onboarding_complete: "Gennemførte budgetberegning",
-                dashboard_view: "Åbnede dashboard",
-                ai_chat_open: "Åbnede AI-rådgiveren",
-                ai_message_sent: "Stillede spørgsmål til AI",
-                report_generated: "Genererede økonomirapport",
-              };
+              const label = t(`partner.event.${event}`) !== `partner.event.${event}` ? t(`partner.event.${event}`) : event;
               const pct = stats.totalSessions > 0 ? Math.round((count / stats.totalSessions) * 100) : 0;
               return (
                 <div key={event} className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground w-48 flex-shrink-0">{labels[event] ?? event}</span>
+                  <span className="text-sm text-muted-foreground w-48 flex-shrink-0">{label}</span>
                   <div className="flex-1 bg-muted/50 rounded-full h-2">
                     <div className="bg-primary/60 h-2 rounded-full" style={{ width: `${Math.min(100, pct)}%` }} />
                   </div>
@@ -185,22 +180,22 @@ export default function Partner() {
                 </div>
               );
             })}
-            {!stats?.topEvents.length && <p className="text-sm text-muted-foreground">Ingen events endnu</p>}
+            {!stats?.topEvents.length && <p className="text-sm text-muted-foreground">{t("partner.noEvents")}</p>}
           </div>
         </div>
 
         {/* Embed code */}
         <div className="rounded-2xl border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm">Integration — embed kode</h2>
-            <span className="text-xs text-muted-foreground">Virker i enhver webportal på 5 minutter</span>
+            <h2 className="font-semibold text-sm">{t("partner.embedTitle")}</h2>
+            <span className="text-xs text-muted-foreground">{t("partner.embedSub")}</span>
           </div>
           <pre className="bg-muted/50 rounded-xl p-4 text-xs overflow-x-auto text-muted-foreground leading-relaxed">{embedCode}</pre>
           <button
             onClick={() => navigator.clipboard.writeText(embedCode)}
             className="mt-3 flex items-center gap-1.5 text-xs text-primary hover:underline"
           >
-            <ArrowUpRight className="w-3 h-3" /> Kopiér kode
+            <ArrowUpRight className="w-3 h-3" /> {t("partner.copyCode")}
           </button>
         </div>
 

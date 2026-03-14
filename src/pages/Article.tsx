@@ -5,6 +5,7 @@ import { useWhiteLabel } from "@/lib/whiteLabel";
 import { AppFooter } from "@/components/AppFooter";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/lib/i18n";
 
 // ─── Static fallback articles ─────────────────────────────────────────────────
 const STATIC_ARTICLES: Record<string, { title: string; category: string; readTime: string; content: string }> = {
@@ -206,6 +207,7 @@ function renderContent(content: string) {
 export default function Article() {
   const { slug } = useParams<{ slug: string }>();
   const config = useWhiteLabel();
+  const { t } = useI18n();
   const [article, setArticle] = useState<{ title: string; category: string; readTime: string; content: string } | null | "loading">("loading");
 
   useEffect(() => {
@@ -297,24 +299,24 @@ export default function Article() {
       <header className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/guides" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Guides
+            <ArrowLeft className="w-4 h-4" /> {t("article.guides")}
           </Link>
           <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">{article.category}</span>
         </div>
       </header>
 
       <main className="flex-1 max-w-2xl mx-auto px-4 py-10 w-full">
-        <p className="text-xs text-muted-foreground mb-3">{article.readTime} læsetid</p>
+        <p className="text-xs text-muted-foreground mb-3">{article.readTime} {t("blog.readTime")}</p>
         <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-8 leading-tight">{article.title}</h1>
         <div className="prose-content space-y-1">
           {renderContent(article.content)}
         </div>
 
         <div className="mt-12 rounded-2xl bg-primary p-6 text-center">
-          <h3 className="font-display font-bold text-lg text-primary-foreground mb-2">Beregn dit eget rådighedsbeløb</h3>
-          <p className="text-primary-foreground/70 text-sm mb-4">Gratis · 3 minutter · Ingen login</p>
+          <h3 className="font-display font-bold text-lg text-primary-foreground mb-2">{t("article.ctaTitle")}</h3>
+          <p className="text-primary-foreground/70 text-sm mb-4">{t("article.ctaSubtitle")}</p>
           <Link to="/" className="inline-block px-6 py-3 rounded-xl bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
-            Prøv {config.brandName} →
+            {t("article.ctaButton").replace("{brand}", config.brandName)}
           </Link>
         </div>
       </main>
