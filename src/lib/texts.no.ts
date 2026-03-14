@@ -491,4 +491,117 @@ export const NO: Record<string, string> = {
   // Subscriptions
   "subs.warning": "Over 2 000 kr/mnd. i abonnementer — vurder å kutte ned",
   "subs.foundInBudget": "Funnet i budsjettet ditt",
+
+  // Profile edit (extra)
+  "profile.title": "Rediger opplysningene dine",
+  "profile.saved": "Endringer lagret",
+  "profile.savedDesc": "Budsjettet ditt er oppdatert.",
+  "profile.householdType": "Husstandstype",
+  "profile.solo": "Enslig",
+  "profile.couple": "Par",
+  "profile.yourIncome": "Din inntekt (netto)",
+  "profile.postalCode": "Postnummer",
+  "profile.rentPayment": "Husleie/betaling",
+  "profile.monthlyPayment": "Månedlig boligbetaling",
+  "profile.interestRate": "Rente (%)",
+  "profile.spending": "Forbruk",
+  "profile.restaurantTakeaway": "Restaurant & takeaway",
+  "profile.healthMedicine": "Helse & medisin",
+  "profile.transport": "Transport",
+  "profile.hasCar": "Har bil",
+  "profile.carLoan": "Billån (mnd.)",
+  "profile.carFuel": "Bensin/lading (mnd.)",
+  "profile.carInsurance": "Bilforsikring (mnd.)",
+  "profile.subscriptions": "Abonnementer",
+  "profile.loansAndSavings": "Lån & Sparing",
+  "profile.hasLoan": "Har lån",
+  "profile.loanPayment": "Lånebetaling (mnd.)",
+  "profile.savesUp": "Sparer",
+  "profile.savingsMonthly": "Sparing (mnd.)",
+  "profile.insurances": "Forsikringer",
+  "profile.insuranceMonthly": "Forsikring (mnd.)",
+  "profile.saveChanges": "Lagre endringer",
+
+  // Subscriptions (extra)
+  "subs.title": "Abonnementer",
+  "subs.addedManually": "Lagt til manuelt",
+  "subs.namePlaceholder": "Navn (f.eks. ChatGPT Plus)",
+  "subs.pricePlaceholder": "Pris per måned",
+  "subs.add": "Legg til",
+  "subs.cancel": "Avbryt",
+  "subs.addSubscription": "Legg til abonnement",
+
+  // GuidedSaving (extra)
+  "guided.goalReached": "Du nådde målet ditt!",
+  "guided.goalReachedDesc": "Du frigjorde {amount} kr/mnd. totalt.",
+  "guided.skipped": "Hoppet over: {label}",
+  "guided.whatIsYourGoal": "Hva er målet ditt?",
+  "guided.goalDesc": "Jeg gjennomgår budsjettet ditt og finner de enkleste besparelsene — du bestemmer hva du vil gjøre.",
+  "guided.currentDisposable": "Ditt nåværende disponibelt beløp er {amount} kr/mnd.",
+  "guided.skip": "Hopp over",
+  "guided.apply": "Bruk",
+  "guided.goalReachedTitle": "Mål nådd!",
+  "guided.sessionDone": "Sesjonen er ferdig",
+  "guided.reviewedAll": "Du har gjennomgått alle forslag.",
+  "guided.acceptedChanges": "Godkjente endringer",
+  "guided.noChanges": "Ingen endringer valgt.",
+  "guided.seeUpdated": "Se oppdatert budsjett",
+
+  // Forward view (extra)
+  "forward.wealthProjection": "Formue-projeksjon",
+  "forward.years": "år",
+  "forward.estimatedWealth": "Estimert formue (bolig)",
+  "forward.estDebt": "Est. gjeld (~70%)",
+  "forward.netWorth": "Net worth",
+  "forward.goalsProgress": "Mål & fremgang",
+  "forward.rateShockSim": "Rentesjokk-simulator",
+  "forward.vulnerableEconomy": "Sårbar økonomi",
+  "forward.refinanceAdvice": "Refinansiering kan redusere eksponeringen deres.",
+  "forward.timeline": "Tidslinje — neste 10 år",
+  "forward.noEvents": "Ingen store hendelser funnet basert på profilen deres.",
+
+  // ParSplit (extra)
+  "couple.desc": "Se hvordan de felles utgiftene kan fordeles rettferdig.",
+  "couple.yourIncome": "Din inntekt",
+  "couple.expenseDistribution": "Utgiftsfordeling",
+  "couple.youPay": "Du betaler",
+  "couple.evenSplit": "Jevn fordeling — begge har omtrent like mye til rådighet",
+  "couple.youHaveMore": "Du har {amount} kr mer til rådighet enn partneren din",
+  "couple.partnerHasMore": "Partneren din har {amount} kr mer til rådighet enn deg",
+  "couple.visualization": "Visualisering",
+  "couple.tip": "Med inntektsfordelt modell betaler dere relativt til lønnen — prøv den!",
+
+  // AI chat (extra)
+  "ai.personalAdvisor": "Din personlige rådgiver",
+  "ai.analyzing": "AI analyserer økonomien din...",
+  "ai.usedFreeAnswers": "Du har brukt dine 5 gratis AI-svar",
+  "ai.createAccount": "Opprett konto — følg med på premium",
+  "ai.answersLeft": "AI-svar igjen denne måneden",
+  "ai.placeholder": "Still et spørsmål om økonomien din...",
+
+  // History
+  "history.noHistory": "Ingen historikk ennå",
+  "history.noHistoryDesc": "Historikken din vises her når du har brukt Kassen i mer enn en måned. Hver gang du oppdaterer budsjettet, lagrer vi et øyeblikksbilde — slik at du kan se utviklingen over tid.",
+  "history.oneSnapshot": "1 øyeblikksbilde lagret · Oppdater budsjettet igjen for å se en graf",
+  "history.disposableSinceStart": "Disponibelt beløp siden start",
+  "history.healthSinceStart": "Helsescore siden start",
+  "history.disposableOverTime": "Disponibelt beløp over tid",
+  "history.healthOverTime": "Helsescore over tid",
+  "history.calculationsSaved": "{count} beregninger lagret",
+  "history.first": "Første",
+  "history.latest": "Siste",
+
+  // Editable amount
+  "edit.clickToEdit": "Klikk for å redigere",
+  "edit.cancel": "Avbryt",
+  "edit.save": "Lagre",
+
+  // Onboarding UI
+  "onboarding.leftOver": "Til overs",
+  "onboarding.seeOverview": "Se oversikt",
+  "onboarding.stepOf": "Steg {idx} av {total}",
+
+  // Optimize (extra)
+  "optimize.opensExternal": "Åpner ekstern side",
+  "optimize.savePerMonth": "Spar {amount} kr/mnd.",
 };

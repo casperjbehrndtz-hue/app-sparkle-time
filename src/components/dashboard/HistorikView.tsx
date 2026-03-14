@@ -5,23 +5,25 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { getSnapshots } from "@/lib/snapshots";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
 
 export function HistorikView() {
   const snapshots = useMemo(() => getSnapshots(), []);
   const locale = useLocale();
+  const { t } = useI18n();
   const lc = locale.currencyLocale;
 
   if (snapshots.length < 2) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 space-y-3">
         <Clock className="w-10 h-10 mx-auto text-muted-foreground/40" />
-        <h3 className="text-sm font-semibold text-foreground">Ingen historik endnu</h3>
+        <h3 className="text-sm font-semibold text-foreground">{t("history.noHistory")}</h3>
         <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-          Din historik vises her når du har brugt Kassen i mere end en måned. Hver gang du opdaterer dit budget, gemmer vi et snapshot — så du kan se din udvikling over tid.
+          {t("history.noHistoryDesc")}
         </p>
         {snapshots.length === 1 && (
           <p className="text-[10px] text-muted-foreground/60">
-            1 snapshot gemt · Opdater dit budget igen for at se en graf
+            {t("history.oneSnapshot")}
           </p>
         )}
       </motion.div>
@@ -59,7 +61,7 @@ export function HistorikView() {
             {disposableDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {disposableDelta >= 0 ? "+" : ""}{formatKr(disposableDelta, lc)} kr.
           </div>
-          <p className="text-[10px] text-muted-foreground">Rådighedsbeløb siden start</p>
+          <p className="text-[10px] text-muted-foreground">{t("history.disposableSinceStart")}</p>
         </motion.div>
 
         <motion.div
@@ -76,13 +78,13 @@ export function HistorikView() {
             {scoreDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
             {scoreDelta >= 0 ? "+" : ""}{scoreDelta} point
           </div>
-          <p className="text-[10px] text-muted-foreground">Sundhedsscore siden start</p>
+          <p className="text-[10px] text-muted-foreground">{t("history.healthSinceStart")}</p>
         </motion.div>
       </div>
 
       {/* Disposable income chart */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Rådighedsbeløb over tid</h3>
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("history.disposableOverTime")}</h3>
         <div className="h-48 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
@@ -107,7 +109,7 @@ export function HistorikView() {
 
       {/* Score chart */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Sundhedsscore over tid</h3>
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("history.healthOverTime")}</h3>
         <div className="h-36 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
@@ -125,7 +127,7 @@ export function HistorikView() {
       </div>
 
       <p className="text-[10px] text-muted-foreground text-center">
-        {snapshots.length} beregninger gemt · Første: {new Date(first.date).toLocaleDateString("da-DK")} · Seneste: {new Date(last.date).toLocaleDateString("da-DK")}
+        {t("history.calculationsSaved").replace("{count}", String(snapshots.length))} · {t("history.first")}: {new Date(first.date).toLocaleDateString("da-DK")} · {t("history.latest")}: {new Date(last.date).toLocaleDateString("da-DK")}
       </p>
     </div>
   );

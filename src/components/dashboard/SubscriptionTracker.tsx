@@ -98,7 +98,7 @@ export function SubscriptionTracker({ profile }: Props) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-primary" />
-            <h3 className="font-display font-bold text-lg">Abonnementer</h3>
+            <h3 className="font-display font-bold text-lg">{t("subs.title")}</h3>
           </div>
           <div className="text-right">
             <span className="font-display font-black text-2xl text-primary">{formatKr(totalMonthly, lc)}</span>
@@ -134,7 +134,7 @@ export function SubscriptionTracker({ profile }: Props) {
       {/* Custom */}
       {customSubs.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Tilføjet manuelt</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("subs.addedManually")}</p>
           {customSubs.map((sub) => (
             <div key={sub.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
               <div className="flex items-center gap-3">
@@ -156,19 +156,19 @@ export function SubscriptionTracker({ profile }: Props) {
       {showAdd ? (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
           className="rounded-xl border border-primary/20 p-4 space-y-3">
-          <input placeholder="Navn (f.eks. ChatGPT Plus)" value={newName} onChange={(e) => setNewName(e.target.value)}
+          <input placeholder={t("subs.namePlaceholder")} value={newName} onChange={(e) => setNewName(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
-          <input placeholder="Pris pr. måned" type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)}
+          <input placeholder={t("subs.pricePlaceholder")} type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           <div className="flex gap-2">
-            <button onClick={addSub} className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">Tilføj</button>
-            <button onClick={() => setShowAdd(false)} className="flex-1 py-2 rounded-lg border border-border text-sm">Annullér</button>
+            <button onClick={addSub} className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">{t("subs.add")}</button>
+            <button onClick={() => setShowAdd(false)} className="flex-1 py-2 rounded-lg border border-border text-sm">{t("subs.cancel")}</button>
           </div>
         </motion.div>
       ) : (
         <button onClick={() => setShowAdd(true)}
           className="w-full py-3 rounded-xl border border-dashed border-border hover:border-primary/30 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2">
-          <Plus className="w-4 h-4" /> Tilføj abonnement
+          <Plus className="w-4 h-4" /> {t("subs.addSubscription")}
         </button>
       )}
     </div>

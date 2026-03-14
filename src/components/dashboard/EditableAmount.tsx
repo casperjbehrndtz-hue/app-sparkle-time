@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { formatKr } from "@/lib/budgetCalculator";
 import { Check, X, Pencil } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface EditableAmountProps {
   value: number;
@@ -28,6 +29,7 @@ export function EditableAmount({
   className = "",
   editable = true,
 }: EditableAmountProps) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const [inputValue, setInputValue] = useState(String(value));
@@ -106,7 +108,7 @@ export function EditableAmount({
             exit={{ opacity: 0 }}
             onClick={() => setEditing(true)}
             className={`group inline-flex items-center gap-1 rounded-lg px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer ${className}`}
-            title="Klik for at redigere"
+            title={t("edit.clickToEdit")}
           >
             <span>{formatKr(value, localeCode)} {suffix}</span>
             <Pencil className="w-2.5 h-2.5 text-muted-foreground/0 group-hover:text-primary/60 transition-colors" />
@@ -159,13 +161,13 @@ export function EditableAmount({
                 onClick={handleCancel}
                 className="px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors"
               >
-                <X className="w-3 h-3 inline mr-1" />Annuller
+                <X className="w-3 h-3 inline mr-1" />{t("edit.cancel")}
               </button>
               <button
                 onClick={handleConfirm}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                <Check className="w-3 h-3 inline mr-1" />Gem
+                <Check className="w-3 h-3 inline mr-1" />{t("edit.save")}
               </button>
             </div>
           </motion.div>

@@ -209,7 +209,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                 </div>
                 <div>
                   <p className="font-display font-bold text-sm">{config.brandName} AI</p>
-                  <p className="text-[10px] text-muted-foreground">Din personlige rådgiver</p>
+                  <p className="text-[10px] text-muted-foreground">{t("ai.personalAdvisor")}</p>
                 </div>
               </div>
               <button onClick={() => setIsOpen(false)} className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
@@ -221,7 +221,7 @@ export function AIChatPanel({ profile, budget }: Props) {
               {messages.length === 0 && !isLoading && (
                 <div className="text-center py-8">
                   <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">AI analyserer din økonomi...</p>
+                  <p className="text-sm text-muted-foreground">{t("ai.analyzing")}</p>
                 </div>
               )}
 
@@ -271,20 +271,20 @@ export function AIChatPanel({ profile, budget }: Props) {
               <div className="px-4 py-4 border-t border-border bg-muted/20">
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
                   <Lock className="w-5 h-5 text-primary mx-auto mb-2" />
-                  <p className="text-sm font-semibold text-foreground mb-1">Du har brugt dine 5 gratis AI-svar</p>
+                  <p className="text-sm font-semibold text-foreground mb-1">{t("ai.usedFreeAnswers")}</p>
                   <p className="text-xs text-muted-foreground mb-3">{t("ai.limitReached")}</p>
                   <a
                     href="/login"
                     className="inline-block px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all"
                   >
-                    Opret konto — hold øje med premium
+                    {t("ai.createAccount")}
                   </a>
                 </div>
               </div>
             ) : (
               <div className="px-4 py-3 border-t border-border bg-muted/20">
                 {remaining < FREE_LIMIT && (
-                  <p className="text-[10px] text-muted-foreground/60 text-right mb-1.5">{remaining} AI-svar tilbage denne måned</p>
+                  <p className="text-[10px] text-muted-foreground/60 text-right mb-1.5">{remaining} {t("ai.answersLeft")}</p>
                 )}
                 <form
                   onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
@@ -294,7 +294,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Stil et spørgsmål om din økonomi..."
+                    placeholder={t("ai.placeholder")}
                     disabled={isLoading}
                     className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 placeholder:text-muted-foreground/40 disabled:opacity-50"
                   />

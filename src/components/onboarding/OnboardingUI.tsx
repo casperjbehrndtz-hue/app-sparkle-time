@@ -4,6 +4,7 @@ import { Check, ArrowRight, ArrowDown } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { OnboardingStep } from "@/lib/types";
+import { useI18n } from "@/lib/i18n";
 
 // ─── Cinematic transitions ────────────────────────────────
 export const pageVariants = {
@@ -34,6 +35,7 @@ export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step);
 
 // ─── Live Budget Bar ──────────────────────────────────────
 export function LiveBudgetBar({ income, expenses, step, onNext }: { income: number; expenses: number; step: OnboardingStep; onNext?: () => void }) {
+  const { t } = useI18n();
   const idx = getStepIndex(step);
   if (idx < 2) return null;
 
@@ -50,7 +52,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Til overs</span>
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("onboarding.leftOver")}</span>
             <motion.span
               key={remaining}
               initial={{ opacity: 0, y: 5 }}
@@ -65,7 +67,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               onClick={onNext}
               className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors flex items-center gap-1"
             >
-              Se overblik <ArrowRight className="w-3 h-3" />
+              {t("onboarding.seeOverview")} <ArrowRight className="w-3 h-3" />
             </button>
           ) : (
             <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% af indkomst</span>
@@ -90,11 +92,12 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
 
 // ─── Step number indicator ────────────────────────────────
 export function StepIndicator({ step }: { step: OnboardingStep }) {
+  const { t } = useI18n();
   const idx = getStepIndex(step);
   if (idx <= 0) return null;
   const totalSteps = STEPS.length - 1; // exclude welcome
   return (
-    <div className="flex flex-col items-center gap-1.5" aria-label={`Trin ${idx} af ${totalSteps}`}>
+    <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{idx}", String(idx)).replace("{total}", String(totalSteps))}>
       <div className="flex items-center gap-2">
         {STEPS.slice(1).map((s, i) => (
           <motion.div

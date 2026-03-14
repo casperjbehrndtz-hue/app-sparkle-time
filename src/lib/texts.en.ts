@@ -490,4 +490,117 @@ export const EN: Record<string, string> = {
   // Subscriptions
   "subs.warning": "Over 2,000 DKK/mo. on subscriptions — consider cutting back",
   "subs.foundInBudget": "Found in your budget",
+
+  // Profile edit (extra)
+  "profile.title": "Edit your details",
+  "profile.saved": "Changes saved",
+  "profile.savedDesc": "Your budget has been updated.",
+  "profile.householdType": "Household type",
+  "profile.solo": "Single",
+  "profile.couple": "Couple",
+  "profile.yourIncome": "Your income (net)",
+  "profile.postalCode": "Postal code",
+  "profile.rentPayment": "Rent/payment",
+  "profile.monthlyPayment": "Monthly housing payment",
+  "profile.interestRate": "Interest rate (%)",
+  "profile.spending": "Spending",
+  "profile.restaurantTakeaway": "Restaurant & takeaway",
+  "profile.healthMedicine": "Health & medicine",
+  "profile.transport": "Transport",
+  "profile.hasCar": "Has car",
+  "profile.carLoan": "Car loan (mo.)",
+  "profile.carFuel": "Fuel/charging (mo.)",
+  "profile.carInsurance": "Car insurance (mo.)",
+  "profile.subscriptions": "Subscriptions",
+  "profile.loansAndSavings": "Loans & Savings",
+  "profile.hasLoan": "Has loan",
+  "profile.loanPayment": "Loan payment (mo.)",
+  "profile.savesUp": "Saves",
+  "profile.savingsMonthly": "Savings (mo.)",
+  "profile.insurances": "Insurance",
+  "profile.insuranceMonthly": "Insurance (mo.)",
+  "profile.saveChanges": "Save changes",
+
+  // Subscriptions (extra)
+  "subs.title": "Subscriptions",
+  "subs.addedManually": "Added manually",
+  "subs.namePlaceholder": "Name (e.g. ChatGPT Plus)",
+  "subs.pricePlaceholder": "Price per month",
+  "subs.add": "Add",
+  "subs.cancel": "Cancel",
+  "subs.addSubscription": "Add subscription",
+
+  // GuidedSaving (extra)
+  "guided.goalReached": "You reached your goal!",
+  "guided.goalReachedDesc": "You freed up {amount} DKK/mo. in total.",
+  "guided.skipped": "Skipped: {label}",
+  "guided.whatIsYourGoal": "What is your goal?",
+  "guided.goalDesc": "I'll review your budget and find the easiest savings — you decide what to do.",
+  "guided.currentDisposable": "Your current disposable income is {amount} DKK/mo.",
+  "guided.skip": "Skip",
+  "guided.apply": "Apply",
+  "guided.goalReachedTitle": "Goal reached!",
+  "guided.sessionDone": "Session complete",
+  "guided.reviewedAll": "You've reviewed all suggestions.",
+  "guided.acceptedChanges": "Accepted changes",
+  "guided.noChanges": "No changes selected.",
+  "guided.seeUpdated": "See updated budget",
+
+  // Forward view (extra)
+  "forward.wealthProjection": "Wealth projection",
+  "forward.years": "years",
+  "forward.estimatedWealth": "Estimated wealth (property)",
+  "forward.estDebt": "Est. debt (~70%)",
+  "forward.netWorth": "Net worth",
+  "forward.goalsProgress": "Goals & progress",
+  "forward.rateShockSim": "Rate shock simulator",
+  "forward.vulnerableEconomy": "Vulnerable finances",
+  "forward.refinanceAdvice": "Refinancing could reduce your exposure.",
+  "forward.timeline": "Timeline — next 10 years",
+  "forward.noEvents": "No major events found based on your profile.",
+
+  // ParSplit (extra)
+  "couple.desc": "See how your shared expenses can be split fairly.",
+  "couple.yourIncome": "Your income",
+  "couple.expenseDistribution": "Expense distribution",
+  "couple.youPay": "You pay",
+  "couple.evenSplit": "Even split — both have roughly the same disposable income",
+  "couple.youHaveMore": "You have {amount} DKK more disposable than your partner",
+  "couple.partnerHasMore": "Your partner has {amount} DKK more disposable than you",
+  "couple.visualization": "Visualization",
+  "couple.tip": "With income-based split, you each pay relative to your salary — try it!",
+
+  // AI chat (extra)
+  "ai.personalAdvisor": "Your personal advisor",
+  "ai.analyzing": "AI is analyzing your finances...",
+  "ai.usedFreeAnswers": "You've used your 5 free AI answers",
+  "ai.createAccount": "Create account — watch for premium",
+  "ai.answersLeft": "AI answers left this month",
+  "ai.placeholder": "Ask a question about your finances...",
+
+  // History
+  "history.noHistory": "No history yet",
+  "history.noHistoryDesc": "Your history will appear here once you've used Kassen for more than a month. Each time you update your budget, we save a snapshot — so you can track your progress over time.",
+  "history.oneSnapshot": "1 snapshot saved · Update your budget again to see a chart",
+  "history.disposableSinceStart": "Disposable income since start",
+  "history.healthSinceStart": "Health score since start",
+  "history.disposableOverTime": "Disposable income over time",
+  "history.healthOverTime": "Health score over time",
+  "history.calculationsSaved": "{count} calculations saved",
+  "history.first": "First",
+  "history.latest": "Latest",
+
+  // Editable amount
+  "edit.clickToEdit": "Click to edit",
+  "edit.cancel": "Cancel",
+  "edit.save": "Save",
+
+  // Onboarding UI
+  "onboarding.leftOver": "Left over",
+  "onboarding.seeOverview": "See overview",
+  "onboarding.stepOf": "Step {idx} of {total}",
+
+  // Optimize (extra)
+  "optimize.opensExternal": "Opens external page",
+  "optimize.savePerMonth": "Save {amount} DKK/mo.",
 };

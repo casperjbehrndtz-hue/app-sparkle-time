@@ -44,7 +44,7 @@ export function ParSplitView({ profile, budget }: Props) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">Se hvordan jeres fælles udgifter kan fordeles retfærdigt.</p>
+      <p className="text-sm text-muted-foreground">{t("couple.desc")}</p>
 
       {/* Model toggle */}
       <div className="flex rounded-xl border border-border overflow-hidden">
@@ -71,7 +71,7 @@ export function ParSplitView({ profile, budget }: Props) {
       {/* Income overview */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Din indkomst</p>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.yourIncome")}</p>
           <p className="text-lg font-bold text-foreground">{formatKr(profile.income, lc)} kr.</p>
           <p className="text-xs text-muted-foreground">{Math.round(myShare * 100)}% af total</p>
         </div>
@@ -89,12 +89,12 @@ export function ParSplitView({ profile, budget }: Props) {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-xl border border-border bg-card p-5 space-y-4"
       >
-        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Udgiftsfordeling</h3>
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("couple.expenseDistribution")}</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center space-y-1">
             <Users className="w-4 h-4 mx-auto text-primary" />
-            <p className="text-xs text-muted-foreground">Du betaler</p>
+            <p className="text-xs text-muted-foreground">{t("couple.youPay")}</p>
             <p className="text-xl font-black text-foreground">{formatKr(splits.my, lc)} kr.</p>
             <p className={`text-xs font-medium ${myRemaining >= 0 ? "text-primary" : "text-destructive"}`}>
               {formatKr(myRemaining, lc)} kr. tilbage
@@ -117,17 +117,17 @@ export function ParSplitView({ profile, budget }: Props) {
             : "bg-accent text-accent-foreground"
         }`}>
           {Math.abs(fairnessDelta) < 500
-            ? "✓ Jævn fordeling — begge har ca. lige meget til rådighed"
+            ? "✓ " + t("couple.evenSplit")
             : fairnessDelta > 0
-              ? `Du har ${formatKr(fairnessDelta, lc)} kr. mere til rådighed end din partner`
-              : `Din partner har ${formatKr(Math.abs(fairnessDelta), lc)} kr. mere til rådighed end dig`
+              ? t("couple.youHaveMore").replace("{amount}", formatKr(fairnessDelta, lc))
+              : t("couple.partnerHasMore").replace("{amount}", formatKr(Math.abs(fairnessDelta), lc))
           }
         </div>
       </motion.div>
 
       {/* Bar chart */}
       <div className="space-y-2">
-        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">Visualisering</h3>
+        <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("couple.visualization")}</h3>
         <div className="h-40 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" barCategoryGap="20%">
@@ -146,7 +146,7 @@ export function ParSplitView({ profile, budget }: Props) {
 
       {model === "equal" && myShare !== 0.5 && (
         <p className="text-xs text-muted-foreground text-center italic">
-          💡 Tip: Med indkomstfordelt model betaler I relativt til jeres løn — prøv den!
+          {"💡 "}{t("couple.tip")}
         </p>
       )}
     </div>

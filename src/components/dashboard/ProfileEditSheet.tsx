@@ -69,14 +69,14 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
   const handleSave = () => {
     onSave(p);
     onClose();
-    toast({ title: "Ændringer gemt", description: "Dit budget er opdateret." });
+    toast({ title: t("profile.saved"), description: t("profile.savedDesc") });
   };
 
   return (
     <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader className="mb-4">
-          <SheetTitle className="font-display">Ret dine oplysninger</SheetTitle>
+          <SheetTitle className="font-display">{t("profile.title")}</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-5 pb-24">
@@ -85,17 +85,17 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.householdIncome")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
-              <Field label="Husstandstype">
+              <Field label={t("profile.householdType")}>
                 <select
                   value={p.householdType}
                   onChange={(e) => set("householdType", e.target.value as BudgetProfile["householdType"])}
                   className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
                 >
-                  <option value="solo">Enlig</option>
-                  <option value="par">Par</option>
+                  <option value="solo">{t("profile.solo")}</option>
+                  <option value="par">{t("profile.couple")}</option>
                 </select>
               </Field>
-              <Field label="Din indkomst (netto)">
+              <Field label={t("profile.yourIncome")}>
                 <NumberInput value={p.income} onChange={(v) => set("income", v)} />
               </Field>
               {p.householdType === "par" && (
@@ -103,7 +103,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
                   <NumberInput value={p.partnerIncome} onChange={(v) => set("partnerIncome", v)} />
                 </Field>
               )}
-              <Field label="Postnummer">
+              <Field label={t("profile.postalCode")}>
                 <input
                   type="text"
                   value={p.postalCode}
@@ -132,16 +132,16 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
                 </select>
               </Field>
               {(p.housingType === "leje" || p.housingType === "andel" || p.housingType === "ungdomsbolig") && (
-                <Field label="Husleje/ydelse">
+                <Field label={t("profile.rentPayment")}>
                   <NumberInput value={p.rentAmount} onChange={(v) => set("rentAmount", v)} />
                 </Field>
               )}
               {p.housingType === "ejer" && (
                 <>
-                  <Field label="Månedlig boligydelse">
+                  <Field label={t("profile.monthlyPayment")}>
                     <NumberInput value={p.mortgageAmount} onChange={(v) => set("mortgageAmount", v)} />
                   </Field>
-                  <Field label="Rente (%)">
+                  <Field label={t("profile.interestRate")}>
                     <NumberInput value={p.interestRate} onChange={(v) => set("interestRate", v)} suffix="%" step={0.1} min={0} />
                   </Field>
                 </>
@@ -151,12 +151,12 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Forbrug ─────────────────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Forbrug</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.spending")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
               <Field label={t("profile.food")}>
                 <NumberInput value={p.foodAmount} onChange={(v) => set("foodAmount", v)} />
               </Field>
-              <Field label="Restauranter & takeaway">
+              <Field label={t("profile.restaurantTakeaway")}>
                 <NumberInput value={p.restaurantAmount} onChange={(v) => set("restaurantAmount", v)} />
               </Field>
               <Field label={t("profile.leisure")}>
@@ -165,7 +165,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
               <Field label={t("profile.clothing")}>
                 <NumberInput value={p.clothingAmount} onChange={(v) => set("clothingAmount", v)} />
               </Field>
-              <Field label="Sundhed & medicin">
+              <Field label={t("profile.healthMedicine")}>
                 <NumberInput value={p.healthAmount} onChange={(v) => set("healthAmount", v)} />
               </Field>
             </div>
@@ -173,20 +173,20 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Transport ───────────────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Transport</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.transport")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
-              <Field label="Har bil">
+              <Field label={t("profile.hasCar")}>
                 <Toggle checked={p.hasCar} onChange={(v) => set("hasCar", v)} />
               </Field>
               {p.hasCar && (
                 <>
-                  <Field label="Billån (md.)">
+                  <Field label={t("profile.carLoan")}>
                     <NumberInput value={p.carLoan} onChange={(v) => set("carLoan", v)} />
                   </Field>
-                  <Field label="Benzin/el (md.)">
+                  <Field label={t("profile.carFuel")}>
                     <NumberInput value={p.carFuel} onChange={(v) => set("carFuel", v)} />
                   </Field>
-                  <Field label="Bilforsikring (md.)">
+                  <Field label={t("profile.carInsurance")}>
                     <NumberInput value={p.carInsurance} onChange={(v) => set("carInsurance", v)} />
                   </Field>
                 </>
@@ -196,7 +196,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Abonnementer ────────────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Abonnementer</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.subscriptions")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
               {([
                 ["Netflix (149 kr.)", "hasNetflix"],
@@ -216,29 +216,29 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
 
           {/* ── Lån & Opsparing ─────────────────────────────────────────── */}
           <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Lån & Opsparing</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.loansAndSavings")}</h3>
             <div className="rounded-xl border border-border/60 px-4">
-              <Field label="Har lån">
+              <Field label={t("profile.hasLoan")}>
                 <Toggle checked={p.hasLoan} onChange={(v) => set("hasLoan", v)} />
               </Field>
               {p.hasLoan && (
-                <Field label="Lånebetaling (md.)">
+                <Field label={t("profile.loanPayment")}>
                   <NumberInput value={p.loanAmount} onChange={(v) => set("loanAmount", v)} />
                 </Field>
               )}
-              <Field label="Sparer op">
+              <Field label={t("profile.savesUp")}>
                 <Toggle checked={p.hasSavings} onChange={(v) => set("hasSavings", v)} />
               </Field>
               {p.hasSavings && (
-                <Field label="Opsparing (md.)">
+                <Field label={t("profile.savingsMonthly")}>
                   <NumberInput value={p.savingsAmount} onChange={(v) => set("savingsAmount", v)} />
                 </Field>
               )}
-              <Field label="Forsikringer">
+              <Field label={t("profile.insurances")}>
                 <Toggle checked={p.hasInsurance} onChange={(v) => set("hasInsurance", v)} />
               </Field>
               {p.hasInsurance && (
-                <Field label="Forsikring (md.)">
+                <Field label={t("profile.insuranceMonthly")}>
                   <NumberInput value={p.insuranceAmount} onChange={(v) => set("insuranceAmount", v)} />
                 </Field>
               )}
@@ -252,7 +252,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
             onClick={handleSave}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all"
           >
-            Gem ændringer
+            {t("profile.saveChanges")}
           </button>
         </div>
       </SheetContent>

@@ -112,7 +112,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
     }]);
 
     if (newFound >= goalAmount) {
-      setDoneMessage(`Du har nået dit mål! 🎉 Du frigjorde ${formatKr(newFound, lc)} kr./md. i alt.`);
+      setDoneMessage(`${t("guided.goalReached")} 🎉 ${t("guided.goalReachedDesc").replace("{amount}", formatKr(newFound, lc))}`);
       setPhase("complete");
       return;
     }
@@ -124,7 +124,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
     if (!suggestion) return;
     const newRejected = [...rejectedFields, suggestion.field];
     setRejectedFields(newRejected);
-    setMessages(prev => [...prev, { type: "skip", text: `Sprang over: ${suggestion.label}` }]);
+    setMessages(prev => [...prev, { type: "skip", text: t("guided.skipped").replace("{label}", suggestion.label) }]);
     fetchNextSuggestion(currentProfile, newRejected, acceptedChanges, totalFound);
   };
 
@@ -154,8 +154,8 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-6 w-full">
             <div>
               <Target className="w-10 h-10 text-primary mx-auto mb-4" />
-              <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-2">Hvad er dit mål?</h2>
-              <p className="text-muted-foreground text-sm">Jeg gennemgår dit budget og finder de nemmeste besparelser — du beslutter hvad du vil gøre.</p>
+              <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-2">{t("guided.whatIsYourGoal")}</h2>
+              <p className="text-muted-foreground text-sm">{t("guided.goalDesc")}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
@@ -176,7 +176,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
 
             <div className="rounded-2xl bg-muted/50 p-4 text-left">
               <p className="text-xs text-muted-foreground">
-                Dit nuværende rådighedsbeløb er <span className="font-bold text-foreground">{formatKr(budget.disposableIncome, lc)} kr./md.</span>
+                {t("guided.currentDisposable").replace("{amount}", formatKr(budget.disposableIncome, lc))}
                 {" "}— med {formatKr(goalAmount, lc)} kr. mere vil du have{" "}
                 <span className="font-bold text-primary">{formatKr(budget.disposableIncome + goalAmount, lc)} kr./md.</span>
               </p>
@@ -305,14 +305,14 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                   onClick={handleSkip}
                   className="py-3.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
                 >
-                  <SkipForward className="w-4 h-4" /> Spring over
+                  <SkipForward className="w-4 h-4" /> {t("guided.skip")}
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={handleAccept}
                   className="py-3.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/20 transition-all"
                 >
-                  <Check className="w-4 h-4" /> Anvend
+                  <Check className="w-4 h-4" /> {t("guided.apply")}
                 </motion.button>
               </div>
             </motion.div>
@@ -332,16 +332,16 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 <span className="text-3xl">🎉</span>
               </div>
               <h2 className="font-display font-black text-2xl text-foreground mb-2">
-                {totalFound >= goalAmount ? "Mål nået!" : "Sessionen er færdig"}
+                {totalFound >= goalAmount ? t("guided.goalReachedTitle") : t("guided.sessionDone")}
               </h2>
-              <p className="text-muted-foreground text-sm">{doneMessage || `Du har gennemgået alle forslag.`}</p>
+              <p className="text-muted-foreground text-sm">{doneMessage || t("guided.reviewedAll")}</p>
             </div>
 
             {/* Summary */}
             <div className="rounded-2xl border border-border p-4 text-left space-y-2">
-              <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">Accepterede ændringer</p>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("guided.acceptedChanges")}</p>
               {acceptedChanges.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Ingen ændringer valgt.</p>
+                <p className="text-sm text-muted-foreground">{t("guided.noChanges")}</p>
               ) : (
                 <>
                   {acceptedChanges.map((c, i) => (
@@ -365,7 +365,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
               onClick={onClose}
               className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base shadow-lg shadow-primary/20"
             >
-              Se opdateret budget
+              {t("guided.seeUpdated")}
             </button>
           </motion.div>
         </div>

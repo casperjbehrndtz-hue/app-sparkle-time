@@ -131,7 +131,7 @@ export function FremadView({ profile, budget, health }: Props) {
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
           </div>
           <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Formue-projektion</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.wealthProjection")}</p>
             <p className="text-[10px] text-muted-foreground">
               {lang === "nb" ? `Basert på ${formatKr(monthlySavings, lc)} kr./md. investert` : lang === "en" ? `Based on ${formatKr(monthlySavings, lc)} DKK/mo. invested` : `Baseret på ${formatKr(monthlySavings, lc)} kr./md. investeret`}
             </p>
@@ -147,7 +147,7 @@ export function FremadView({ profile, budget, health }: Props) {
               transition={{ delay: p.years * 0.05 + 0.1 }}
               className="text-center p-3 rounded-xl bg-muted/50 border border-border"
             >
-              <p className="text-[10px] text-muted-foreground mb-1">{p.years} år</p>
+              <p className="text-[10px] text-muted-foreground mb-1">{p.years} {t("forward.years")}</p>
               <p className="font-display font-bold text-sm text-primary">{formatKr(p.amount, lc)}</p>
               <p className="text-[9px] text-muted-foreground">kr.</p>
             </motion.div>
@@ -159,7 +159,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={projections} margin={{ left: 0, right: 0, top: 5, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(150,8%,91%)" />
-              <XAxis dataKey="years" tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${v} år`} axisLine={false} tickLine={false} />
+              <XAxis dataKey="years" tick={{ fontSize: 11, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${v} ${t("forward.years")}`} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "hsl(160,5%,50%)" }} tickFormatter={(v) => `${Math.round(v / 1000)}k`} axisLine={false} tickLine={false} width={40} />
               <Tooltip
                 formatter={(val: number) => [`${formatKr(val, lc)} kr.`, "Forventet formue"]}
@@ -190,7 +190,7 @@ export function FremadView({ profile, budget, health }: Props) {
               <TrendingUp className="w-3.5 h-3.5 text-kassen-gold" />
             </div>
             <div>
-              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Estimeret formue (bolig)</p>
+              <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.estimatedWealth")}</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -199,11 +199,11 @@ export function FremadView({ profile, budget, health }: Props) {
               <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue, lc)} kr.</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
-              <p className="text-[10px] text-muted-foreground mb-1">Est. gæld (~70%)</p>
+              <p className="text-[10px] text-muted-foreground mb-1">{t("forward.estDebt")}</p>
               <p className="font-display font-bold text-sm text-destructive">{formatKr(estimatedDebt, lc)} kr.</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
-              <p className="text-[10px] text-muted-foreground mb-1">Net worth</p>
+              <p className="text-[10px] text-muted-foreground mb-1">{t("forward.netWorth")}</p>
               <p className="font-display font-bold text-sm text-primary">{formatKr(netWorth, lc)} kr.</p>
             </div>
           </div>
@@ -219,7 +219,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <div className="w-7 h-7 rounded-lg bg-kassen-gold/10 flex items-center justify-center">
             <Target className="w-3.5 h-3.5 text-kassen-gold" />
           </div>
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">Mål & fremskridt</p>
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.goalsProgress")}</p>
         </div>
 
         <div className="space-y-4">
@@ -276,7 +276,7 @@ export function FremadView({ profile, budget, health }: Props) {
       {/* Rate simulator */}
       {mortgageBase > 0 && (
         <motion.div variants={fadeUp(0.15)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
-          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">Rentechok-simulator</p>
+          <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("forward.rateShockSim")}</p>
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
             <span className={`font-display font-bold text-lg ${simulatedDisposable > 5000 ? "text-primary" : simulatedDisposable > 0 ? "text-kassen-gold" : "text-destructive"}`}>
@@ -294,8 +294,8 @@ export function FremadView({ profile, budget, health }: Props) {
           </div>
           {simulatedDisposable < 3000 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">
-              <p className="text-sm text-destructive font-semibold mb-1">⚠️ Sårbar økonomi</p>
-              <p className="text-xs text-muted-foreground mb-2">Refinansiering kan reducere jeres eksponering.</p>
+              <p className="text-sm text-destructive font-semibold mb-1">⚠️ {t("forward.vulnerableEconomy")}</p>
+              <p className="text-xs text-muted-foreground mb-2">{t("forward.refinanceAdvice")}</p>
               <a href={config.ctaLinks.mortgage?.url || "https://parfinans.dk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
                 {config.ctaLinks.mortgage?.label || "Se hvad refinansiering kan gøre →"}
               </a>
@@ -306,9 +306,9 @@ export function FremadView({ profile, budget, health }: Props) {
 
       {/* Timeline */}
       <motion.div variants={fadeUp(0.2)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
-        <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">Tidslinje – næste 10 år</p>
+        <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">{t("forward.timeline")}</p>
         {events.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">Ingen store begivenheder fundet baseret på jeres profil.</p>
+          <p className="text-sm text-muted-foreground text-center py-6">{t("forward.noEvents")}</p>
         ) : (
           <div className="relative">
             <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
