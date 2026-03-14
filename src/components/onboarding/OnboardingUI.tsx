@@ -33,7 +33,7 @@ export const STEPS: OnboardingStep[] = ["welcome", "household", "income", "housi
 export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 // ─── Live Budget Bar ──────────────────────────────────────
-export function LiveBudgetBar({ income, expenses, step }: { income: number; expenses: number; step: OnboardingStep }) {
+export function LiveBudgetBar({ income, expenses, step, onNext }: { income: number; expenses: number; step: OnboardingStep; onNext?: () => void }) {
   const idx = getStepIndex(step);
   if (idx < 2) return null;
 
@@ -60,7 +60,16 @@ export function LiveBudgetBar({ income, expenses, step }: { income: number; expe
               {formatKr(remaining)} kr.
             </motion.span>
           </div>
-          <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% af indkomst</span>
+          {onNext ? (
+            <button
+              onClick={onNext}
+              className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors flex items-center gap-1"
+            >
+              Se overblik <ArrowRight className="w-3 h-3" />
+            </button>
+          ) : (
+            <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% af indkomst</span>
+          )}
         </div>
         <div className="h-2 rounded-full bg-muted overflow-hidden flex">
           <motion.div

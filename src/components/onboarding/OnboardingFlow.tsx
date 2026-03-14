@@ -625,7 +625,6 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             </div>
 
             <AILiveComment profile={profile} step="expenses" />
-            <ContinueButton onClick={goNext} label={t("step.expenses.seeOverview")} />
           </div>
         );
       }
@@ -737,7 +736,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           </motion.div>
         </AnimatePresence>
       </div>
-      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} />}
+      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "expenses" ? goNext : undefined} />}
     </div>
   );
 }
