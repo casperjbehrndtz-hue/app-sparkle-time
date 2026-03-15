@@ -78,7 +78,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const restored = !isEditing ? loadOnboardingState() : null;
 
   const [step, setStep] = useState<OnboardingStep>(
-    isEditing ? "household" : (restored?.step && restored.step !== "welcome" as string) ? restored.step : "household"
+    isEditing ? "household" : (restored?.step && STEPS.includes(restored.step as OnboardingStep)) ? (restored.step as OnboardingStep) : "household"
   );
   const [direction, setDirection] = useState(1);
   const [profile, setProfile] = useState<BudgetProfile>(
@@ -354,10 +354,10 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 {childAgeInputs.map((age, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
-                    <select value={age}
+                    <select value={String(age)}
                       onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); update({ childrenAges: na }); }}
                       className="flex-1 bg-background border-2 border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
-                      {Array.from({ length: 18 }, (_, j) => <option key={j} value={j}>{j} {t("step.children.years")}</option>)}
+                      {Array.from({ length: 18 }, (_, j) => <option key={j} value={String(j)}>{j} {t("step.children.years")}</option>)}
                     </select>
                     {childAgeInputs.length > 1 && (
                       <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}

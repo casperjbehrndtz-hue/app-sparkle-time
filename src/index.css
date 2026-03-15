@@ -170,6 +170,19 @@ input[type="range"] {
   background: hsl(var(--muted));
   outline: none;
   cursor: pointer;
+  touch-action: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: inherit;
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: hsl(var(--muted));
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -183,6 +196,7 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 1px 4px hsl(0 0% 0% / 0.15);
   cursor: pointer;
   transition: transform 0.15s ease;
+  margin-top: -8px;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
