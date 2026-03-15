@@ -48,6 +48,25 @@ export function usePageMeta(
       };
     }
 
+    // Hreflang alternate links (DA/EN/NO — same URL, client-side toggle)
+    const hreflangCodes = ["da", "en", "no", "x-default"] as const;
+    const hreflangLinks: HTMLLinkElement[] = [];
+    for (const code of hreflangCodes) {
+      // Remove any existing hreflang link for this code
+      const existing = document.querySelector(
+        `link[rel="alternate"][hreflang="${code}"]`
+      );
+      if (existing) existing.remove();
+
+      const link = document.createElement("link");
+      link.rel = "alternate";
+      link.hreflang = code;
+      // x-default points to the same URL (Danish is the default)
+      link.href = pageUrl;
+      document.head.appendChild(link);
+      hreflangLinks.push(link);
+    }
+
     const cleanups = [
       setMeta("name", "description", description),
       // Open Graph
@@ -65,6 +84,7 @@ export function usePageMeta(
     return () => {
       document.title = prev;
       cleanups.forEach((fn) => fn());
+      hreflangLinks.forEach((link) => link.remove());
     };
   }, [title, description, imageUrl]);
 }
