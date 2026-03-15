@@ -319,7 +319,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     <span className="text-sm text-muted-foreground">{t("step.housing.interestRate")}</span>
                     <span className="font-display font-bold text-xl">{profile.interestRate.toFixed(1)}%</span>
                   </div>
-                  <Slider min={0.5} max={8} step={0.25} value={[profile.interestRate]} onValueChange={([v]) => update({ interestRate: v })} className="w-full" />
+                  <Slider min={0.5} max={8} step={0.25} value={[profile.interestRate]} onValueChange={([v]) => update({ interestRate: v })} className="w-full" aria-label={t("step.housing.interestRate")} />
                 </div>
               </div>
             )}
@@ -429,7 +429,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
               </div>
             </div>
-            <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" />
+            <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" aria-label={label} />
             <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
               <span>{formatKr(min)}</span><span>{formatKr(max)}</span>
             </div>
@@ -693,6 +693,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <span className="text-muted-foreground/60">{t("onboarding.emailUnsubscribe")}</span>
               </span>
             </label>
+
+            {(profile.income + profile.partnerIncome) < 1000 && (
+              <div className="rounded-xl bg-amber-50 text-amber-800 border border-amber-200 p-3 text-sm">
+                {t("step.review.zeroIncomeWarning")}
+              </div>
+            )}
 
             <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} label={t("step.review.seeDashboard")} />
           </div>

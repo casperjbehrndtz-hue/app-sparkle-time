@@ -10,10 +10,11 @@ interface SliderProps {
   onValueChange?: (value: number[]) => void;
   className?: string;
   disabled?: boolean;
+  "aria-label"?: string;
 }
 
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
-  ({ min = 0, max = 100, step = 1, value, defaultValue, onValueChange, className, disabled }, ref) => {
+  ({ min = 0, max = 100, step = 1, value, defaultValue, onValueChange, className, disabled, "aria-label": ariaLabel }, ref) => {
     const val = value?.[0] ?? defaultValue?.[0] ?? min;
     const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
 
@@ -26,6 +27,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
         step={step}
         value={val}
         disabled={disabled}
+        aria-label={ariaLabel}
         onChange={(e) => onValueChange?.([Number(e.target.value)])}
         className={cn("w-full", className)}
         style={{

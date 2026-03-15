@@ -94,6 +94,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
                     min={4000}
                     max={25000}
                     step={500}
+                    aria-label={t("scenario.mortgagePayment")}
                   />
                 </div>
                 <span className="text-xs font-medium text-foreground">{formatKr(mortgageInput, locale.currencyLocale)} {t("perMonth")}</span>
@@ -109,6 +110,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
                     min={-10000}
                     max={15000}
                     step={500}
+                    aria-label={t("scenario.salaryChange")}
                   />
                 </div>
                 <span className={`text-xs font-medium ${salaryDelta >= 0 ? "text-primary" : "text-destructive"}`}>

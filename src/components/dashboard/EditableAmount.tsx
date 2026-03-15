@@ -148,6 +148,7 @@ export function EditableAmount({
                   setInputValue(String(v));
                 }}
                 className="w-full"
+                aria-label={t("edit.clickToEdit")}
               />
             </div>
             <div className="flex justify-between text-[10px] text-muted-foreground">

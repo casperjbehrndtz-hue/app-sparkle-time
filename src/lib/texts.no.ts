@@ -181,6 +181,7 @@ export const NO: Record<string, string> = {
   "step.review.health": "Helse (lege, tannlege)",
   "step.review.fixedExpenses": "Faste utgifter",
   "step.review.seeDashboard": "Se fullt dashboard",
+  "step.review.zeroIncomeWarning": "Inntekten din er satt til 0 kr. Er det riktig?",
 
   // Dashboard
   "dash.charts": "Diagrammer",

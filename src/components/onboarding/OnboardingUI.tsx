@@ -194,6 +194,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           value={[value]}
           onValueChange={([v]) => onChange(v)}
           className="w-full"
+          aria-label={label}
         />
       </div>
       <div className="flex justify-between text-[11px] text-muted-foreground">
