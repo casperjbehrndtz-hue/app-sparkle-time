@@ -34,8 +34,8 @@ const Index = () => {
     } catch {}
     return null;
   });
-  const [showHome, setShowHome] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
+  // "landing" = first visit, "home" = navigated from dashboard, null = app flow
+  const [landingView, setLandingView] = useState<"landing" | "home" | null>("landing");
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
@@ -167,12 +167,12 @@ const Index = () => {
   }
 
   // Forside — vises når bruger klikker "Hjem" fra dashboard, eller ingen profil
-  if (showHome || (showLanding && !profile && !editingProfile)) {
+  if (landingView && (landingView === "home" || (!profile && !editingProfile))) {
     return (
       <WelcomePage
-        onStart={() => { setShowHome(false); setShowLanding(false); }}
+        onStart={() => setLandingView(null)}
         hasExistingProfile={!!profile}
-        onGoToApp={() => setShowHome(false)}
+        onGoToApp={() => setLandingView(null)}
       />
     );
   }
@@ -196,7 +196,7 @@ const Index = () => {
         onReset={handleReset}
         onProfileChange={handleProfileChange}
         onEditProfile={handleEditProfile}
-        onHome={() => setShowHome(true)}
+        onHome={() => setLandingView("home")}
       />
     );
   }

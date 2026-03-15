@@ -78,7 +78,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const restored = !isEditing ? loadOnboardingState() : null;
 
   const [step, setStep] = useState<OnboardingStep>(
-    isEditing ? "household" : (restored?.step && restored.step !== "welcome") ? restored.step : "household"
+    isEditing ? "household" : (restored?.step && restored.step !== "welcome" as string) ? restored.step : "household"
   );
   const [direction, setDirection] = useState(1);
   const [profile, setProfile] = useState<BudgetProfile>(
@@ -107,7 +107,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
     setProfile((p) => ({ ...p, ...partial }));
   }, []);
 
-  const liveBudget = getStepIndex(step) >= 2 ? computeBudget(profile, null, locale) : null;
+  const liveBudget = getStepIndex(step) >= 1 ? computeBudget(profile, null, locale) : null;
 
   const goNext = () => {
     setDirection(1);
@@ -118,7 +118,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const goBack = () => {
     setDirection(-1);
     const idx = getStepIndex(step);
-    if (idx > 1) setStep(STEPS[idx - 1]);
+    if (idx > 0) setStep(STEPS[idx - 1]);
   };
   // ─── STEP CONTENT RENDERER ───────────────
   const renderStepContent = () => {
@@ -708,7 +708,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
     <div className="h-dvh bg-background flex flex-col">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          {getStepIndex(step) > 1 ? (
+          {getStepIndex(step) > 0 ? (
             <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 px-1">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
             </button>

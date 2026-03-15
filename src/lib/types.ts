@@ -122,7 +122,6 @@ export interface OptimizingAction {
 }
 
 export type OnboardingStep =
-  | "welcome"
   | "household"
   | "income"
   | "housing"

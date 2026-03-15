@@ -30,14 +30,14 @@ export const pageVariants = {
   }),
 };
 
-export const STEPS: OnboardingStep[] = ["welcome", "household", "income", "housing", "children", "expenses", "review"];
+export const STEPS: OnboardingStep[] = ["household", "income", "housing", "children", "expenses", "review"];
 export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 // ─── Live Budget Bar ──────────────────────────────────────
 export function LiveBudgetBar({ income, expenses, step, onNext }: { income: number; expenses: number; step: OnboardingStep; onNext?: () => void }) {
   const { t } = useI18n();
   const idx = getStepIndex(step);
-  if (idx < 2) return null;
+  if (idx < 1) return null;
 
   const remaining = income - expenses;
   const pct = income > 0 ? Math.max(0, Math.min(100, (remaining / income) * 100)) : 0;
@@ -94,23 +94,23 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
 export function StepIndicator({ step }: { step: OnboardingStep }) {
   const { t } = useI18n();
   const idx = getStepIndex(step);
-  if (idx <= 0) return null;
-  const totalSteps = STEPS.length - 1; // exclude welcome
+  if (idx < 0) return null;
+  const totalSteps = STEPS.length;
   return (
-    <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{idx}", String(idx)).replace("{total}", String(totalSteps))}>
+    <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{idx}", String(idx + 1)).replace("{total}", String(totalSteps))}>
       <div className="flex items-center gap-2">
-        {STEPS.slice(1).map((s, i) => (
+        {STEPS.map((s, i) => (
           <motion.div
             key={s}
             className={`h-1 rounded-full transition-colors duration-300 ${
-              i < idx ? "bg-primary" : i === idx ? "bg-primary" : "bg-border"
+              i <= idx ? "bg-primary" : "bg-border"
             }`}
             animate={{ width: i === idx ? 24 : i < idx ? 16 : 8 }}
             transition={{ duration: 0.3 }}
           />
         ))}
       </div>
-      <span className="text-[10px] text-muted-foreground/60 tabular-nums">{idx}/{totalSteps}</span>
+      <span className="text-[10px] text-muted-foreground/60 tabular-nums">{idx + 1}/{totalSteps}</span>
     </div>
   );
 }
