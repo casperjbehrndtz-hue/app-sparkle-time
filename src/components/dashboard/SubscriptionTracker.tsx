@@ -46,7 +46,7 @@ export function SubscriptionTracker({ profile }: Props) {
 
   // Detect subscriptions from profile
   const detected = DETECTED_SUBS.filter((s) => profile[s.key as keyof BudgetProfile]).map((s) => ({
-    name: s.name,
+    name: t(`cat.${s.name}`) !== `cat.${s.name}` ? t(`cat.${s.name}`) : s.name,
     amount: s.key === "hasFitness" ? profile.fitnessAmount
       : s.key === "hasInsurance" ? profile.insuranceAmount
       : s.key === "hasUnion" ? profile.unionAmount
@@ -68,7 +68,7 @@ export function SubscriptionTracker({ profile }: Props) {
     if (!newName || !newAmount) return;
     const sub: Omit<Subscription, "id"> & { user_id?: string } = {
       name: newName,
-      amount: parseInt(newAmount),
+      amount: parseInt(newAmount, 10) || 0,
       frequency: "monthly",
       category: "other",
       is_active: true,

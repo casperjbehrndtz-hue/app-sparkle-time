@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { EditableAmount } from "./EditableAmount";
-import { SankeyDiagram } from "./SankeyDiagram";
-import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio } from "lucide-react";
+import { SankeyDiagramV2 } from "./SankeyDiagramV2";
+import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio, FileText, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { SocialProofNudge } from "./SocialProofNudge";
@@ -22,19 +22,6 @@ interface Props {
   optimizations: OptimizingAction[];
   onProfileChange: (profile: BudgetProfile) => void;
 }
-
-const BUCKET_COLORS = {
-  drift: "hsl(var(--primary))",
-  frihed: "hsl(var(--kassen-gold))",
-  fremtid: "hsl(var(--flow-savings))",
-  risiko: "hsl(var(--flow-subscriptions))",
-};
-
-const BUCKET_KEYS = ["drift", "frihed", "fremtid", "risiko"] as const;
-type BucketKey = typeof BUCKET_KEYS[number];
-const BUCKET_EMOJIS: Record<BucketKey, string> = {
-  drift: "⚙️", frihed: "✨", fremtid: "📈", risiko: "🛡️",
-};
 
 
 export function CockpitSection({ profile, budget, health, smartSteps, optimizations, onProfileChange }: Props) {
@@ -66,10 +53,6 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
     return a;
   }, [profile, budget, health, t, locale]);
 
-  // 4 Buckets
-  const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
-  const bucketEntries = Object.entries(health.buckets) as [BucketKey, number][];
-
   const totalSavings = optimizations.reduce((s, o) => s + o.besparelse_kr, 0);
 
   return (
@@ -78,7 +61,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
       <div className="rounded-2xl border border-border p-4 sm:p-5">
         <div className="flex items-start gap-4">
           <div className="relative flex-shrink-0">
-            <svg width="80" height="80" viewBox="0 0 80 80" className="drop-shadow-sm">
+            <svg width="80" height="80" viewBox="0 0 80 80" className="drop-shadow-sm" role="img" aria-label={`${score}/100 — ${label}`}>
               <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
               <motion.circle
                 cx="40" cy="40" r={radius}
@@ -143,7 +126,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
               </div>
               <div className={`flex-1 p-3 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
                 <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.disposable")}</p>
-                <p className={`font-display font-bold text-base ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
+                <p className={`font-display font-bold text-lg ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
                   {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome, locale.currencyLocale)} {t("currency")}
                 </p>
               </div>
@@ -164,7 +147,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
               transition={{ delay: i * 0.06 }}
               className={`rounded-xl p-3 flex items-center gap-2.5 border-l-4 border text-xs ${
                 alert.level === "critical"
-                  ? "bg-destructive/5 border-l-destructive border-destructive/20 text-destructive"
+                  ? "bg-destructive/10 border-l-destructive border-destructive/30 text-destructive font-semibold"
                   : alert.level === "warning"
                   ? "bg-kassen-gold/5 border-l-kassen-gold border-kassen-gold/20 text-kassen-gold"
                   : "bg-primary/5 border-l-primary border-primary/20 text-primary"
@@ -180,9 +163,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
       )}
 
       {/* ── Sankey pengestrøm ── */}
-      <div className="rounded-2xl border border-border overflow-hidden">
-        <SankeyDiagram budget={budget} profile={profile} />
-      </div>
+      <SankeyDiagramV2 budget={budget} profile={profile} />
 
       {/* ── Live Data Indicator ── */}
       {marketData && (() => {
@@ -212,38 +193,6 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         );
       })()}
 
-      {/* ── 4 Buckets ── */}
-      <div className="rounded-2xl border border-border p-4">
-        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-2.5">{t("cockpit.distribution")}</p>
-        <div className="h-2.5 rounded-full overflow-hidden flex mb-3">
-          {bucketEntries.map(([key, val]) => (
-            <motion.div
-              key={key}
-              initial={{ width: 0 }}
-              animate={{ width: `${totalBuckets > 0 ? (val / totalBuckets) * 100 : 25}%` }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              style={{ backgroundColor: BUCKET_COLORS[key] }}
-              className="h-full first:rounded-l-full last:rounded-r-full"
-            />
-          ))}
-        </div>
-        <div className="grid grid-cols-4 gap-1.5">
-          {bucketEntries.map(([key, val]) => {
-            const emoji = BUCKET_EMOJIS[key as BucketKey];
-            const label = t(`cockpit.bucket.${key}`);
-            const tip = t(`cockpit.bucket.${key}Tip`);
-            const pct = totalBuckets > 0 ? Math.round((val / totalBuckets) * 100) : 0;
-            return (
-              <div key={key} className="text-center" title={tip}>
-                <span className="text-[10px] font-medium" aria-hidden="true">{emoji} {label}</span>
-                <p className="font-display font-bold text-xs tabular-nums">{pct}%</p>
-                <p className="text-[9px] text-muted-foreground">{formatKr(val, locale.currencyLocale)}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* ── Savings Potential CTA ── */}
       {totalSavings > 0 && (
         <motion.div
@@ -271,16 +220,38 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </motion.div>
       )}
 
-      <LossAversionInsights profile={profile} budget={budget} health={health} />
+      {/* Social insights */}
+      <div className="rounded-2xl border border-border p-4 space-y-3">
+        <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("cockpit.insights")}</p>
+        <SocialProofNudge profile={profile} budget={budget} health={health} />
+        <LossAversionInsights profile={profile} budget={budget} health={health} />
+      </div>
+
+      {/* ── Payslip CTA ── */}
+      <a
+        href="/lonseddel"
+        className="group flex items-center gap-3 rounded-2xl p-4 border border-border bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 hover:border-primary/30 transition-all"
+      >
+        <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+          <FileText className="w-5 h-5 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold">{t("payslip.ctaTitle")}</p>
+          <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{t("payslip.ctaDesc")}</p>
+        </div>
+        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+      </a>
     </div>
   );
 }
 
-function TruthRow({ icon, label, value, positive }: { icon: React.ReactNode; label: string; value: string; positive: boolean }) {
+
+function TruthRow({ icon, label, value, positive, positiveLabel, negativeLabel }: { icon: React.ReactNode; label: string; value: string; positive: boolean; positiveLabel?: string; negativeLabel?: string }) {
   return (
     <div className="flex items-center gap-2">
       <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 ${positive ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}>
         {icon}
+        <span className="sr-only">{positive ? (positiveLabel ?? "OK") : (negativeLabel ?? "!")}</span>
       </div>
       <div className="flex-1 min-w-0 flex items-baseline justify-between">
         <span className="text-[10px] text-muted-foreground truncate">{label}</span>

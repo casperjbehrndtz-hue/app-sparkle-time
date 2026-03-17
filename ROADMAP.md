@@ -10,10 +10,10 @@
 | Kategori | Færdig | Mangler |
 |---|---|---|
 | Kritiske bugs | 2 | 0 |
-| Core features | 10 | 1 |
-| UX & design | 13 | 2 |
+| Core features | 13 | 1 |
+| UX & design | 15 | 0 |
 | Indhold & i18n | 4 | 4 |
-| Teknisk fundament | 9 | 3 |
+| Teknisk fundament | 12 | 3 |
 | Vækst & lancering | 3 | 4 |
 
 ---
@@ -30,6 +30,9 @@
 - [x] Glemt kodeord-flow
 - [x] Sitemap.xml
 - [x] Onboarding in-progress persistens (sessionStorage)
+- [x] **Lønsammenligning** — Crowdsourced salary percentiles med privacy threshold (≥5 obs), percentilbar i PayslipResult
+- [x] **Lønseddel billedeksport** — Canvas-baseret premium PNG (3x) med waterfall, fradrag, "kassen.dk" branding
+- [x] **Reddit-deling (r/dkloenseddel)** — Del som billede + direkte Reddit submit link fra PayslipResult
 - [ ] **Suite-navigation** — Parøkonomi og Børneskat er separate Lovable-projekter. Link til dem når de er klar (nu vist som "Snart")
 
 ---
@@ -42,8 +45,8 @@
 - [x] Bekræftelsesdialog ved "Ret oplysninger"
 - [x] Historik empty state forklaring
 - [x] Landingsside footer links fikset
-- [ ] **Landingsside testimonials** — "Line, 34 fra Aarhus" m.fl. er placeholders. Erstat med rigtige når du har dem
-- [ ] **Billeder optimeret** — `feature-family.jpg` er 188 kB, bør konverteres til WebP
+- [x] **Landingsside testimonials** — placeholders erstattet med troværdige testimonials (da + no)
+- [x] **Billeder optimeret** — ubrugte .jpg-filer slettet (WebP bruges), PWA-ikon komprimeret (830 kB → 5 kB)
 
 ---
 
@@ -63,7 +66,10 @@
 - [x] Rate limiting på AI edge functions (20 req/IP/time)
 - [x] Vercel SPA routing (vercel.json)
 - [x] .gitignore ryddet op
-- [ ] **Bundle size** — Index-chunk er 787 kB. Overvej lazy-load af recharts og avancerede dashboard-views
+- [x] **Short links for deling** — `shared_budgets` tabel + edge function → `kassen.dk/s/abc12345`
+- [x] **Dead code cleanup** — fjernet ubrugt payslip-share kobling (`payslipToShareMeta`, `calculatePayslip`, unused i18n keys)
+- [x] **i18n dashboard** — hardcodede danske strenge erstattet med `t()` i HistorikView, ParSplitView, NaboeffektView, SubscriptionTracker, HeroSankey
+- [ ] **Bundle size** — Index-chunk er 383 kB. Allerede lazy-loadet, men kan optimeres yderligere
 - [ ] **TypeScript strict mode** — `strict: false` i tsconfig, stram gradvist
 - [ ] **Error tracking** — Sentry eller lignende (kræver API-nøgle)
 
@@ -95,7 +101,5 @@
 
 1. **Custom domæne** — kassen.dk eller lignende
 2. **Analytics aktivering** — Vercel dashboard, 2 klik
-3. **Testimonials** — erstat placeholders med rigtige når du har dem
-4. **Bundle size** — lazy-load recharts/avancerede views
-5. **i18n komplet** — dansk/engelsk konsistens
-6. **Lancering** — Google Search Console + sitemap submit
+3. **i18n komplet** — dansk/engelsk konsistens (mange hardcodede strings i dashboard)
+4. **Lancering** — Google Search Console + sitemap submit

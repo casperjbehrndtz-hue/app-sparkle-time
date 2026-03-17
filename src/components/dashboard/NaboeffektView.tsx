@@ -84,7 +84,7 @@ export function NaboeffektView({ profile, budget }: Props) {
 
   // Housing ratio
   const housingCost = budget.fixedExpenses
-    .filter(e => e.category === "Bolig")
+    .filter(e => e.category === "Bolig" || e.category === "Housing")
     .reduce((s, e) => s + e.amount, 0);
   const housingPct = budget.totalIncome > 0
     ? Math.round((housingCost / budget.totalIncome) * 100)

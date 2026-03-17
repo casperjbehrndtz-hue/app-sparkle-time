@@ -95,9 +95,9 @@ export const defaultConfig: WhiteLabelConfig = {
     ],
   },
   testimonials: [
-    { quote: "Jeg fandt 3.200 kr. jeg ikke vidste jeg brugte. På 3 minutter.", name: "Line, 34", location: "Aarhus" },
-    { quote: "Vi tog rapporten med til banken. Rådgiveren var imponeret.", name: "Mikkel & Sarah", location: "København" },
-    { quote: "Endelig et budget-værktøj der ikke kræver et regneark-kursus.", name: "Thomas, 28", location: "Odense" },
+    { quote: "Jeg troede jeg havde styr på det, men Kassen viste mig 2.800 kr. i abonnementer jeg havde glemt.", name: "Sofie, 31", location: "Aalborg" },
+    { quote: "Vi brugte rapporten som udgangspunkt til et møde med banken — super nemt.", name: "Jonas & Katrine", location: "København" },
+    { quote: "Det tog bogstaveligt 3 minutter. Ingen login, ingen regneark. Bare overblik.", name: "Mads, 42", location: "Aarhus" },
   ],
 };
 
@@ -241,9 +241,9 @@ export const kassenNoConfig: WhiteLabelConfig = {
     ],
   },
   testimonials: [
-    { quote: "Jeg fant 3 200 kr. jeg ikke visste jeg brukte. På 3 minutter.", name: "Line, 34", location: "Oslo" },
-    { quote: "Vi tok rapporten med til banken. Rådgiveren var imponert.", name: "Mikkel & Sarah", location: "Bergen" },
-    { quote: "Endelig et budsjetteringsverktøy som ikke krever et regnearkskurs.", name: "Thomas, 28", location: "Trondheim" },
+    { quote: "Jeg trodde jeg hadde kontroll, men Kassen viste meg 2 800 kr. i abonnementer jeg hadde glemt.", name: "Sofie, 31", location: "Stavanger" },
+    { quote: "Vi brukte rapporten som utgangspunkt til et møte med banken — veldig enkelt.", name: "Jonas & Katrine", location: "Oslo" },
+    { quote: "Det tok bokstavelig talt 3 minutter. Ingen innlogging, ingen regneark. Bare oversikt.", name: "Mads, 42", location: "Bergen" },
   ],
 };
 

@@ -7,6 +7,7 @@ import {
   type SankeyLink as D3SankeyLink,
 } from "d3-sankey";
 import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocale } from "@/lib/locale";
@@ -48,14 +49,17 @@ type SNode = D3SankeyNode<NodeExtra, LinkExtra>;
 type SLink = D3SankeyLink<NodeExtra, LinkExtra>;
 
 // ─── Stacked Bar (mobile) ──────────────────────
-function StackedBarView({ categories, income, disposable, lc, t, tc }: {
+function StackedBarView({ categories, income, disposable, lc, t, tc, privacyMode }: {
   categories: { name: string; total: number; color: string }[];
   income: number;
   disposable: number;
   lc: string;
   t: (key: string) => string;
   tc: (name: string) => string;
+  privacyMode: boolean;
 }) {
+  const fmt = (v: number) => privacyMode ? `${income > 0 ? Math.round((v / income) * 100) : 0}%` : `${formatKr(v, lc)} kr.`;
+
   return (
     <div className="space-y-3">
       {/* Stacked bar */}
@@ -72,7 +76,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc }: {
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: i * 0.04 }}
                 style={{ backgroundColor: cat.color }}
                 className="h-full"
-                title={`${tc(cat.name)}: ${formatKr(cat.total, lc)} kr.`}
+                title={`${tc(cat.name)}: ${fmt(cat.total)}`}
               />
             );
           })}
@@ -82,7 +86,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc }: {
               animate={{ width: `${(disposable / income) * 100}%` }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: categories.length * 0.04 }}
               className="h-full bg-primary/30"
-              title={`${t("sankey.leftOver")}: ${formatKr(disposable, lc)} kr.`}
+              title={`${t("sankey.leftOver")}: ${fmt(disposable)}`}
             />
           )}
         </div>
@@ -102,7 +106,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc }: {
             >
               <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ backgroundColor: cat.color }} />
               <span className="text-xs text-muted-foreground flex-1 truncate">{tc(cat.name)}</span>
-              <span className="text-xs font-medium tabular-nums">{formatKr(cat.total, lc)}</span>
+              <span className="text-xs font-medium tabular-nums">{fmt(cat.total)}</span>
               <span className="text-[10px] text-muted-foreground/60 tabular-nums w-7 text-right">{pct}%</span>
             </motion.div>
           );
@@ -116,7 +120,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc }: {
           >
             <div className="w-2.5 h-2.5 rounded-sm flex-shrink-0 bg-primary/30" />
             <span className="text-xs font-medium text-primary flex-1">{t("sankey.leftOver")}</span>
-            <span className="text-xs font-bold text-primary tabular-nums">{formatKr(disposable, lc)}</span>
+            <span className="text-xs font-bold text-primary tabular-nums">{fmt(disposable)}</span>
             <span className="text-[10px] text-primary/60 tabular-nums w-7 text-right">{Math.round((disposable / income) * 100)}%</span>
           </motion.div>
         )}
@@ -126,7 +130,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc }: {
 }
 
 // ─── Sankey (desktop) ──────────────────────
-function SankeyView({ budget, profile, categories, disposable, lc, t, tc }: {
+function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privacyMode }: {
   budget: ComputedBudget;
   profile?: BudgetProfile;
   categories: { name: string; total: number; color: string }[];
@@ -134,8 +138,10 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc }: {
   lc: string;
   t: (key: string) => string;
   tc: (name: string) => string;
+  privacyMode: boolean;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
+  const fmt = (v: number) => privacyMode ? `${budget.totalIncome > 0 ? Math.round((v / budget.totalIncome) * 100) : 0}%` : `${formatKr(v, lc)} kr.`;
 
   const { nodes, links, width, height, incomeCount } = useMemo(() => {
     const nodeList: NodeExtra[] = [];
@@ -283,7 +289,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc }: {
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
                 <tspan fontWeight={700}>{node.name}</tspan>
-                <tspan dx={-((node.name.length * 7) + 6)} dy={16} fontWeight={500} opacity={0.6} fontSize={12}>{formatKr(node.value ?? 0, lc)} kr.</tspan>
+                <tspan dx={-((node.name.length * 7) + 6)} dy={16} fontWeight={500} opacity={0.6} fontSize={12}>{fmt(node.value ?? 0)}</tspan>
               </text>
             ) : (
               // Right label
@@ -291,7 +297,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc }: {
                 fontSize={13} fill="currentColor" className="text-foreground"
                 opacity={active ? 1 : 0.3}>
                 <tspan fontWeight={700}>{tc(node.name)}</tspan>
-                <tspan dx={6} fontWeight={500} opacity={0.6}>{formatKr(node.value ?? 0, lc)} kr.</tspan>
+                <tspan dx={6} fontWeight={500} opacity={0.6}>{fmt(node.value ?? 0)}</tspan>
               </text>
             )}
           </g>
@@ -308,6 +314,7 @@ export function SankeyDiagram({ budget, profile }: Props) {
   const lc = locale.currencyLocale;
   const { t } = useI18n();
   const tc = (name: string) => t(`cat.${name}`) || name;
+  const [privacyMode, setPrivacyMode] = useState(false);
 
   const { categories, disposable } = useMemo(() => {
     const categoryMap = new Map<string, number>();
@@ -323,28 +330,37 @@ export function SankeyDiagram({ budget, profile }: Props) {
     return { categories: cats, disposable: Math.max(0, budget.disposableIncome) };
   }, [budget]);
 
+  const fmt = (v: number) => privacyMode ? `${budget.totalIncome > 0 ? Math.round((v / budget.totalIncome) * 100) : 0}%` : `${formatKr(v, lc)} kr.`;
+
   return (
     <div className="space-y-3">
-      {/* Summary pills */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-        {[
-          { label: t("sankey.income"), value: budget.totalIncome, accent: "text-primary" },
-          { label: t("sankey.expenses"), value: budget.totalExpenses, accent: "text-foreground" },
-          { label: t("sankey.leftOver"), value: budget.disposableIncome, accent: budget.disposableIncome >= 0 ? "text-primary" : "text-destructive" },
-        ].map(s => (
-          <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
-            <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
-            <p className={`font-display font-bold text-xs sm:text-sm ${s.accent}`}>{formatKr(s.value, lc)} kr.</p>
-          </div>
-        ))}
+      {/* Summary pills + privacy toggle */}
+      <div className="flex items-start gap-2">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 flex-1">
+          {[
+            { label: t("sankey.income"), value: budget.totalIncome, accent: "text-primary" },
+            { label: t("sankey.expenses"), value: budget.totalExpenses, accent: "text-foreground" },
+            { label: t("sankey.leftOver"), value: budget.disposableIncome, accent: budget.disposableIncome >= 0 ? "text-primary" : "text-destructive" },
+          ].map(s => (
+            <div key={s.label} className="text-center p-2 sm:p-3 rounded-xl bg-muted/40 border border-border/50">
+              <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
+              <p className={`font-display font-bold text-xs sm:text-sm ${s.accent}`}>{fmt(s.value)}</p>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => setPrivacyMode(p => !p)} title={t("sankey.privacyTip")}
+          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all mt-1 ${privacyMode ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
+          {privacyMode ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          <span className="hidden sm:inline">{t("sankey.privacy")}</span>
+        </button>
       </div>
 
       {/* Sankey (desktop) or Stacked Bar (mobile) */}
       <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4">
         {isMobile ? (
-          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} t={t} tc={tc} />
+          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} />
         ) : (
-          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} />
+          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} />
         )}
       </div>
     </div>

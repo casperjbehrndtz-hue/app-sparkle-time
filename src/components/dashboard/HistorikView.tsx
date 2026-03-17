@@ -35,13 +35,14 @@ export function HistorikView() {
   const disposableDelta = last.disposableIncome - first.disposableIncome;
   const scoreDelta = last.score - first.score;
 
+  const dateLang = locale.code === "no" ? "nb-NO" : locale.code === "en" ? "en-GB" : "da-DK";
   const chartData = snapshots.map((s) => ({
-    date: new Date(s.date).toLocaleDateString("da-DK", { day: "numeric", month: "short" }),
+    date: new Date(s.date).toLocaleDateString(dateLang, { day: "numeric", month: "short" }),
     rawDate: s.date,
-    rådighed: s.disposableIncome,
+    disposable: s.disposableIncome,
     score: s.score,
-    indtægt: s.totalIncome,
-    udgifter: s.totalExpenses,
+    income: s.totalIncome,
+    expenses: s.totalExpenses,
   }));
 
   return (
@@ -76,7 +77,7 @@ export function HistorikView() {
             scoreDelta >= 0 ? "text-primary" : "text-destructive"
           }`}>
             {scoreDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-            {scoreDelta >= 0 ? "+" : ""}{scoreDelta} point
+            {scoreDelta >= 0 ? "+" : ""}{scoreDelta} {t("history.points")}
           </div>
           <p className="text-[10px] text-muted-foreground">{t("history.healthSinceStart")}</p>
         </motion.div>
@@ -85,7 +86,7 @@ export function HistorikView() {
       {/* Disposable income chart */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("history.disposableOverTime")}</h3>
-        <div className="h-48 w-full">
+        <div className="h-48 w-full" role="img" aria-label={t("a11y.historyDisposable")}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chartData}>
               <defs>
@@ -101,16 +102,24 @@ export function HistorikView() {
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                 formatter={(v: number) => [`${formatKr(v, lc)} ${t("unit.currency")}`, t("history.tooltipDisposable")]}
               />
-              <Area type="monotone" dataKey="rådighed" stroke="hsl(var(--primary))" fill="url(#colorRaad)" strokeWidth={2} />
+              <Area type="monotone" dataKey="disposable" stroke="hsl(var(--primary))" fill="url(#colorRaad)" strokeWidth={2} />
             </AreaChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <p>{t("a11y.historyDisposable")}</p>
+            <ul>
+              {chartData.map((d) => (
+                <li key={d.rawDate}>{d.date}: {formatKr(d.disposable, lc)} {t("unit.currency")}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
       {/* Score chart */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("history.healthOverTime")}</h3>
-        <div className="h-36 w-full">
+        <div className="h-36 w-full" role="img" aria-label={t("a11y.historyScore")}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -123,11 +132,19 @@ export function HistorikView() {
               <Line type="monotone" dataKey="score" stroke="hsl(var(--kassen-gold))" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <p>{t("a11y.historyScore")}</p>
+            <ul>
+              {chartData.map((d) => (
+                <li key={d.rawDate}>{d.date}: {d.score} / 100</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
       <p className="text-[10px] text-muted-foreground text-center">
-        {t("history.calculationsSaved").replace("{count}", String(snapshots.length))} · {t("history.first")}: {new Date(first.date).toLocaleDateString("da-DK")} · {t("history.latest")}: {new Date(last.date).toLocaleDateString("da-DK")}
+        {t("history.calculationsSaved").replace("{count}", String(snapshots.length))} · {t("history.first")}: {new Date(first.date).toLocaleDateString(dateLang)} · {t("history.latest")}: {new Date(last.date).toLocaleDateString(dateLang)}
       </p>
     </div>
   );

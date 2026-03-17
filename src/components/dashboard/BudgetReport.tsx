@@ -14,24 +14,11 @@ interface Props {
   onBack: () => void;
 }
 
-const BUCKET_COLORS = {
-  drift: "hsl(213, 70%, 50%)",
-  frihed: "hsl(38, 85%, 50%)",
-  fremtid: "hsl(152, 55%, 40%)",
-  risiko: "hsl(280, 50%, 55%)",
-};
-
-const BUCKET_EMOJIS: Record<string, string> = {
-  drift: "⚙️", frihed: "✨", fremtid: "📈", risiko: "🛡️",
-};
-
 export function BudgetReport({ profile, budget, health, onBack }: Props) {
   const config = useWhiteLabel();
   const { t } = useI18n();
   const locale = useLocale();
   const isPar = profile.householdType === "par";
-  const totalBuckets = Object.values(health.buckets).reduce((s, v) => s + v, 0);
-  const bucketEntries = Object.entries(health.buckets) as [string, number][];
 
   const scoreColor = health.score >= 75 ? "text-primary" : health.score >= 55 ? "text-kassen-gold" : "text-destructive";
   const ringColor = health.score >= 75 ? "hsl(152, 55%, 40%)" : health.score >= 55 ? "hsl(38, 85%, 50%)" : "hsl(0, 72%, 51%)";
@@ -114,34 +101,6 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
           <MetricCard label={t("report.totalExpenses")} value={`${formatKr(budget.totalExpenses, locale.currencyLocale)} ${t("currency")}`} negative />
           <MetricCard label={t("report.savingsRate")} value={`${health.savingsRate}%`} good={health.savingsRate >= 15} />
           <MetricCard label={t("report.housingRatio")} value={`${health.debtRatio}%`} good={health.debtRatio <= 35} />
-        </div>
-
-        {/* 4 Buckets */}
-        <div className="rounded-xl border border-border p-5">
-          <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("cockpit.distribution")}</h3>
-          <div className="h-4 rounded-full overflow-hidden flex mb-4">
-            {bucketEntries.map(([key, val]) => (
-              <div
-                key={key}
-                style={{ backgroundColor: BUCKET_COLORS[key as keyof typeof BUCKET_COLORS], width: `${totalBuckets > 0 ? (val / totalBuckets) * 100 : 25}%` }}
-                className="h-full first:rounded-l-full last:rounded-r-full"
-              />
-            ))}
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {bucketEntries.map(([key, val]) => {
-              const pct = totalBuckets > 0 ? Math.round((val / totalBuckets) * 100) : 0;
-              return (
-                <div key={key} className="flex items-center gap-3 p-2">
-                  <div className="w-2 h-8 rounded-full" style={{ backgroundColor: BUCKET_COLORS[key as keyof typeof BUCKET_COLORS] }} />
-                  <div>
-                    <span className="text-xs font-medium">{BUCKET_EMOJIS[key]} {t(`cockpit.bucket.${key}`)} · {pct}%</span>
-                    <p className="text-[11px] text-muted-foreground">{formatKr(val, locale.currencyLocale)} {t("perMonth")}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </div>
 
         {/* Expense Breakdown */}

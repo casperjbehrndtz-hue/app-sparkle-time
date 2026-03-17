@@ -68,30 +68,6 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
           </div>
         </div>
 
-        {/* Buckets bar */}
-        <div>
-          <div className="h-2.5 rounded-full overflow-hidden flex">
-            {Object.entries(health.buckets).map(([key, val]) => {
-              const total = Object.values(health.buckets).reduce((s, v) => s + v, 0);
-              const colors: Record<string, string> = {
-                drift: "hsl(213, 70%, 50%)",
-                frihed: "hsl(38, 85%, 50%)",
-                fremtid: "hsl(152, 55%, 40%)",
-                risiko: "hsl(280, 50%, 55%)",
-              };
-              return (
-                <div
-                  key={key}
-                  style={{ backgroundColor: colors[key], width: `${total > 0 ? (val / total) * 100 : 25}%` }}
-                  className="h-full first:rounded-l-full last:rounded-r-full"
-                />
-              );
-            })}
-          </div>
-          <div className="flex justify-between mt-1.5 text-[9px] text-muted-foreground">
-            <span>⚙️ {t("share.bucketDrift")}</span><span>✨ {t("share.bucketFrihed")}</span><span>📈 {t("share.bucketFremtid")}</span><span>🛡️ {t("share.bucketRisiko")}</span>
-          </div>
-        </div>
       </div>
 
       {/* Footer */}

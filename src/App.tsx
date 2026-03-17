@@ -1,16 +1,18 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { WhiteLabelProvider, AVAILABLE_CONFIGS } from "@/lib/whiteLabel";
-import { I18nProvider } from "@/lib/i18n";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { LocaleProvider, DK_LOCALE, NO_LOCALE } from "@/lib/locale";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { CookieBanner } from "@/components/CookieBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { MarketDataProvider } from "@/hooks/useMarketData";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -23,6 +25,7 @@ const B2BPage = lazy(() => import("./pages/B2BPage"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Partner = lazy(() => import("./pages/Partner"));
 const Vilkaar = lazy(() => import("./pages/Vilkaar"));
+const Lonseddel = lazy(() => import("./pages/Lonseddel"));
 
 // Build-time locale — mirrors i18n.tsx
 const BUILD_LOCALE = (import.meta.env.VITE_LOCALE ?? "da") as "da" | "no";
@@ -40,6 +43,31 @@ function getLocale() {
   return DK_LOCALE;
 }
 
+/** Listens for session expiry and shows a non-intrusive toast. */
+function SessionExpiryListener() {
+  const { t } = useI18n();
+  const wasSignedIn = useRef(false);
+
+  useEffect(() => {
+    // Seed initial state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      wasSignedIn.current = !!session;
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        wasSignedIn.current = true;
+      } else if (event === "SIGNED_OUT" && wasSignedIn.current) {
+        wasSignedIn.current = false;
+        toast({ title: t("auth.sessionExpired"), description: t("auth.sessionExpiredDesc") });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [t]);
+
+  return null;
+}
+
 // Embed mode: hide cookie banner and external navigation when inside an iframe
 const isEmbed = new URLSearchParams(window.location.search).get("embed") === "true";
 
@@ -50,10 +78,14 @@ const App = () => {
   return (
     <ErrorBoundary>
       <I18nProvider>
+        <SessionExpiryListener />
         <LocaleProvider locale={locale}>
           <WhiteLabelProvider config={config}>
             <MarketDataProvider>
               <TooltipProvider>
+                <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+                  Skip to content
+                </a>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -61,6 +93,7 @@ const App = () => {
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/" element={<Index />} />
+                      <Route path="/s/:shareId" element={<Index />} />
                       <Route path="/privatliv" element={<Privatliv />} />
                       <Route path="/install" element={<Install />} />
                       <Route path="/login" element={<Auth />} />
@@ -70,6 +103,7 @@ const App = () => {
                       <Route path="/admin" element={<Admin />} />
                       <Route path="/partner" element={<Partner />} />
                       <Route path="/vilkaar" element={<Vilkaar />} />
+                      <Route path="/lonseddel" element={<Lonseddel />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>

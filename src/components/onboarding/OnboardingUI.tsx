@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, ArrowDown } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { OnboardingStep } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
@@ -27,7 +26,7 @@ export const pageVariants = {
   }),
 };
 
-export const STEPS: OnboardingStep[] = ["household", "income", "housing", "children", "expenses", "review"];
+export const STEPS: OnboardingStep[] = ["household", "income", "housing", "children", "expenses", "everyday", "review"];
 export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 // ─── Live Budget Bar ──────────────────────────────────────
@@ -94,7 +93,7 @@ export function StepIndicator({ step }: { step: OnboardingStep }) {
   if (idx < 0) return null;
   const totalSteps = STEPS.length;
   return (
-    <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{idx}", String(idx + 1)).replace("{total}", String(totalSteps))}>
+    <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}>
       <div className="flex items-center gap-2">
         {STEPS.map((s, i) => (
           <motion.div
@@ -107,7 +106,9 @@ export function StepIndicator({ step }: { step: OnboardingStep }) {
           />
         ))}
       </div>
-      <span className="text-[10px] text-muted-foreground/60 tabular-nums">{idx + 1}/{totalSteps}</span>
+      <span className="text-[10px] text-muted-foreground mt-1">
+        {t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}
+      </span>
     </div>
   );
 }
@@ -151,14 +152,14 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
   );
 }
 
-// ─── Cinematic slider with big number ─────────────────────
-export function BigSlider({ value, onChange, label, min = 0, max = 100000, step = 500, suffix }: {
-  value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number; suffix?: string;
+// ─── Stepper with big number + presets ─────────────────────
+export function BigSlider({ value, onChange, label, min = 0, max = 100000, step = 500, suffix, presets }: {
+  value: number; onChange: (v: number) => void; label: string; min?: number; max?: number; step?: number; suffix?: string; presets?: number[];
 }) {
   const { t } = useI18n();
   const resolvedSuffix = suffix ?? t("currency");
   const [localValue, setLocalValue] = useState<string>(String(value));
-  
+
   useEffect(() => { setLocalValue(String(value)); }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,32 +175,75 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
     else { const clamped = Math.max(min, Math.min(max, num)); onChange(clamped); setLocalValue(String(clamped)); }
   };
 
+  const nudge = (dir: 1 | -1) => {
+    const bigStep = step * 2;
+    onChange(Math.max(min, Math.min(max, value + dir * bigStep)));
+  };
+
+  const defaultPresets = presets ?? [
+    Math.round(max * 0.15 / step) * step,
+    Math.round(max * 0.3 / step) * step,
+    Math.round(max * 0.5 / step) * step,
+    Math.round(max * 0.7 / step) * step,
+  ].filter(p => p > min && p <= max);
+
   return (
     <div className="space-y-4">
       <label className="text-sm font-medium text-muted-foreground">{label}</label>
-      <div className="flex items-baseline justify-center gap-2">
-        <input
-          type="number"
-          value={localValue}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
-          className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
-        />
-        <span className="text-lg text-muted-foreground font-display">{resolvedSuffix}</span>
+      <div className="flex items-center justify-center gap-4">
+        <button
+          type="button"
+          onClick={() => nudge(-1)}
+          disabled={value <= min}
+          className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none"
+        >−</button>
+        <div className="flex items-baseline gap-2">
+          <input
+            type="number"
+            inputMode="numeric"
+            value={localValue}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
+            className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
+          />
+          <span className="text-lg text-muted-foreground font-display">{resolvedSuffix}</span>
+        </div>
+        <button
+          type="button"
+          onClick={() => nudge(1)}
+          disabled={value >= max}
+          className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none"
+        >+</button>
       </div>
-      <div style={{ touchAction: "pan-y" }}>
-        <Slider
-          min={min} max={max} step={step}
-          value={[value]}
-          onValueChange={([v]) => onChange(v)}
-          className="w-full"
+      {/* Slider */}
+      <div className="px-1">
+        <input
+          type="range" min={min} max={max} step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="w-full h-2 appearance-none rounded-full cursor-pointer"
+          style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${((value - min) / (max - min)) * 100}%, hsl(var(--secondary)) ${((value - min) / (max - min)) * 100}%)` }}
           aria-label={label}
         />
+        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+          <span>{formatKr(min)}</span>
+          <span>{formatKr(max)}</span>
+        </div>
       </div>
-      <div className="flex justify-between text-[11px] text-muted-foreground">
-        <span>{formatKr(min)} {resolvedSuffix}</span>
-        <span>{formatKr(max)} {resolvedSuffix}</span>
+      {/* Preset chips */}
+      <div className="flex justify-center gap-2 flex-wrap">
+        {defaultPresets.map(p => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onChange(p)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${value === p
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"
+            }`}
+          >{formatKr(p)}</button>
+        ))}
       </div>
     </div>
   );

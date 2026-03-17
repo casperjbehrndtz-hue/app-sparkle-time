@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { WelcomePage } from "@/components/onboarding/WelcomePage";
 import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
@@ -14,6 +15,8 @@ import { parseProfile } from "@/lib/profileSchema";
 import { useAuth } from "@/hooks/useAuth";
 import { useMarketData } from "@/hooks/useMarketData";
 import { demoProfile } from "@/lib/demoData";
+import { decodeProfile, resolveShortLink, type ShareMeta } from "@/lib/budgetShare";
+import { SharedBudgetBanner } from "@/components/SharedBudgetBanner";
 import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
@@ -23,7 +26,10 @@ const Index = () => {
   const config = useWhiteLabel();
   const locale = useLocale();
   const { t } = useI18n();
-  const isDemo = new URLSearchParams(window.location.search).get("demo") === "true";
+  const { shareId } = useParams<{ shareId?: string }>();
+  const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
+  const isDemo = searchParams.get("demo") === "true";
+  const sharedParam = searchParams.get("b");
   const { user, loading: authLoading, saveProfile: saveToCloud, loadProfile: loadFromCloud } = useAuth();
   const { data: marketData } = useMarketData();
   const [profile, setProfile] = useState<BudgetProfile | null>(() => {
@@ -39,6 +45,53 @@ const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
+  const [sharedProfile, setSharedProfile] = useState<BudgetProfile | null>(null);
+  const [sharedMeta, setSharedMeta] = useState<ShareMeta>({});
+
+  // Decode shared budget from URL param (?b=...) or short link (/s/:shareId)
+  useEffect(() => {
+    if (sharedParam) {
+      decodeProfile(sharedParam).then((result) => {
+        if (result) {
+          setSharedProfile(result.profile);
+          setSharedMeta(result.meta);
+        }
+      });
+    } else if (shareId) {
+      resolveShortLink(shareId).then((payload) => {
+        if (!payload) return;
+        decodeProfile(payload).then((result) => {
+          if (result) {
+            setSharedProfile(result.profile);
+            setSharedMeta(result.meta);
+          }
+        });
+      });
+    }
+  }, [sharedParam, shareId]);
+
+  // Pre-fill from payslip upload (sessionStorage handoff from /lonseddel)
+  useEffect(() => {
+    try {
+      const prefill = sessionStorage.getItem("kassen_payslip_prefill");
+      if (!prefill) return;
+      sessionStorage.removeItem("kassen_payslip_prefill");
+      const partial = JSON.parse(prefill) as Partial<BudgetProfile>;
+      if (partial.income && partial.income > 0) {
+        setEditingProfile(partial as BudgetProfile);
+        setLandingView(null);
+      }
+    } catch {}
+  }, []);
+
+  const sharedBudget = useMemo<ComputedBudget | null>(
+    () => sharedProfile ? computeBudget(sharedProfile, marketData, locale) : null,
+    [sharedProfile, marketData, locale]
+  );
+  const sharedOptimizations = useMemo<OptimizingAction[]>(
+    () => (sharedProfile && sharedBudget) ? generateOptimizations(sharedProfile, sharedBudget, locale) : [],
+    [sharedProfile, sharedBudget, locale]
+  );
 
   // Demo mode: compute budget from demoProfile
   const demoBudget = useMemo<ComputedBudget | null>(
@@ -158,6 +211,24 @@ const Index = () => {
           profile={demoProfile}
           budget={demoBudget}
           optimizations={demoOptimizations}
+          onReset={noop}
+          onProfileChange={noop}
+          onEditProfile={noop}
+        />
+      </>
+    );
+  }
+
+  // Shared budget preview: read-only dashboard, no localStorage mutation
+  if (sharedParam && sharedProfile && sharedBudget) {
+    const noop = () => {};
+    return (
+      <>
+        <SharedBudgetBanner profile={sharedProfile} budget={sharedBudget} meta={sharedMeta} />
+        <Dashboard
+          profile={sharedProfile}
+          budget={sharedBudget}
+          optimizations={sharedOptimizations}
           onReset={noop}
           onProfileChange={noop}
           onEditProfile={noop}

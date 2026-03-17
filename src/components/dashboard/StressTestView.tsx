@@ -42,7 +42,7 @@ export function StressTestView({ profile, budget }: Props) {
     const inflationDisposable = totalIncome - inflatedFixed - inflatedVariable;
     const inflationSurvivalMonths = inflationDisposable > 0
       ? null // can survive indefinitely
-      : Math.max(0, Math.floor((profile.savingsAmount * 12) / Math.abs(inflationDisposable)));
+      : inflationDisposable === 0 ? 0 : Math.max(0, Math.floor((profile.savingsAmount * 12) / Math.abs(inflationDisposable)));
 
     // 2. Rate hike scenario (affects mortgage/rent)
     const mortgageIncrease = profile.housingType === "ejer"

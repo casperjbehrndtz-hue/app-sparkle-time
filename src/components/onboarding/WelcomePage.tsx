@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, Clock, Sparkles, Download } from "lucide-react";
+import { ArrowRight, Shield, Clock, Sparkles, Download, Search, Brain, Zap, BarChart3, FileText, PiggyBank, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import heroCouple from "@/assets/hero-couple.webp";
+import { HeroSankey } from "./HeroSankey";
 
 interface Props {
   onStart: () => void;
@@ -34,7 +34,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div id="main-content" className="min-h-screen flex flex-col bg-background">
       {/* Nav */}
       <nav className="bg-hero-navy px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
@@ -72,11 +72,17 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
                 </button>
               )}
             </div>
+            <a href="/lonseddel"
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+              <Upload className="w-3 h-3" />
+              {t("payslip.welcomeCta")}
+            </a>
+            <p className="text-white/40 text-xs mt-3">
+              {t("hero.socialProof")}
+            </p>
           </motion.div>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }} className="hidden lg:block">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/30 bg-hero-navy">
-              <img src={heroCouple} alt="" aria-hidden="true" className="w-full h-full object-cover" />
-            </div>
+            <HeroSankey />
           </motion.div>
         </div>
       </section>
@@ -115,15 +121,16 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
             {[
-              { icon: "🔍", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
-              { icon: "🤖", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
-              { icon: "⚡", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
-              { icon: "📊", title: t("feature.compare"), desc: t("feature.compareDesc") },
-              { icon: "🏦", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
+              { icon: <Search className="w-5 h-5 text-blue-600" />, bg: "bg-blue-100", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
+              { icon: <Brain className="w-5 h-5 text-purple-600" />, bg: "bg-purple-100", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
+              { icon: <Zap className="w-5 h-5 text-amber-600" />, bg: "bg-amber-100", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
+              { icon: <BarChart3 className="w-5 h-5 text-green-600" />, bg: "bg-green-100", title: t("feature.compare"), desc: t("feature.compareDesc") },
+              { icon: <FileText className="w-5 h-5 text-slate-600" />, bg: "bg-slate-100", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
+              { icon: <PiggyBank className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-100", title: t("feature.savings"), desc: t("feature.savingsDesc") },
             ].map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
                 className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
-                <span className="text-2xl">{f.icon}</span>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${f.bg}`}>{f.icon}</div>
                 <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </motion.div>

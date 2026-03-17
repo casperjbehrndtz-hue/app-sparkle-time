@@ -9,12 +9,6 @@ export interface HealthMetrics {
   debtRatio: number; // ydelse/indkomst i %
   savingsRate: number; // frihedstal/indkomst i %
   stabilityScore: number; // 0-100 baseret på baseline-afvigelse
-  buckets: {
-    drift: number;   // must-have: faste + nødvendigheder
-    frihed: number;   // want: livsstil
-    fremtid: number;  // build: opsparing/investering (estimeret)
-    risiko: number;   // protect: forsikring + buffer
-  };
   truths: {
     freeCashFlow: number;
     monthlyBaseline: number;
@@ -49,25 +43,6 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   else if (coverageRatio <= 0.75) stabilityScore = 55;
   else stabilityScore = Math.max(10, 55 - (coverageRatio - 0.75) * 200);
 
-  // --- 4 Buckets ---
-  const insuranceCost = budget.fixedExpenses
-    .filter(e => e.category === "Forsikring")
-    .reduce((s, e) => s + e.amount, 0);
-
-  const lifestyleCost = budget.variableExpenses
-    .filter(e => ["Fritid", "Tøj"].includes(e.category))
-    .reduce((s, e) => s + e.amount, 0);
-
-  const driftCost = fixedTotal - insuranceCost + (variableTotal - lifestyleCost);
-  const estimatedSavings = Math.max(0, freeCashFlow * 0.5);
-
-  const buckets = {
-    drift: driftCost,
-    frihed: lifestyleCost + Math.max(0, freeCashFlow * 0.3),
-    fremtid: estimatedSavings,
-    risiko: insuranceCost + Math.max(0, freeCashFlow * 0.2),
-  };
-
   // --- Health Score (0-100) ---
   const bufferScore = Math.min(100, bufferMonths * 12);
   const debtScore = debtRatio <= 0 ? 40 : debtRatio <= 25 ? 90 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
@@ -93,7 +68,7 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   const bufferLabel = bufferMonths >= 6 ? "Stærk buffer" : bufferMonths >= 3 ? "Acceptabel" : "Sårbar";
 
   return {
-    score, label, color, bufferMonths, debtRatio, savingsRate, stabilityScore, buckets,
+    score, label, color, bufferMonths, debtRatio, savingsRate, stabilityScore,
     truths: { freeCashFlow, monthlyBaseline: fixedTotal, bufferScore: bufferLabel },
   };
 }

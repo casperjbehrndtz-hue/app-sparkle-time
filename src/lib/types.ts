@@ -127,4 +127,5 @@ export type OnboardingStep =
   | "housing"
   | "children"
   | "expenses"
+  | "everyday"
   | "review";

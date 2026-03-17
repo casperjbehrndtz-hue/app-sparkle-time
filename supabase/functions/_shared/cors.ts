@@ -6,9 +6,16 @@ const ALLOWED_ORIGINS = [
   "http://localhost:8080",
 ];
 
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  // Allow any localhost port in dev
+  if (/^http:\/\/localhost:\d+$/.test(origin)) return true;
+  return false;
+}
+
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin)
+  const allowedOrigin = isAllowedOrigin(origin)
     ? origin
     : ALLOWED_ORIGINS[0];
 

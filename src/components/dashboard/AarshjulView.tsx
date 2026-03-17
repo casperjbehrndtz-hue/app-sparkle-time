@@ -160,7 +160,7 @@ export function AarshjulView({ profile, budget }: Props) {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.1 } }}
         className="rounded-2xl border border-border p-4">
         <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">{t("wheel.monthlyOverview")}</h3>
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
           {monthlyTotals.map((total, i) => {
             const height = total > 0 ? Math.max(8, Math.round((total / maxMonthly) * 64)) : 4;
             const isCurrentMonth = i === currentMonth;

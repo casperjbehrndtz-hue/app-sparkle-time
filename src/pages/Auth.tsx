@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
@@ -15,6 +15,8 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
   const { signIn, signUp } = useAuth();
   const config = useWhiteLabel();
   const { t } = useI18n();
@@ -23,6 +25,33 @@ export default function Auth() {
     t("auth.pageTitle"),
     t("auth.pageDesc")
   );
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryMode(true);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handlePasswordReset = async () => {
+    if (!newPassword.trim() || newPassword.length < 6) {
+      toast({ title: t("auth.error"), description: t("auth.passwordMinLength"), variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setBusy(false);
+    if (error) {
+      toast({ title: t("auth.error"), description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: t("auth.passwordResetSuccess"), description: t("auth.passwordResetSuccessDesc") });
+      setRecoveryMode(false);
+      setNewPassword("");
+      navigate("/login");
+    }
+  };
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
@@ -67,10 +96,34 @@ export default function Auth() {
         <div className="text-center mb-8">
           <span className="font-display font-black text-2xl text-primary">{config.brandName}</span>
           <p className="text-muted-foreground text-sm mt-2">
-            {isLogin ? t("auth.loginSubtitle") : t("auth.signupSubtitle")}
+            {recoveryMode ? t("auth.newPasswordSubtitle") : isLogin ? t("auth.loginSubtitle") : t("auth.signupSubtitle")}
           </p>
         </div>
 
+        {recoveryMode ? (
+          <div className="space-y-4">
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="password"
+                placeholder={t("auth.newPasswordPlaceholder")}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+            <button
+              onClick={handlePasswordReset}
+              disabled={busy}
+              className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {busy ? t("auth.waiting") : t("auth.resetPassword")}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -134,6 +187,8 @@ export default function Auth() {
             </button>
           </div>
         </div>
+          </>
+        )}
       </motion.div>
     </div>
   );

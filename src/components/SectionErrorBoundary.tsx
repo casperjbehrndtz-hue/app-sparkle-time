@@ -51,6 +51,13 @@ export class SectionErrorBoundary extends Component<Props, State> {
           <p className="text-xs text-muted-foreground mt-1">
             {t("error.tryReload")}
           </p>
+          {this.state.error && (
+            <pre className="mt-2 text-[10px] text-left text-muted-foreground bg-muted p-2 rounded overflow-auto max-h-24">
+              {this.state.error.message}
+              {"\n"}
+              {this.state.error.stack?.split("\n").slice(0, 4).join("\n")}
+            </pre>
+          )}
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}
             className="mt-3 text-xs text-primary hover:underline"

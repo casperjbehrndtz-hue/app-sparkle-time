@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Plus, X, Info, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
@@ -25,6 +24,37 @@ import {
 } from "@/data/priceDatabase.no";
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
+
+function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
+  label: string; value: number; onChange: (v: number) => void;
+  min: number; max: number; step: number; icon: string; unit: string;
+}) {
+  const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  return (
+    <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base">{icon}</span>
+          <span className="text-sm font-medium">{label}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <input type="number" inputMode="numeric" value={value}
+            onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
+            className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin" />
+          <span className="text-xs text-muted-foreground">{unit}</span>
+        </div>
+      </div>
+      <input
+        type="range" min={min} max={max} step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-2 appearance-none rounded-full cursor-pointer"
+        style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${pct}%, hsl(var(--secondary)) ${pct}%)` }}
+        aria-label={label}
+      />
+    </div>
+  );
+}
 
 interface Props {
   onComplete: (profile: BudgetProfile) => void;
@@ -82,7 +112,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   );
   const [direction, setDirection] = useState(1);
   const [profile, setProfile] = useState<BudgetProfile>(
-    initialProfile ?? restored?.profile ?? defaultProfile
+    initialProfile ?? (restored?.profile ? { ...defaultProfile, ...restored.profile } : defaultProfile)
   );
   const [childAgeInputs, setChildAgeInputs] = useState<number[]>(
     initialProfile?.childrenAges?.length
@@ -182,10 +212,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <p className="text-xs text-muted-foreground/70 mt-1">💡 {t("step.income.netTip")}</p>
             </motion.div>
             <BigSlider value={profile.income} onChange={(v) => update({ income: v })}
-              label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={10000} max={80000} step={500} />
+              label={isPar ? t("step.income.myIncomePar") : t("step.income.myIncome")} min={0} max={200000} step={500}
+              presets={[20000, 30000, 40000, 55000, 80000]} />
             {isPar && (
               <BigSlider value={profile.partnerIncome} onChange={(v) => update({ partnerIncome: v })}
-                label={t("step.income.partnerIncome")} min={0} max={80000} step={500} />
+                label={t("step.income.partnerIncome")} min={0} max={200000} step={500}
+                presets={[20000, 30000, 40000, 55000, 80000]} />
             )}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
@@ -286,7 +318,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.housing.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.housing.subtitle")}</p>
             </motion.div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { type: "lejer" as const, emoji: "🏢", label: locale.housingTypeLabels.lejer },
                 { type: "andel" as const, emoji: "🏘️", label: locale.housingTypeLabels.andel },
@@ -319,7 +351,15 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     <span className="text-sm text-muted-foreground">{t("step.housing.interestRate")}</span>
                     <span className="font-display font-bold text-xl">{profile.interestRate.toFixed(1)}%</span>
                   </div>
-                  <Slider min={0.5} max={8} step={0.25} value={[profile.interestRate]} onValueChange={([v]) => update({ interestRate: v })} className="w-full" aria-label={t("step.housing.interestRate")} />
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => update({ interestRate: Math.max(0.5, profile.interestRate - 0.25) })} disabled={profile.interestRate <= 0.5}
+                      className="w-8 h-8 rounded-lg bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0">−</button>
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-primary/60 transition-all duration-200" style={{ width: `${((profile.interestRate - 0.5) / 7.5) * 100}%` }} />
+                    </div>
+                    <button type="button" onClick={() => update({ interestRate: Math.min(8, profile.interestRate + 0.25) })} disabled={profile.interestRate >= 8}
+                      className="w-8 h-8 rounded-lg bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0">+</button>
+                  </div>
                 </div>
               </div>
             )}
@@ -402,39 +442,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         );
 
       case "expenses": {
-        const addCustom = () => {
-          if (customLabel.trim() && customAmount > 0) {
-            update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount, frequency: customFreq }] });
-            setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
-          }
-        };
         const carMonthly = profile.hasCar
           ? profile.carLoan + profile.carFuel + Math.round(profile.carInsurance / 12) + Math.round(profile.carTax / 12) + Math.round(profile.carService / 6)
           : 0;
-
-        const CompactSlider = ({ label, value, onChange, min, max, step, icon }: {
-          label: string; value: number; onChange: (v: number) => void;
-          min: number; max: number; step: number; icon: string;
-        }) => (
-          <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-base">{icon}</span>
-                <span className="text-sm font-medium">{label}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <input type="number" value={value}
-                  onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
-                  className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin" />
-                <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
-              </div>
-            </div>
-            <Slider min={min} max={max} step={step} value={[value]} onValueChange={([v]) => onChange(v)} className="w-full" aria-label={label} />
-            <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-              <span>{formatKr(min)}</span><span>{formatKr(max)}</span>
-            </div>
-          </div>
-        );
 
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
@@ -565,17 +575,34 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            {/* ── Hverdagsudgifter (kompakte sliders) ── */}
-            <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{t("onboarding.everydayExpenses")}</h3>
-              <p className="text-xs text-muted-foreground mb-3">{t("onboarding.estimatedAdjust")}</p>
-              <div className="space-y-2">
-                <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} />
-                <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} />
-                <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} />
-                <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} />
-                <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} />
-              </div>
+            <AILiveComment profile={profile} step="expenses" />
+
+            <ContinueButton onClick={goNext} label={t("continue")} />
+          </div>
+        );
+      }
+
+      case "everyday": {
+        const addCustom = () => {
+          if (customLabel.trim() && customAmount > 0) {
+            update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount, frequency: customFreq }] });
+            setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
+          }
+        };
+        const unit = t("unit.krMonth");
+        return (
+          <div className="space-y-8 max-w-md mx-auto w-full">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
+              <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.everyday.title")}</h1>
+              <p className="text-muted-foreground text-sm">{t("step.everyday.subtitle")}</p>
+            </motion.div>
+
+            <div className="space-y-2">
+              <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} unit={unit} />
+              <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
+              <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
+              <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
+              <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} unit={unit} />
             </div>
 
             {/* ── Egne udgifter ── */}
@@ -612,14 +639,16 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            <AILiveComment profile={profile} step="expenses" />
+            <AILiveComment profile={profile} step="everyday" />
+
+            <ContinueButton onClick={goNext} label={t("continue")} />
           </div>
         );
       }
 
       case "review": {
-        const budget = computeBudget(profile);
-        const expenseRatio = Math.round((budget.totalExpenses / budget.totalIncome) * 100);
+        const budget = computeBudget(profile, null, locale);
+        const expenseRatio = budget.totalIncome > 0 ? Math.round((budget.totalExpenses / budget.totalIncome) * 100) : 0;
         const isHealthy = budget.disposableIncome > 8000;
         const isWarning = budget.disposableIncome > 3000;
         return (
@@ -651,7 +680,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             </motion.div>
 
             {/* ── 3 nøgletal ── */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { label: t("step.review.income"), value: `${formatKr(budget.totalIncome)} ${t("unit.currency")}`, color: "text-primary" },
                 { label: t("step.review.expenses"), value: `${formatKr(budget.totalExpenses)} ${t("unit.currency")}`, color: "text-foreground" },
@@ -711,7 +740,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   };
 
   return (
-    <div className="h-dvh bg-background flex flex-col">
+    <div id="main-content" className="h-dvh bg-background flex flex-col">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
@@ -730,7 +759,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           </motion.div>
         </AnimatePresence>
       </div>
-      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "expenses" ? goNext : undefined} />}
+      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "everyday" ? goNext : undefined} />}
     </div>
   );
 }

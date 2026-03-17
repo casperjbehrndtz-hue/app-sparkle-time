@@ -36,8 +36,8 @@ export function ParSplitView({ profile, budget }: Props) {
   const partnerRemaining = profile.partnerIncome - splits.partner;
 
   const chartData = [
-    { name: "Dig", udgifter: splits.my, rest: Math.max(0, myRemaining) },
-    { name: "Partner", udgifter: splits.partner, rest: Math.max(0, partnerRemaining) },
+    { name: t("report.you"), expenses: splits.my, rest: Math.max(0, myRemaining) },
+    { name: t("report.partner"), expenses: splits.partner, rest: Math.max(0, partnerRemaining) },
   ];
 
   const fairnessDelta = myRemaining - partnerRemaining;
@@ -128,19 +128,27 @@ export function ParSplitView({ profile, budget }: Props) {
       {/* Bar chart */}
       <div className="space-y-2">
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("couple.visualization")}</h3>
-        <div className="h-40 w-full">
+        <div className="h-40 w-full" role="img" aria-label={t("a11y.partnerSplit")}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" barCategoryGap="20%">
               <XAxis type="number" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--foreground))" }} width={55} />
               <Tooltip
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${formatKr(v, lc)} ${t("unit.currency")}`, name === "udgifter" ? t("couple.expenses") : t("couple.remaining")]}
+                formatter={(v: number, name: string) => [`${formatKr(v, lc)} ${t("unit.currency")}`, name === "expenses" ? t("couple.expenses") : t("couple.remaining")]}
               />
-              <Bar dataKey="udgifter" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="expenses" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
               <Bar dataKey="rest" stackId="a" fill="hsl(var(--muted))" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          <div className="sr-only">
+            <p>{t("a11y.partnerSplit")}</p>
+            <ul>
+              {chartData.map((d) => (
+                <li key={d.name}>{d.name}: {formatKr(d.expenses, lc)} {t("unit.currency")} {t("couple.expenses")}, {formatKr(d.rest, lc)} {t("unit.currency")} {t("couple.remaining")}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
 
