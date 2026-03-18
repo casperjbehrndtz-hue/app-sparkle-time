@@ -149,7 +149,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
                 alert.level === "critical"
                   ? "bg-destructive/10 border-l-destructive border-destructive/30 text-destructive font-semibold"
                   : alert.level === "warning"
-                  ? "bg-kassen-gold/5 border-l-kassen-gold border-kassen-gold/20 text-kassen-gold"
+                  ? "bg-nemt-gold/5 border-l-nemt-gold border-nemt-gold/20 text-nemt-gold"
                   : "bg-primary/5 border-l-primary border-primary/20 text-primary"
               }`}
             >

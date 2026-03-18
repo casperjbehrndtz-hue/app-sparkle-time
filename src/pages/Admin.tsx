@@ -41,7 +41,7 @@ function renderMarkdown(content: string) {
 
 export default function Admin() {
   const { t } = useI18n();
-  usePageMeta("Admin — Kassen", "");
+  usePageMeta("Admin — NemtBudget", "");
 
   const [user, setUser] = useState<{ email?: string } | null | undefined>(undefined);
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -130,7 +130,7 @@ export default function Admin() {
       <header className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Kassen
+            <ArrowLeft className="w-4 h-4" /> NemtBudget
           </Link>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />

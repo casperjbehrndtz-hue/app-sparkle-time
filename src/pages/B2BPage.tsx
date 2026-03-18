@@ -60,7 +60,7 @@ export default function B2BPage() {
     const body = encodeURIComponent(
       `${t("b2b.labelName")}: ${form.name}\n${t("b2b.labelCompany")}: ${form.company}\n${t("b2b.labelEmail")}: ${form.email}\n\n${t("b2b.labelMessage")}:\n${form.message}`
     );
-    window.location.href = `mailto:casper@kassen.dk?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:casper@nemtbudget.nu?subject=${subject}&body=${body}`;
     setSubmitted(true);
   };
 
@@ -188,7 +188,7 @@ export default function B2BPage() {
               to="/?demo=true"
               className="inline-flex items-center gap-2 px-5 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors"
             >
-              Kassen Demo
+              NemtBudget Demo
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -256,7 +256,7 @@ export default function B2BPage() {
               "{t("b2b.testimonialQuote")}"
             </p>
             <a
-              href="mailto:casper@kassen.dk?subject=B2B%20-%20Anmod%20om%20referencer"
+              href="mailto:casper@nemtbudget.nu?subject=B2B%20-%20Anmod%20om%20referencer"
               className="text-primary font-medium hover:underline"
             >
               {t("b2b.testimonialLink")}

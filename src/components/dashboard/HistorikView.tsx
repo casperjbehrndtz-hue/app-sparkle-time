@@ -129,7 +129,7 @@ export function HistorikView() {
                 contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                 formatter={(v: number) => [`${v} / 100`, "Score"]}
               />
-              <Line type="monotone" dataKey="score" stroke="hsl(var(--kassen-gold))" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="score" stroke="hsl(var(--nemt-gold))" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
           <div className="sr-only">

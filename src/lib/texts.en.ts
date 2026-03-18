@@ -71,7 +71,7 @@ export const EN: Record<string, string> = {
   "footer.private": "100% private · Data stored locally",
   "footer.tools": "Tools",
   "footer.legal": "Legal",
-  "footer.disclaimer": "Kassen is a budgeting tool and does not provide financial advice. Talk to your bank or an advisor about specific financial decisions.",
+  "footer.disclaimer": "NemtBudget is a budgeting tool and does not provide financial advice. Talk to your bank or an advisor about specific financial decisions.",
   "footer.based": "Based on Danish averages 2026 · Data stored locally",
   "footer.installApp": "Install app",
   "footer.guides": "Guides & tips",
@@ -188,7 +188,7 @@ export const EN: Record<string, string> = {
   "step.review.zeroIncomeWarning": "Your income is set to 0. Is that correct?",
 
   // Dashboard
-  "dash.title": "Your budget — Kassen",
+  "dash.title": "Your budget — NemtBudget",
   "dash.charts": "Charts",
   "dash.chartsShort": "Charts",
   "dash.report": "Report",
@@ -445,7 +445,7 @@ export const EN: Record<string, string> = {
   "sankey.copied": "Copied!",
   "sankey.export": "Export",
   "sankey.exportTip": "Save as image — perfect for sharing",
-  "sankey.exportBrand": "kassen.dk",
+  "sankey.exportBrand": "nemtbudget.nu",
   "sankey.exportMadeWith": "Made with",
   "sankey.milestone.saver": "Great saver! You save {pct}%",
   "sankey.milestone.balanced": "Balanced budget!",
@@ -458,7 +458,7 @@ export const EN: Record<string, string> = {
   // Dashboard misc
   "dash.startOver": "Start over",
   "dash.reset": "Reset",
-  "dash.disclaimer": "Kassen is a budgeting tool — not financial advice.",
+  "dash.disclaimer": "NemtBudget is a budgeting tool — not financial advice.",
   "dash.aiTitle": "Let AI find your savings",
   "dash.aiSubtitle": "Guided walkthrough — you decide what to do",
   "dash.useDefaults": "Use defaults and see my result →",
@@ -533,7 +533,7 @@ export const EN: Record<string, string> = {
   "share.freedomNumber": "Freedom number",
   "share.savingsRate": "Savings rate",
   "share.buffer": "Buffer",
-  "share.footer": "Calculated with Kassen · 2026",
+  "share.footer": "Calculated with NemtBudget · 2026",
 
   // Subscriptions
   "subs.warning": "Over 2,000 DKK/mo. on subscriptions — consider cutting back",
@@ -634,7 +634,7 @@ export const EN: Record<string, string> = {
 
   // History
   "history.noHistory": "No history yet",
-  "history.noHistoryDesc": "Your history will appear here once you've used Kassen for more than a month. Each time you update your budget, we save a snapshot — so you can track your progress over time.",
+  "history.noHistoryDesc": "Your history will appear here once you've used NemtBudget for more than a month. Each time you update your budget, we save a snapshot — so you can track your progress over time.",
   "history.oneSnapshot": "1 snapshot saved · Update your budget again to see a chart",
   "history.disposableSinceStart": "Disposable income since start",
   "history.healthSinceStart": "Health score since start",
@@ -659,7 +659,7 @@ export const EN: Record<string, string> = {
   "optimize.savePerMonth": "Save {amount} DKK/mo.",
 
   // Auth page
-  "auth.pageTitle": "Log in — Kassen",
+  "auth.pageTitle": "Log in — NemtBudget",
   "auth.pageDesc": "Log in or create a free account to sync your budget across devices.",
   "auth.enterEmail": "Enter email",
   "auth.enterEmailDesc": "Enter your email above and we'll send you a reset link.",
@@ -687,13 +687,13 @@ export const EN: Record<string, string> = {
   "auth.sessionExpiredDesc": "Your session has expired. Log in again to sync.",
 
   // Install page
-  "install.pageTitle": "Install Kassen — Free budget app",
-  "install.pageDesc": "Install Kassen as an app on your phone — no app store needed. Get a quick overview of your budget.",
-  "install.installed": "Kassen is installed!",
-  "install.title": "Install Kassen",
+  "install.pageTitle": "Install NemtBudget — Free budget app",
+  "install.pageDesc": "Install NemtBudget as an app on your phone — no app store needed. Get a quick overview of your budget.",
+  "install.installed": "NemtBudget is installed!",
+  "install.title": "Install NemtBudget",
   "install.installedDesc": "Open the app from your home screen for the best experience.",
-  "install.desc": "Get Kassen as an app on your phone — no app store needed.",
-  "install.goToApp": "Go to Kassen →",
+  "install.desc": "Get NemtBudget as an app on your phone — no app store needed.",
+  "install.goToApp": "Go to NemtBudget →",
   "install.installNow": "Install now",
   "install.iosTitle": "How to install on iPhone:",
   "install.iosStep1": "Tap",
@@ -702,7 +702,7 @@ export const EN: Record<string, string> = {
   "install.iosStep2": "Choose \"Add to Home Screen\"",
   "install.iosStep3": "Tap \"Add\"",
   "install.openInBrowser": "Open this page in Chrome or Safari to install the app.",
-  "install.back": "← Back to Kassen",
+  "install.back": "← Back to NemtBudget",
 
   // NotFound page
   "notFound.title": "404",
@@ -767,8 +767,8 @@ export const EN: Record<string, string> = {
   "forward.seeRefinance": "See what refinancing can do →",
 
   // ShareCard
-  "share.brandName": "Kassen",
-  "share.brandUrl": "kassen.dk",
+  "share.brandName": "NemtBudget",
+  "share.brandUrl": "nemtbudget.nu",
   "share.bucketDrift": "Fixed",
   "share.bucketFrihed": "Freedom",
   "share.bucketFremtid": "Future",
@@ -806,12 +806,12 @@ export const EN: Record<string, string> = {
   "b2b.heroTitle": "Give your customers Denmark's smartest",
   "b2b.heroTitleHighlight": "budget tool",
   "b2b.heroTitleSuffix": "— under your own brand",
-  "b2b.heroSubtitle": "Kassen is an AI-powered budget platform ready for white-label. Integrate it into your customer experience in under 2 weeks — no bank connection required.",
+  "b2b.heroSubtitle": "NemtBudget is an AI-powered budget platform ready for white-label. Integrate it into your customer experience in under 2 weeks — no bank connection required.",
   "b2b.liveDemo": "See live demo",
   "b2b.contactUs": "Contact us",
-  "b2b.whyTitle": "Why banks choose Kassen",
+  "b2b.whyTitle": "Why banks choose NemtBudget",
   "b2b.whiteLabelReady": "White-label ready",
-  "b2b.whiteLabelDesc": "Your logo, colors and branding. Customers experience it as your own product. No visible reference to Kassen.",
+  "b2b.whiteLabelDesc": "Your logo, colors and branding. Customers experience it as your own product. No visible reference to NemtBudget.",
   "b2b.aiPowered": "AI-powered",
   "b2b.aiPoweredDesc": "Personal recommendations, optimization suggestions and intelligent chat. Powered by Claude — the world's most advanced AI.",
   "b2b.privacyFirst": "Privacy-first",
@@ -875,7 +875,7 @@ export const EN: Record<string, string> = {
   // Partner page
   "partner.noToken": "No token",
   "partner.invalidToken": "Invalid token",
-  "partner.contactEmail": "Contact hej@kassen.dk",
+  "partner.contactEmail": "Contact hej@nemtbudget.nu",
   "partner.noActivity": "No activity yet",
   "partner.noEvents": "No events yet",
   "partner.uniqueSessions": "Unique sessions",
@@ -994,7 +994,7 @@ export const EN: Record<string, string> = {
   "loader.loading": "Loading...",
 
   // Demo banner
-  "demo.text": "Demo — Kassen white-label for {brand}. All data is sample data.",
+  "demo.text": "Demo — NemtBudget white-label for {brand}. All data is sample data.",
   "demo.bookPresentation": "Book presentation",
   "demo.trySelf": "Try it yourself",
   "demo.closeBanner": "Close demo banner",
@@ -1075,7 +1075,7 @@ export const EN: Record<string, string> = {
   "share.copyText": "Copy as text",
   "share.copiedText": "Text copied!",
   "share.textHeader": "My budget",
-  "share.textFooter": "Calculated with kassen.dk",
+  "share.textFooter": "Calculated with nemtbudget.nu",
   "shared.banner": "Shared budget",
   "shared.bannerCta": "Create your own budget",
   "shared.closeBanner": "Close banner",
@@ -1176,7 +1176,7 @@ export const EN: Record<string, string> = {
   "payslip.share.step2Hint": "Paste the image with Ctrl+V in the Reddit post",
   "payslip.share.includeBudget": "Include my budget in the image",
   "salary.autoContributed": "Your anonymous salary data helps others compare",
-  "payslip.meta.title": "Understand your payslip in 10 seconds — kassen.dk",
+  "payslip.meta.title": "Understand your payslip in 10 seconds — nemtbudget.nu",
   "payslip.meta.description": "Upload your payslip and understand every single deduction. See what AM-bidrag, A-skat and pension mean — and whether your salary is normal for your industry.",
   "payslip.landing.headline": "Understand your payslip in 10 seconds",
   "payslip.landing.subheadline": "Upload your payslip — we explain every deduction, check if your salary is normal, and you can share anonymously on Reddit",

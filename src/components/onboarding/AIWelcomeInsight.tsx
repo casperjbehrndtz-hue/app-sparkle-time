@@ -82,7 +82,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
               <circle cx="50" cy="50" r="42" fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
               <motion.circle
                 cx="50" cy="50" r="42" fill="none"
-                stroke={health.score >= 70 ? "hsl(var(--flow-savings))" : health.score >= 40 ? "hsl(var(--kassen-gold))" : "hsl(var(--destructive))"}
+                stroke={health.score >= 70 ? "hsl(var(--flow-savings))" : health.score >= 40 ? "hsl(var(--nemt-gold))" : "hsl(var(--destructive))"}
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 42}`}

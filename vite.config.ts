@@ -39,8 +39,8 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "Kassen – Smart budgetværktøj",
-        short_name: "Kassen",
+        name: "NemtBudget – Smart budgetværktøj",
+        short_name: "NemtBudget",
         description: "Find ud af hvad du reelt har til overs. Danmarks nemmeste budgetværktøj.",
         theme_color: "#1a2332",
         background_color: "#ffffff",

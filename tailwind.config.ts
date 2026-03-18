@@ -61,13 +61,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        kassen: {
-          green: "hsl(var(--kassen-green))",
-          blue: "hsl(var(--kassen-blue))",
-          gold: "hsl(var(--kassen-gold))",
-          red: "hsl(var(--kassen-red))",
-          surface: "hsl(var(--kassen-surface))",
-          "surface-2": "hsl(var(--kassen-surface-2))",
+        nemt: {
+          green: "hsl(var(--nemt-green))",
+          blue: "hsl(var(--nemt-blue))",
+          gold: "hsl(var(--nemt-gold))",
+          red: "hsl(var(--nemt-red))",
+          surface: "hsl(var(--nemt-surface))",
+          "surface-2": "hsl(var(--nemt-surface-2))",
         },
         hero: {
           navy: "hsl(var(--hero-navy))",

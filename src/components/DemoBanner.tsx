@@ -37,7 +37,7 @@ export function DemoBanner({ brandName }: DemoBannerProps) {
 
         <div className="flex items-center gap-2 shrink-0">
           <a
-            href="mailto:casper@kassen.dk?subject=B2B%20Demo%20interesse"
+            href="mailto:casper@nemtbudget.nu?subject=B2B%20Demo%20interesse"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-950 text-amber-100 text-xs font-semibold rounded-md hover:bg-amber-900 transition-colors"
           >
             {t("demo.bookPresentation")}

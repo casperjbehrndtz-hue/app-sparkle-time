@@ -129,7 +129,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
           p25: Math.round(data.gross_p25),
           p75: Math.round(data.gross_p75),
           industry: payslip.anonIndustry!,
-          source: "kassen.dk",
+          source: "nemtbudget.nu",
         });
       } else {
         const dst = getDSTFallback(payslip.anonIndustry!);
@@ -262,7 +262,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
     }
     const a = document.createElement("a");
     a.href = URL.createObjectURL(previewBlob);
-    a.download = "min-lonseddel-kassen.png";
+    a.download = "min-lonseddel-nemtbudget.png";
     a.click();
     URL.revokeObjectURL(a.href);
     setImageCopied(true);
@@ -278,7 +278,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
   }, [previewUrl]);
 
   // Reddit
-  const redditTitle = `${payslip.anonDescription || "Min lønseddel"} — ${Math.round(netPct)}% udbetalt | kassen.dk`;
+  const redditTitle = `${payslip.anonDescription || "Min lønseddel"} — ${Math.round(netPct)}% udbetalt | nemtbudget.nu`;
   const subreddits = [
     { name: "r/dkloenseddel", sub: "dkloenseddel" },
     { name: "r/dkfinance", sub: "dkfinance" },

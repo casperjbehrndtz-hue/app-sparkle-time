@@ -180,8 +180,8 @@ export function FremadView({ profile, budget, health }: Props) {
       {profile.propertyValue > 0 && (
         <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-kassen-gold/10 flex items-center justify-center">
-              <TrendingUp className="w-3.5 h-3.5 text-kassen-gold" />
+            <div className="w-7 h-7 rounded-lg bg-nemt-gold/10 flex items-center justify-center">
+              <TrendingUp className="w-3.5 h-3.5 text-nemt-gold" />
             </div>
             <div>
               <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.estimatedWealth")}</p>
@@ -210,8 +210,8 @@ export function FremadView({ profile, budget, health }: Props) {
       {/* Goals / Mål */}
       <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-kassen-gold/10 flex items-center justify-center">
-            <Target className="w-3.5 h-3.5 text-kassen-gold" />
+          <div className="w-7 h-7 rounded-lg bg-nemt-gold/10 flex items-center justify-center">
+            <Target className="w-3.5 h-3.5 text-nemt-gold" />
           </div>
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.goalsProgress")}</p>
         </div>
@@ -241,7 +241,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <PiggyBank className="w-3.5 h-3.5 text-kassen-gold" />
+                <PiggyBank className="w-3.5 h-3.5 text-nemt-gold" />
                 <span className="text-xs font-medium">{t("forward.savingsRate")}</span>
               </div>
               <span className="text-xs text-muted-foreground">{health.savingsRate}% / 20% {t("forward.goalLabel")}</span>
@@ -251,7 +251,7 @@ export function FremadView({ profile, budget, health }: Props) {
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(100, (health.savingsRate / 20) * 100)}%` }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-                className={`h-full rounded-full ${health.savingsRate >= 20 ? "bg-primary" : health.savingsRate >= 10 ? "bg-kassen-gold" : "bg-destructive"}`}
+                className={`h-full rounded-full ${health.savingsRate >= 20 ? "bg-primary" : health.savingsRate >= 10 ? "bg-nemt-gold" : "bg-destructive"}`}
               />
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
@@ -269,7 +269,7 @@ export function FremadView({ profile, budget, health }: Props) {
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("forward.rateShockSim")}</p>
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
-            <span className={`font-display font-bold text-lg ${simulatedDisposable > 5000 ? "text-primary" : simulatedDisposable > 0 ? "text-kassen-gold" : "text-destructive"}`}>
+            <span className={`font-display font-bold text-lg ${simulatedDisposable > 5000 ? "text-primary" : simulatedDisposable > 0 ? "text-nemt-gold" : "text-destructive"}`}>
               {formatKr(simulatedDisposable, lc)} {t("forward.leftAfter")}
             </span>
           </div>

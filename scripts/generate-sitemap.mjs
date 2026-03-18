@@ -33,7 +33,7 @@ loadEnv();
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const SITE_URL = (process.env.VITE_SITE_URL ?? "https://kassen.dk").replace(/\/$/, "");
+const SITE_URL = (process.env.VITE_SITE_URL ?? "https://nemtbudget.nu").replace(/\/$/, "");
 
 // ─── Static routes ─────────────────────────────────────────────────────────
 const STATIC_ROUTES = [

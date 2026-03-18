@@ -109,7 +109,7 @@ export function SubscriptionTracker({ profile }: Props) {
           = {formatKr(totalMonthly * 12, lc)} {t("unit.krYear")} · {detected.length + customSubs.length} {t("subs.activeCount")}
         </p>
         {totalMonthly > 2000 && (
-          <div className="mt-3 flex items-center gap-2 text-xs text-kassen-gold">
+          <div className="mt-3 flex items-center gap-2 text-xs text-nemt-gold">
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>{t("subs.warning")}</span>
           </div>

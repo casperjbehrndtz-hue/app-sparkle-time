@@ -52,8 +52,18 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       </nav>
 
       {/* Hero */}
-      <section className="bg-hero-navy overflow-hidden">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-24 grid lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12 items-center">
+      <section className="bg-hero-navy overflow-hidden relative">
+        {/* Background video */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+          src="/hero-video.mp4"
+        />
+        <div className="absolute inset-0 bg-hero-navy/70" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-24 grid lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12 items-center relative z-10">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0 relative z-10">
             <h1 className="font-display font-black text-[1.75rem] sm:text-[2.5rem] lg:text-[2rem] xl:text-[2.75rem] leading-[1.1] tracking-tight text-white mb-4 sm:mb-5 text-balance">
               {t("hero.title")}{" "}
@@ -148,7 +158,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               {config.testimonials.map((testimonial) => (
                 <motion.div key={testimonial.name} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                   className="rounded-2xl border border-border/60 p-6 bg-background shadow-sm">
-                  <div className="flex gap-0.5 mb-3">{[1,2,3,4,5].map(s => <span key={s} className="text-kassen-gold text-sm">★</span>)}</div>
+                  <div className="flex gap-0.5 mb-3">{[1,2,3,4,5].map(s => <span key={s} className="text-nemt-gold text-sm">★</span>)}</div>
                   <p className="text-sm text-foreground leading-relaxed mb-4">"{testimonial.quote}"</p>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">{testimonial.name.charAt(0)}</div>

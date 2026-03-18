@@ -61,10 +61,10 @@ export interface WhiteLabelConfig {
   };
 }
 
-// ─── Default "Kassen" config ─────────────────────────────────
+// ─── Default "NemtBudget" config ─────────────────────────────
 
 export const defaultConfig: WhiteLabelConfig = {
-  brandName: "Kassen",
+  brandName: "NemtBudget",
   brandTagline: "Smart budgetværktøj",
   theme: {
     primary: "216 56% 22%",
@@ -95,7 +95,7 @@ export const defaultConfig: WhiteLabelConfig = {
     ],
   },
   testimonials: [
-    { quote: "Jeg troede jeg havde styr på det, men Kassen viste mig 2.800 kr. i abonnementer jeg havde glemt.", name: "Sofie, 31", location: "Aalborg" },
+    { quote: "Jeg troede jeg havde styr på det, men NemtBudget viste mig 2.800 kr. i abonnementer jeg havde glemt.", name: "Sofie, 31", location: "Aalborg" },
     { quote: "Vi brugte rapporten som udgangspunkt til et møde med banken — super nemt.", name: "Jonas & Katrine", location: "København" },
     { quote: "Det tog bogstaveligt 3 minutter. Ingen login, ingen regneark. Bare overblik.", name: "Mads, 42", location: "Aarhus" },
   ],

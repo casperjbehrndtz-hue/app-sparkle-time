@@ -5,7 +5,7 @@ import { useI18n } from "@/lib/i18n";
 
 export default function Vilkaar() {
   const config = useWhiteLabel();
-  const brand = config.brandName ?? "Kassen";
+  const brand = config.brandName ?? "NemtBudget";
   const { t } = useI18n();
 
   return (
@@ -85,7 +85,7 @@ export default function Vilkaar() {
             <h2 className="font-display font-bold text-lg mb-3">7. Kontakt</h2>
             <p className="text-muted-foreground leading-relaxed">
               Har du spørgsmål til disse vilkår, kontakt os på:{" "}
-              <a href="mailto:hej@kassen.dk" className="text-primary underline underline-offset-2">hej@kassen.dk</a>
+              <a href="mailto:hej@nemtbudget.nu" className="text-primary underline underline-offset-2">hej@nemtbudget.nu</a>
             </p>
           </section>
 

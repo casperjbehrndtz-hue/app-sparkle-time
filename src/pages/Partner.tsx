@@ -27,7 +27,7 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
 
 export default function Partner() {
   const { t } = useI18n();
-  usePageMeta("Partner Dashboard — Kassen", "");
+  usePageMeta("Partner Dashboard — NemtBudget", "");
   const [params] = useSearchParams();
   const token = params.get("token");
   const [brandKey, setBrandKey] = useState<string | null>(null);
@@ -120,7 +120,7 @@ export default function Partner() {
       <header className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <span className="font-display font-black text-lg text-primary">Kassen</span>
+            <span className="font-display font-black text-lg text-primary">NemtBudget</span>
             <span className="text-muted-foreground text-sm ml-2">/ {partnerName}</span>
           </div>
           <span className="text-xs text-muted-foreground">{t("partner.dashboard")}</span>

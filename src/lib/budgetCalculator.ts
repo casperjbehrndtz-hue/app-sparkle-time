@@ -68,7 +68,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Bolig",
       label: "Boliglån",
       amount: profile.mortgageAmount,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   } else if (profile.housingType === "andel") {
     if (profile.rentAmount > 0) {
@@ -76,7 +76,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
         category: "Bolig",
         label: "Boligafgift (andel)",
         amount: profile.rentAmount,
-        colorVar: "--kassen-blue",
+        colorVar: "--nemt-blue",
       });
     }
     if (profile.mortgageAmount > 0) {
@@ -84,7 +84,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
         category: "Bolig",
         label: "Andelslån",
         amount: profile.mortgageAmount,
-        colorVar: "--kassen-blue",
+        colorVar: "--nemt-blue",
       });
     }
   } else if (profile.housingType === "lejer" && profile.rentAmount > 0) {
@@ -92,7 +92,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Bolig",
       label: "Husleje",
       amount: profile.rentAmount,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   }
 
@@ -111,7 +111,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
         category: "Bolig",
         label: deductionLabel,
         amount: -monthlyDeduction,
-        colorVar: "--kassen-green",
+        colorVar: "--nemt-green",
       });
     }
   }
@@ -122,7 +122,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     category: "Forsyning",
     label: isNO ? "Internett" : "Internet",
     amount: profile.internetAmount ?? utilDb.internet.price,
-    colorVar: "--kassen-blue",
+    colorVar: "--nemt-blue",
   });
 
   // Electricity: use profile override > live price > default (live price only for DK)
@@ -134,20 +134,20 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     category: "Forsyning",
     label: elLabel,
     amount: elAmount,
-    colorVar: "--kassen-blue",
+    colorVar: "--nemt-blue",
   });
 
   fixedExpenses.push({
     category: "Forsyning",
     label: isNO ? "Oppvarming/vann" : "Varme & vand",
     amount: profile.heatingAmount ?? (isPar ? utilDb.heating.price_par : utilDb.heating.price_solo),
-    colorVar: "--kassen-blue",
+    colorVar: "--nemt-blue",
   });
   fixedExpenses.push({
     category: "Forsyning",
     label: isPar ? "Mobil (2 pers.)" : "Mobil",
     amount: profile.mobileAmount ?? utilDb.mobile.price_per_person * (isPar ? 2 : 1),
-    colorVar: "--kassen-blue",
+    colorVar: "--nemt-blue",
   });
 
   // DR medielicens — only in Denmark (Norway abolished NRK license Jan 2020)
@@ -156,7 +156,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Forsyning",
       label: "DR (medielicens)",
       amount: profile.drAmount ?? UTILITIES.dr_licens.price,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   }
 
@@ -173,34 +173,34 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
   ];
   subMap.forEach(({ key, label, amount }) => {
     if (profile[key]) {
-      fixedExpenses.push({ category: "Abonnementer", label, amount, colorVar: "--kassen-green" });
+      fixedExpenses.push({ category: "Abonnementer", label, amount, colorVar: "--nemt-green" });
     }
   });
 
   // Transport (detailed)
   if (profile.hasCar) {
     if (profile.carLoan > 0) {
-      fixedExpenses.push({ category: "Transport", label: "Billån / leasing", amount: profile.carLoan, colorVar: "--kassen-gold" });
+      fixedExpenses.push({ category: "Transport", label: "Billån / leasing", amount: profile.carLoan, colorVar: "--nemt-gold" });
     }
     if (profile.carFuel > 0) {
-      fixedExpenses.push({ category: "Transport", label: "Benzin / opladning", amount: profile.carFuel, colorVar: "--kassen-gold" });
+      fixedExpenses.push({ category: "Transport", label: "Benzin / opladning", amount: profile.carFuel, colorVar: "--nemt-gold" });
     }
     if (profile.carInsurance > 0) {
       const monthly = Math.round(profile.carInsurance / 12);
-      fixedExpenses.push({ category: "Transport", label: `Bilforsikring (${formatKr(profile.carInsurance)} kr./år)`, amount: monthly, colorVar: "--kassen-gold" });
+      fixedExpenses.push({ category: "Transport", label: `Bilforsikring (${formatKr(profile.carInsurance)} kr./år)`, amount: monthly, colorVar: "--nemt-gold" });
     }
     if (profile.carTax > 0) {
       const monthly = Math.round(profile.carTax / 12);
-      fixedExpenses.push({ category: "Transport", label: `Vægtafgift (${formatKr(profile.carTax)} kr./år)`, amount: monthly, colorVar: "--kassen-gold" });
+      fixedExpenses.push({ category: "Transport", label: `Vægtafgift (${formatKr(profile.carTax)} kr./år)`, amount: monthly, colorVar: "--nemt-gold" });
     }
     if (profile.carService > 0) {
       const monthly = Math.round(profile.carService / 6);
-      fixedExpenses.push({ category: "Transport", label: `Bilservice (${formatKr(profile.carService)} kr./halvår)`, amount: monthly, colorVar: "--kassen-gold" });
+      fixedExpenses.push({ category: "Transport", label: `Bilservice (${formatKr(profile.carService)} kr./halvår)`, amount: monthly, colorVar: "--nemt-gold" });
     }
   } else {
     fixedExpenses.push({
       category: "Transport", label: "Offentlig transport",
-      amount: PUBLIC_TRANSPORT.default.price, colorVar: "--kassen-gold",
+      amount: PUBLIC_TRANSPORT.default.price, colorVar: "--nemt-gold",
     });
   }
 
@@ -210,7 +210,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Bolig",
       label: isNO ? "Huseierforbund / sameie" : "Grundejerforening / ejerforening",
       amount: isNO ? NO_HOMEOWNER_ASSOCIATION.default.price : HOMEOWNER_ASSOCIATION.default.price,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
     const propValue = profile.propertyValue > 0
       ? profile.propertyValue
@@ -223,7 +223,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
         category: "Bolig",
         label: locale.propertyTaxLabel,
         amount: propertySkat,
-        colorVar: "--kassen-blue",
+        colorVar: "--nemt-blue",
       });
     }
   }
@@ -234,7 +234,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Forsikring",
       label: "Forsikringer",
       amount: profile.insuranceAmount,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   }
 
@@ -244,7 +244,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Fagforening",
       label: "Fagforening & A-kasse",
       amount: profile.unionAmount,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   }
 
@@ -254,7 +254,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Kæledyr",
       label: "Kæledyr (foder, dyrlæge, forsikring)",
       amount: profile.petAmount,
-      colorVar: "--kassen-gold",
+      colorVar: "--nemt-gold",
     });
   }
 
@@ -264,7 +264,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Lån",
       label: "Lån (SU-lån, forbrugslån etc.)",
       amount: profile.loanAmount,
-      colorVar: "--kassen-blue",
+      colorVar: "--nemt-blue",
     });
   }
 
@@ -274,7 +274,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Fitness",
       label: "Fitness / sport",
       amount: profile.fitnessAmount,
-      colorVar: "--kassen-green",
+      colorVar: "--nemt-green",
     });
   }
 
@@ -288,7 +288,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
           category: isNO ? "Barn" : "Børn",
           label: `${care.label} (${childLabel})`,
           amount: care.price,
-          colorVar: "--kassen-gold",
+          colorVar: "--nemt-gold",
         });
       }
     });
@@ -305,7 +305,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
         category: "Andet",
         label: `${ce.label}${freqNote}`,
         amount: monthly,
-        colorVar: "--kassen-blue",
+        colorVar: "--nemt-blue",
       });
     });
   }
@@ -316,7 +316,7 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
       category: "Opsparing",
       label: "Opsparing / investering",
       amount: profile.savingsAmount,
-      colorVar: "--kassen-green",
+      colorVar: "--nemt-green",
     });
   }
 
@@ -325,31 +325,31 @@ export function computeBudget(profile: BudgetProfile, marketData?: MarketData | 
     category: isNO ? "Mat & dagligvarer" : "Mad & dagligvarer",
     label: isNO ? "Mat & dagligvarer" : "Mad & dagligvarer",
     amount: profile.foodAmount,
-    colorVar: "--kassen-red",
+    colorVar: "--nemt-red",
   });
   variableExpenses.push({
     category: "Fritid",
     label: isNO ? "Fritid & opplevelser" : "Fritid & oplevelser",
     amount: profile.leisureAmount,
-    colorVar: "--kassen-red",
+    colorVar: "--nemt-red",
   });
   variableExpenses.push({
     category: isNO ? "Klær" : "Tøj",
     label: isNO ? "Klær & personlig pleie" : "Tøj & personlig pleje",
     amount: profile.clothingAmount,
-    colorVar: "--kassen-red",
+    colorVar: "--nemt-red",
   });
   variableExpenses.push({
     category: isNO ? "Helse" : "Sundhed",
     label: isNO ? "Lege, tannlege & medisin" : "Læge, tandlæge & medicin",
     amount: profile.healthAmount,
-    colorVar: "--kassen-red",
+    colorVar: "--nemt-red",
   });
   variableExpenses.push({
     category: "Restaurant",
     label: "Restaurant & takeaway",
     amount: profile.restaurantAmount,
-    colorVar: "--kassen-red",
+    colorVar: "--nemt-red",
   });
 
   const allExpenses = [...fixedExpenses, ...variableExpenses];

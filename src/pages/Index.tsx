@@ -122,14 +122,14 @@ const Index = () => {
     root.style.setProperty("--primary", config.theme.primary);
     root.style.setProperty("--primary-foreground", config.theme.primaryForeground);
     root.style.setProperty("--ring", config.theme.primary);
-    root.style.setProperty("--kassen-green", config.theme.primary);
+    root.style.setProperty("--nemt-green", config.theme.primary);
     if (config.theme.accent) root.style.setProperty("--accent", config.theme.accent);
     if (config.displayFont) root.style.setProperty("--font-display", config.displayFont);
     return () => {
       root.style.removeProperty("--primary");
       root.style.removeProperty("--primary-foreground");
       root.style.removeProperty("--ring");
-      root.style.removeProperty("--kassen-green");
+      root.style.removeProperty("--nemt-green");
     };
   }, [config]);
 

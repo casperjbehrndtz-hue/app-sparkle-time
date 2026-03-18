@@ -114,15 +114,19 @@ export function usePayslipOCR() {
       const parsed = parsePayslipResponse(raw);
 
       if (!parsed) {
-        console.error("Payslip parse validation failed. Raw:", JSON.stringify(raw).slice(0, 500));
-        setError("payslip.error.readFailed");
+        const rawObj = raw as Record<string, unknown>;
+        const dbg = `bruttolon=${rawObj?.bruttolon}(${typeof rawObj?.bruttolon}), nettolon=${rawObj?.nettolon}(${typeof rawObj?.nettolon})`;
+        console.error("Payslip parse validation failed.", dbg, "Raw:", JSON.stringify(raw).slice(0, 500));
+        setError(`Parsing fejlede: ${dbg}`);
         return;
       }
 
       setResult(parsed);
     } catch (err) {
       console.error("Payslip OCR error:", err);
-      setError("payslip.error.readFailed");
+      // Show actual error detail for debugging
+      const detail = err instanceof Error ? err.message : "";
+      setError(detail ? `Fejl: ${detail}` : "payslip.error.readFailed");
     } finally {
       setIsProcessing(false);
     }

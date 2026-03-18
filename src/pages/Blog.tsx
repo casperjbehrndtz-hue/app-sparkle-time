@@ -56,7 +56,7 @@ export default function Blog() {
   const config = useWhiteLabel();
   const { t } = useI18n();
   usePageMeta(
-    "Guides & tips — Kassen",
+    "Guides & tips — NemtBudget",
     "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget."
   );
   const [searchQuery, setSearchQuery] = useState("");

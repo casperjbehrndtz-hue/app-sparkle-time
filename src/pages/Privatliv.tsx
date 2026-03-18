@@ -6,8 +6,8 @@ import { usePageMeta } from "@/hooks/usePageMeta";
 const Privatliv = () => {
   const config = useWhiteLabel();
   usePageMeta(
-    "Privatlivspolitik — Kassen",
-    "Læs om hvordan Kassen håndterer dine data. Alt gemmes lokalt — ingen data deles med tredjeparter."
+    "Privatlivspolitik — NemtBudget",
+    "Læs om hvordan NemtBudget håndterer dine data. Alt gemmes lokalt — ingen data deles med tredjeparter."
   );
 
   return (

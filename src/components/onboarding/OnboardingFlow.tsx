@@ -662,12 +662,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="text-center py-12 rounded-3xl border-2 border-border relative overflow-hidden">
-              <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-kassen-gold" : "bg-destructive"}`} />
+              <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`} />
               <div className="relative">
                 <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
                 <motion.div key={budget.disposableIncome} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                   className="flex items-baseline justify-center gap-1">
-                  <span className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-kassen-gold" : "text-destructive"}`}>
+                  <span className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-nemt-gold" : "text-destructive"}`}>
                     {formatKr(budget.disposableIncome)}
                   </span>
                   <span className="text-muted-foreground font-display text-xl">{t("currency")}</span>

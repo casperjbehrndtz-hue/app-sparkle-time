@@ -1,4 +1,4 @@
-// Norwegian texts — primary locale for kassen.no build (VITE_LOCALE=no)
+// Norwegian texts — primary locale for nemtbudget.nu build (VITE_LOCALE=no)
 // Complete set — no fallback to Danish needed
 export const NO: Record<string, string> = {
   // Nav
@@ -72,7 +72,7 @@ export const NO: Record<string, string> = {
   "footer.private": "All data lagres lokalt i nettleseren din. Vi selger aldri dine data.",
   "footer.tools": "Verktøy",
   "footer.legal": "Juridisk",
-  "footer.disclaimer": "Kassen er et budsjetteringsverktøy og gir ikke finansiell rådgivning. Snakk med banken din eller en rådgiver om konkrete økonomiske beslutninger.",
+  "footer.disclaimer": "NemtBudget er et budsjetteringsverktøy og gir ikke finansiell rådgivning. Snakk med banken din eller en rådgiver om konkrete økonomiske beslutninger.",
   "footer.based": "Beregnet på norske gjennomsnittstall 2026 · Data lagres lokalt",
   "footer.installApp": "Installer app",
   "footer.guides": "Guider & tips",
@@ -189,7 +189,7 @@ export const NO: Record<string, string> = {
   "step.review.zeroIncomeWarning": "Inntekten din er satt til 0 kr. Er det riktig?",
 
   // Dashboard
-  "dash.title": "Ditt budsjett — Kassen",
+  "dash.title": "Ditt budsjett — NemtBudget",
   "dash.charts": "Diagrammer",
   "dash.chartsShort": "Grafer",
   "dash.report": "Rapport",
@@ -446,7 +446,7 @@ export const NO: Record<string, string> = {
   "sankey.copied": "Kopiert!",
   "sankey.export": "Eksporter",
   "sankey.exportTip": "Lagre som bilde — perfekt for deling",
-  "sankey.exportBrand": "kassen.dk",
+  "sankey.exportBrand": "nemtbudget.nu",
   "sankey.exportMadeWith": "Laget med",
   "sankey.milestone.saver": "Sterk sparer! Du sparer {pct}%",
   "sankey.milestone.balanced": "Balansert budsjett!",
@@ -459,7 +459,7 @@ export const NO: Record<string, string> = {
   // Dashboard misc
   "dash.startOver": "Start på nytt",
   "dash.reset": "Nullstill",
-  "dash.disclaimer": "Kassen er et budsjetteringsverktøy — ikke finansiell rådgivning.",
+  "dash.disclaimer": "NemtBudget er et budsjetteringsverktøy — ikke finansiell rådgivning.",
   "dash.aiTitle": "La AI finne dine besparelser",
   "dash.aiSubtitle": "Guidet gjennomgang — du bestemmer hva du vil gjøre",
   "dash.useDefaults": "Bruk standardtall og se mitt resultat →",
@@ -534,7 +534,7 @@ export const NO: Record<string, string> = {
   "share.freedomNumber": "Frihetstall",
   "share.savingsRate": "Sparerate",
   "share.buffer": "Buffer",
-  "share.footer": "Beregnet med Kassen · 2026",
+  "share.footer": "Beregnet med NemtBudget · 2026",
 
   // Subscriptions
   "subs.warning": "Over 2 000 kr/mnd. i abonnementer — vurder å kutte ned",
@@ -635,7 +635,7 @@ export const NO: Record<string, string> = {
 
   // History
   "history.noHistory": "Ingen historikk ennå",
-  "history.noHistoryDesc": "Historikken din vises her når du har brukt Kassen i mer enn en måned. Hver gang du oppdaterer budsjettet, lagrer vi et øyeblikksbilde — slik at du kan se utviklingen over tid.",
+  "history.noHistoryDesc": "Historikken din vises her når du har brukt NemtBudget i mer enn en måned. Hver gang du oppdaterer budsjettet, lagrer vi et øyeblikksbilde — slik at du kan se utviklingen over tid.",
   "history.oneSnapshot": "1 øyeblikksbilde lagret · Oppdater budsjettet igjen for å se en graf",
   "history.disposableSinceStart": "Disponibelt beløp siden start",
   "history.healthSinceStart": "Helsescore siden start",
@@ -660,7 +660,7 @@ export const NO: Record<string, string> = {
   "optimize.savePerMonth": "Spar {amount} kr/mnd.",
 
   // Auth page
-  "auth.pageTitle": "Logg inn — Kassen",
+  "auth.pageTitle": "Logg inn — NemtBudget",
   "auth.pageDesc": "Logg inn eller opprett en gratis konto for å synkronisere budsjettet ditt på tvers av enheter.",
   "auth.enterEmail": "Oppgi e-post",
   "auth.enterEmailDesc": "Skriv e-posten din ovenfor, så sender vi en lenke for tilbakestilling.",
@@ -688,13 +688,13 @@ export const NO: Record<string, string> = {
   "auth.sessionExpiredDesc": "Sesjonen din har utløpt. Logg inn igjen for å synkronisere.",
 
   // Install page
-  "install.pageTitle": "Installer Kassen — Gratis budsjett-app",
-  "install.pageDesc": "Installer Kassen som app på telefonen din — uten app store. Få raskt oversikt over budsjettet ditt.",
-  "install.installed": "Kassen er installert!",
-  "install.title": "Installer Kassen",
+  "install.pageTitle": "Installer NemtBudget — Gratis budsjett-app",
+  "install.pageDesc": "Installer NemtBudget som app på telefonen din — uten app store. Få raskt oversikt over budsjettet ditt.",
+  "install.installed": "NemtBudget er installert!",
+  "install.title": "Installer NemtBudget",
   "install.installedDesc": "Åpne appen fra hjemmeskjermen for den beste opplevelsen.",
-  "install.desc": "Få Kassen som app på telefonen din — uten app store.",
-  "install.goToApp": "Gå til Kassen →",
+  "install.desc": "Få NemtBudget som app på telefonen din — uten app store.",
+  "install.goToApp": "Gå til NemtBudget →",
   "install.installNow": "Installer nå",
   "install.iosTitle": "Slik installerer du på iPhone:",
   "install.iosStep1": "Trykk på",
@@ -703,7 +703,7 @@ export const NO: Record<string, string> = {
   "install.iosStep2": "Velg \"Legg til på Hjem-skjerm\"",
   "install.iosStep3": "Trykk \"Legg til\"",
   "install.openInBrowser": "Åpne denne siden i Chrome eller Safari for å installere appen.",
-  "install.back": "← Tilbake til Kassen",
+  "install.back": "← Tilbake til NemtBudget",
 
   // NotFound page
   "notFound.title": "404",
@@ -768,8 +768,8 @@ export const NO: Record<string, string> = {
   "forward.seeRefinance": "Se hva refinansiering kan gjøre →",
 
   // ShareCard
-  "share.brandName": "Kassen",
-  "share.brandUrl": "kassen.no",
+  "share.brandName": "NemtBudget",
+  "share.brandUrl": "nemtbudget.nu",
   "share.bucketDrift": "Drift",
   "share.bucketFrihed": "Frihet",
   "share.bucketFremtid": "Fremtid",
@@ -807,12 +807,12 @@ export const NO: Record<string, string> = {
   "b2b.heroTitle": "Gi kundene deres Norges smarteste",
   "b2b.heroTitleHighlight": "budsjettverktøy",
   "b2b.heroTitleSuffix": "— under deres eget merke",
-  "b2b.heroSubtitle": "Kassen er en AI-drevet budsjettplattform klar for white-label. Integrer den i kundeopplevelsen på under 2 uker — ingen banktilkobling påkrevd.",
+  "b2b.heroSubtitle": "NemtBudget er en AI-drevet budsjettplattform klar for white-label. Integrer den i kundeopplevelsen på under 2 uker — ingen banktilkobling påkrevd.",
   "b2b.liveDemo": "Se live demo",
   "b2b.contactUs": "Kontakt oss",
-  "b2b.whyTitle": "Hvorfor banker velger Kassen",
+  "b2b.whyTitle": "Hvorfor banker velger NemtBudget",
   "b2b.whiteLabelReady": "White-label klar",
-  "b2b.whiteLabelDesc": "Deres logo, farger og merkevare. Kundene opplever det som deres eget produkt. Ingen synlig referanse til Kassen.",
+  "b2b.whiteLabelDesc": "Deres logo, farger og merkevare. Kundene opplever det som deres eget produkt. Ingen synlig referanse til NemtBudget.",
   "b2b.aiPowered": "AI-drevet",
   "b2b.aiPoweredDesc": "Personlige anbefalinger, optimeringsforslag og intelligent chat. Powered by Claude — verdens mest avanserte AI.",
   "b2b.privacyFirst": "Privacy-first",
@@ -876,7 +876,7 @@ export const NO: Record<string, string> = {
   // Partner page
   "partner.noToken": "Ingen token",
   "partner.invalidToken": "Ugyldig token",
-  "partner.contactEmail": "Kontakt hej@kassen.dk",
+  "partner.contactEmail": "Kontakt hej@nemtbudget.nu",
   "partner.noActivity": "Ingen aktivitet ennå",
   "partner.noEvents": "Ingen hendelser ennå",
   "partner.uniqueSessions": "Unike sesjoner",
@@ -995,7 +995,7 @@ export const NO: Record<string, string> = {
   "loader.loading": "Laster...",
 
   // Demo banner
-  "demo.text": "Demo — Kassen white-label for {brand}. All data er eksempeldata.",
+  "demo.text": "Demo — NemtBudget white-label for {brand}. All data er eksempeldata.",
   "demo.bookPresentation": "Book presentasjon",
   "demo.trySelf": "Prøv selv",
   "demo.closeBanner": "Lukk demo-banner",
@@ -1076,7 +1076,7 @@ export const NO: Record<string, string> = {
   "share.copyText": "Kopier som tekst",
   "share.copiedText": "Tekst kopiert!",
   "share.textHeader": "Mitt budsjett",
-  "share.textFooter": "Beregnet med kassen.dk",
+  "share.textFooter": "Beregnet med nemtbudget.nu",
   "shared.banner": "Delt budsjett",
   "shared.bannerCta": "Lag ditt eget budsjett",
   "shared.closeBanner": "Lukk banner",
@@ -1177,7 +1177,7 @@ export const NO: Record<string, string> = {
   "payslip.share.step2Hint": "Lim inn bildet med Ctrl+V i Reddit-innlegget",
   "payslip.share.includeBudget": "Inkluder budsjettet mitt i bildet",
   "salary.autoContributed": "Din anonyme lønnsdata hjelper andre med å sammenligne",
-  "payslip.meta.title": "Forstå lønnsslippen din på 10 sekunder — kassen.no",
+  "payslip.meta.title": "Forstå lønnsslippen din på 10 sekunder — nemtbudget.nu",
   "payslip.meta.description": "Last opp lønnsslippen og forstå hvert eneste fradrag. Se hva AM-bidrag, A-skatt og pensjon betyr — og om lønnen din er normal for bransjen.",
   "payslip.landing.headline": "Forstå lønnsslippen din på 10 sekunder",
   "payslip.landing.subheadline": "Last opp lønnsslippen — vi forklarer hvert fradrag, sjekker om lønnen din er normal, og du kan dele anonymt på Reddit",

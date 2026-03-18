@@ -20,7 +20,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
   const locale = useLocale();
   const isPar = profile.householdType === "par";
 
-  const scoreColor = health.score >= 75 ? "text-primary" : health.score >= 55 ? "text-kassen-gold" : "text-destructive";
+  const scoreColor = health.score >= 75 ? "text-primary" : health.score >= 55 ? "text-nemt-gold" : "text-destructive";
   const ringColor = health.score >= 75 ? "hsl(152, 55%, 40%)" : health.score >= 55 ? "hsl(38, 85%, 50%)" : "hsl(0, 72%, 51%)";
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
@@ -137,7 +137,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
             <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("report.incomeDist")}</h3>
             <div className="h-3 rounded-full overflow-hidden bg-muted flex mb-2">
               <div className="h-full bg-primary rounded-l-full" style={{ width: `${(profile.income / budget.totalIncome) * 100}%` }} />
-              <div className="h-full bg-kassen-blue rounded-r-full" style={{ width: `${(profile.partnerIncome / budget.totalIncome) * 100}%` }} />
+              <div className="h-full bg-nemt-blue rounded-r-full" style={{ width: `${(profile.partnerIncome / budget.totalIncome) * 100}%` }} />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{t("report.you")}: {formatKr(profile.income, locale.currencyLocale)} {t("currency")} ({Math.round((profile.income / budget.totalIncome) * 100)}%)</span>
@@ -171,7 +171,7 @@ function MetricCard({ label, value, negative, good }: { label: string; value: st
     <div className="rounded-xl border border-border p-4 text-center">
       <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{label}</p>
       <span className={`font-display font-bold text-lg ${
-        negative ? "text-destructive" : good !== undefined ? (good ? "text-primary" : "text-kassen-gold") : "text-foreground"
+        negative ? "text-destructive" : good !== undefined ? (good ? "text-primary" : "text-nemt-gold") : "text-foreground"
       }`}>
         {value}
       </span>

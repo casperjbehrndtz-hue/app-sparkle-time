@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /login
 
-Sitemap: https://kassen.dk/sitemap.xml
+Sitemap: https://nemtbudget.nu/sitemap.xml

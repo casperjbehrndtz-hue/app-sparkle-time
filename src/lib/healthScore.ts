@@ -63,7 +63,7 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   const score = Math.min(92, rawScore);
 
   const label = score >= 75 ? "Stærk" : score >= 55 ? "OK" : score >= 35 ? "Sårbar" : "Kritisk";
-  const color = score >= 75 ? "text-primary" : score >= 55 ? "text-kassen-gold" : "text-destructive";
+  const color = score >= 75 ? "text-primary" : score >= 55 ? "text-nemt-gold" : "text-destructive";
 
   const bufferLabel = bufferMonths >= 6 ? "Stærk buffer" : bufferMonths >= 3 ? "Acceptabel" : "Sårbar";
 

@@ -4,8 +4,8 @@ import { NO } from "./texts.no";
 import { EN } from "./texts.en";
 
 // Build-time locale — set via VITE_LOCALE env var
-// VITE_LOCALE=da  →  kassen.dk (Danish)
-// VITE_LOCALE=no  →  kassen.no (Norwegian)
+// VITE_LOCALE=da  →  nemtbudget.nu (Danish)
+// VITE_LOCALE=no  →  nemtbudget.nu (Norwegian)
 const BUILD_LOCALE = (import.meta.env.VITE_LOCALE ?? "da") as "da" | "no";
 
 export type Language = "da" | "en" | "nb";

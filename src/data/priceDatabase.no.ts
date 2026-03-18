@@ -1,4 +1,4 @@
-// Kassen Prisdatabase – alle priser i NOK/md.
+// NemtBudget Prisdatabase – alle priser i NOK/md.
 // Kilde: Offisielle norske priser pr. januar 2026
 
 // Strømmetjenester – Norge 2026

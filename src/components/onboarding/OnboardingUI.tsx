@@ -53,7 +53,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               key={remaining}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`font-display font-black text-lg ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-kassen-gold" : "text-destructive"}`}
+              className={`font-display font-black text-lg ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-nemt-gold" : "text-destructive"}`}
             >
               {formatKr(remaining)} {t("currency")}
             </motion.span>
@@ -76,7 +76,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.div
-            className={`h-full rounded-r-full ${remaining > 5000 ? "bg-primary" : remaining > 0 ? "bg-kassen-gold" : "bg-destructive"}`}
+            className={`h-full rounded-r-full ${remaining > 5000 ? "bg-primary" : remaining > 0 ? "bg-nemt-gold" : "bg-destructive"}`}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           />

@@ -34,13 +34,13 @@
 
     --radius: 0.75rem;
 
-/* Kassen tokens */
-    --kassen-green: 152 69% 32%;
-    --kassen-blue: 213 80% 50%;
-    --kassen-gold: 38 92% 50%;
-    --kassen-red: 0 72% 51%;
-    --kassen-surface: 150 8% 98%;
-    --kassen-surface-2: 150 8% 96%;
+/* Nemt tokens */
+    --nemt-green: 152 69% 32%;
+    --nemt-blue: 213 80% 50%;
+    --nemt-gold: 38 92% 50%;
+    --nemt-red: 0 72% 51%;
+    --nemt-surface: 150 8% 98%;
+    --nemt-surface-2: 150 8% 96%;
 
     /* Flow category colors */
     --flow-food: 38 92% 50%;
@@ -96,12 +96,12 @@
     --input: 220 12% 18%;
     --ring: 216 56% 50%;
 
-    --kassen-green: 152 60% 42%;
-    --kassen-blue: 213 70% 55%;
-    --kassen-gold: 38 85% 55%;
-    --kassen-red: 0 72% 55%;
-    --kassen-surface: 220 15% 10%;
-    --kassen-surface-2: 220 15% 13%;
+    --nemt-green: 152 60% 42%;
+    --nemt-blue: 213 70% 55%;
+    --nemt-gold: 38 85% 55%;
+    --nemt-red: 0 72% 55%;
+    --nemt-surface: 220 15% 10%;
+    --nemt-surface-2: 220 15% 13%;
 
     --flow-food: 38 85% 55%;
     --flow-subscriptions: 263 60% 65%;

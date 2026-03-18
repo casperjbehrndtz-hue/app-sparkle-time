@@ -153,8 +153,14 @@ Deno.serve(async (req: Request) => {
     if (!anthropicRes.ok) {
       const errBody = await anthropicRes.text();
       console.error("Anthropic error:", anthropicRes.status, errBody);
+      // Parse error detail for debugging
+      let errDetail = `API ${anthropicRes.status}`;
+      try {
+        const errJson = JSON.parse(errBody);
+        errDetail = errJson?.error?.message || errDetail;
+      } catch { /* ignore */ }
       return new Response(
-        JSON.stringify({ error: "Kunne ikke analysere lønsedlen", detail: `API ${anthropicRes.status}` }),
+        JSON.stringify({ error: "Kunne ikke analysere lønsedlen", detail: errDetail }),
         { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
       );
     }

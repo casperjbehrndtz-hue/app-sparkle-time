@@ -1,4 +1,4 @@
-// Kassen Prisdatabase – alle priser i DKK/md.
+// NemtBudget Prisdatabase – alle priser i DKK/md.
 // Kilde: Officielle priser pr. februar 2026
 
 // Streaming priser – verificeret januar 2026 (officielle dk-priser)

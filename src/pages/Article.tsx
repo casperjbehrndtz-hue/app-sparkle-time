@@ -45,7 +45,7 @@ En enkelt person bruger typisk **3.000–4.500 kr./md.** på mad i København. E
 | Forsikringer | 600 kr. |
 | **Total** | **~18.430 kr.** |
 
-Vil du se hvad du konkret har til overs? Brug Kassens beregner — den tager højde for dit specifikke postnummer.
+Vil du se hvad du konkret har til overs? Brug NemtBudgets beregner — den tager højde for dit specifikke postnummer.
     `,
   },
   "spar-penge-paa-abonnementer": {
@@ -126,7 +126,7 @@ Alle udgifter deles og der overføres til hinanden løbende.
 
 Model 2 fungerer for de fleste. Sæt et fast beløb ind på fælles konto til hushold — og behold resten som personlige penge uden at skulle spørge om lov.
 
-Brug Kassens par-beregner til at se jeres samlede rådighedsbeløb.
+Brug NemtBudgets par-beregner til at se jeres samlede rådighedsbeløb.
     `,
   },
   "foerste-budget-guide": {
@@ -180,9 +180,9 @@ Beslut hvad du vil med pengene du har til overs:
 - **Opsparing:** 10-20% af indkomsten
 - **Gældsnedbringelse:** Betal ekstra af på dyreste lån først
 
-### Brug Kassen
+### Brug NemtBudget
 
-Det nemmeste er at lade Kassen beregne det hele for dig. Svar på 6 spørgsmål og få dit rådighedsbeløb på 3 minutter.
+Det nemmeste er at lade NemtBudget beregne det hele for dig. Svar på 6 spørgsmål og få dit rådighedsbeløb på 3 minutter.
     `,
   },
 };
@@ -237,10 +237,10 @@ export default function Article() {
   const title = article && article !== "loading" ? article.title : "";
   const content = article && article !== "loading" ? article.content : "";
   const description = content ? content.slice(0, 155).replace(/[#\n*|]/g, "").trim() : "Læs guides om dansk privatøkonomi.";
-  const canonicalUrl = `https://kassen.dk/guides/${slug}`;
+  const canonicalUrl = `https://nemtbudget.nu/guides/${slug}`;
 
   usePageMeta(
-    title ? `${title} — Kassen` : "Guide — Kassen",
+    title ? `${title} — NemtBudget` : "Guide — NemtBudget",
     description
   );
 
@@ -271,8 +271,8 @@ export default function Article() {
       "inLanguage": "da",
       "publisher": {
         "@type": "Organization",
-        "name": "Kassen",
-        "url": "https://kassen.dk",
+        "name": "NemtBudget",
+        "url": "https://nemtbudget.nu",
       },
     });
     document.getElementById("article-jsonld")?.remove();

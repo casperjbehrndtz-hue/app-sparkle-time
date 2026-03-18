@@ -100,7 +100,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
           <div key={item.label} className="mb-3 last:mb-0">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">{item.label}</span>
-              <span className={`font-bold ${item.isAvg ? "text-muted-foreground" : budget.disposableIncome > 12500 ? "text-primary" : "text-kassen-gold"}`}>
+              <span className={`font-bold ${item.isAvg ? "text-muted-foreground" : budget.disposableIncome > 12500 ? "text-primary" : "text-nemt-gold"}`}>
                 {formatKr(item.amount, lc)} {t("unit.currency")}
               </span>
             </div>

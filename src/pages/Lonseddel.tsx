@@ -81,7 +81,7 @@ export default function Lonseddel() {
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <a href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
-            kassen.dk
+            nemtbudget.nu
           </a>
         </div>
       </nav>
