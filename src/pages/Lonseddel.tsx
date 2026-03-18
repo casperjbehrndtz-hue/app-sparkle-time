@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard } from "lucide-react";
+import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard, Lock, Trash2, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
@@ -11,6 +11,59 @@ import type { ExtractedPayslip } from "@/lib/payslipTypes";
 import type { BudgetProfile } from "@/lib/types";
 
 const PREFILL_KEY = "nb_payslip_prefill";
+
+function PrivacyDetails({ t }: { t: (key: string) => string }) {
+  const [open, setOpen] = useState(false);
+  const steps = [
+    { icon: Lock, title: t("payslip.privacyDetail.step1.title"), desc: t("payslip.privacyDetail.step1.desc") },
+    { icon: Eye, title: t("payslip.privacyDetail.step2.title"), desc: t("payslip.privacyDetail.step2.desc") },
+    { icon: Trash2, title: t("payslip.privacyDetail.step3.title"), desc: t("payslip.privacyDetail.step3.desc") },
+    { icon: Shield, title: t("payslip.privacyDetail.step4.title"), desc: t("payslip.privacyDetail.step4.desc") },
+  ];
+
+  return (
+    <div className="rounded-xl border border-border/60 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Shield className="w-4 h-4 text-primary" />
+          <span className="text-xs font-semibold text-foreground">{t("payslip.privacyDetail.title")}</span>
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-4 border-t border-border/40">
+          <div className="space-y-3 pt-3">
+            {steps.map((step, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <step.icon className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  {i < steps.length - 1 && <div className="w-px flex-1 bg-border/60 mt-1" />}
+                </div>
+                <div className="pb-3">
+                  <p className="text-xs font-semibold text-foreground">{step.title}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 p-3">
+            <p className="text-[11px] text-amber-800 dark:text-amber-200 leading-relaxed">
+              {t("payslip.privacyDetail.honest")}
+            </p>
+          </div>
+          <p className="text-[10px] text-muted-foreground/60">
+            {t("payslip.privacyDetail.source")}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Lonseddel() {
   const { t } = useI18n();
@@ -142,7 +195,7 @@ export default function Lonseddel() {
               </div>
             )}
 
-            {/* Privacy */}
+            {/* Privacy summary */}
             <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
               <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-[10px] text-muted-foreground leading-relaxed">
@@ -165,6 +218,9 @@ export default function Lonseddel() {
                 </div>
               ))}
             </div>
+
+            {/* Detailed privacy section */}
+            <PrivacyDetails t={t} />
           </>
         )}
 
