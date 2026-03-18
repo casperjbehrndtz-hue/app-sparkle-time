@@ -117,16 +117,21 @@ Deno.serve(async (req: Request) => {
       : { type: "image", source: { type: "base64", media_type: mediaType, data: image } };
 
     // Call Claude Vision
+    const headers: Record<string, string> = {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    };
+    if (isPdf) {
+      headers["anthropic-beta"] = "pdfs-2024-09-25";
+    }
+
     const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2048,
+        max_tokens: 4096,
         system: SYSTEM_PROMPT,
         messages: [{
           role: "user",
@@ -146,18 +151,19 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!anthropicRes.ok) {
-      console.error("Anthropic error:", anthropicRes.status, await anthropicRes.text());
+      const errBody = await anthropicRes.text();
+      console.error("Anthropic error:", anthropicRes.status, errBody);
       return new Response(
-        JSON.stringify({ error: "Kunne ikke analysere lønsedlen" }),
+        JSON.stringify({ error: "Kunne ikke analysere lønsedlen", detail: `API ${anthropicRes.status}` }),
         { status: 500, headers: { ...cors, "Content-Type": "application/json" } },
       );
     }
 
     const result = await anthropicRes.json();
 
-    // Check if response was truncated
-    if (result?.stop_reason === "max_tokens") {
-      console.error("payslip-ocr: response truncated by max_tokens");
+    const truncated = result?.stop_reason === "max_tokens";
+    if (truncated) {
+      console.warn("payslip-ocr: response truncated by max_tokens");
     }
 
     let text = result?.content?.[0]?.text || "";
@@ -176,11 +182,36 @@ Deno.serve(async (req: Request) => {
     try {
       parsed = JSON.parse(text);
     } catch {
-      console.error("payslip-ocr: JSON parse failed. Raw text:", text.slice(0, 500));
-      return new Response(
-        JSON.stringify({ error: "Kunne ikke læse lønsedlen — prøv et tydeligere billede" }),
-        { status: 422, headers: { ...cors, "Content-Type": "application/json" } },
-      );
+      // If truncated, try to repair by closing open arrays/objects
+      if (truncated && jsonStart !== -1) {
+        let repaired = text.slice(jsonStart);
+        // Close any open strings
+        const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
+        if (quoteCount % 2 !== 0) repaired += '"';
+        // Close open arrays and objects
+        const opens = (repaired.match(/[{[]/g) || []).length;
+        const closes = (repaired.match(/[}\]]/g) || []).length;
+        for (let i = 0; i < opens - closes; i++) {
+          // Guess whether to close array or object based on last opener
+          const lastOpen = repaired.lastIndexOf("[") > repaired.lastIndexOf("{") ? "]" : "}";
+          repaired += lastOpen;
+        }
+        // Remove trailing commas before closing brackets
+        repaired = repaired.replace(/,\s*([}\]])/g, "$1");
+        try {
+          parsed = JSON.parse(repaired);
+          console.warn("payslip-ocr: repaired truncated JSON successfully");
+        } catch {
+          console.error("payslip-ocr: JSON repair failed. Raw text:", text.slice(0, 500));
+        }
+      }
+      if (!parsed) {
+        console.error("payslip-ocr: JSON parse failed. Raw text:", text.slice(0, 500));
+        return new Response(
+          JSON.stringify({ error: "Kunne ikke læse lønsedlen — prøv et tydeligere billede" }),
+          { status: 422, headers: { ...cors, "Content-Type": "application/json" } },
+        );
+      }
     }
 
     return new Response(JSON.stringify(parsed), {
