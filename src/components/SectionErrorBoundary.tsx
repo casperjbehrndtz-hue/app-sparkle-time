@@ -6,7 +6,7 @@ import { NO } from "@/lib/texts.no";
 
 function getStaticT(): (key: string) => string {
   try {
-    const saved = localStorage.getItem("kassen_lang");
+    const saved = localStorage.getItem("nb_lang");
     if (saved === "en") return (key: string) => EN[key] ?? DA[key] ?? key;
   } catch {}
   const buildLocale = (import.meta.env.VITE_LOCALE ?? "da") as string;

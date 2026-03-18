@@ -125,7 +125,7 @@ export type OnboardingStep =
   | "household"
   | "income"
   | "housing"
-  | "children"
+  | "children"   // kept for backward compat with saved sessions
   | "expenses"
-  | "everyday"
+  | "everyday"   // kept for backward compat with saved sessions
   | "review";

@@ -7,7 +7,7 @@
 
 ## What this project is
 
-**Kassen** is a Danish personal finance web app. Users answer ~6 onboarding steps about their household (income, housing, kids, subscriptions, etc.) and get an instant breakdown of their monthly budget, disposable income, and personalised AI-generated savings advice.
+**NemtBudget** is a Danish personal finance web app. Users answer ~6 onboarding steps about their household (income, housing, kids, subscriptions, etc.) and get an instant breakdown of their monthly budget, disposable income, and personalised AI-generated savings advice.
 
 Target users: Danish households — individuals and couples. The app is designed to work without login (data stays in `localStorage`) while offering optional Supabase auth to sync profiles across devices.
 
@@ -203,7 +203,7 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 4. ~~**Profile edit UX**~~ — Done. `ProfileEditSheet` (in-place slide-over panel) is wired up in `Dashboard.tsx`. The pencil icon in the header opens it directly.
 
-5. ~~**Deploy**~~ — Done. Live on Vercel at `kassen-mauve.vercel.app` (project: kassen) and `app-sparkle-time.vercel.app`. GitHub → Vercel CD is active.
+5. ~~**Deploy**~~ — Done. Live on Vercel at `app-sparkle-time.vercel.app`. GitHub → Vercel CD is active.
 
 ---
 

@@ -16,7 +16,7 @@ export interface MarketData {
 
 // ─── Cache ─────────────────────────────────────────────────
 
-const CACHE_KEY = "kassen_market_data_v2";
+const CACHE_KEY = "nb_market_data_v2";
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 interface CachedData {

@@ -96,7 +96,7 @@ serve(async (req) => {
 <body style="margin:0;padding:0;background:#f9f9f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:520px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e5e5e5;">
     <div style="background:#1a1a2e;padding:28px 32px;">
-      <span style="color:#f0a500;font-size:20px;font-weight:900;letter-spacing:-0.5px;">Kassen</span>
+      <span style="color:#f0a500;font-size:20px;font-weight:900;letter-spacing:-0.5px;">NemtBudget</span>
     </div>
     <div style="padding:32px;">
       <h1 style="font-size:22px;font-weight:800;color:#1a1a2e;margin:0 0 8px;">Din økonomi i ${monthName}</h1>
@@ -115,7 +115,7 @@ serve(async (req) => {
       </a>
     </div>
     <div style="padding:20px 32px;border-top:1px solid #eee;text-align:center;">
-      <p style="color:#aaa;font-size:12px;margin:0;">Du modtager denne mail fordi du har tilmeldt dig månedlige påmindelser fra Kassen.<br>
+      <p style="color:#aaa;font-size:12px;margin:0;">Du modtager denne mail fordi du har tilmeldt dig månedlige påmindelser fra NemtBudget.<br>
       <a href="${unsubUrl}" style="color:#aaa;">Afmeld månedlige påmindelser</a></p>
     </div>
   </div>
@@ -129,7 +129,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Kassen <hej@kassen.dk>",
+        from: "NemtBudget <hej@nemtbudget.nu>",
         to: user.email,
         subject: `Din økonomi i ${monthName} — et hurtigt tjek`,
         html,

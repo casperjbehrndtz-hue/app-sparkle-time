@@ -22,10 +22,10 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
   }
   usePageMeta(
     lang === "nb"
-      ? "Kassen — Ta kontroll over privatøkonomien din"
+      ? "NemtBudget — Ta kontroll over privatøkonomien din"
       : lang === "en"
-      ? "Kassen — Take control of your personal finances"
-      : "Kassen — Tag kontrol over din privatøkonomi",
+      ? "NemtBudget — Take control of your personal finances"
+      : "NemtBudget — Tag kontrol over din privatøkonomi",
     lang === "nb"
       ? "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden. Gratis, privat og på 3 minutter — ingen pålogging."
       : lang === "en"

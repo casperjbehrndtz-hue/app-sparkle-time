@@ -8,7 +8,7 @@ export interface BudgetSnapshot {
   score: number;
 }
 
-const STORAGE_KEY = "kassen_snapshots";
+const STORAGE_KEY = "nb_snapshots";
 const MAX_SNAPSHOTS = 50;
 
 export function saveSnapshot(budget: ComputedBudget, score: number): void {

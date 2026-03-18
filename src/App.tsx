@@ -35,7 +35,7 @@ function getConfig() {
   const brand = params.get("brand");
   if (brand && AVAILABLE_CONFIGS[brand]) return AVAILABLE_CONFIGS[brand];
   if (BUILD_LOCALE === "no") return AVAILABLE_CONFIGS.no;
-  return AVAILABLE_CONFIGS.kassen;
+  return AVAILABLE_CONFIGS.nemtbudget;
 }
 
 function getLocale() {

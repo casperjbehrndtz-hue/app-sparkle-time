@@ -10,7 +10,7 @@ import { usePartnerTracking } from "@/hooks/usePartnerTracking";
 
 // ─── Freemium: 5 AI interactions free per month ────────────────────────────
 const FREE_LIMIT = 5;
-const STORAGE_KEY = "kassen_ai_usage";
+const STORAGE_KEY = "nb_ai_usage";
 
 function getUsage(): { count: number; month: string } {
   try {
@@ -67,7 +67,7 @@ function getSmartQuestions(profile: BudgetProfile, budget: ComputedBudget, t: (k
 export function AIChatPanel({ profile, budget }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
-  const { track } = usePartnerTracking(config.brandKey ?? "kassen");
+  const { track } = usePartnerTracking(config.brandKey ?? "nemtbudget");
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");

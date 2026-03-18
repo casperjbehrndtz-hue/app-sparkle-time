@@ -144,7 +144,7 @@
 }
 
 .font-display {
-  font-family: 'Syne', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }
 
 /* Gradient text */
@@ -235,6 +235,11 @@ input[type="range"]::-moz-range-thumb:active {
 /* Hide scrollbar for section nav */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Prevent horizontal page scroll when dragging range sliders on mobile */
+input[type="range"] {
+  touch-action: none;
+}
 
 /* Safe area for fixed bottom bar */
 .safe-area-bottom {

@@ -209,8 +209,8 @@ export function useWhiteLabel() {
 
 // ─── Norwegian default config ─────────────────────────────────
 
-export const kassenNoConfig: WhiteLabelConfig = {
-  brandName: "Kassen NO",
+export const nemtbudgetNoConfig: WhiteLabelConfig = {
+  brandName: "NemtBudget NO",
   brandTagline: "Smart budsjetteringsverktøy",
   theme: {
     primary: "216 56% 22%",
@@ -241,7 +241,7 @@ export const kassenNoConfig: WhiteLabelConfig = {
     ],
   },
   testimonials: [
-    { quote: "Jeg trodde jeg hadde kontroll, men Kassen viste meg 2 800 kr. i abonnementer jeg hadde glemt.", name: "Sofie, 31", location: "Stavanger" },
+    { quote: "Jeg trodde jeg hadde kontroll, men NemtBudget viste meg 2 800 kr. i abonnementer jeg hadde glemt.", name: "Sofie, 31", location: "Stavanger" },
     { quote: "Vi brukte rapporten som utgangspunkt til et møte med banken — veldig enkelt.", name: "Jonas & Katrine", location: "Oslo" },
     { quote: "Det tok bokstavelig talt 3 minutter. Ingen innlogging, ingen regneark. Bare oversikt.", name: "Mads, 42", location: "Bergen" },
   ],
@@ -250,11 +250,11 @@ export const kassenNoConfig: WhiteLabelConfig = {
 // ─── Available configs (for demo/showcase) ───────────────────
 
 export const AVAILABLE_CONFIGS: Record<string, WhiteLabelConfig> = {
-  kassen: { ...defaultConfig, brandKey: "kassen" },
+  nemtbudget: { ...defaultConfig, brandKey: "nemtbudget" },
   nordea: { ...nordeaConfig, brandKey: "nordea" },
   danske: danskeConfig,
   danskebank: danskeConfig,
-  no: { ...kassenNoConfig, brandKey: "no" },
-  sparebank1: { ...kassenNoConfig, brandName: "SpareBank 1 Budsjett", brandKey: "sparebank1" },
-  dnb: { ...kassenNoConfig, brandName: "DNB Budsjett", brandKey: "dnb" },
+  no: { ...nemtbudgetNoConfig, brandKey: "no" },
+  sparebank1: { ...nemtbudgetNoConfig, brandName: "SpareBank 1 Budsjett", brandKey: "sparebank1" },
+  dnb: { ...nemtbudgetNoConfig, brandName: "DNB Budsjett", brandKey: "dnb" },
 };

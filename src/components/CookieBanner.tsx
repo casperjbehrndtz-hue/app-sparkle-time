@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { inject } from "@vercel/analytics";
 import { useI18n } from "@/lib/i18n";
 
-const COOKIE_KEY = "kassen_cookie_consent";
+const COOKIE_KEY = "nb_cookie_consent";
 
 function activateAnalytics() {
   try { inject(); } catch { /* already injected */ }

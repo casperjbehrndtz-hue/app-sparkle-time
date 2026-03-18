@@ -3,10 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Anonymous session ID — persists for the browser session
 function getSessionId(): string {
-  let id = sessionStorage.getItem("kassen_sid");
+  let id = sessionStorage.getItem("nb_sid");
   if (!id) {
     id = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    sessionStorage.setItem("kassen_sid", id);
+    sessionStorage.setItem("nb_sid", id);
   }
   return id;
 }
@@ -22,7 +22,7 @@ export type PartnerEvent =
 export function usePartnerTracking(brandKey: string) {
   const track = useCallback(
     (event: PartnerEvent, metadata: Record<string, unknown> = {}) => {
-      if (!brandKey || brandKey === "kassen") return; // only track B2B partners
+      if (!brandKey || brandKey === "nemtbudget") return; // only track B2B partners
       supabase.from("partner_events").insert({
         brand_key: brandKey,
         event_type: event,

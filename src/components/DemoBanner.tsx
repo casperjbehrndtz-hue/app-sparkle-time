@@ -3,7 +3,7 @@ import { X, Target, Play } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 
-const SESSION_KEY = "kassen_demo_banner_dismissed";
+const SESSION_KEY = "nb_demo_banner_dismissed";
 
 interface DemoBannerProps {
   brandName?: string;

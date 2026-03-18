@@ -20,7 +20,7 @@ import { SharedBudgetBanner } from "@/components/SharedBudgetBanner";
 import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
-const STORAGE_KEY = "kassen_profile_v2";
+const STORAGE_KEY = "nb_profile_v2";
 
 const Index = () => {
   const config = useWhiteLabel();
@@ -73,9 +73,9 @@ const Index = () => {
   // Pre-fill from payslip upload (sessionStorage handoff from /lonseddel)
   useEffect(() => {
     try {
-      const prefill = sessionStorage.getItem("kassen_payslip_prefill");
+      const prefill = sessionStorage.getItem("nb_payslip_prefill");
       if (!prefill) return;
-      sessionStorage.removeItem("kassen_payslip_prefill");
+      sessionStorage.removeItem("nb_payslip_prefill");
       const partial = JSON.parse(prefill) as Partial<BudgetProfile>;
       if (partial.income && partial.income > 0) {
         setEditingProfile(partial as BudgetProfile);

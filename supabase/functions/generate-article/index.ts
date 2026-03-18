@@ -170,7 +170,7 @@ serve(async (req) => {
     // ─── Build Google E-E-A-T optimised prompt ────────────────────────────
     const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
 
-    const prompt = `Du er chefredaktør på Kassen — Danmarks skarpeste privatøkonomiske medie. Du skriver i dag (${today}) en artikel til vores guides-sektion.
+    const prompt = `Du er chefredaktør på NemtBudget — Danmarks skarpeste privatøkonomiske medie. Du skriver i dag (${today}) en artikel til vores guides-sektion.
 
 EMNE: ${topic.title}
 KATEGORI: ${topic.category}
@@ -230,7 +230,7 @@ ${liveData}
 [Svar]
 
 ─── SLUTNING ─────────────────────────────────────────────────────────────────
-Afslut naturligt med en overgang til at beregne i Kassen — ikke som en reklame, men som et logisk næste skridt for læseren.
+Afslut naturligt med en overgang til at beregne i NemtBudget — ikke som en reklame, men som et logisk næste skridt for læseren.
 
 Samlet længde: 900-1200 ord. Start direkte med ## — ingen titel øverst.`;
 

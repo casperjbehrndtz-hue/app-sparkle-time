@@ -414,10 +414,10 @@ export async function exportPayslipCard(
   ctx.font = sansFont("500", 12);
   ctx.fillText("NemtBudget.nu", S(pad) + madeW, y + S(14));
 
-  const kassenW = ctx.measureText("NemtBudget.nu").width;
+  const brandW = ctx.measureText("NemtBudget.nu").width;
   ctx.fillStyle = C.textFaint;
   ctx.font = sansFont("400", 12);
-  ctx.fillText(" — gratis budgetværktøj", S(pad) + madeW + kassenW, y + S(14));
+  ctx.fillText(" — gratis budgetværktøj", S(pad) + madeW + brandW, y + S(14));
 
   // ── Export ──
   return new Promise<boolean | Blob>((resolve) => {

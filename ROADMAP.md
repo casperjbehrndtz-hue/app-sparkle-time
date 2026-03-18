@@ -1,4 +1,4 @@
-# Kassen — Roadmap mod den bedste budgetinfrastruktur
+# NemtBudget — Roadmap mod den bedste budgetinfrastruktur
 
 > Levende dokument. Opdateres løbende.
 > **Mission:** Bygge Danmarks bedste, mest komplette og mest brugervenlige budgetværktøj.
@@ -31,7 +31,7 @@
 - [x] Sitemap.xml
 - [x] Onboarding in-progress persistens (sessionStorage)
 - [x] **Lønsammenligning** — Crowdsourced salary percentiles med privacy threshold (≥5 obs), percentilbar i PayslipResult
-- [x] **Lønseddel billedeksport** — Canvas-baseret premium PNG (3x) med waterfall, fradrag, "kassen.dk" branding
+- [x] **Lønseddel billedeksport** — Canvas-baseret premium PNG (3x) med waterfall, fradrag, "nemtbudget.nu" branding
 - [x] **Reddit-deling (r/dkloenseddel)** — Del som billede + direkte Reddit submit link fra PayslipResult
 - [ ] **Suite-navigation** — Parøkonomi og Børneskat er separate Lovable-projekter. Link til dem når de er klar (nu vist som "Snart")
 
@@ -66,7 +66,7 @@
 - [x] Rate limiting på AI edge functions (20 req/IP/time)
 - [x] Vercel SPA routing (vercel.json)
 - [x] .gitignore ryddet op
-- [x] **Short links for deling** — `shared_budgets` tabel + edge function → `kassen.dk/s/abc12345`
+- [x] **Short links for deling** — `shared_budgets` tabel + edge function → `nemtbudget.nu/s/abc12345`
 - [x] **Dead code cleanup** — fjernet ubrugt payslip-share kobling (`payslipToShareMeta`, `calculatePayslip`, unused i18n keys)
 - [x] **i18n dashboard** — hardcodede danske strenge erstattet med `t()` i HistorikView, ParSplitView, NaboeffektView, SubscriptionTracker, HeroSankey
 - [ ] **Bundle size** — Index-chunk er 383 kB. Allerede lazy-loadet, men kan optimeres yderligere
@@ -80,7 +80,7 @@
 - [x] Deployet på Vercel (app-sparkle-time.vercel.app)
 - [x] Sitemap.xml klar til Google Search Console
 - [x] Suite-nav "Snart" badges
-- [ ] **Custom domæne** — køb fx `kassen.dk` og tilslut til Vercel
+- [ ] **Custom domæne** — tilslut `nemtbudget.nu` til Vercel
 - [ ] **Analytics** — aktiver Vercel Analytics i dashboardet
 - [ ] **Open Graph billeder** — dynamiske OG-billeder til sociale medier
 - [ ] **Lanceringsplan** — ProductHunt, Reddit r/dkfinance, Facebook-grupper
@@ -99,7 +99,7 @@
 
 ## Næste prioriteter (anbefalet rækkefølge)
 
-1. **Custom domæne** — kassen.dk eller lignende
+1. **Custom domæne** — nemtbudget.nu
 2. **Analytics aktivering** — Vercel dashboard, 2 klik
 3. **i18n komplet** — dansk/engelsk konsistens (mange hardcodede strings i dashboard)
 4. **Lancering** — Google Search Console + sitemap submit

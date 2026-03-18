@@ -1,4 +1,4 @@
-# Kassen
+# NemtBudget
 
 Danmarks nemmeste budgetværktøj. Beregn dit rådighedsbeløb gratis på 3 minutter – ingen login, 100% privat.
 

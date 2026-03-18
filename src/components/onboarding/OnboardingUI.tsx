@@ -26,7 +26,7 @@ export const pageVariants = {
   }),
 };
 
-export const STEPS: OnboardingStep[] = ["household", "income", "housing", "children", "expenses", "everyday", "review"];
+export const STEPS: OnboardingStep[] = ["household", "income", "housing", "expenses", "review"];
 export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 // ─── Live Budget Bar ──────────────────────────────────────
@@ -272,8 +272,8 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
       {active && onAmountChange && amount !== undefined && (
         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="px-4 pb-3">
           <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
-            <input type="number" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
-              className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-20" />
+            <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
+              className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24" />
             <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
           </div>
         </motion.div>

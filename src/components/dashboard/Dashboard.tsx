@@ -150,7 +150,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const config = useWhiteLabel();
   const { t } = useI18n();
   const { user, signOut } = useAuth();
-  const { track } = usePartnerTracking(config.brandKey ?? "kassen");
+  const { track } = usePartnerTracking(config.brandKey ?? "nemtbudget");
   const isEmbed = new URLSearchParams(window.location.search).get("embed") === "true";
   const [showReport, setShowReport] = useState(false);
   const [showEditSheet, setShowEditSheet] = useState(false);

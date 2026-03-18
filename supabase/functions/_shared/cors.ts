@@ -1,7 +1,7 @@
 // Allowed origins — add partner domains here when onboarded
 const ALLOWED_ORIGINS = [
   "https://app-sparkle-time.vercel.app",
-  "https://kassen.dk",
+  "https://nemtbudget.nu",
   "http://localhost:5173",
   "http://localhost:8080",
 ];

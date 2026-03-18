@@ -76,7 +76,7 @@ serve(async (req) => {
         profile.hasAmazonPrime && `Amazon Prime (89 kr./md.)`,
       ].filter(Boolean).join(", ") || "Ingen";
 
-      const systemPrompt = `Du er Kassens AI-rådgiver i en guidet besparelses-session. Svar ALTID på ${replyLang}.
+      const systemPrompt = `Du er NemtBudgets AI-rådgiver i en guidet besparelses-session. Svar ALTID på ${replyLang}.
 Brugerens mål: Find ${goal_amount} ${currency}/md. i besparelser.
 Allerede fundet: ${found_total} ${currency}/md. ud af ${goal_amount} ${currency}/md.
 ${accepted_changes.length > 0 ? `Accepterede ændringer: ${(accepted_changes as any[]).map((c: any) => `${c.label} (+${c.monthly_saving} ${currency})`).join(", ")}` : ""}
@@ -154,7 +154,7 @@ Rådighedsbeløb: ${budget.disposableIncome} kr./md.
 `;
 
     const systemPrompt = mode === "optimize"
-      ? `Du er Kassens AI-rådgiver – en varm, klog økonomisk ven.
+      ? `Du er NemtBudgets AI-rådgiver – en varm, klog økonomisk ven.
 
 REGLER:
 - Svar ALTID på ${replyLang}
@@ -173,7 +173,7 @@ Giv en personlig, prioriteret analyse med:
 4. En opmuntrende afslutning
 
 Format det pænt med overskrifter og bullet points i markdown.`
-      : `Du er Kassens AI-rådgiver – en varm, klog økonomisk ven.
+      : `Du er NemtBudgets AI-rådgiver – en varm, klog økonomisk ven.
 
 REGLER:
 - Svar ALTID på ${replyLang}

@@ -10,7 +10,7 @@ import { payslipToProfile } from "@/lib/payslipTypes";
 import type { ExtractedPayslip } from "@/lib/payslipTypes";
 import type { BudgetProfile } from "@/lib/types";
 
-const PREFILL_KEY = "kassen_payslip_prefill";
+const PREFILL_KEY = "nb_payslip_prefill";
 
 export default function Lonseddel() {
   const { t } = useI18n();

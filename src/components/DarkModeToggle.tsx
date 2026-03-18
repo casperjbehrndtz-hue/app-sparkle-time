@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
-const STORAGE_KEY = "kassen_theme";
+const STORAGE_KEY = "nb_theme";
 
 export function DarkModeToggle() {
   const { t } = useI18n();

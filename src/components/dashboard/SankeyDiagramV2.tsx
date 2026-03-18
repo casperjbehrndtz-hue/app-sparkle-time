@@ -235,7 +235,7 @@ async function exportSankeyCard(
         dotX += S(ctx.measureText(catLabel).width / scale + 24);
       });
 
-      // Brand: kassen.dk with accent
+      // Brand: nemtbudget.nu with accent
       ctx.textAlign = "right";
       ctx.fillStyle = "#94a3b8";
       ctx.font = font("500", 10);

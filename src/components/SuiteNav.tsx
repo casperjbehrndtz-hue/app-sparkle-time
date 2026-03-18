@@ -5,7 +5,7 @@ export function SuiteNav() {
   const config = useWhiteLabel();
   const { t } = useI18n();
 
-  // Only show for default Kassen brand
+  // Only show for default NemtBudget brand
   if (config.brandName !== "NemtBudget") return null;
 
   const suiteLinks = [

@@ -79,8 +79,8 @@ Deno.serve(async (req) => {
   <div style="max-width:400px;margin:0 auto;background:#fff;border-radius:16px;padding:40px;border:1px solid #e5e5e5;">
     <div style="font-size:40px;margin-bottom:16px;">✓</div>
     <h1 style="font-size:20px;font-weight:800;color:#1a1a2e;margin:0 0 8px;">Du er afmeldt</h1>
-    <p style="color:#666;font-size:15px;margin:0 0 24px;">Du modtager ikke flere månedlige påmindelser fra Kassen.</p>
-    <a href="${baseUrl}/" style="display:inline-block;background:#1a1a2e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:14px;">Tilbage til Kassen</a>
+    <p style="color:#666;font-size:15px;margin:0 0 24px;">Du modtager ikke flere månedlige påmindelser fra NemtBudget.</p>
+    <a href="${baseUrl}/" style="display:inline-block;background:#1a1a2e;color:#fff;text-decoration:none;padding:12px 24px;border-radius:10px;font-weight:600;font-size:14px;">Tilbage til NemtBudget</a>
   </div>
 </body></html>`;
 

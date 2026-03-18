@@ -89,7 +89,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
 
   const hasBudget = useMemo(() => {
     try {
-      return !!localStorage.getItem("kassen-budget");
+      return !!localStorage.getItem("nb-budget");
     } catch { return false; }
   }, []);
 

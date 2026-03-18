@@ -19,7 +19,7 @@ interface I18nContextType {
   t: (key: string) => string;
 }
 
-const STORAGE_KEY = "kassen_lang";
+const STORAGE_KEY = "nb_lang";
 
 const I18nContext = createContext<I18nContextType>({
   lang: DEFAULT_LANG,

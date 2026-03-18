@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Plus, X, Info, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronLeft, Plus, X, Info, Sparkles } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
 import { computeBudget, formatKr } from "@/lib/budgetCalculator";
@@ -79,7 +79,7 @@ const defaultProfile: BudgetProfile = {
   customExpenses: [],
 };
 
-const ONBOARDING_SESSION_KEY = "kassen_onboarding_wip";
+const ONBOARDING_SESSION_KEY = "nb_onboarding_wip";
 
 function saveOnboardingState(step: OnboardingStep, profile: BudgetProfile, childAgeInputs: number[]) {
   try {
@@ -107,9 +107,17 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   // Restore from sessionStorage if available (and not editing)
   const restored = !isEditing ? loadOnboardingState() : null;
 
-  const [step, setStep] = useState<OnboardingStep>(
-    isEditing ? "household" : (restored?.step && STEPS.includes(restored.step as OnboardingStep)) ? (restored.step as OnboardingStep) : "household"
-  );
+  const [step, setStep] = useState<OnboardingStep>(() => {
+    if (isEditing) return "household";
+    if (restored?.step) {
+      // Migrate old step names from saved sessions
+      const s = restored.step as string;
+      if (s === "children") return "household";
+      if (s === "everyday") return "expenses";
+      if (STEPS.includes(s as OnboardingStep)) return s as OnboardingStep;
+    }
+    return "household";
+  });
   const [direction, setDirection] = useState(1);
   const [profile, setProfile] = useState<BudgetProfile>(
     initialProfile ?? (restored?.profile ? { ...defaultProfile, ...restored.profile } : defaultProfile)
@@ -122,7 +130,6 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
-  const [carExpanded, setCarExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Persist onboarding state to sessionStorage on changes
@@ -155,12 +162,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
     switch (step) {
       case "household":
         return (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+          <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl text-foreground">{t("step.household.title")}</h1>
               <p className="text-muted-foreground text-sm sm:text-base">{t("step.household.subtitle")}</p>
             </motion.div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full max-w-md">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full">
               {[
                 { type: "solo" as const, emoji: "🧍", label: t("step.household.solo"), sub: t("step.household.soloSub") },
                 { type: "par" as const, emoji: "👫", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
@@ -184,12 +191,69 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       healthAmount: isPairChoice ? 500 : 350,
                       restaurantAmount: isPairChoice ? 1500 : 800,
                     });
-                    setTimeout(() => goNext(), 300);
                   }}
                   icon={opt.emoji} label={opt.label} sub={opt.sub}
                 />
               ))}
             </div>
+
+            {/* Children — integrated into household */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
+                <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
+              </div>
+              {profile.hasChildren && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
+                  <p className="text-sm text-muted-foreground">{t("step.children.age")}</p>
+                  {childAgeInputs.map((age, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
+                      <select value={String(age)}
+                        onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); update({ childrenAges: na }); }}
+                        className="flex-1 bg-background border-2 border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        {Array.from({ length: 18 }, (_, j) => <option key={j} value={String(j)}>{j} {t("step.children.years")}</option>)}
+                      </select>
+                      {childAgeInputs.length > 1 && (
+                        <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}
+                          className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {childAgeInputs.length < 5 && (
+                    <button onClick={() => { const na = [...childAgeInputs, 3]; setChildAgeInputs(na); update({ childrenAges: na }); }}
+                      className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
+                      <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
+                    </button>
+                  )}
+                  {childAgeInputs.length > 0 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
+                      <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
+                      {childAgeInputs.map((age, i) => {
+                        const benefit = getChildBenefit(age);
+                        return (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">{t("step.children.child")} {i + 1} ({age} {t("step.children.years")})</span>
+                            <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} {t("perMonth")}</span>
+                          </div>
+                        );
+                      })}
+                      <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-sm font-bold">
+                        <span>{t("step.children.benefitTotal")}</span>
+                        <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} {t("perMonth")}</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </div>
+
+            <ContinueButton onClick={() => {
+              if (profile.hasChildren && childAgeInputs.length > 0) update({ childrenAges: childAgeInputs });
+              goNext();
+            }} label={t("continue")} />
           </div>
         );
 
@@ -375,86 +439,36 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         );
       }
 
-      case "children":
-        return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
-              <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">
-                {isPar ? t("step.children.titleCouple") : t("step.children.titleSolo")}
-              </h1>
-              <p className="text-muted-foreground text-sm">{t("step.children.subtitle")}</p>
-            </motion.div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
-              <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
-            </div>
-            {profile.hasChildren && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
-                <p className="text-sm text-muted-foreground">{t("step.children.age")}</p>
-                {childAgeInputs.map((age, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
-                    <select value={String(age)}
-                      onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); update({ childrenAges: na }); }}
-                      className="flex-1 bg-background border-2 border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
-                      {Array.from({ length: 18 }, (_, j) => <option key={j} value={String(j)}>{j} {t("step.children.years")}</option>)}
-                    </select>
-                    {childAgeInputs.length > 1 && (
-                      <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}
-                        className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {childAgeInputs.length < 5 && (
-                  <button onClick={() => { const na = [...childAgeInputs, 3]; setChildAgeInputs(na); update({ childrenAges: na }); }}
-                    className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-                    <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
-                  </button>
-                )}
-                {/* Show børnepenge info */}
-                {childAgeInputs.length > 0 && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
-                    <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
-                    {childAgeInputs.map((age, i) => {
-                      const benefit = getChildBenefit(age);
-                      return (
-                        <div key={i} className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">{t("step.children.child")} {i + 1} ({age} {t("step.children.years")})</span>
-                          <span className="font-semibold text-primary">+{formatKr(benefit.monthly)} {t("perMonth")}</span>
-                        </div>
-                      );
-                    })}
-                    <div className="pt-1.5 border-t border-primary/10 flex items-center justify-between text-sm font-bold">
-                      <span>{t("step.children.benefitTotal")}</span>
-                      <span className="text-primary">+{formatKr(childAgeInputs.reduce((s, age) => s + getChildBenefit(age).monthly, 0))} {t("perMonth")}</span>
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-            <ContinueButton onClick={() => {
-              if (profile.hasChildren && childAgeInputs.length > 0) update({ childrenAges: childAgeInputs });
-              goNext();
-            }} label={t("continue")} />
-          </div>
-        );
-
       case "expenses": {
         const carMonthly = profile.hasCar
           ? profile.carLoan + profile.carFuel + Math.round(profile.carInsurance / 12) + Math.round(profile.carTax / 12) + Math.round(profile.carService / 6)
           : 0;
+        const addCustom = () => {
+          if (customLabel.trim() && customAmount > 0) {
+            update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount, frequency: customFreq }] });
+            setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
+          }
+        };
+        const unit = t("unit.krMonth");
 
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.expenses.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.expenses.subtitle")}</p>
-              <button onClick={goNext} className="text-xs text-primary/70 hover:text-primary underline underline-offset-2 transition-colors">
-                {t("dash.useDefaults")}
-              </button>
             </motion.div>
+
+            {/* ── Hverdagsudgifter (sliders) ── */}
+            <div>
+              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.everyday.title")}</h3>
+              <div className="space-y-2">
+                <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} unit={unit} />
+                <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
+                <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
+                <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
+                <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} unit={unit} />
+              </div>
+            </div>
 
             {/* ── Streaming ── */}
             <div>
@@ -475,44 +489,37 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            {/* ── Transport (forenklet) ── */}
+            {/* ── Transport — car details shown directly ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
               <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
                 icon="🚗" label={t("step.expenses.car")}
-                sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : t("step.expenses.carLoan")} />
+                sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : undefined} />
               {profile.hasCar && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 ml-2 border-l-2 border-primary/10 pl-4 space-y-1">
-                  <button onClick={() => setCarExpanded(v => !v)}
-                    className="flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary transition-colors py-1">
-                    {carExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    {carExpanded ? t("dash.hideDetails") : t("dash.showCarDetails")}
-                  </button>
-                  {carExpanded && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-1.5">
-                      {[
-                        { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth") },
-                        { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth") },
-                        { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear") },
-                        { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear") },
-                        { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear") },
-                      ].map((f) => (
-                        <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
-                          <span className="text-xs text-muted-foreground">{f.label}</span>
-                          <div className="flex items-center gap-1">
-                            <input type="number" value={(profile as any)[f.key]} onChange={(e) => update({ [f.key]: Number(e.target.value) || 0 } as any)}
-                              className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-16" />
-                            <span className="text-[10px] text-muted-foreground">{f.freq}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 ml-2 border-l-2 border-primary/10 pl-4 space-y-1.5">
+                  {[
+                    { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth"), max: 15000 },
+                    { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth"), max: 8000 },
+                    { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear"), max: 30000 },
+                    { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear"), max: 20000 },
+                    { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear"), max: 15000 },
+                  ].map((f) => (
+                    <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
+                      <span className="text-xs text-muted-foreground">{f.label}</span>
+                      <div className="flex items-center gap-1">
+                        <input type="number" inputMode="numeric" min={0} max={f.max}
+                          value={(profile as any)[f.key]}
+                          onChange={(e) => { const v = Number(e.target.value) || 0; update({ [f.key]: Math.min(v, f.max) } as any); }}
+                          className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
+                        <span className="text-[10px] text-muted-foreground">{f.freq}</span>
+                      </div>
+                    </div>
+                  ))}
                 </motion.div>
               )}
             </div>
 
-            {/* ── Forsyninger (redigerbare) ── */}
+            {/* ── Forsyninger ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
               <div className="space-y-1.5">
@@ -529,9 +536,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       <span className="text-sm font-medium">{u.label}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <input
-                        type="number"
-                        min={0}
+                      <input type="number" inputMode="numeric" min={0}
                         value={profile[u.field] ?? u.def}
                         onChange={(e) => update({ [u.field]: Math.max(0, Number(e.target.value)) })}
                         className="w-20 text-right text-sm font-semibold tabular-nums bg-transparent border-b border-border focus:outline-none focus:border-primary"
@@ -575,36 +580,6 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            <AILiveComment profile={profile} step="expenses" />
-
-            <ContinueButton onClick={goNext} label={t("continue")} />
-          </div>
-        );
-      }
-
-      case "everyday": {
-        const addCustom = () => {
-          if (customLabel.trim() && customAmount > 0) {
-            update({ customExpenses: [...profile.customExpenses, { label: customLabel.trim(), amount: customAmount, frequency: customFreq }] });
-            setCustomLabel(""); setCustomAmount(0); setCustomFreq("monthly");
-          }
-        };
-        const unit = t("unit.krMonth");
-        return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
-              <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.everyday.title")}</h1>
-              <p className="text-muted-foreground text-sm">{t("step.everyday.subtitle")}</p>
-            </motion.div>
-
-            <div className="space-y-2">
-              <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} unit={unit} />
-              <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
-              <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
-              <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
-              <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} unit={unit} />
-            </div>
-
             {/* ── Egne udgifter ── */}
             <div>
               <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
@@ -625,7 +600,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <input type="text" value={customLabel} onChange={(e) => setCustomLabel(e.target.value)}
                   placeholder={t("step.expenses.customPlaceholder")}
                   className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
-                <input type="number" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
+                <input type="number" inputMode="numeric" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
                   placeholder={t("currency")} className="w-20 bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none no-spin placeholder:text-muted-foreground/30" />
                 <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
                   className="bg-background border border-border rounded-xl px-1.5 py-2.5 text-[11px] focus:outline-none">
@@ -639,7 +614,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            <AILiveComment profile={profile} step="everyday" />
+            <AILiveComment profile={profile} step="expenses" />
 
             <ContinueButton onClick={goNext} label={t("continue")} />
           </div>
@@ -729,7 +704,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             )}
 
-            <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} label={t("step.review.seeDashboard")} />
+            <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} disabled={(profile.income + profile.partnerIncome) < 1000} label={t("step.review.seeDashboard")} />
           </div>
         );
       }
@@ -740,7 +715,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   };
 
   return (
-    <div id="main-content" className="h-dvh bg-background flex flex-col">
+    <div id="main-content" className="h-dvh bg-background flex flex-col overflow-x-hidden">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
@@ -752,14 +727,14 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
         </div>
       </header>
-      <div ref={contentRef} className="flex-1 min-h-0 px-5 py-8 overflow-y-auto overscroll-contain" style={{ paddingBottom: liveBudget ? "10rem" : "3rem" }}>
+      <div ref={contentRef} className="flex-1 min-h-0 px-5 py-8 overflow-y-auto overflow-x-hidden overscroll-contain" style={{ paddingBottom: liveBudget ? "10rem" : "3rem" }}>
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div key={step} custom={direction} variants={pageVariants} initial="enter" animate="center" exit="exit">
             {renderStepContent()}
           </motion.div>
         </AnimatePresence>
       </div>
-      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "everyday" ? goNext : undefined} />}
+      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "expenses" ? goNext : undefined} />}
     </div>
   );
 }
