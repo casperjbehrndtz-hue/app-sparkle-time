@@ -120,7 +120,7 @@ export function EditableAmount({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute z-50 left-1/2 -translate-x-1/2 top-full mt-2 w-64 rounded-xl border border-border bg-background shadow-xl shadow-black/10 p-3 space-y-3"
+            className="fixed sm:absolute z-50 left-1/2 -translate-x-1/2 top-1/2 sm:top-full -translate-y-1/2 sm:translate-y-0 sm:mt-2 min-w-[16rem] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-background shadow-xl shadow-black/10 p-3 space-y-3"
           >
             {/* Input */}
             <div className="flex items-center gap-2">

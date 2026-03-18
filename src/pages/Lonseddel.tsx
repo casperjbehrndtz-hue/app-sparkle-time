@@ -47,16 +47,16 @@ function PrivacyDetails({ t }: { t: (key: string) => string }) {
                   </div>
                   <div className="pb-3">
                     <p className="text-xs font-semibold text-foreground">{step.title}</p>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 p-3 space-y-2">
-              <p className="text-[11px] text-amber-800 dark:text-amber-200 leading-relaxed font-medium">
+              <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed font-medium">
                 {t("payslip.privacyDetail.honest")}
               </p>
-              <p className="text-[11px] text-amber-700 dark:text-amber-300/80 leading-relaxed">
+              <p className="text-xs text-amber-700 dark:text-amber-300/80 leading-relaxed">
                 {t("payslip.privacyDetail.noHumans")}
               </p>
             </div>

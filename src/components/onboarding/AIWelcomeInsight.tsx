@@ -158,7 +158,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
             >
               <button
                 onClick={onContinue}
-                className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-[15px] hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
               >
                 {t("step.review.seeDashboard")} <ArrowRight className="w-4 h-4" />
               </button>

@@ -146,7 +146,7 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30">
           <h2 className="text-sm font-semibold">{t("payslip.verify.title")}</h2>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{t("payslip.verify.subtitle")}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("payslip.verify.subtitle")}</p>
         </div>
 
         {/* Sanity warnings */}
@@ -156,7 +156,7 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
               <div className="space-y-1">
                 {checks.map((c, i) => (
-                  <p key={i} className="text-[11px] text-amber-700 dark:text-amber-300">{c}</p>
+                  <p key={i} className="text-xs text-amber-700 dark:text-amber-300">{c}</p>
                 ))}
               </div>
             </div>
@@ -247,7 +247,7 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
           <div className="border-t border-border">
             <button
               onClick={() => setShowAllLines(!showAllLines)}
-              className="w-full px-4 py-2.5 flex items-center justify-between text-[11px] text-muted-foreground hover:bg-muted/20 transition-colors"
+              className="w-full px-4 py-2.5 flex items-center justify-between text-xs text-muted-foreground hover:bg-muted/20 transition-colors"
             >
               <span>{t("payslip.verify.rawLines")} ({payslip.receiptLines.length})</span>
               {showAllLines ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}

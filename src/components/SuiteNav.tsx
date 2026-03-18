@@ -16,7 +16,7 @@ export function SuiteNav() {
 
   return (
     <div className="bg-primary text-primary-foreground">
-      <div className="max-w-2xl mx-auto px-5 flex items-center gap-1 h-8 text-[11px]">
+      <div className="max-w-2xl mx-auto px-5 flex items-center gap-1 h-8 text-xs">
         {suiteLinks.map((link) =>
           link.comingSoon ? (
             <span

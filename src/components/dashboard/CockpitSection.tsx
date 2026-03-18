@@ -255,7 +255,7 @@ function TruthRow({ icon, label, value, positive, positiveLabel, negativeLabel }
       </div>
       <div className="flex-1 min-w-0 flex items-baseline justify-between">
         <span className="text-[10px] text-muted-foreground truncate">{label}</span>
-        <span className={`font-display font-bold text-[11px] ${positive ? "text-foreground" : "text-destructive"}`}>{value}</span>
+        <span className={`font-display font-bold text-xs ${positive ? "text-foreground" : "text-destructive"}`}>{value}</span>
       </div>
     </div>
   );

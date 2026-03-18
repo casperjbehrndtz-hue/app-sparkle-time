@@ -227,7 +227,7 @@ export function NaboeffektView({ profile, budget }: Props) {
                     {status !== "good" && (
                       <button
                         onClick={() => document.getElementById("handling")?.scrollIntoView({ behavior: "smooth" })}
-                        className="inline-flex items-center gap-0.5 text-[11px] font-medium text-primary hover:text-primary/70 transition-colors shrink-0">
+                        className="inline-flex items-center gap-0.5 text-xs font-medium text-primary hover:text-primary/70 transition-colors shrink-0">
                         {t("neighbor.optimize")} <ChevronRight className="w-3 h-3" />
                       </button>
                     )}

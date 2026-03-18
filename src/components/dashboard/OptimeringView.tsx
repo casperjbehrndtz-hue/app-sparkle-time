@@ -83,7 +83,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
                 >
                   🚀 {t("optimize.doItNow")}{opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
                 </a>
-                <p className="text-[11px] text-muted-foreground/60 mt-2">{t("optimize.opensExternal")} · {t("optimize.savePerMonth").replace("{amount}", formatKr(opt.besparelse_kr, lc))}</p>
+                <p className="text-xs text-muted-foreground/60 mt-2">{t("optimize.opensExternal")} · {t("optimize.savePerMonth").replace("{amount}", formatKr(opt.besparelse_kr, lc))}</p>
               </motion.div>
             )}
           </motion.div>

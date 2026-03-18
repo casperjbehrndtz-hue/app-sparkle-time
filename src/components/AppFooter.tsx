@@ -50,7 +50,7 @@ export function AppFooter() {
         </div>
 
         <div className="border-t border-border pt-6 space-y-2 text-center">
-          <p className="text-[11px] text-muted-foreground/60">
+          <p className="text-xs text-muted-foreground/60">
             {config.footer?.text || `© ${new Date().getFullYear()} ${config.brandName}`} · {t("footer.based")}
           </p>
           <p className="text-xs text-muted-foreground/50 max-w-md mx-auto">

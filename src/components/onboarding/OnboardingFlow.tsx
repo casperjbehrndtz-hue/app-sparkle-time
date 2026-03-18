@@ -230,7 +230,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   )}
                   {childAgeInputs.length > 0 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
-                      <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
+                      <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
                       {childAgeInputs.map((age, i) => {
                         const benefit = getChildBenefit(age);
                         return (
@@ -284,7 +284,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 presets={[20000, 30000, 40000, 55000, 80000]} />
             )}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
               {profile.additionalIncome.map((src, i) => (
                 <div key={i} className="rounded-xl border border-border p-3 space-y-2 mb-2">
                   <div className="flex gap-2">
@@ -460,7 +460,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Hverdagsudgifter (sliders) ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.everyday.title")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.everyday.title")}</h3>
               <div className="space-y-2">
                 <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} unit={unit} />
                 <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
@@ -472,7 +472,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Streaming ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
               <div className="space-y-1.5">
                 {[
                   { key: "hasNetflix" as const, icon: "🎬", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} ${t("perMonth")}` },
@@ -491,7 +491,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Transport — car details shown directly ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
               <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
                 icon="🚗" label={t("step.expenses.car")}
                 sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : undefined} />
@@ -521,7 +521,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Forsyninger ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
               <div className="space-y-1.5">
                 {[
                   { icon: "📡", label: isNO ? "Internett" : t("step.expenses.internet"), field: "internetAmount" as const, def: isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price },
@@ -550,7 +550,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Forsikring / Fagforening / Fitness ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.insuranceUnion")}</h3>
               <div className="space-y-1.5">
                 <ToggleRow active={profile.hasInsurance} onClick={() => update({ hasInsurance: !profile.hasInsurance })}
                   icon="🛡️" label={t("step.expenses.insurance")} sublabel={t("step.expenses.insuranceSub")}
@@ -566,7 +566,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Kæledyr / Lån / Opsparing ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.petsLoans")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.petsLoans")}</h3>
               <div className="space-y-1.5">
                 <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
                   icon="🐕" label={t("step.expenses.pet")} sublabel={t("step.expenses.petSub")}
@@ -582,7 +582,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* ── Egne udgifter ── */}
             <div>
-              <h3 className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
+              <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.custom")}</h3>
               {profile.customExpenses.map((ce, i) => (
                 <div key={i} className="flex items-center justify-between rounded-2xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5 mb-1.5">
                   <div>
@@ -603,7 +603,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <input type="number" inputMode="numeric" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
                   placeholder={t("currency")} className="w-20 bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none no-spin placeholder:text-muted-foreground/30" />
                 <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
-                  className="bg-background border border-border rounded-xl px-1.5 py-2.5 text-[11px] focus:outline-none">
+                  className="bg-background border border-border rounded-xl px-1.5 py-2.5 text-xs focus:outline-none">
                   <option value="monthly">{t("freq.monthlyShort")}</option>
                   <option value="quarterly">{t("freq.quarterShort")}</option>
                   <option value="biannual">{t("freq.halfYearShort")}</option>
@@ -639,7 +639,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               className="text-center py-12 rounded-3xl border-2 border-border relative overflow-hidden">
               <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`} />
               <div className="relative">
-                <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
+                <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
                 <motion.div key={budget.disposableIncome} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                   className="flex items-baseline justify-center gap-1">
                   <span className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-nemt-gold" : "text-destructive"}`}>

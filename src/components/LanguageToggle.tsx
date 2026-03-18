@@ -20,7 +20,7 @@ export function LanguageToggle() {
   return (
     <button
       onClick={handleClick}
-      className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2 py-1.5 rounded-lg hover:bg-muted"
+      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2 py-1.5 rounded-lg hover:bg-muted"
       aria-label={`Switch to ${nextLabel}`}
       title={`Switch to ${nextLabel}`}
     >

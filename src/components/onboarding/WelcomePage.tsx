@@ -141,7 +141,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
                 className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${f.bg}`}>{f.icon}</div>
-                <h3 className="font-semibold text-[15px] mt-3 mb-1.5 text-foreground">{f.title}</h3>
+                <h3 className="font-semibold text-sm mt-3 mb-1.5 text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
@@ -164,7 +164,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">{testimonial.name.charAt(0)}</div>
                     <div>
                       <p className="text-xs font-semibold text-foreground">{testimonial.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{testimonial.location}</p>
+                      <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -183,7 +183,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             className="px-10 py-4 rounded-xl bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
             {t("hero.cta")} <ArrowRight className="w-4 h-4 inline ml-1.5" />
           </button>
-          <p className="text-white/40 text-[11px] mt-5">{t("bottomCta.noLogin")}</p>
+          <p className="text-white/40 text-xs mt-5">{t("bottomCta.noLogin")}</p>
         </div>
       </section>
 

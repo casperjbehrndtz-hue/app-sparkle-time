@@ -63,7 +63,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         <div className="text-center space-y-1">
           <span className="font-display font-black text-2xl text-primary">{config.brandName}</span>
           <p className="text-xs text-muted-foreground">{t("report.title")} · {dateStr}</p>
-          <p className="text-[11px] text-muted-foreground/60">{isPar ? t("report.couple") : t("report.solo")} · {t("report.postalCode")} {profile.postalCode || "—"}</p>
+          <p className="text-xs text-muted-foreground/60">{isPar ? t("report.couple") : t("report.solo")} · {t("report.postalCode")} {profile.postalCode || "—"}</p>
         </div>
 
         {/* Health Score Hero */}

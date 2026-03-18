@@ -319,7 +319,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
           <p className="text-lg font-bold text-foreground mt-1">
             {fmt(payslip.nettolon)} <span className="text-sm font-normal text-muted-foreground">{t("payslip.hero.paidOut")}</span>
           </p>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground">
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
             <Calculator className="w-3 h-3" />
             {t("payslip.hero.annual").replace("{amount}", fmtAbs(insights.annualNet))}
           </div>
@@ -382,7 +382,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
               <p className="text-[10px] text-muted-foreground mt-0.5">{t("payslip.teaser.subtitle")}</p>
             </div>
             <div className="shrink-0">
-              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FF4500] text-white text-[11px] font-semibold group-hover:bg-[#FF4500]/90 transition-colors">
+              <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FF4500] text-white text-xs font-semibold group-hover:bg-[#FF4500]/90 transition-colors">
                 <Share2 className="w-3 h-3" />
                 Del
               </div>
@@ -485,7 +485,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
               <TrendingDown className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{t("payslip.insight.effectiveTax")}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {t("payslip.insight.effectiveTaxDetail")
                 .replace("{marginal}", String(insights.marginalTaxRate || "~37"))
                 .replace("{effective}", String(insights.effectiveTaxRate))
@@ -501,7 +501,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
               <Heart className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{t("payslip.insight.pensionTitle")}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {t("payslip.insight.pensionDetail")
                 .replace("{pct}", String(insights.pensionPct))
                 .replace("{employee}", fmtAbs(payslip.pensionEmployee))
@@ -521,7 +521,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
               <Calculator className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{t("payslip.insight.annualTitle")}</span>
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               {t("payslip.insight.annualDetail")
                 .replace("{gross}", fmtAbs(insights.annualGross))
                 .replace("{deductions}", fmtAbs(insights.annualDeductions))
@@ -733,7 +733,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
                 <button
                   key={sr.sub}
                   onClick={() => setSelectedSub(i)}
-                  className={`flex-1 px-3 py-1.5 rounded-md text-[11px] font-semibold transition-all ${
+                  className={`flex-1 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
                     selectedSub === i
                       ? "bg-[#FF4500]/10 text-[#FF4500] border border-[#FF4500]/30"
                       : "bg-muted/50 text-muted-foreground hover:bg-muted"

@@ -42,18 +42,22 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
     value: Math.round(monthly * seasonalFactors[i]),
   }));
   const avg = Math.round(data.reduce((s, d) => s + d.value, 0) / 12);
+  const lowest = Math.min(...data.map((d) => d.value));
+  const highest = Math.max(...data.map((d) => d.value));
+
+  const chartAriaLabel = `Forventet rådighedsbeløb: gennemsnit ${formatKr(avg, lc)} kr., laveste ${formatKr(lowest, lc)} kr., højeste ${formatKr(highest, lc)} kr.`;
 
   return (
     <div className="space-y-3">
       <div>
         <h3 className="font-display font-bold text-sm sm:text-base text-foreground">{t("charts.seasonalTitle")}</h3>
-        <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{t("charts.seasonalSubtitle")}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{t("charts.seasonalSubtitle")}</p>
       </div>
       <div className="grid grid-cols-3 gap-1.5">
         {[
           { label: t("charts.average"), value: avg },
-          { label: t("charts.lowest"), value: Math.min(...data.map((d) => d.value)) },
-          { label: t("charts.highest"), value: Math.max(...data.map((d) => d.value)) },
+          { label: t("charts.lowest"), value: lowest },
+          { label: t("charts.highest"), value: highest },
         ].map((s) => (
           <div key={s.label} className="text-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
@@ -61,7 +65,7 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
           </div>
         ))}
       </div>
-      <div className="h-[260px] sm:h-[320px]">
+      <div role="img" aria-label={chartAriaLabel} className="h-[260px] sm:h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ left: 0, right: 10, top: 10, bottom: 0 }}>
             <defs>
@@ -89,6 +93,9 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
             <Area type="monotone" dataKey="value" name={disposableLabel} stroke="#2563eb" strokeWidth={2.5} fill="url(#inlineAreaGrad)" dot={{ r: 3, fill: "#2563eb", stroke: "#fff", strokeWidth: 2 }} activeDot={{ r: 5 }} />
           </AreaChart>
         </ResponsiveContainer>
+        <div className="sr-only">
+          {disposableLabel}: {data.map((d) => `${d.name}: ${formatKr(d.value, lc)} kr.`).join(", ")}. {t("charts.average")}: {formatKr(avg, lc)} kr.
+        </div>
       </div>
       <p className="text-[10px] text-muted-foreground/70 text-center italic">{t("charts.seasonalDisclaimer")}</p>
     </div>

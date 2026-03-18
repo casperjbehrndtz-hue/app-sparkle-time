@@ -147,7 +147,7 @@ export default function Blog() {
                   </div>
                   <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">{article.category}</span>
                 </div>
-                <h3 className="font-semibold text-[15px] mb-2 text-foreground leading-snug">{article.title}</h3>
+                <h3 className="font-semibold text-sm mb-2 text-foreground leading-snug">{article.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-3">{article.excerpt}</p>
                 <span className="text-xs text-muted-foreground/60">{article.readTime} {t("blog.readTime")}</span>
               </Link>

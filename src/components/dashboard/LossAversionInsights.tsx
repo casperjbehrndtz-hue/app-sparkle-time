@@ -196,7 +196,7 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
                 </span>
               </div>
               <p className="text-sm font-semibold text-foreground leading-snug mb-1">{insight.title}</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{insight.sub}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{insight.sub}</p>
             </div>
             <div className="text-right flex-shrink-0">
               <p className="font-display font-black text-base text-foreground tabular-nums">{insight.value}</p>

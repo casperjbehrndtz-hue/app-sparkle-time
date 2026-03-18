@@ -8,6 +8,39 @@ import { useI18n } from "@/lib/i18n";
 import { useAIStream } from "@/hooks/useAIStream";
 import { usePartnerTracking } from "@/hooks/usePartnerTracking";
 
+// ─── Chat history persistence (sessionStorage — cleared on browser close) ──
+const CHAT_SESSION_KEY = "nb_ai_chat";
+
+function loadChatSession(): { messages: Msg[]; hasAnalyzed: boolean } {
+  try {
+    const raw = sessionStorage.getItem(CHAT_SESSION_KEY);
+    if (!raw) return { messages: [], hasAnalyzed: false };
+    const parsed = JSON.parse(raw);
+    return {
+      messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+      hasAnalyzed: !!parsed.hasAnalyzed,
+    };
+  } catch {
+    return { messages: [], hasAnalyzed: false };
+  }
+}
+
+function saveChatSession(messages: Msg[], hasAnalyzed: boolean) {
+  try {
+    sessionStorage.setItem(CHAT_SESSION_KEY, JSON.stringify({ messages, hasAnalyzed }));
+  } catch {
+    // Private browsing or quota exceeded — silently ignore
+  }
+}
+
+function clearChatSession() {
+  try {
+    sessionStorage.removeItem(CHAT_SESSION_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 // ─── Freemium: 5 AI interactions free per month ────────────────────────────
 const FREE_LIMIT = 5;
 const STORAGE_KEY = "nb_ai_usage";
@@ -69,10 +102,11 @@ export function AIChatPanel({ profile, budget }: Props) {
   const { t, lang } = useI18n();
   const { track } = usePartnerTracking(config.brandKey ?? "nemtbudget");
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [cachedSession] = useState(loadChatSession);
+  const [messages, setMessages] = useState<Msg[]>(cachedSession.messages);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
+  const [hasInitialAnalysis, setHasInitialAnalysis] = useState(cachedSession.hasAnalyzed);
   const [hasProactiveNudge, setHasProactiveNudge] = useState(false);
   const [remaining, setRemaining] = useState(getRemainingFree);
   const isLimitReached = remaining <= 0;
@@ -86,6 +120,11 @@ export function AIChatPanel({ profile, budget }: Props) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Persist chat to sessionStorage
+  useEffect(() => {
+    saveChatSession(messages, hasInitialAnalysis);
+  }, [messages, hasInitialAnalysis]);
 
   const runOptimize = useCallback(() => {
     if (hasInitialAnalysis || isLoading || isLimitReached) return;
@@ -258,7 +297,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                     key={q}
                     onClick={() => sendMessage(q)}
                     disabled={isLoading}
-                    className="text-[11px] px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all disabled:opacity-40"
+                    className="text-xs px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-all disabled:opacity-40"
                   >
                     {q}
                   </button>

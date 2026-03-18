@@ -27,7 +27,7 @@ export function DarkModeToggle() {
   return (
     <button
       onClick={() => setDark((d) => !d)}
-      className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted"
+      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted"
       aria-label={dark ? t("darkMode.switchToLight") : t("darkMode.switchToDark")}
     >
       {dark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
