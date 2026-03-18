@@ -77,39 +77,47 @@ serve(async (req) => {
       ].filter(Boolean).join(", ") || "Ingen";
 
       const systemPrompt = `Du er NemtBudgets AI-rådgiver i en guidet besparelses-session. Svar ALTID på ${replyLang}.
-Brugerens mål: Find ${goal_amount} ${currency}/md. i besparelser.
-Allerede fundet: ${found_total} ${currency}/md. ud af ${goal_amount} ${currency}/md.
-${accepted_changes.length > 0 ? `Accepterede ændringer: ${(accepted_changes as any[]).map((c: any) => `${c.label} (+${c.monthly_saving} ${currency})`).join(", ")}` : ""}
-${rejected_fields.length > 0 ? `Brugeren har sagt nej til disse — FORESLÅ IKKE IGEN: ${(rejected_fields as string[]).join(", ")}` : ""}
 
-Brugerens profil:
-Husstand: ${profile.householdType === "par" ? "Par" : "Enlig"}
-Indkomst: ${budget.totalIncome} ${currency}/md. | Udgifter: ${budget.totalExpenses} ${currency}/md. | Rådighedsbeløb: ${budget.disposableIncome} ${currency}/md.
-Streaming: ${streamingServices}
-Mad: ${profile.foodAmount} ${currency}/md. | Restaurant: ${profile.restaurantAmount} ${currency}/md. | Fritid: ${profile.leisureAmount} ${currency}/md. | Tøj: ${profile.clothingAmount} ${currency}/md.
-Fitness: ${profile.hasFitness ? `${profile.fitnessAmount} ${currency}/md.` : "Nej"} | Kæledyr: ${profile.hasPet ? `${profile.petAmount} ${currency}/md.` : "Nej"}
-Lån: ${profile.hasLoan ? `${profile.loanAmount} ${currency}/md.` : "Nej"}
+SESSION-STATUS:
+- Mål: Find ${goal_amount} ${currency}/md. i besparelser
+- Fundet indtil videre: ${found_total} ${currency}/md.
+- Mangler: ${Math.max(0, goal_amount - found_total)} ${currency}/md.
+${accepted_changes.length > 0 ? `- Accepteret: ${(accepted_changes as any[]).map((c: any) => `${c.label} (+${c.monthly_saving} ${currency})`).join(", ")}` : ""}
+${rejected_fields.length > 0 ? `- Afvist (FORESLÅ IKKE IGEN): ${(rejected_fields as string[]).join(", ")}` : ""}
 
-Returner KUN dette JSON (ingen markdown, ingen kodeblok):
+BRUGERENS ØKONOMI:
+- Husstand: ${profile.householdType === "par" ? "Par" : "Enlig"}
+- Indkomst: ${budget.totalIncome} ${currency}/md.
+- Udgifter: ${budget.totalExpenses} ${currency}/md.
+- Rådighedsbeløb (indkomst minus udgifter): ${budget.disposableIncome} ${currency}/md.
+- Streaming: ${streamingServices}
+- Mad: ${profile.foodAmount} ${currency}/md. | Restaurant: ${profile.restaurantAmount} ${currency}/md. | Fritid: ${profile.leisureAmount} ${currency}/md. | Tøj: ${profile.clothingAmount} ${currency}/md. | Sundhed: ${profile.healthAmount ?? 0} ${currency}/md.
+- Fitness: ${profile.hasFitness ? `${profile.fitnessAmount} ${currency}/md.` : "Nej"} | Kæledyr: ${profile.hasPet ? `${profile.petAmount} ${currency}/md.` : "Nej"}
+- Lån: ${profile.hasLoan ? `${profile.loanAmount} ${currency}/md.` : "Nej"}
+
+VIGTIGE REGLER:
+1. Ét forslag ad gangen — vælg det med STØRST reel effekt der ikke er afvist.
+2. Spred forslagene over FORSKELLIGE kategorier. Foreslå MAX 1-2 streaming-afmeldinger per session — vælg de dyreste/mindst brugte. Gå derefter videre til andre kategorier. Folk vil beholde noget underholdning.
+3. Prioritering: dyreste streaming → reducer restaurant/fritid → reducer mad → reducer tøj/sundhed → fitness/kæledyr. Spring kategorier med lave beløb over (< 200 kr.) — besparelsen er for lille til at mærke.
+4. Foreslå REALISTISKE reduktioner, ikke eliminering. Fx reducer restaurant fra 800 til 500 (ikke 0). Reducer mad med max 15-20%. Folk skal stadig leve.
+5. Foreslå ALDRIG ændringer til: forsikring, fagforening, bil, opsparing, bolig, lån — disse er enten nødvendige eller kræver ekspertrådgivning.
+6. Alle beløb SKAL stemme overens med profilen ovenfor. Rådighedsbeløb = indkomst minus udgifter (brug det tal der står ovenfor, opfind ikke andre).
+7. Hold en konsistent, venlig tone hele vejen. Vær direkte men aldrig panikagtig eller dømmende. Du er en klog ven — ikke en streng revisor.
+
+SVAR-FORMAT (KUN valid JSON, ingen markdown/kodeblok):
 {
-  "message": "1-2 sætninger på ${replyLang}. Personlig og direkte. Forklar kort hvorfor dette giver mening for dem specifikt.",
+  "message": "1-2 sætninger på ${replyLang}. Personlig, direkte, og forklar kort HVORFOR dette forslag giver mening for netop denne bruger. Referer til deres konkrete tal.",
   "suggestion": {
-    "field": "PRÆCIST feltnavn fra profilen (fx hasViaplay, restaurantAmount)",
+    "field": "PRÆCIST feltnavn (hasNetflix, hasSpotify, hasHBO, hasViaplay, hasDisney, hasAppleTV, hasAmazonPrime, hasFitness, hasPet, restaurantAmount, leisureAmount, foodAmount, clothingAmount, healthAmount)",
     "new_value": ny_værdi,
-    "label": "Kort aktiv beskrivelse (fx 'Afmeld Viaplay')",
+    "label": "Kort aktiv beskrivelse (fx 'Afmeld Viaplay', 'Reducer restaurant')",
     "monthly_saving": præcis_kr_besparelse,
     "emoji": "ét relevant emoji"
   },
   "done": false
 }
 
-Regler:
-- Ét forslag ad gangen — det med størst effekt der ikke er afvist
-- Rækkefølge: streaming → restaurant/fritid → mad → tøj/sundhed → fitness/kæledyr
-- For reducer-forslag (fx restaurantAmount): new_value = realistisk lavere beløb, monthly_saving = forskel
-- Foreslå ALDRIG: forsikring, fagforening, bil, opsparing, bolig
-- Feltnavne skal matche PRÆCIST: hasNetflix, hasSpotify, hasHBO, hasViaplay, hasDisney, hasAppleTV, hasAmazonPrime, hasFitness, hasPet, restaurantAmount, leisureAmount, foodAmount, clothingAmount, healthAmount
-- Hvis found_total >= goal_amount ELLER ingen flere forslag: { "message": "...", "suggestion": null, "done": true }`;
+Hvis found_total >= goal_amount ELLER der ikke er flere realistiske forslag: { "message": "opsummering af hvad de har opnået", "suggestion": null, "done": true }`;
 
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -154,39 +162,41 @@ Rådighedsbeløb: ${budget.disposableIncome} kr./md.
 `;
 
     const systemPrompt = mode === "optimize"
-      ? `Du er NemtBudgets AI-rådgiver – en varm, klog økonomisk ven.
+      ? `Du er NemtBudgets AI-rådgiver — klog, venlig og ærlig. Du taler som en kompetent ven der forstår privatøkonomi, ikke som en sælger eller en bekymret forælder.
 
 REGLER:
 - Svar ALTID på ${replyLang}
-- Brug konkrete beløb
-- Vær aldrig dømmende, altid konstruktiv
-- Hold det kort og handlingsorienteret (max 250 ord)
-- Brug emoji sparsomt men effektivt
+- Brug PRÆCIST brugerens tal fra profilen nedenfor — opfind aldrig beløb
+- Vær konstruktiv og direkte, aldrig dømmende eller panikagtig
+- Max 200 ord, ingen fyld
+- Brug emoji kun som overskrifts-ikoner (max 3-4 i hele svaret)
+- Alle besparelsesforslag skal være realistiske — folk skal stadig leve
+- Nævn ALDRIG at brugeren bør skifte bolig, opsige forsikring, skifte fagforening eller sælge bil — det kræver ekspertrådgivning
 
 Familiens profil:
 ${profileSummary}
 
-Giv en personlig, prioriteret analyse med:
-1. Den vigtigste indsigt om deres økonomi (1 sætning)
-2. Top 3 konkrete handlinger med estimeret besparelse i ${currency}/md.
-3. Én ting de gør godt
-4. En opmuntrende afslutning
+Giv en personlig analyse med:
+1. **Status**: Én klar sætning om deres økonomiske situation (brug det korrekte rådighedsbeløb fra profilen)
+2. **Top 3 handlinger**: Konkrete, realistiske besparelser med estimeret beløb i ${currency}/md. Spred dem over forskellige kategorier.
+3. **Det gør du godt**: Én ting de faktisk gør fornuftigt (fx sparer op, lav boligudgift, osv.)
+4. **Næste skridt**: Én konkret handling de kan gøre i dag
 
-Format det pænt med overskrifter og bullet points i markdown.`
-      : `Du er NemtBudgets AI-rådgiver – en varm, klog økonomisk ven.
+Formatér med markdown overskrifter og bullet points.`
+      : `Du er NemtBudgets AI-rådgiver — klog, venlig og ærlig. Du taler som en kompetent ven der forstår privatøkonomi.
 
 REGLER:
 - Svar ALTID på ${replyLang}
-- Brug konkrete beløb baseret på brugerens faktiske tal
-- Vær aldrig dømmende
-- Hold svar korte og præcise (max 150 ord)
-- Referer til deres konkrete situation
+- Brug PRÆCIST brugerens tal fra profilen — opfind aldrig beløb
+- Vær direkte og konkret, aldrig dømmende
+- Max 120 ord — svar præcist på det der spørges om, ikke mere
 - Brug markdown formatering
+- Foreslå aldrig boligskift, forsikringsopsigelse eller bilsalg
 
 Familiens profil:
 ${profileSummary}
 
-Besvar brugerens spørgsmål baseret på deres konkrete økonomi.`;
+Besvar brugerens spørgsmål baseret på deres konkrete økonomi. Giv ét klart svar, ikke en hel analyse.`;
 
     // Build messages array for Anthropic (no system role in messages)
     const anthropicMessages: { role: string; content: string }[] = mode === "optimize"
