@@ -518,6 +518,9 @@ export const NO: Record<string, string> = {
   "charts.lowest": "Laveste",
   "charts.highest": "Høyeste",
   "charts.monthNames": "Jan,Feb,Mar,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov,Des",
+  "charts.seasonalTitle": "Forventet disponibelt beløp",
+  "charts.seasonalSubtitle": "Estimert basert på sesongsvingninger i danske husholdninger",
+  "charts.seasonalDisclaimer": "Basert på gjennomsnittlige sesongsvingninger — ikke dine faktiske tall",
 
   // AI chat
   "ai.askAbout": "Spør AI om økonomien din",

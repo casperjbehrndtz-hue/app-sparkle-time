@@ -45,6 +45,10 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
 
   return (
     <div className="space-y-3">
+      <div>
+        <h3 className="font-display font-bold text-sm sm:text-base text-foreground">{t("charts.seasonalTitle")}</h3>
+        <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{t("charts.seasonalSubtitle")}</p>
+      </div>
       <div className="grid grid-cols-3 gap-1.5">
         {[
           { label: t("charts.average"), value: avg },
@@ -76,8 +80,8 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
                 const d = payload[0].payload;
                 return (
                   <ChartTooltipBox>
-                    <p className="font-semibold text-foreground mb-1">{d.name}</p>
-                    <p className="font-display font-bold text-base text-primary">{formatKr(d.value, lc)} kr.</p>
+                    <p className="font-semibold text-foreground mb-1">{d.name} <span className="font-normal text-muted-foreground">(estimat)</span></p>
+                    <p className="font-display font-bold text-base text-primary">~{formatKr(d.value, lc)} kr.</p>
                   </ChartTooltipBox>
                 );
               }}
@@ -86,6 +90,7 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
           </AreaChart>
         </ResponsiveContainer>
       </div>
+      <p className="text-[10px] text-muted-foreground/70 text-center italic">{t("charts.seasonalDisclaimer")}</p>
     </div>
   );
 }

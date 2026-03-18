@@ -1,7 +1,17 @@
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw, Gauge, BarChart3, Zap, TrendingUp, Microscope } from "lucide-react";
+import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw, Gauge, BarChart3, Zap, TrendingUp, Microscope, ArrowUp } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ShareBudgetDialog } from "./ShareBudgetDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useWhiteLabel } from "@/lib/whiteLabel";
@@ -156,6 +166,15 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   const [showEditSheet, setShowEditSheet] = useState(false);
   const [showGuidedSession, setShowGuidedSession] = useState(false);
   const [activeSection, setActiveSection] = useState("cockpit");
+  const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Track scroll position for back-to-top button
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 400);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Track dashboard view for B2B partners
   useEffect(() => { track("dashboard_view"); }, []);
@@ -215,7 +234,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               className="flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted">
               <FileText className="w-3 h-3" /> {t("dash.report")}
             </button>
-            <button onClick={onReset}
+            <button onClick={() => setConfirmAction({ title: t("confirm.resetBudget"), description: t("confirm.resetBudget"), onConfirm: onReset })}
               title={t("dash.startOver")}
               className="flex items-center gap-1 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-destructive/5">
               <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.reset")}</span>
@@ -376,6 +395,37 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             onClose={() => setShowGuidedSession(false)}
             onProfileChange={onProfileChange}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={confirmAction !== null} onOpenChange={(open) => { if (!open) setConfirmAction(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmAction?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmAction?.description}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmAction(null)}>Annullér</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { confirmAction?.onConfirm(); setConfirmAction(null); }}>Bekræft</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Back to top button */}
+      <AnimatePresence>
+        {showBackToTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-6 left-6 z-50 p-2.5 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors shadow-md"
+            aria-label="Tilbage til toppen"
+          >
+            <ArrowUp className="w-4 h-4" />
+          </motion.button>
         )}
       </AnimatePresence>
     </div>

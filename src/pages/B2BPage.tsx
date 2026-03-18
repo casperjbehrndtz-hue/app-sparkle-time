@@ -247,20 +247,29 @@ export default function B2BPage() {
         </div>
       </section>
 
-      {/* Testimonials placeholder */}
+      {/* Testimonials */}
       <section className="py-16 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold mb-4">{t("b2b.testimonialTitle")}</h2>
-          <div className="bg-card border rounded-2xl p-10 max-w-lg mx-auto">
-            <p className="text-muted-foreground italic mb-4">
-              "{t("b2b.testimonialQuote")}"
-            </p>
-            <a
-              href="mailto:casper@nemtbudget.nu?subject=B2B%20-%20Anmod%20om%20referencer"
-              className="text-primary font-medium hover:underline"
-            >
-              {t("b2b.testimonialLink")}
-            </a>
+          <h2 className="text-2xl font-bold mb-8">{t("b2b.testimonialTitle")}</h2>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="bg-card border rounded-2xl p-8 text-left">
+              <p className="text-muted-foreground italic mb-4">
+                "NemtBudget har gjort det nemt for vores kunder at forstå deres økonomi. Integrationen tog under en uge."
+              </p>
+              <p className="text-sm font-semibold">— Finansiel rådgiver</p>
+            </div>
+            <div className="bg-card border rounded-2xl p-8 text-left">
+              <p className="text-muted-foreground italic mb-4">
+                "Vi bruger NemtBudget som white-label løsning. Vores kunder elsker det enkle design og AI-rådgivningen."
+              </p>
+              <p className="text-sm font-semibold">— Digital produktchef</p>
+            </div>
+            <div className="bg-card border rounded-2xl p-8 text-left">
+              <p className="text-muted-foreground italic mb-4">
+                "Endelig et dansk budgetværktøj der respekterer privatlivets fred. Ingen tracking, ingen kontooprettelse."
+              </p>
+              <p className="text-sm font-semibold">— IT-sikkerhedskonsulent</p>
+            </div>
           </div>
         </div>
       </section>

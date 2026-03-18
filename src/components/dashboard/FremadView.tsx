@@ -25,7 +25,7 @@ interface TimelineEvent {
 
 function generateEvents(profile: BudgetProfile, t: (key: string) => string, isNO: boolean): TimelineEvent[] {
   const events: TimelineEvent[] = [];
-  const currentYear = 2026;
+  const currentYear = new Date().getFullYear();
 
   profile.childrenAges.forEach((age, i) => {
     const childLabel = profile.childrenAges.length > 1
@@ -63,7 +63,7 @@ function generateEvents(profile: BudgetProfile, t: (key: string) => string, isNO
 
   if (profile.housingType === "ejer" && profile.mortgageAmount > 0) {
     events.push({
-      year: 2028,
+      year: currentYear + 2,
       title: t("forward.checkInterestOnly"),
       description: t("forward.checkInterestOnlyDesc"),
       impact: -3400, type: "advarsel",

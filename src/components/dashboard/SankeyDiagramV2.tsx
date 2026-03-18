@@ -20,27 +20,27 @@ interface Props {
 }
 
 const CAT_COLORS: Record<string, string> = {
-  Bolig: "#1e3a5f",
-  Forsyning: "#5ba3cf",
-  Transport: "#c4956a",
-  Abonnementer: "#9b8ec4",
-  Forsikring: "#dbb870",
-  Fagforening: "#e05050",
-  Børn: "#6abf6a",
-  Kæledyr: "#a0a0a0",
-  Lån: "#e07070",
-  Fitness: "#c4956a",
-  Opsparing: "#2e86c1",
-  "Mad & dagligvarer": "#4caf93",
-  Fritid: "#f4a460",
-  Tøj: "#dbb870",
-  Sundhed: "#d4a0d4",
-  Restaurant: "#f0a070",
-  Andet: "#b0b0b0",
+  Bolig: "hsl(var(--primary))",
+  Forsyning: "hsl(var(--flow-health))",
+  Transport: "hsl(var(--nemt-blue))",
+  Abonnementer: "hsl(var(--flow-subscriptions))",
+  Forsikring: "hsl(var(--nemt-gold))",
+  Fagforening: "hsl(var(--nemt-green))",
+  Børn: "hsl(var(--flow-children))",
+  Kæledyr: "hsl(var(--flow-pets))",
+  Lån: "hsl(var(--destructive))",
+  Fitness: "hsl(var(--nemt-blue))",
+  Opsparing: "hsl(var(--flow-savings))",
+  "Mad & dagligvarer": "hsl(var(--flow-food))",
+  Fritid: "hsl(var(--flow-leisure))",
+  Tøj: "hsl(var(--flow-clothing))",
+  Sundhed: "hsl(var(--flow-health))",
+  Restaurant: "hsl(var(--flow-restaurant))",
+  Andet: "hsl(var(--muted-foreground))",
 };
 
 function getColor(name: string): string {
-  return CAT_COLORS[name] || "#b0b0b0";
+  return CAT_COLORS[name] || "hsl(var(--muted-foreground))";
 }
 
 interface NodeExtra { name: string; color: string; }
@@ -163,7 +163,7 @@ async function exportSankeyCard(
       const statsY = y;
       const statW = (canvasW - cardPad * 2 - 24) / 3; // 3 stat boxes, 12px gap each
       const statBoxes = [
-        { label: meta.incomeLabel, value: meta.income, color: "#1565c0", bgFrom: "#eff6ff", bgTo: "#dbeafe" },
+        { label: meta.incomeLabel, value: meta.income, color: "hsl(var(--primary))", bgFrom: "#eff6ff", bgTo: "#dbeafe" },
         { label: meta.expensesLabel, value: meta.expenses, color: "#64748b", bgFrom: "#f8fafc", bgTo: "#f1f5f9" },
         { label: meta.disposableLabel, value: meta.disposable, color: meta.disposablePositive ? "#059669" : "#dc2626", bgFrom: meta.disposablePositive ? "#ecfdf5" : "#fef2f2", bgTo: meta.disposablePositive ? "#d1fae5" : "#fee2e2" },
       ];
@@ -393,11 +393,11 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
     }
     if (incomeSources.length === 0) incomeSources.push({ name: t("sankey.income"), amount: budget.totalIncome });
 
-    incomeSources.forEach(src => { nodeList.push({ name: src.name, color: "#1565c0" }); });
+    incomeSources.forEach(src => { nodeList.push({ name: src.name, color: "hsl(var(--primary))" }); });
     const incN = incomeSources.length;
     const catStart = incN;
     categories.forEach(cat => { nodeList.push({ name: cat.name, color: cat.color }); });
-    if (disposable > 0) nodeList.push({ name: t("sankey.leftOver"), color: "#2e86c1" });
+    if (disposable > 0) nodeList.push({ name: t("sankey.leftOver"), color: "hsl(var(--nemt-green))" });
 
     const totalInc = incomeSources.reduce((s, src) => s + src.amount, 0);
     incomeSources.forEach((src, si) => {
@@ -408,7 +408,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
       });
       if (disposable > 0) {
         const val = Math.round(disposable * share);
-        if (val > 0) linkList.push({ source: si, target: catStart + categories.length, value: val, color: "#2e86c1" });
+        if (val > 0) linkList.push({ source: si, target: catStart + categories.length, value: val, color: "hsl(var(--nemt-green))" });
       }
     });
 
@@ -473,7 +473,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
 
   const grads = useMemo(() => links.map((link, i) => {
     const src = typeof link.source === "object" ? link.source : null;
-    return { id: `sg-${i}`, from: src?.color || "#1565c0", to: (link as any).color || "#ccc" };
+    return { id: `sg-${i}`, from: src?.color || "hsl(var(--primary))", to: (link as any).color || "#ccc" };
   }), [links]);
 
   return (
@@ -524,7 +524,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
             onMouseLeave={() => setHovered(null)}
           >
             <motion.rect x={x0} y={y0} width={w} height={h} rx={4}
-              fill={isLeftOver ? "#2e86c1" : node.color}
+              fill={isLeftOver ? "hsl(var(--nemt-green))" : node.color}
               initial={{ opacity: 0, scaleY: 0 }}
               animate={{ opacity: active ? 1 : 0.2, scaleY: 1 }}
               transition={{ scaleY: { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.03 + i * 0.025 }, opacity: { duration: 0.2 } }}

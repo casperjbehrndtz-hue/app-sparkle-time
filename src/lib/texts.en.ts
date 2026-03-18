@@ -517,6 +517,9 @@ export const EN: Record<string, string> = {
   "charts.lowest": "Lowest",
   "charts.highest": "Highest",
   "charts.monthNames": "Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec",
+  "charts.seasonalTitle": "Expected disposable income",
+  "charts.seasonalSubtitle": "Estimated based on seasonal patterns in Danish households",
+  "charts.seasonalDisclaimer": "Based on average seasonal patterns — not your actual figures",
 
   // AI chat
   "ai.askAbout": "Ask AI about your finances",

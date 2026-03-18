@@ -33,7 +33,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
   const radius = 36;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const ringColor = score >= 75 ? "#1e40af" : score >= 55 ? "#d97706" : "#dc2626";
+  const ringColor = score >= 75 ? "hsl(var(--primary))" : score >= 55 ? "hsl(var(--nemt-gold))" : "hsl(var(--destructive))";
 
   const isPar = profile.householdType === "par";
 

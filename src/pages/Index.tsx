@@ -188,14 +188,12 @@ const Index = () => {
   };
 
   const handleReset = () => {
-    if (!window.confirm(t("confirm.resetBudget"))) return;
     localStorage.removeItem(STORAGE_KEY);
     setProfile(null);
     setEditingProfile(null);
   };
 
   const handleEditProfile = () => {
-    if (!window.confirm(t("confirm.editProfile"))) return;
     // Go back to onboarding with current profile pre-filled
     setEditingProfile(profile);
     setProfile(null);
