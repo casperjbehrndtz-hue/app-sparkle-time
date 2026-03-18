@@ -2,6 +2,7 @@
 const ALLOWED_ORIGINS = [
   "https://app-sparkle-time.vercel.app",
   "https://nemtbudget.nu",
+  "https://www.nemtbudget.nu",
   "http://localhost:5173",
   "http://localhost:8080",
 ];
