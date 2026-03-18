@@ -67,6 +67,10 @@ export function useAIStream(): UseAIStreamReturn {
       if (!resp.ok) {
         const err = await resp.json().catch(() => ({ error: "Ukendt fejl" }));
         const msg = err.error || `Fejl ${resp.status}`;
+        // If server signals monthly limit, mark it so UI can react
+        if (err.limit_reached) {
+          (options as any).onLimitReached?.();
+        }
         onError?.(msg);
         setIsStreaming(false);
         return;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Check, SkipForward, Sparkles, Target } from "lucide-react";
+import { X, ArrowRight, Check, SkipForward, Sparkles, Target, Undo2 } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -9,6 +9,7 @@ import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Change {
   field: string;
+  old_value: unknown;
   new_value: unknown;
   label: string;
   monthly_saving: number;
@@ -93,14 +94,32 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
     fetchNextSuggestion(currentProfile, [], [], 0);
   };
 
+  const handleUndo = () => {
+    if (acceptedChanges.length === 0) return;
+    const last = acceptedChanges[acceptedChanges.length - 1];
+    const restored = { ...currentProfile, [last.field]: last.old_value };
+    setCurrentProfile(restored);
+    onProfileChange(restored);
+    const remaining = acceptedChanges.slice(0, -1);
+    setAcceptedChanges(remaining);
+    const newFound = Math.max(0, totalFound - last.monthly_saving);
+    setTotalFound(newFound);
+    setMessages(prev => [...prev, { type: "skip", text: `↩ ${t("guided.undone").replace("{label}", last.label)}` }]);
+    // If we were complete, go back to suggestion mode
+    if (phase === "complete") {
+      fetchNextSuggestion(restored, rejectedFields, remaining, newFound);
+    }
+  };
+
   const handleAccept = () => {
     if (!suggestion) return;
 
+    const change: Change = { ...suggestion, old_value: (currentProfile as any)[suggestion.field] };
     const updated = { ...currentProfile, [suggestion.field]: suggestion.new_value };
     setCurrentProfile(updated);
     onProfileChange(updated);
 
-    const newAccepted = [...acceptedChanges, suggestion];
+    const newAccepted = [...acceptedChanges, change];
     const newFound = totalFound + suggestion.monthly_saving;
 
     setAcceptedChanges(newAccepted);
@@ -300,17 +319,26 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex gap-3">
+                {acceptedChanges.length > 0 && (
+                  <button
+                    onClick={handleUndo}
+                    className="py-3.5 px-3 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center"
+                    title={t("guided.undo")}
+                  >
+                    <Undo2 className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={handleSkip}
-                  className="py-3.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-3.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
                 >
                   <SkipForward className="w-4 h-4" /> {t("guided.skip")}
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={handleAccept}
-                  className="py-3.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/20 transition-all"
+                  className="flex-1 py-3.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/20 transition-all"
                 >
                   <Check className="w-4 h-4" /> {t("guided.apply")}
                 </motion.button>
@@ -361,12 +389,22 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
               )}
             </div>
 
-            <button
-              onClick={onClose}
-              className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base shadow-lg shadow-primary/20"
-            >
-              {t("guided.seeUpdated")}
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={onClose}
+                className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base shadow-lg shadow-primary/20"
+              >
+                {t("guided.seeUpdated")}
+              </button>
+              {acceptedChanges.length > 0 && (
+                <button
+                  onClick={handleUndo}
+                  className="w-full py-3 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
+                >
+                  <Undo2 className="w-4 h-4" /> {t("guided.undoLast")}
+                </button>
+              )}
+            </div>
           </motion.div>
         </div>
       )}

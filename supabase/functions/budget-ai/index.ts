@@ -45,8 +45,18 @@ serve(async (req) => {
     const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("cf-connecting-ip")
       || "unknown";
+
+    // Hourly burst limit (20/hour)
     if (!await checkRateLimit("budget-ai", clientIP)) {
       return new Response(JSON.stringify({ error: "For mange forespørgsler. Prøv igen om lidt." }), {
+        status: 429, headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+
+    // Monthly freemium limit (15/month per IP — generous enough for real users, blocks abuse)
+    const monthKey = `budget-ai-monthly:${new Date().toISOString().slice(0, 7)}`;
+    if (!await checkRateLimit(monthKey, clientIP, 15)) {
+      return new Response(JSON.stringify({ error: "Månedlig grænse nået. Prøv igen næste måned.", limit_reached: true }), {
         status: 429, headers: { ...cors, "Content-Type": "application/json" },
       });
     }
