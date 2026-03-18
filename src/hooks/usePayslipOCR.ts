@@ -102,17 +102,19 @@ export function usePayslipOCR() {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        const msg = body.error || `HTTP ${res.status}`;
+        console.error("Payslip OCR API error:", res.status, body);
+        const msg = body.detail || body.error || `HTTP ${res.status}`;
         throw new Error(msg);
       }
 
       const raw = await res.json();
+      console.log("Payslip OCR raw response keys:", raw ? Object.keys(raw) : "null",
+        "bruttolon:", (raw as Record<string, unknown>)?.bruttolon, typeof (raw as Record<string, unknown>)?.bruttolon,
+        "nettolon:", (raw as Record<string, unknown>)?.nettolon, typeof (raw as Record<string, unknown>)?.nettolon);
       const parsed = parsePayslipResponse(raw);
 
       if (!parsed) {
-        console.error("Payslip parse failed. Raw keys:", raw ? Object.keys(raw) : "null",
-          "bruttolon:", (raw as Record<string, unknown>)?.bruttolon,
-          "nettolon:", (raw as Record<string, unknown>)?.nettolon);
+        console.error("Payslip parse validation failed. Raw:", JSON.stringify(raw).slice(0, 500));
         setError("payslip.error.readFailed");
         return;
       }

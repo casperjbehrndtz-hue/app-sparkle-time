@@ -253,7 +253,11 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
   const r = raw as Record<string, unknown>;
 
   const num = (key: string, fallback = 0, max = 500000): number => {
-    const v = r[key];
+    let v = r[key];
+    // Handle string numbers (e.g. "45000" or "45.000" Danish format)
+    if (typeof v === "string") {
+      v = Number(v.replace(/\./g, "").replace(",", "."));
+    }
     if (typeof v === "number" && isFinite(v) && v >= 0 && v <= max) return Math.round(v);
     return fallback;
   };
