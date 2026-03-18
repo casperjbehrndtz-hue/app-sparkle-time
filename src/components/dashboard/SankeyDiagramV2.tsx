@@ -357,7 +357,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc, privacyMode
 }
 
 // ─── Sankey Desktop ──────────────────────
-function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privacyMode, svgRef }: {
+function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privacyMode, svgRef, compact }: {
   budget: ComputedBudget;
   profile?: BudgetProfile;
   categories: { name: string; total: number; color: string }[];
@@ -367,6 +367,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
   tc: (name: string) => string;
   privacyMode: boolean;
   svgRef: React.RefObject<SVGSVGElement | null>;
+  compact?: boolean;
 }) {
   const [hovered, setHovered] = useState<string | null>(null);
   const fmt = useCallback((v: number) =>
@@ -411,9 +412,9 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
       }
     });
 
-    const W = 700;
-    const LEFT_MARGIN = 130;
-    const RIGHT_MARGIN = 180;
+    const W = compact ? 500 : 700;
+    const LEFT_MARGIN = compact ? 90 : 130;
+    const RIGHT_MARGIN = compact ? 120 : 180;
     const rightCount = categories.length + (disposable > 0 ? 1 : 0);
     const maxSide = Math.max(rightCount, incN);
     const pad = 12;
@@ -465,7 +466,7 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
     }
 
     return { nodes: graph.nodes, links: graph.links, width: W, height: H, incomeCount: incN };
-  }, [categories, disposable, profile, budget.totalIncome, t]);
+  }, [categories, disposable, profile, budget.totalIncome, t, compact]);
 
   const linkPath = sankeyLinkHorizontal();
   const leftOverLabel = t("sankey.leftOver");
@@ -531,19 +532,19 @@ function SankeyView({ budget, profile, categories, disposable, lc, t, tc, privac
             />
 
             {isSource ? (
-              <text x={x0 - 12} y={y0 + h / 2} textAnchor="end" dominantBaseline="central" fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>
-                <tspan fontSize={13} fontWeight={700}>{node.name}</tspan>
-                <tspan x={x0 - 12} dy={17} fontSize={11} fontWeight={500} opacity={0.5} textAnchor="end">{fmt(node.value ?? 0)}</tspan>
+              <text x={x0 - 8} y={y0 + h / 2} textAnchor="end" dominantBaseline="central" fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>
+                <tspan fontSize={compact ? 11 : 13} fontWeight={700}>{node.name}</tspan>
+                <tspan x={x0 - 8} dy={compact ? 14 : 17} fontSize={compact ? 9 : 11} fontWeight={500} opacity={0.5} textAnchor="end">{fmt(node.value ?? 0)}</tspan>
               </text>
             ) : (
-              <text x={x1 + 12} y={y0 + h / 2} dominantBaseline="central" fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>
-                <tspan fontSize={isLeftOver ? 13 : 12} fontWeight={isLeftOver ? 800 : 600}>
+              <text x={x1 + 8} y={y0 + h / 2} dominantBaseline="central" fill="currentColor" className="text-foreground" opacity={active ? 1 : 0.3}>
+                <tspan fontSize={compact ? (isLeftOver ? 11 : 10) : (isLeftOver ? 13 : 12)} fontWeight={isLeftOver ? 800 : 600}>
                   {isLeftOver ? node.name : tc(node.name)}
                 </tspan>
-                <tspan dx={6} fontSize={11} fontWeight={500} opacity={0.5}>
+                <tspan dx={compact ? 3 : 6} fontSize={compact ? 9 : 11} fontWeight={500} opacity={0.5}>
                   {fmt(node.value ?? 0)}
                 </tspan>
-                {!privacyMode && <tspan dx={4} fontSize={10} opacity={0.35}>{pct}%</tspan>}
+                {!privacyMode && <tspan dx={compact ? 2 : 4} fontSize={compact ? 8 : 10} opacity={0.35}>{pct}%</tspan>}
               </text>
             )}
           </g>
@@ -650,11 +651,7 @@ export function SankeyDiagramV2({ budget, profile }: Props) {
 
       {/* Diagram */}
       <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4" role="img" aria-label={t("a11y.sankeyTable")}>
-        {isMobile ? (
-          <StackedBarView categories={categories} income={budget.totalIncome} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} />
-        ) : (
-          <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} svgRef={svgRef} />
-        )}
+        <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} svgRef={svgRef} compact={isMobile} />
         <div className="sr-only" role="table" aria-label={t("a11y.sankeyTable")}>
           <div role="rowgroup">
             <div role="row">
