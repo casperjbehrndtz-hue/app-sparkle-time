@@ -22,45 +22,54 @@ function PrivacyDetails({ t }: { t: (key: string) => string }) {
   ];
 
   return (
-    <div className="rounded-xl border border-border/60 overflow-hidden">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold text-foreground">{t("payslip.privacyDetail.title")}</span>
-        </div>
-        {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-      </button>
-      {open && (
-        <div className="px-4 pb-4 space-y-4 border-t border-border/40">
-          <div className="space-y-3 pt-3">
-            {steps.map((step, i) => (
-              <div key={i} className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <step.icon className="w-3.5 h-3.5 text-primary" />
-                  </div>
-                  {i < steps.length - 1 && <div className="w-px flex-1 bg-border/60 mt-1" />}
-                </div>
-                <div className="pb-3">
-                  <p className="text-xs font-semibold text-foreground">{step.title}</p>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
-                </div>
-              </div>
-            ))}
+    <div className="space-y-3">
+      <div className="rounded-xl border border-border/60 overflow-hidden">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-primary" />
+            <span className="text-xs font-semibold text-foreground">{t("payslip.privacyDetail.title")}</span>
           </div>
-          <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 p-3">
-            <p className="text-[11px] text-amber-800 dark:text-amber-200 leading-relaxed">
-              {t("payslip.privacyDetail.honest")}
+          {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+        </button>
+        {open && (
+          <div className="px-4 pb-4 space-y-4 border-t border-border/40">
+            <div className="space-y-3 pt-3">
+              {steps.map((step, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <step.icon className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    {i < steps.length - 1 && <div className="w-px flex-1 bg-border/60 mt-1" />}
+                  </div>
+                  <div className="pb-3">
+                    <p className="text-xs font-semibold text-foreground">{step.title}</p>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 p-3 space-y-2">
+              <p className="text-[11px] text-amber-800 dark:text-amber-200 leading-relaxed font-medium">
+                {t("payslip.privacyDetail.honest")}
+              </p>
+              <p className="text-[11px] text-amber-700 dark:text-amber-300/80 leading-relaxed">
+                {t("payslip.privacyDetail.noHumans")}
+              </p>
+            </div>
+            <p className="text-[10px] text-muted-foreground/60">
+              {t("payslip.privacyDetail.source")}
             </p>
           </div>
-          <p className="text-[10px] text-muted-foreground/60">
-            {t("payslip.privacyDetail.source")}
-          </p>
-        </div>
-      )}
+        )}
+      </div>
+      {/* Disclaimer */}
+      <p className="text-[10px] text-muted-foreground/50 leading-relaxed px-1">
+        {t("payslip.privacyDetail.disclaimer")}
+      </p>
     </div>
   );
 }
