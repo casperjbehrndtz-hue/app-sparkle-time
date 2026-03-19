@@ -54,7 +54,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
       <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("onboarding.leftOver")}</span>
+            <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("onboarding.leftOver")}</span>
             <motion.span
               key={remaining}
               initial={{ opacity: 0, scale: 0.9, y: 5 }}
@@ -74,7 +74,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               {t("onboarding.seeOverview")} <ArrowRight className="w-3 h-3" />
             </motion.button>
           ) : (
-            <span className="text-[10px] text-muted-foreground tabular-nums">{Math.round(pct)}% {t("onboarding.ofIncome")}</span>
+            <span className="text-[11px] text-muted-foreground tabular-nums">{Math.round(pct)}% {t("onboarding.ofIncome")}</span>
           )}
         </div>
         <div className="h-2.5 rounded-full bg-muted overflow-hidden flex">
@@ -125,7 +125,7 @@ export function StepIndicator({ step }: { step: OnboardingStep }) {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
-          className="text-[10px] text-muted-foreground"
+          className="text-[11px] text-muted-foreground"
         >
           {pct}% — {t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}
         </motion.span>
@@ -258,7 +258,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${((value - min) / (max - min)) * 100}%, hsl(var(--secondary)) ${((value - min) / (max - min)) * 100}%)` }}
           aria-label={label}
         />
-        <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+        <div className="flex justify-between text-[11px] text-muted-foreground mt-1">
           <span>{formatKr(min)}</span>
           <span>{formatKr(max)}</span>
         </div>

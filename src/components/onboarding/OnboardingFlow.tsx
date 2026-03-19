@@ -290,16 +290,16 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       </select>
                       {childAgeInputs.length > 1 && (
                         <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); }}
-                          className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
-                          <X className="w-3.5 h-3.5" />
+                          className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce">
+                          <X className="w-4 h-4" />
                         </button>
                       )}
                     </div>
                   ))}
                   {childAgeInputs.length < 5 && (
                     <button onClick={() => { setChildAgeInputs([...childAgeInputs, 3]); }}
-                      className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
-                      <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
+                      className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors py-2 tap-bounce">
+                      <Plus className="w-4 h-4" /> {t("step.children.add")}
                     </button>
                   )}
                   {childAgeInputs.length > 0 && (
@@ -364,8 +364,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     <input type="text" value={src.label} onChange={(e) => updateIncomeSource(i, { label: e.target.value })}
                       placeholder={t("step.income.placeholder")}
                       className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
-                    <button onClick={() => removeIncomeSource(i)} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
-                      <X className="w-3.5 h-3.5" />
+                    <button onClick={() => removeIncomeSource(i)} className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0">
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex gap-2">
@@ -384,12 +384,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   </div>
                 </div>
               ))}
-              <button onClick={addIncomeSource} className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
+              <button onClick={addIncomeSource} className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors py-2 tap-bounce">
                 <Plus className="w-3.5 h-3.5" /> {t("step.income.addSource")}
               </button>
             </div>
             <motion.div layout className="rounded-2xl bg-primary/5 border border-primary/20 p-5 text-center">
-              <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.income.total")}</span>
+              <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.income.total")}</span>
               <motion.div key={profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional}
                 initial={{ scale: 0.95 }} animate={{ scale: 1 }}
                 className="font-display font-black text-2xl text-primary mt-1">
@@ -495,12 +495,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => update({ interestRate: Math.max(0.5, profile.interestRate - 0.25) })} disabled={profile.interestRate <= 0.5}
-                      className="w-8 h-8 rounded-lg bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0">−</button>
+                      className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">−</button>
                     <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                       <div className="h-full rounded-full bg-primary/60 transition-all duration-200" style={{ width: `${((profile.interestRate - 0.5) / 7.5) * 100}%` }} />
                     </div>
                     <button type="button" onClick={() => update({ interestRate: Math.min(8, profile.interestRate + 0.25) })} disabled={profile.interestRate >= 8}
-                      className="w-8 h-8 rounded-lg bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0">+</button>
+                      className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">+</button>
                   </div>
                 </div>
               </div>
@@ -591,7 +591,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                           value={(profile as any)[f.key]}
                           onChange={(e) => { const v = Number(e.target.value) || 0; update({ [f.key]: Math.min(v, f.max) } as any); }}
                           className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                        <span className="text-[10px] text-muted-foreground">{f.freq}</span>
+                        <span className="text-[11px] text-muted-foreground">{f.freq}</span>
                       </div>
                     </div>
                   ))}
@@ -667,12 +667,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <div key={i} className="flex items-center justify-between rounded-2xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5 mb-1.5">
                   <div>
                     <span className="text-sm font-medium">{ce.label}</span>
-                    {ce.frequency && ce.frequency !== "monthly" && <span className="text-[10px] text-muted-foreground ml-1">({frequencyLabel(ce.frequency)})</span>}
+                    {ce.frequency && ce.frequency !== "monthly" && <span className="text-[11px] text-muted-foreground ml-1">({frequencyLabel(ce.frequency)})</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold">{formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} {t("perMonth")}</span>
                     <button onClick={() => update({ customExpenses: profile.customExpenses.filter((_, idx) => idx !== i) })}
-                      className="w-6 h-6 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground"><X className="w-3 h-3" /></button>
+                      className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0"><X className="w-4 h-4" /></button>
                   </div>
                 </div>
               ))}
@@ -775,7 +775,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   transition={{ delay: 0.9 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   className="rounded-2xl border border-border p-3 text-center"
                 >
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
                   <p className={`font-display font-bold text-sm tabular-nums ${s.color}`}>{s.value}</p>
                 </motion.div>
               ))}
@@ -803,7 +803,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 type="checkbox"
                 checked={!!profile.emailReminders}
                 onChange={(e) => update({ emailReminders: e.target.checked })}
-                className="mt-0.5 w-4 h-4 rounded border-border accent-primary cursor-pointer"
+                className="mt-0.5 w-5 h-5 rounded border-border accent-primary cursor-pointer"
               />
               <span className="text-xs text-muted-foreground leading-relaxed">
                 {t("onboarding.emailReminder")}{" "}
@@ -830,10 +830,10 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   return (
     <div id="main-content" className="h-dvh bg-background flex flex-col overflow-x-hidden">
       <CelebrationBurst trigger={celebrationTrigger} />
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3 safe-area-top">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
-            <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-1 px-1">
+            <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
             </button>
           ) : <div />}

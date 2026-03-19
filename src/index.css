@@ -241,7 +241,10 @@ input[type="range"] {
   touch-action: none;
 }
 
-/* Safe area for fixed bottom bar */
+/* Safe areas for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
 .safe-area-bottom {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
