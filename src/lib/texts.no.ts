@@ -109,6 +109,7 @@ export const NO: Record<string, string> = {
   "step.housing.owner": "Selveier",
   "step.housing.postalCode": "Postnummer",
   "step.housing.postalPlaceholder": "F.eks. 0450",
+  "step.housing.unknownPostal": "Ukjent postnummer — estimater kan ikke beregnes",
   "step.housing.rent": "Månedlig husleie",
   "step.housing.coopFee": "Månedlige felleskostnader",
   "step.housing.coopLoan": "Borettslånet (avdrag + renter)",

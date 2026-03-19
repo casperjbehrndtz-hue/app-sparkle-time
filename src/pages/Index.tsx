@@ -78,7 +78,25 @@ const Index = () => {
       sessionStorage.removeItem("nb_payslip_prefill");
       const partial = JSON.parse(prefill) as Partial<BudgetProfile>;
       if (partial.income && partial.income > 0) {
-        setEditingProfile(partial as BudgetProfile);
+        // Merge with defaults so all required fields exist
+        const defaultProfile: BudgetProfile = {
+          householdType: "solo", income: 30000, partnerIncome: 0, additionalIncome: [], postalCode: "",
+          housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
+          hasChildren: false, childrenAges: [],
+          hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
+          hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
+          hasCar: false, carAmount: 3500, carLoan: 2500, carFuel: 1500, carInsurance: 6000, carTax: 3600, carService: 4500,
+          hasInternet: true,
+          hasInsurance: false, insuranceAmount: 0,
+          hasUnion: false, unionAmount: 500,
+          hasFitness: false, fitnessAmount: 349,
+          hasPet: false, petAmount: 800,
+          hasLoan: false, loanAmount: 1500,
+          hasSavings: false, savingsAmount: 3000,
+          foodAmount: 3500, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
+          customExpenses: [],
+        };
+        setEditingProfile({ ...defaultProfile, ...partial });
         setLandingView(null);
       }
     } catch {}

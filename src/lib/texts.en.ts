@@ -108,6 +108,7 @@ export const EN: Record<string, string> = {
   "step.housing.owner": "Owner",
   "step.housing.postalCode": "Postal code",
   "step.housing.postalPlaceholder": "E.g. 2100",
+  "step.housing.unknownPostal": "Unknown postal code — estimates unavailable",
   "step.housing.rent": "Monthly rent",
   "step.housing.coopFee": "Monthly housing fee",
   "step.housing.coopLoan": "Co-op loan (payments + interest)",

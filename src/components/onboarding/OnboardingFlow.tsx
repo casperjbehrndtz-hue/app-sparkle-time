@@ -38,9 +38,10 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
           <span className="text-sm font-medium">{label}</span>
         </div>
         <div className="flex items-center gap-1">
-          <input type="number" inputMode="numeric" value={value}
+          <input type="number" inputMode="numeric" min={min} max={max} value={value}
             onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
-            className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin" />
+            className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin"
+            aria-label={label} />
           <span className="text-xs text-muted-foreground">{unit}</span>
         </div>
       </div>
@@ -81,13 +82,13 @@ const defaultProfile: BudgetProfile = {
 
 const ONBOARDING_SESSION_KEY = "nb_onboarding_wip";
 
-function saveOnboardingState(step: OnboardingStep, profile: BudgetProfile, childAgeInputs: number[]) {
+function saveOnboardingState(step: OnboardingStep, profile: BudgetProfile) {
   try {
-    localStorage.setItem(ONBOARDING_SESSION_KEY, JSON.stringify({ step, profile, childAgeInputs }));
+    localStorage.setItem(ONBOARDING_SESSION_KEY, JSON.stringify({ step, profile }));
   } catch { /* ignore quota errors */ }
 }
 
-function loadOnboardingState(): { step: OnboardingStep; profile: BudgetProfile; childAgeInputs: number[] } | null {
+function loadOnboardingState(): { step: OnboardingStep; profile: BudgetProfile } | null {
   try {
     const saved = localStorage.getItem(ONBOARDING_SESSION_KEY);
     if (saved) return JSON.parse(saved);
@@ -122,20 +123,23 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const [profile, setProfile] = useState<BudgetProfile>(
     initialProfile ?? (restored?.profile ? { ...defaultProfile, ...restored.profile } : defaultProfile)
   );
-  const [childAgeInputs, setChildAgeInputs] = useState<number[]>(
-    initialProfile?.childrenAges?.length
-      ? initialProfile.childrenAges
-      : restored?.childAgeInputs ?? [3]
-  );
+  // childAgeInputs derived from profile — single source of truth
+  const childAgeInputs = profile.childrenAges;
+  const setChildAgeInputs = useCallback((ages: number[] | ((prev: number[]) => number[])) => {
+    setProfile((p) => {
+      const next = typeof ages === "function" ? ages(p.childrenAges) : ages;
+      return { ...p, childrenAges: next };
+    });
+  }, []);
   const [customLabel, setCustomLabel] = useState("");
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Persist onboarding state to sessionStorage on changes
+  // Persist onboarding state to localStorage on changes
   useEffect(() => {
-    saveOnboardingState(step, profile, childAgeInputs);
-  }, [step, profile, childAgeInputs]);
+    saveOnboardingState(step, profile);
+  }, [step, profile]);
 
   const locale = useLocale();
   const isPar = profile.householdType === "par";
@@ -200,7 +204,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             {/* Children — integrated into household */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false, childrenAges: [] }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
+                <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
                 <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
               </div>
               {profile.hasChildren && (
@@ -210,12 +214,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     <div key={i} className="flex items-center gap-3">
                       <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
                       <select value={String(age)}
-                        onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); update({ childrenAges: na }); }}
+                        onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); }}
                         className="flex-1 bg-background border-2 border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
                         {Array.from({ length: 18 }, (_, j) => <option key={j} value={String(j)}>{j} {t("step.children.years")}</option>)}
                       </select>
                       {childAgeInputs.length > 1 && (
-                        <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); update({ childrenAges: na }); }}
+                        <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); }}
                           className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground">
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -223,7 +227,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                     </div>
                   ))}
                   {childAgeInputs.length < 5 && (
-                    <button onClick={() => { const na = [...childAgeInputs, 3]; setChildAgeInputs(na); update({ childrenAges: na }); }}
+                    <button onClick={() => { setChildAgeInputs([...childAgeInputs, 3]); }}
                       className="flex items-center gap-2 text-sm text-primary font-medium hover:text-primary/80 transition-colors">
                       <Plus className="w-3.5 h-3.5" /> {t("step.children.add")}
                     </button>
@@ -250,10 +254,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               )}
             </div>
 
-            <ContinueButton onClick={() => {
-              if (profile.hasChildren && childAgeInputs.length > 0) update({ childrenAges: childAgeInputs });
-              goNext();
-            }} label={t("continue")} />
+            <ContinueButton onClick={goNext} label={t("continue")} />
           </div>
         );
 
@@ -297,7 +298,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   </div>
                   <div className="flex gap-2">
                     <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-2 flex-1">
-                      <input type="number" value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Number(e.target.value) || 0 })}
+                      <input type="number" min={0} value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Math.max(0, Number(e.target.value) || 0) })}
                         placeholder={t("step.income.amount")} className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
                       <span className="text-xs text-muted-foreground">{t("currency")}</span>
                     </div>
@@ -324,7 +325,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </motion.div>
             </motion.div>
             <AILiveComment profile={profile} step="income" />
-            <ContinueButton onClick={goNext} disabled={profile.income < 1000} label={t("continue")} />
+            <ContinueButton onClick={goNext} disabled={(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000} label={t("continue")} />
           </div>
         );
       }
@@ -354,26 +355,25 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           }
         };
         const handleHousingType = (type: "lejer" | "ejer" | "andel") => {
+          const hasPostal = profile.postalCode.length === 4;
           if (type === "ejer") {
-            const propVal = profile.postalCode.length === 4
+            const propVal = hasPostal
               ? (isNO ? noGetPropertyValueEstimate(profile.postalCode) : getPropertyValueEstimate(profile.postalCode))
               : (isNO ? 3500000 : 2500000);
-            const mortVal = profile.postalCode.length === 4
+            const mortVal = hasPostal
               ? (isNO ? noGetMortgageEstimate(profile.postalCode) : getMortgageEstimate(profile.postalCode))
               : (isNO ? 12000 : 8500);
             update({ housingType: type, hasMortgage: true, mortgageAmount: mortVal, propertyValue: propVal, interestRate: isNO ? 5.0 : 4.0 });
           } else if (type === "andel") {
-            update({ housingType: type, hasMortgage: true, mortgageAmount: profile.mortgageAmount || 3500, propertyValue: 0, interestRate: 0 });
-            if (profile.postalCode.length === 4) {
-              const andel = isNO ? noGetBorettslagEstimate(profile.postalCode, isPar) : getAndelEstimate(profile.postalCode, isPar);
-              update({ housingType: type, hasMortgage: true, rentAmount: andel, mortgageAmount: profile.mortgageAmount || 3500 });
-            }
+            const rentEst = hasPostal
+              ? (isNO ? noGetBorettslagEstimate(profile.postalCode, isPar) : getAndelEstimate(profile.postalCode, isPar))
+              : 5000;
+            update({ housingType: type, hasMortgage: true, rentAmount: rentEst, mortgageAmount: profile.mortgageAmount || 3500, propertyValue: 0, interestRate: 0 });
           } else {
-            update({ housingType: type, hasMortgage: false, propertyValue: 0, interestRate: 0 });
-            if (profile.postalCode.length === 4) {
-              const rent = isNO ? noGetRentEstimate(profile.postalCode, isPar) : getRentEstimate(profile.postalCode, isPar);
-              update({ housingType: type, hasMortgage: false, rentAmount: rent });
-            }
+            const rentEst = hasPostal
+              ? (isNO ? noGetRentEstimate(profile.postalCode, isPar) : getRentEstimate(profile.postalCode, isPar))
+              : 8500;
+            update({ housingType: type, hasMortgage: false, rentAmount: rentEst, propertyValue: 0, interestRate: 0 });
           }
         };
         return (
@@ -397,7 +397,11 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 onChange={(e) => handlePostalChange(e.target.value)}
                 placeholder={t("step.housing.postalPlaceholder")}
                 className="w-full bg-background border-2 border-border rounded-2xl px-5 py-4 text-lg font-display font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30" />
-              {postalName && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-medium mt-2 text-center">📍 {postalName}</motion.p>}
+              {profile.postalCode.length === 4 && (
+                postalName
+                  ? <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-medium mt-2 text-center">📍 {postalName}</motion.p>
+                  : <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground mt-2 text-center">{t("step.housing.unknownPostal")}</motion.p>
+              )}
             </div>
             {profile.housingType === "lejer" && <BigSlider value={profile.rentAmount} onChange={(v) => update({ rentAmount: v })} label={t("step.housing.rent")} min={2000} max={25000} step={250} />}
             {profile.housingType === "andel" && (
@@ -600,7 +604,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <input type="text" value={customLabel} onChange={(e) => setCustomLabel(e.target.value)}
                   placeholder={t("step.expenses.customPlaceholder")}
                   className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
-                <input type="number" inputMode="numeric" value={customAmount || ""} onChange={(e) => setCustomAmount(Number(e.target.value) || 0)}
+                <input type="number" inputMode="numeric" min={0} value={customAmount || ""} onChange={(e) => setCustomAmount(Math.max(0, Number(e.target.value) || 0))}
                   placeholder={t("currency")} className="w-20 bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none no-spin placeholder:text-muted-foreground/30" />
                 <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
                   className="bg-background border border-border rounded-xl px-1.5 py-2.5 text-xs focus:outline-none">
@@ -704,7 +708,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             )}
 
-            <ContinueButton onClick={() => { clearOnboardingState(); onComplete(profile); }} disabled={(profile.income + profile.partnerIncome) < 1000} label={t("step.review.seeDashboard")} />
+            <ContinueButton onClick={() => { onComplete(profile); clearOnboardingState(); }} disabled={(profile.income + profile.partnerIncome) < 1000} label={t("step.review.seeDashboard")} />
           </div>
         );
       }
