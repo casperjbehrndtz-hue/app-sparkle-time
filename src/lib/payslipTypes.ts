@@ -267,18 +267,48 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
     return typeof v === "string" && v.length > 0 ? v.slice(0, 60) : undefined;
   };
 
-  const bruttolon = num("bruttolon");
-  const nettolon = num("nettolon");
-  if (bruttolon <= 0 || nettolon <= 0) return null;
-  if (nettolon > bruttolon) return null;
+  let bruttolon = num("bruttolon");
+  let nettolon = num("nettolon");
+  if (bruttolon <= 0) return null;
+
+  const extraWarnings: string[] = [];
+
+  // If nettolon is missing or zero, estimate from brutto (user can correct in verification)
+  if (nettolon <= 0) {
+    nettolon = Math.round(bruttolon * 0.63); // rough Danish average
+    extraWarnings.push("Nettoløn kunne ikke læses — estimeret til 63% af brutto. Ret venligst.");
+  }
+
+  // If nettolon > bruttolon, AI likely read an accumulated/year-to-date figure
+  if (nettolon > bruttolon) {
+    // Try to see if AM-bidrag + A-skat etc. can help us estimate netto
+    const amBidrag = num("amBidrag");
+    const aSkat = num("aSkat");
+    const atp = num("atp");
+    const pensionEmployee = num("pensionEmployee");
+    const totalDeductions = amBidrag + aSkat + atp + pensionEmployee;
+
+    if (totalDeductions > 0 && totalDeductions < bruttolon) {
+      nettolon = bruttolon - totalDeductions;
+      extraWarnings.push("Nettoløn virkede forkert (højere end brutto) — beregnet ud fra fradrag. Tjek venligst.");
+    } else {
+      nettolon = Math.round(bruttolon * 0.63);
+      extraWarnings.push("Nettoløn virkede forkert (højere end brutto) — estimeret til 63% af brutto. Ret venligst.");
+    }
+  }
 
   const confidence = r["confidence"];
-  const validConfidence = confidence === "high" || confidence === "medium" || confidence === "low"
-    ? confidence : "low";
+  // Force low confidence when we had to fix nettolon
+  const validConfidence = extraWarnings.length > 0 ? "low" :
+    (confidence === "high" || confidence === "medium" || confidence === "low"
+    ? confidence : "low");
 
-  const warnings = Array.isArray(r["warnings"])
-    ? (r["warnings"] as unknown[]).filter((w): w is string => typeof w === "string").slice(0, 5)
-    : [];
+  const warnings = [
+    ...extraWarnings,
+    ...(Array.isArray(r["warnings"])
+      ? (r["warnings"] as unknown[]).filter((w): w is string => typeof w === "string").slice(0, 5)
+      : []),
+  ];
 
   return {
     bruttolon,
