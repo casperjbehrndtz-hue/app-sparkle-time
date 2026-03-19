@@ -47,9 +47,15 @@ VIGTIGT — Anonymisering:
 - "anonRegion": Bred geografisk region baseret på kommune. Aldrig specifik adresse eller postnummer.
 
 KRITISK — bruttoløn og nettoløn:
-- "bruttolon": Den MÅNEDLIGE bruttoløn — totalen af alle lønkomponenter FØR fradrag. Typisk 20.000-80.000 kr for de fleste danskere. Hvis du ser et beløb over 100.000, overvej om det er en årsløn eller akkumuleret beløb — brug KUN månedsbeløbet.
-- "nettolon": Det beløb der UDBETALES til medarbejderens konto denne måned ("til udbetaling", "netto", "udbetalt"). Nettoløn er ALTID LAVERE end bruttoløn (typisk 55-70% af brutto). Forveksle IKKE nettoløn med: feriekonto-saldo, akkumulerede beløb, årsindkomst, fritvalg-saldo, eller andre informationslinjer. Kig efter "Til udbetaling", "Netto", "Udbetalt" eller lignende.
-- SANITY CHECK: Hvis nettolon > bruttolon har du læst forkert. Gå tilbage og find det rigtige nettobeløb.
+- "bruttolon": Den MÅNEDLIGE bruttoløn for DENNE lønperiode — totalen af alle lønkomponenter FØR fradrag. Kig efter "Løn i alt", "Bruttoløn", "Indkomst i alt" for DENNE PERIODE. ALDRIG akkumulerede/år-til-dato kolonner. Mange lønsedler har to kolonner: "Denne periode" og "I alt/Akkumuleret" — brug KUN "Denne periode"-kolonnen.
+- "nettolon": Det PRÆCISE beløb der udbetales til kontoen DENNE måned. Kig efter linjen "Til udbetaling", "Udbetalt", "Netto" eller "Overført til konto". Det er typisk den SIDSTE linje/beløb på lønsedlen, ofte i bunden. Det er ALTID lavere end bruttoløn.
+- VIGTIGE FÆLDER at undgå:
+  * "I alt" / "Akkumuleret" / "År til dato" kolonner viser SUMMEN over flere måneder — brug dem ALDRIG
+  * "Feriekonto-saldo", "Fritvalg-saldo", "Feriepenge optjent i alt" er IKKE nettoløn
+  * "A-indkomst" er IKKE nettoløn (det er brutto minus AM-bidrag)
+  * Tal over 100.000 kr er næsten altid akkumulerede beløb, ikke denne måneds tal
+- SANITY CHECK: nettolon SKAL være lavere end bruttolon OG typisk 55-70% af brutto. Hvis dit nettolon er højere end bruttolon, har du GARANTERET læst fra den forkerte kolonne (sandsynligvis "I alt"-kolonnen). Find "Til udbetaling" for denne periode.
+- EKSTRA VALIDERING: Beregn bruttolon - amBidrag - aSkat - atp - pensionEmployee - (eventuelle andre fradrag). Resultatet bør ligge tæt på nettolon (±500 kr). Hvis ikke, har du sandsynligvis læst forkert.
 
 Regler for udtræk:
 - "grundlon": Grundlønnen/basislønnen UDEN bonus, provision, tillæg, overtid. Hvis lønsedlen eksplicit viser en grundløn/månedsløn/gage separat fra variable dele, så brug den. Hvis bruttoløn kun består af én lønlinje (fx "Månedsløn"), sæt grundlon til null (den ER grundlønnen). Sæt kun grundlon hvis der tydeligt er variable komponenter oveni.
@@ -238,6 +244,44 @@ Deno.serve(async (req: Request) => {
           JSON.stringify({ error: "Kunne ikke læse lønsedlen — prøv et tydeligere billede" }),
           { status: 422, headers: { ...cors, "Content-Type": "application/json" } },
         );
+      }
+    }
+
+    // ── Server-side sanity fix: recalculate nettolon if AI read wrong column ──
+    const p = parsed as Record<string, unknown>;
+    const brutto = typeof p.bruttolon === "number" ? p.bruttolon : 0;
+    const netto = typeof p.nettolon === "number" ? p.nettolon : 0;
+
+    if (brutto > 0 && netto > brutto) {
+      // AI read accumulated/year-to-date figure — calculate netto from deductions
+      const am = typeof p.amBidrag === "number" ? p.amBidrag : 0;
+      const askat = typeof p.aSkat === "number" ? p.aSkat : 0;
+      const atp = typeof p.atp === "number" ? p.atp : 0;
+      const pensEmp = typeof p.pensionEmployee === "number" ? p.pensionEmployee : 0;
+      const fag = typeof p.fagforening === "number" ? p.fagforening : 0;
+      const sundhed = typeof p.sundhedsforsikring === "number" ? p.sundhedsforsikring : 0;
+      const otherDeds = Array.isArray(p.otherDeductions)
+        ? (p.otherDeductions as Array<{ amount?: number }>).reduce((s, d) => s + (typeof d?.amount === "number" ? d.amount : 0), 0)
+        : 0;
+      const totalDeductions = am + askat + atp + pensEmp + fag + sundhed + otherDeds;
+
+      if (totalDeductions > 0 && totalDeductions < brutto) {
+        const calculatedNetto = brutto - totalDeductions;
+        console.warn(`payslip-ocr: nettolon (${netto}) > bruttolon (${brutto}). Recalculated from deductions: ${calculatedNetto}`);
+        p.nettolon = calculatedNetto;
+        const warnings = Array.isArray(p.warnings) ? p.warnings : [];
+        warnings.push("Nettoløn var forkert aflæst (akkumuleret beløb?) — beregnet ud fra fradrag.");
+        p.warnings = warnings;
+        if (p.confidence === "high") p.confidence = "medium";
+      } else {
+        // Fallback: estimate 63% of brutto
+        const estimated = Math.round(brutto * 0.63);
+        console.warn(`payslip-ocr: nettolon (${netto}) > bruttolon (${brutto}). No usable deductions, estimating: ${estimated}`);
+        p.nettolon = estimated;
+        const warnings = Array.isArray(p.warnings) ? p.warnings : [];
+        warnings.push("Nettoløn kunne ikke læses korrekt — estimeret til ca. 63% af brutto. Ret venligst.");
+        p.warnings = warnings;
+        p.confidence = "low";
       }
     }
 
