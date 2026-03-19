@@ -131,15 +131,21 @@ Deno.serve(async (req: Request) => {
       headers,
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 4096,
+        max_tokens: 8192,
         system: SYSTEM_PROMPT,
-        messages: [{
-          role: "user",
-          content: [
-            fileBlock,
-            { type: "text", text: "Udtræk alle felter fra denne lønseddel." },
-          ],
-        }],
+        messages: [
+          {
+            role: "user",
+            content: [
+              fileBlock,
+              { type: "text", text: "Udtræk alle felter fra denne lønseddel." },
+            ],
+          },
+          {
+            role: "assistant",
+            content: [{ type: "text", text: "{" }],
+          },
+        ],
       }),
     });
 
@@ -174,6 +180,9 @@ Deno.serve(async (req: Request) => {
 
     let text = result?.content?.[0]?.text || "";
 
+    // We used assistant prefill with "{", so prepend it to the response
+    text = "{" + text;
+
     // Strip markdown code block if present
     text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
 
@@ -194,16 +203,23 @@ Deno.serve(async (req: Request) => {
         // Close any open strings
         const quoteCount = (repaired.match(/(?<!\\)"/g) || []).length;
         if (quoteCount % 2 !== 0) repaired += '"';
-        // Close open arrays and objects
-        const opens = (repaired.match(/[{[]/g) || []).length;
-        const closes = (repaired.match(/[}\]]/g) || []).length;
-        for (let i = 0; i < opens - closes; i++) {
-          // Guess whether to close array or object based on last opener
-          const lastOpen = repaired.lastIndexOf("[") > repaired.lastIndexOf("{") ? "]" : "}";
-          repaired += lastOpen;
+        // Remove trailing incomplete key-value pairs (e.g. `"key": "incom`)
+        repaired = repaired.replace(/,\s*"[^"]*"?\s*:?\s*"?[^"}\]]*$/, "");
+        // Track bracket stack to close in correct order
+        const stack: string[] = [];
+        let inString = false;
+        for (let i = 0; i < repaired.length; i++) {
+          const ch = repaired[i];
+          if (ch === '"' && repaired[i - 1] !== '\\') { inString = !inString; continue; }
+          if (inString) continue;
+          if (ch === '{') stack.push('}');
+          else if (ch === '[') stack.push(']');
+          else if (ch === '}' || ch === ']') stack.pop();
         }
-        // Remove trailing commas before closing brackets
-        repaired = repaired.replace(/,\s*([}\]])/g, "$1");
+        // Remove trailing commas before we close
+        repaired = repaired.replace(/,\s*$/, "");
+        // Close in reverse order
+        while (stack.length > 0) repaired += stack.pop();
         try {
           parsed = JSON.parse(repaired);
           console.warn("payslip-ocr: repaired truncated JSON successfully");

@@ -91,40 +91,59 @@ export function usePayslipOCR() {
     try {
       const { base64, mimeType } = await compressImage(file);
 
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/payslip-ocr`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${SUPABASE_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ image: base64, mimeType }),
-      });
+      const callOCR = async (): Promise<Response> => {
+        return fetch(`${SUPABASE_URL}/functions/v1/payslip-ocr`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image: base64, mimeType }),
+        });
+      };
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        console.error("Payslip OCR API error:", res.status, body);
-        const msg = body.detail || body.error || `HTTP ${res.status}`;
-        throw new Error(msg);
+      // Try up to 2 times — AI output can be flaky
+      let lastError = "";
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const res = await callOCR();
+
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            console.error(`Payslip OCR API error (attempt ${attempt + 1}):`, res.status, body);
+            lastError = body.detail || body.error || `HTTP ${res.status}`;
+            // Don't retry on 4xx client errors (except 422 = parse fail)
+            if (res.status >= 400 && res.status < 500 && res.status !== 422) {
+              throw new Error(lastError);
+            }
+            continue;
+          }
+
+          const raw = await res.json();
+          const parsed = parsePayslipResponse(raw);
+
+          if (!parsed) {
+            const rawObj = raw as Record<string, unknown>;
+            lastError = `bruttolon=${rawObj?.bruttolon}(${typeof rawObj?.bruttolon}), nettolon=${rawObj?.nettolon}(${typeof rawObj?.nettolon})`;
+            console.warn(`Payslip parse failed (attempt ${attempt + 1}).`, lastError);
+            continue; // retry — AI may produce better output
+          }
+
+          setResult(parsed);
+          return;
+        } catch (innerErr) {
+          lastError = innerErr instanceof Error ? innerErr.message : "Ukendt fejl";
+          if (attempt === 0) {
+            console.warn("Payslip OCR attempt 1 failed, retrying...", lastError);
+          }
+        }
       }
 
-      const raw = await res.json();
-      console.log("Payslip OCR raw response keys:", raw ? Object.keys(raw) : "null",
-        "bruttolon:", (raw as Record<string, unknown>)?.bruttolon, typeof (raw as Record<string, unknown>)?.bruttolon,
-        "nettolon:", (raw as Record<string, unknown>)?.nettolon, typeof (raw as Record<string, unknown>)?.nettolon);
-      const parsed = parsePayslipResponse(raw);
-
-      if (!parsed) {
-        const rawObj = raw as Record<string, unknown>;
-        const dbg = `bruttolon=${rawObj?.bruttolon}(${typeof rawObj?.bruttolon}), nettolon=${rawObj?.nettolon}(${typeof rawObj?.nettolon})`;
-        console.error("Payslip parse validation failed.", dbg, "Raw:", JSON.stringify(raw).slice(0, 500));
-        setError(`Parsing fejlede: ${dbg}`);
-        return;
-      }
-
-      setResult(parsed);
+      // Both attempts failed
+      console.error("Payslip OCR failed after 2 attempts:", lastError);
+      setError(lastError ? `Fejl: ${lastError}` : "payslip.error.readFailed");
     } catch (err) {
       console.error("Payslip OCR error:", err);
-      // Show actual error detail for debugging
       const detail = err instanceof Error ? err.message : "";
       setError(detail ? `Fejl: ${detail}` : "payslip.error.readFailed");
     } finally {
