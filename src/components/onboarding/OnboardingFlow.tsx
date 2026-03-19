@@ -88,13 +88,11 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
   min: number; max: number; step: number; icon: string; unit: string;
 }) {
   const [localValue, setLocalValue] = useState<string>(String(value));
-  useEffect(() => { setLocalValue(String(value)); }, [value]);
+  const focused = useRef(false);
+  useEffect(() => { if (!focused.current) setLocalValue(String(value)); }, [value]);
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
-    <motion.div
-      layout
-      className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20"
-    >
+    <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-base">{icon}</span>
@@ -102,8 +100,9 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
         </div>
         <div className="flex items-center gap-1">
           <input type="number" inputMode="numeric" min={min} max={max} value={localValue}
+            onFocus={() => { focused.current = true; }}
             onChange={(e) => { setLocalValue(e.target.value); const v = Number(e.target.value); if (e.target.value !== "" && !isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
-            onBlur={() => { const v = Number(localValue); if (localValue === "" || isNaN(v)) { setLocalValue(String(value)); } else { const clamped = Math.max(min, Math.min(max, v)); onChange(clamped); setLocalValue(String(clamped)); } }}
+            onBlur={() => { focused.current = false; const v = Number(localValue); if (localValue === "" || isNaN(v)) { setLocalValue(String(value)); } else { const clamped = Math.max(min, Math.min(max, v)); onChange(clamped); setLocalValue(String(clamped)); } }}
             className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin tabular-nums"
             aria-label={label} />
           <span className="text-xs text-muted-foreground">{unit}</span>
@@ -117,7 +116,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
         style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${pct}%, hsl(var(--secondary)) ${pct}%)` }}
         aria-label={label}
       />
-    </motion.div>
+    </div>
   );
 }
 
