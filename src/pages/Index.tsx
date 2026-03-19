@@ -80,8 +80,8 @@ const Index = () => {
       if (partial.income && partial.income > 0) {
         // Merge with defaults so all required fields exist
         const defaultProfile: BudgetProfile = {
-          householdType: "solo", income: 30000, partnerIncome: 0, additionalIncome: [], postalCode: "",
-          housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
+          householdType: "solo", income: 35000, partnerIncome: 0, additionalIncome: [], postalCode: "",
+          housingType: "lejer", hasMortgage: false, rentAmount: 9000, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
           hasChildren: false, childrenAges: [],
           hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
           hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
@@ -93,7 +93,7 @@ const Index = () => {
           hasPet: false, petAmount: 800,
           hasLoan: false, loanAmount: 1500,
           hasSavings: false, savingsAmount: 3000,
-          foodAmount: 3500, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
+          foodAmount: 4000, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
           customExpenses: [],
         };
         setEditingProfile({ ...defaultProfile, ...partial });

@@ -63,8 +63,8 @@ interface Props {
 }
 
 const defaultProfile: BudgetProfile = {
-  householdType: "solo", income: 30000, partnerIncome: 0, additionalIncome: [], postalCode: "",
-  housingType: "lejer", hasMortgage: false, rentAmount: 8500, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
+  householdType: "solo", income: 35000, partnerIncome: 0, additionalIncome: [], postalCode: "",
+  housingType: "lejer", hasMortgage: false, rentAmount: 9000, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
   hasChildren: false, childrenAges: [],
   hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
   hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
@@ -76,7 +76,7 @@ const defaultProfile: BudgetProfile = {
   hasPet: false, petAmount: 800,
   hasLoan: false, loanAmount: 1500,
   hasSavings: false, savingsAmount: 3000,
-  foodAmount: 3500, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
+  foodAmount: 4000, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
   customExpenses: [],
 };
 
@@ -188,7 +188,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       insuranceAmount: isPairChoice
                         ? (isNO ? NO_INSURANCE.par.price : INSURANCE.par.price)
                         : (isNO ? NO_INSURANCE.solo.price : INSURANCE.solo.price),
-                      foodAmount: (isPairChoice ? (isNO ? 9000 : 6000) : (isNO ? 5500 : 3500))
+                      foodAmount: (isPairChoice ? (isNO ? 9000 : 7000) : (isNO ? 5500 : 4000))
                         + ((isNO ? NO_FOOD.per_child : FOOD.per_child) * childCount),
                       leisureAmount: isPairChoice ? 2500 : 1500,
                       clothingAmount: isPairChoice ? 1200 : 800,
@@ -412,7 +412,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             )}
             {profile.housingType === "ejer" && (
               <div className="space-y-6">
-                <BigSlider value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.mortgage")} min={2000} max={30000} step={250} />
+                <BigSlider value={profile.mortgageAmount} onChange={(v) => update({ mortgageAmount: v })} label={t("step.housing.mortgage")} min={2000} max={40000} step={250} />
                 <BigSlider value={profile.propertyValue} onChange={(v) => update({ propertyValue: v })} label={t("step.housing.propertyValue")} min={500000} max={10000000} step={100000} />
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -466,7 +466,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.everyday.title")}</h3>
               <div className="space-y-2">
-                <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={1000} max={isPar ? 15000 : 8000} step={100} unit={unit} />
+                <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={isPar ? 4000 : 2500} max={isPar ? 10000 : 6000} step={100} unit={unit} />
                 <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
                 <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
                 <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
@@ -502,11 +502,11 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               {profile.hasCar && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 ml-2 border-l-2 border-primary/10 pl-4 space-y-1.5">
                   {[
-                    { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth"), max: 15000 },
-                    { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth"), max: 8000 },
-                    { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear"), max: 30000 },
-                    { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear"), max: 20000 },
-                    { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear"), max: 15000 },
+                    { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth"), max: 10000 },
+                    { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth"), max: 5000 },
+                    { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear"), max: 12000 },
+                    { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear"), max: 8000 },
+                    { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear"), max: 5000 },
                   ].map((f) => (
                     <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
                       <span className="text-xs text-muted-foreground">{f.label}</span>

@@ -1,21 +1,21 @@
 // NemtBudget Prisdatabase – alle priser i DKK/md.
 // Kilde: Officielle priser pr. februar 2026
 
-// Streaming priser – verificeret januar 2026 (officielle dk-priser)
+// Streaming priser – opdateret marts 2026 (officielle dk-priser)
 export const SUBSCRIPTIONS = {
-  netflix: { label: "Netflix", price: 129, icon: "🎬", category: "Streaming" },      // Standard HD
+  netflix: { label: "Netflix", price: 139, icon: "🎬", category: "Streaming" },      // Standard (HD)
   spotify: {
     label: "Spotify",
     price_solo: 109,   // Premium Individual
-    price_par: 139,    // Premium Duo
+    price_par: 149,    // Premium Duo
     icon: "🎵",
     category: "Musik",
   },
-  hbo: { label: "HBO Max", price: 89, icon: "🎭", category: "Streaming" },            // Standard
-  viaplay: { label: "Viaplay", price: 149, icon: "⚽", category: "Streaming" },       // Total
-  appleTV: { label: "Apple TV+", price: 59, icon: "🍎", category: "Streaming" },
-  amazonPrime: { label: "Amazon Prime", price: 89, icon: "📦", category: "Streaming" }, // Prime Monthly
-  disney: { label: "Disney+", price: 79, icon: "✨", category: "Streaming" },          // Standard
+  hbo: { label: "HBO Max", price: 99, icon: "🎭", category: "Streaming" },            // Standard
+  viaplay: { label: "Viaplay", price: 179, icon: "⚽", category: "Streaming" },       // Total
+  appleTV: { label: "Apple TV+", price: 69, icon: "🍎", category: "Streaming" },
+  amazonPrime: { label: "Amazon Prime", price: 109, icon: "📦", category: "Streaming" }, // Prime Monthly
+  disney: { label: "Disney+", price: 89, icon: "✨", category: "Streaming" },          // Standard
 };
 
 export const TRANSPORT = {
