@@ -391,17 +391,25 @@ export function generateOptimizations(
     });
   }
 
-  // Streaming overlap
-  const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
-  if (streamingCount >= 3) {
-    const streamSaving = isNO ? 179 : 149;
+  // Streaming overlap — suggest cutting cheapest service
+  const subs = isNO ? NO_SUBSCRIPTIONS : SUBSCRIPTIONS;
+  const activeStreamPrices = [
+    profile.hasNetflix && subs.netflix.price,
+    profile.hasHBO && subs.hbo.price,
+    profile.hasViaplay && subs.viaplay.price,
+    profile.hasAppleTV && subs.appleTV.price,
+    profile.hasDisney && subs.disney.price,
+    profile.hasAmazonPrime && subs.amazonPrime.price,
+  ].filter((p): p is number => typeof p === "number");
+  if (activeStreamPrices.length >= 3) {
+    const cheapest = Math.min(...activeStreamPrices);
     actions.push({
       rank: 0,
       handling: isNO ? "Kutt én strømmetjeneste" : "Skær én streamingtjeneste",
       beskrivelse: isNO
-        ? `Du har ${streamingCount} strømmetjenester. Kutt den minst brukte og spar ~${streamSaving} kr./md.`
-        : `I har ${streamingCount} streamingtjenester. Skær den mindst brugte og spar ~${streamSaving} kr./md.`,
-      besparelse_kr: streamSaving,
+        ? `Du har ${activeStreamPrices.length} strømmetjenester. Kutt den minst brukte og spar ~${cheapest} kr./md.`
+        : `I har ${activeStreamPrices.length} streamingtjenester. Skær den mindst brukte og spar ~${cheapest} kr./md.`,
+      besparelse_kr: cheapest,
       cta_tekst: opt.streaming.cta,
       cta_url: opt.streaming.url,
       category: "Abonnementer",
@@ -432,7 +440,7 @@ export function generateOptimizations(
       rank: 0,
       handling: isNO ? "Refinansier boliglånet" : "Refinansier boliglånet",
       beskrivelse: opt.mortgage.description,
-      besparelse_kr: 1580,
+      besparelse_kr: Math.round(profile.mortgageAmount * 0.15),
       cta_tekst: opt.mortgage.cta,
       cta_url: opt.mortgage.url,
       category: "Bolig",
@@ -445,7 +453,7 @@ export function generateOptimizations(
       rank: 0,
       handling: isNO ? "Sjekk forsikringene dine" : "Tjek jeres forsikringer",
       beskrivelse: opt.insurance.description,
-      besparelse_kr: 200,
+      besparelse_kr: Math.round(profile.insuranceAmount * 0.15),
       cta_tekst: opt.insurance.cta,
       cta_url: opt.insurance.url,
       category: "Forsikring",

@@ -987,6 +987,7 @@ export const NO: Record<string, string> = {
   "onboarding.emailReminder": "Ja takk, send meg en kvartalsvis påminnelse om å sjekke budsjettet.",
   "onboarding.emailUnsubscribe": "Du kan alltid melde deg av.",
   "onboarding.expenseShare": "Utgiftsandel",
+  "step.income.minWarning": "Angi minst 1 000 kr. i samlet inntekt for å fortsette.",
   "onboarding.encourage.income": "Flott! Nå vet vi hvem du er 🎯",
   "onboarding.encourage.housing": "Bra klart — nå tar vi boligen 🏠",
   "onboarding.encourage.expenses": "Halvveis! Boligen er på plass ✅",

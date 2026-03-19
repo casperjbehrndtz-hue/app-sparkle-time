@@ -213,6 +213,8 @@ const Index = () => {
 
   const handleEditProfile = () => {
     // Go back to onboarding with current profile pre-filled
+    // Clear any stale onboarding session to prevent conflicts
+    try { localStorage.removeItem("nb_onboarding_wip"); } catch {}
     setEditingProfile(profile);
     setProfile(null);
   };

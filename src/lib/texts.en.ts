@@ -986,6 +986,7 @@ export const EN: Record<string, string> = {
   "onboarding.emailReminder": "Yes, send me a quarterly reminder to review my budget.",
   "onboarding.emailUnsubscribe": "You can unsubscribe at any time.",
   "onboarding.expenseShare": "Expense share",
+  "step.income.minWarning": "Enter at least 1,000 kr. combined income to continue.",
   "onboarding.encourage.income": "Great! Now we know who you are 🎯",
   "onboarding.encourage.housing": "Nice — let's sort out housing 🏠",
   "onboarding.encourage.expenses": "Halfway there! Housing is locked in ✅",

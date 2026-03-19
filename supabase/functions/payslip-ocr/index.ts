@@ -285,8 +285,9 @@ Deno.serve(async (req: Request) => {
           // Estimate: trækprocent applied to (brutto - AM - pension - personfradrag)
           const traek = num("traekkort");
           const fradrag = num("personfradrag") || Math.round(54100 / 12);
-          const taxBase = brutto - correctedAm - pensEmp - fradrag;
-          correctedAskat = traek > 0 ? Math.round(taxBase * traek / 100) : Math.round(taxBase * 0.37);
+          const taxBase = Math.max(0, brutto - correctedAm - pensEmp - fradrag);
+          const rate = traek > 0 ? Math.max(30, Math.min(56, traek)) : 37;
+          correctedAskat = Math.round(taxBase * rate / 100);
           p.aSkat = correctedAskat;
           warnings.push(`A-skat rettet (${askat} → ${correctedAskat}).`);
         }

@@ -7,14 +7,14 @@ import type { BudgetProfile } from "./types";
  */
 export const budgetProfileSchema = z.object({
   householdType: z.enum(["solo", "par"]),
-  income: z.number().min(0).default(30000),
-  partnerIncome: z.number().min(0).default(0),
+  income: z.number().min(0).max(500000).default(30000),
+  partnerIncome: z.number().min(0).max(500000).default(0),
   additionalIncome: z.array(z.object({
-    label: z.string(),
-    amount: z.number(),
+    label: z.string().max(50),
+    amount: z.number().min(0).max(500000),
     frequency: z.enum(["monthly", "quarterly", "biannual", "annual"]),
-  })).default([]),
-  postalCode: z.string().default(""),
+  })).max(20).default([]),
+  postalCode: z.string().max(4).default(""),
   housingType: z.enum(["lejer", "ejer", "andel"]),
   hasMortgage: z.boolean().default(false),
   rentAmount: z.number().min(0).default(0),
@@ -61,10 +61,10 @@ export const budgetProfileSchema = z.object({
   healthAmount: z.number().min(0).default(350),
   restaurantAmount: z.number().min(0).default(800),
   customExpenses: z.array(z.object({
-    label: z.string(),
-    amount: z.number(),
+    label: z.string().max(50),
+    amount: z.number().min(0).max(100000),
     frequency: z.enum(["monthly", "quarterly", "biannual", "annual"]).default("monthly"),
-  })).default([]),
+  })).max(20).default([]),
 });
 
 /**

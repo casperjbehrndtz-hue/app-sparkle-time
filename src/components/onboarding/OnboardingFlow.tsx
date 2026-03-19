@@ -252,6 +252,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                   onClick={() => {
                     const isPairChoice = opt.type === "par";
                     const childCount = profile.hasChildren ? profile.childrenAges.length : 0;
+                    const utilDb = isNO ? NO_UTILITIES : UTILITIES;
                     update({
                       householdType: opt.type,
                       partnerIncome: opt.type === "solo" ? 0 : profile.partnerIncome || 28000,
@@ -264,6 +265,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       clothingAmount: isPairChoice ? 1200 : 800,
                       healthAmount: isPairChoice ? 500 : 350,
                       restaurantAmount: isPairChoice ? 1500 : 800,
+                      mobileAmount: utilDb.mobile.price_per_person * (isPairChoice ? 2 : 1),
+                      electricityAmount: isPairChoice ? utilDb.electricity.price_par : utilDb.electricity.price_solo,
+                      heatingAmount: isPairChoice ? utilDb.heating.price_par : utilDb.heating.price_solo,
                     });
                   }}
                   icon={opt.emoji} label={opt.label} sub={opt.sub}
@@ -397,6 +401,9 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </motion.div>
             </motion.div>
             <AILiveComment profile={profile} step="income" />
+            {(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000 && (
+              <p className="text-xs text-muted-foreground text-center">{t("step.income.minWarning")}</p>
+            )}
             <ContinueButton onClick={goNext} disabled={(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000} label={t("continue")} />
           </div>
         );
@@ -491,7 +498,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm text-muted-foreground">{t("step.housing.interestRate")}</span>
-                    <span className="font-display font-bold text-xl">{profile.interestRate.toFixed(1)}%</span>
+                    <span className="font-display font-bold text-xl">{profile.interestRate % 1 === 0 ? profile.interestRate.toFixed(1) : profile.interestRate.toFixed(2)}%</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => update({ interestRate: Math.max(0.5, profile.interestRate - 0.25) })} disabled={profile.interestRate <= 0.5}
