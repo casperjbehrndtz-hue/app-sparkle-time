@@ -87,6 +87,8 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
   label: string; value: number; onChange: (v: number) => void;
   min: number; max: number; step: number; icon: string; unit: string;
 }) {
+  const [localValue, setLocalValue] = useState<string>(String(value));
+  useEffect(() => { setLocalValue(String(value)); }, [value]);
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
     <motion.div
@@ -98,18 +100,14 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
           <span className="text-base">{icon}</span>
           <span className="text-sm font-medium">{label}</span>
         </div>
-        <motion.div
-          key={value}
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          className="flex items-center gap-1"
-        >
-          <input type="number" inputMode="numeric" min={min} max={max} value={value}
-            onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
+        <div className="flex items-center gap-1">
+          <input type="number" inputMode="numeric" min={min} max={max} value={localValue}
+            onChange={(e) => { setLocalValue(e.target.value); const v = Number(e.target.value); if (e.target.value !== "" && !isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
+            onBlur={() => { const v = Number(localValue); if (localValue === "" || isNaN(v)) { setLocalValue(String(value)); } else { const clamped = Math.max(min, Math.min(max, v)); onChange(clamped); setLocalValue(String(clamped)); } }}
             className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin tabular-nums"
             aria-label={label} />
           <span className="text-xs text-muted-foreground">{unit}</span>
-        </motion.div>
+        </div>
       </div>
       <input
         type="range" min={min} max={max} step={step}

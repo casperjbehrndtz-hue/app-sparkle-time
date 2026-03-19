@@ -236,9 +236,9 @@ input[type="range"]::-moz-range-thumb:active {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Prevent horizontal page scroll when dragging range sliders on mobile */
+/* Allow vertical scroll over sliders, capture only horizontal drags */
 input[type="range"] {
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 /* Safe areas for notched devices */
