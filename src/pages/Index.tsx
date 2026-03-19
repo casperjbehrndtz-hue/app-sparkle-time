@@ -85,7 +85,7 @@ const Index = () => {
           hasChildren: false, childrenAges: [],
           hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
           hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
-          hasCar: false, carAmount: 3500, carLoan: 2500, carFuel: 1500, carInsurance: 6000, carTax: 3600, carService: 4500,
+          hasCar: false, carAmount: 3500, carLoan: 2000, carFuel: 1200, carInsurance: 5500, carTax: 3600, carService: 2500,
           hasInternet: true,
           hasInsurance: false, insuranceAmount: 0,
           hasUnion: false, unionAmount: 500,
