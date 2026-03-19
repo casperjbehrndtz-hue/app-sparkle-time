@@ -6,7 +6,16 @@ const MAX_BODY_SIZE = 7 * 1024 * 1024; // 7MB (base64 of a 5MB file)
 
 const SYSTEM_PROMPT = `Du er en dansk lønseddel-parser. Du modtager et billede af en dansk lønseddel.
 
-Udtræk alle felter fra lønsedlen. Alle beløb i hele kroner (afrundet). Returner KUN valid JSON — ingen markdown, ingen kodeblok.
+VIGTIGSTE REGEL: De fleste danske lønsedler har FLERE KOLONNER — typisk "Denne periode" (eller "Beløb") og "I alt"/"Akkumuleret"/"År til dato". Du SKAL kun bruge tal fra "Denne periode"-kolonnen. "I alt"-kolonnen viser summen over HELE ÅRET og er altid meget højere. Hvis du bruger tal fra "I alt"-kolonnen, vil ALLE dine tal være forkerte.
+
+Sådan identificerer du den rigtige kolonne:
+1. Find kolonneoverskrifterne — de står typisk øverst i tal-området
+2. "Denne periode" / "Beløb" / "Md." / "Periode" = den rigtige kolonne
+3. "I alt" / "Akk." / "År" / "Total" = den FORKERTE kolonne (akkumuleret)
+4. Hvis der kun er én kolonne med tal, er det denne periode
+5. Den rigtige kolonne har typisk LAVERE tal end "I alt"-kolonnen
+
+Udtræk alle felter fra lønsedlen. Alle beløb i hele kroner (afrundet). Brug KUN tal fra denne periode. Returner KUN valid JSON — ingen markdown, ingen kodeblok.
 
 JSON-format:
 {
@@ -26,7 +35,7 @@ JSON-format:
   "fritvalgKonto": <number eller null>,
   "feriepengeHensaet": <number eller null>,
   "otherDeductions": [{"name": "<navn>", "amount": <number>}],
-  "receiptLines": [{"label": "<tekst>", "amount": "<beløb med fortegn>", "type": "income|deduction|subtotal|info|redacted"}],
+  "receiptLines": [{"label": "<tekst>", "amount": "<beløb fra DENNE PERIODE med fortegn>", "type": "income|deduction|subtotal|info|redacted"}],
   "employerName": "<string>" eller null,
   "jobTitle": "<string>" eller null,
   "municipality": "<string>" eller null,
@@ -40,36 +49,26 @@ JSON-format:
   "warnings": ["<eventuelle advarsler>"]
 }
 
-VIGTIGT — Anonymisering:
-- "anonDescription": Skriv en kort, anonym beskrivelse af personen baseret på lønsedlen, f.eks. "Sygeplejerske i sundhedssektoren, Midtjylland" eller "IT-konsulent i privat sektor, Storkøbenhavn". Brug ALDRIG arbejdsgiverens navn. Brug den brede region (Storkøbenhavn, Østjylland, Nordjylland, Fyn, Sjælland etc.), ALDRIG specifik adresse.
-- "anonJobTitle": Stillingsbetegnelsen i generisk form. "Software-udvikler", ikke "Senior Developer hos Netcompany".
-- "anonIndustry": Branchen i bred forstand. "IT", "Sundhed", "Finans", "Industri", "Detail", "Byggeri", "Transport", "Undervisning", "Offentlig administration" etc.
-- "anonRegion": Bred geografisk region baseret på kommune. Aldrig specifik adresse eller postnummer.
-
 KRITISK — bruttoløn og nettoløn:
-- "bruttolon": Den MÅNEDLIGE bruttoløn for DENNE lønperiode — totalen af alle lønkomponenter FØR fradrag. Kig efter "Løn i alt", "Bruttoløn", "Indkomst i alt" for DENNE PERIODE. ALDRIG akkumulerede/år-til-dato kolonner. Mange lønsedler har to kolonner: "Denne periode" og "I alt/Akkumuleret" — brug KUN "Denne periode"-kolonnen.
-- "nettolon": Det PRÆCISE beløb der udbetales til kontoen DENNE måned. Kig efter linjen "Til udbetaling", "Udbetalt", "Netto" eller "Overført til konto". Det er typisk den SIDSTE linje/beløb på lønsedlen, ofte i bunden. Det er ALTID lavere end bruttoløn.
-- VIGTIGE FÆLDER at undgå:
-  * "I alt" / "Akkumuleret" / "År til dato" kolonner viser SUMMEN over flere måneder — brug dem ALDRIG
-  * "Feriekonto-saldo", "Fritvalg-saldo", "Feriepenge optjent i alt" er IKKE nettoløn
-  * "A-indkomst" er IKKE nettoløn (det er brutto minus AM-bidrag)
-  * Tal over 100.000 kr er næsten altid akkumulerede beløb, ikke denne måneds tal
-- SANITY CHECK: nettolon SKAL være lavere end bruttolon OG typisk 55-70% af brutto. Hvis dit nettolon er højere end bruttolon, har du GARANTERET læst fra den forkerte kolonne (sandsynligvis "I alt"-kolonnen). Find "Til udbetaling" for denne periode.
-- EKSTRA VALIDERING: Beregn bruttolon - amBidrag - aSkat - atp - pensionEmployee - (eventuelle andre fradrag). Resultatet bør ligge tæt på nettolon (±500 kr). Hvis ikke, har du sandsynligvis læst forkert.
+- "bruttolon": Summen af alle lønkomponenter FØR fradrag for DENNE PERIODE.
+- "nettolon": Beløbet der udbetales til kontoen. Kig efter "Til udbetaling", "Udbetalt", "Netto", "Overført til konto". Står typisk i bunden af lønsedlen.
+- VALIDERING: AM-bidrag skal være ca. 8% af (bruttolon - arbejdsgiverpension). Nettolon skal være ca. 55-70% af bruttolon. Hvis dine tal ikke stemmer, har du sandsynligvis læst fra "I alt"-kolonnen.
+
+Anonymisering:
+- "anonDescription": Kort, anonym beskrivelse, f.eks. "Sygeplejerske i sundhedssektoren, Midtjylland". ALDRIG arbejdsgiverens navn. Brug bred region.
+- "anonJobTitle": Generisk stillingsbetegnelse.
+- "anonIndustry": Bred branche: "IT", "Sundhed", "Finans", "Industri", "Detail", "Byggeri", "Transport", "Undervisning", "Offentlig administration" etc.
+- "anonRegion": Bred region baseret på kommune.
 
 Regler for udtræk:
-- "grundlon": Grundlønnen/basislønnen UDEN bonus, provision, tillæg, overtid. Hvis lønsedlen eksplicit viser en grundløn/månedsløn/gage separat fra variable dele, så brug den. Hvis bruttoløn kun består af én lønlinje (fx "Månedsløn"), sæt grundlon til null (den ER grundlønnen). Sæt kun grundlon hvis der tydeligt er variable komponenter oveni.
-- "payComponents": Alle synlige lønkomponenter der TILSAMMEN udgør bruttoløn. Eksempler: grundløn/månedsløn/gage, bonus, provision, salær, overtid, vagtillæg, funktionstillæg, anciennitetstillæg, St. Bededag kompensation. Brug præcis det navn der står på lønsedlen. Medtag KUN positive lønposter (ikke fradrag). Hvis der kun er én lønlinje (fx "Månedsløn 60.000"), returner den som eneste element.
-- "receiptLines": En komplet kopi af ALLE synlige poster på lønsedlen, i PRÆCIS den rækkefølge de står. Dette er en rå transskription af hele lønsedlen. For hvert linje-item: "label" er teksten (præcis som den står), "amount" er beløbet som string med fortegn og øre (fx "60.557,00", "-4.643,00", "+6.055,70"). "type" angiver linjetypen: "income" for lønposter, "deduction" for fradrag (negative beløb), "subtotal" for totallinjer (bruttoløn, nettoløn, AM-grundlag), "info" for informationslinjer uden beløb, "redacted" for linjer med persondata (navn, CPR, kontonr, adresse, lønnr) — skriv "████████" som amount og en generisk label (fx "Medarbejder", "CPR", "Kontonr"). Medtag ALT — også linjer som "Pensionsgivende md. løn", "AM-bidragsgrundlag", "A-indkomst", osv. Spring IKKE noget over.
-- "otherDeductions": ALLE øvrige fradrag/tillæg der trækkes fra lønnen men ikke passer ind i felterne ovenfor. Eksempler: NNFitness, gruppeliv, heltidsulykke, kantineordning, medarbejderaktier, firmabil, fri telefon. Angiv dem med præcis det navn der står på lønsedlen og beløbet. Medtag KUN poster der reelt trækkes fra lønnen (ikke informationslinjer).
-- AM-bidrag er altid 8% af bruttoløn — brug dette som sanity check
-- Trækprocent er typisk 33-45% — markér "low" confidence hvis udenfor
+- "grundlon": Grundlønnen UDEN bonus/tillæg. Sæt null hvis bruttoløn kun består af én lønlinje.
+- "payComponents": Alle lønkomponenter der tilsammen udgør bruttoløn. Brug præcis det navn der står på lønsedlen. KUN positive lønposter.
+- "receiptLines": Komplet kopi af ALLE poster i rækkefølge. For "amount" brug beløbet fra DENNE PERIODE-kolonnen, ALDRIG "I alt". For persondata (navn, CPR, kontonr): type="redacted", label/amount="████████".
+- "otherDeductions": Øvrige fradrag der ikke passer i felterne ovenfor (fx fitness, gruppeliv, kantineordning).
+- AM-bidrag er altid 8% af (bruttoløn minus arbejdsgiverpension)
+- Trækprocent er typisk 33-45%
 - Adskil medarbejder- og arbejdsgiverpension hvis muligt
-- Bruttoløn + nettoløn er de vigtigste — markér "low" confidence hvis de ikke stemmer overens med fradragene
-- Brug 0 (ikke null) for standard-fradrag der kan læses men er 0
-- Brug null for felter der slet ikke kan læses
-- Sæt "confidence" baseret på hvor mange felter du kunne læse med sikkerhed
-- Tilføj warnings for felter der var svære at læse eller virker usandsynlige`;
+- Brug 0 for fradrag der kan læses men er 0, null for felter der ikke kan læses`;
 
 Deno.serve(async (req: Request) => {
   const cors = getCorsHeaders(req);
@@ -247,42 +246,74 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // ── Server-side sanity fix: recalculate nettolon if AI read wrong column ──
+    // ── Server-side sanity checks ──
     const p = parsed as Record<string, unknown>;
-    const brutto = typeof p.bruttolon === "number" ? p.bruttolon : 0;
-    const netto = typeof p.nettolon === "number" ? p.nettolon : 0;
+    const num = (k: string) => typeof p[k] === "number" ? p[k] as number : 0;
+    const brutto = num("bruttolon");
+    const netto = num("nettolon");
+    const am = num("amBidrag");
+    const warnings: string[] = Array.isArray(p.warnings) ? (p.warnings as string[]) : [];
 
-    if (brutto > 0 && netto > brutto) {
-      // AI read accumulated/year-to-date figure — calculate netto from deductions
-      const am = typeof p.amBidrag === "number" ? p.amBidrag : 0;
-      const askat = typeof p.aSkat === "number" ? p.aSkat : 0;
-      const atp = typeof p.atp === "number" ? p.atp : 0;
-      const pensEmp = typeof p.pensionEmployee === "number" ? p.pensionEmployee : 0;
-      const fag = typeof p.fagforening === "number" ? p.fagforening : 0;
-      const sundhed = typeof p.sundhedsforsikring === "number" ? p.sundhedsforsikring : 0;
-      const otherDeds = Array.isArray(p.otherDeductions)
-        ? (p.otherDeductions as Array<{ amount?: number }>).reduce((s, d) => s + (typeof d?.amount === "number" ? d.amount : 0), 0)
-        : 0;
-      const totalDeductions = am + askat + atp + pensEmp + fag + sundhed + otherDeds;
+    if (brutto > 0) {
+      // Check AM-bidrag ≈ 8% of (brutto - employer pension) — if way off, AI likely read accumulated
+      const expectedAm = Math.round((brutto - num("pensionEmployer")) * 0.08);
+      const amOff = am > 0 && Math.abs(am - expectedAm) > expectedAm * 0.5; // >50% off
 
-      if (totalDeductions > 0 && totalDeductions < brutto) {
-        const calculatedNetto = brutto - totalDeductions;
-        console.warn(`payslip-ocr: nettolon (${netto}) > bruttolon (${brutto}). Recalculated from deductions: ${calculatedNetto}`);
-        p.nettolon = calculatedNetto;
-        const warnings = Array.isArray(p.warnings) ? p.warnings : [];
-        warnings.push("Nettoløn var forkert aflæst (akkumuleret beløb?) — beregnet ud fra fradrag.");
-        p.warnings = warnings;
-        if (p.confidence === "high") p.confidence = "medium";
-      } else {
-        // Fallback: estimate 63% of brutto
-        const estimated = Math.round(brutto * 0.63);
-        console.warn(`payslip-ocr: nettolon (${netto}) > bruttolon (${brutto}). No usable deductions, estimating: ${estimated}`);
-        p.nettolon = estimated;
-        const warnings = Array.isArray(p.warnings) ? p.warnings : [];
-        warnings.push("Nettoløn kunne ikke læses korrekt — estimeret til ca. 63% af brutto. Ret venligst.");
-        p.warnings = warnings;
+      // Check netto is reasonable (40-75% of brutto)
+      const retentionPct = brutto > 0 ? (netto / brutto) * 100 : 0;
+      const nettoOff = netto <= 0 || netto > brutto || retentionPct < 40 || retentionPct > 75;
+
+      if (amOff || nettoOff) {
+        console.warn(`payslip-ocr sanity: brutto=${brutto} netto=${netto} am=${am} expectedAm=${expectedAm} retention=${retentionPct.toFixed(1)}%`);
+
+        // If AM-bidrag is wrong, recalculate it — it's always 8%
+        if (amOff) {
+          console.warn(`payslip-ocr: AM-bidrag ${am} ≠ expected ${expectedAm}, fixing`);
+          p.amBidrag = expectedAm;
+          warnings.push(`AM-bidrag rettet (${am} → ${expectedAm}).`);
+        }
+
+        // Recalculate netto from brutto minus all deductions
+        const correctedAm = typeof p.amBidrag === "number" ? p.amBidrag as number : expectedAm;
+        const askat = num("aSkat");
+        const atp = num("atp");
+        const pensEmp = num("pensionEmployee");
+
+        // If A-skat looks accumulated too (> 50% of brutto alone), estimate it
+        let correctedAskat = askat;
+        if (askat > brutto * 0.5) {
+          // Estimate: trækprocent applied to (brutto - AM - pension - personfradrag)
+          const traek = num("traekkort");
+          const fradrag = num("personfradrag") || Math.round(54100 / 12);
+          const taxBase = brutto - correctedAm - pensEmp - fradrag;
+          correctedAskat = traek > 0 ? Math.round(taxBase * traek / 100) : Math.round(taxBase * 0.37);
+          p.aSkat = correctedAskat;
+          warnings.push(`A-skat rettet (${askat} → ${correctedAskat}).`);
+        }
+
+        // Recalculate netto
+        const fag = num("fagforening");
+        const sundhed = num("sundhedsforsikring");
+        const otherDeds = Array.isArray(p.otherDeductions)
+          ? (p.otherDeductions as Array<{ amount?: number }>).reduce((s, d) => s + (typeof d?.amount === "number" ? d.amount : 0), 0)
+          : 0;
+        const totalDed = correctedAm + correctedAskat + atp + pensEmp + fag + sundhed + otherDeds;
+        const calculatedNetto = brutto - totalDed;
+
+        if (calculatedNetto > 0 && calculatedNetto < brutto) {
+          console.warn(`payslip-ocr: netto recalculated: ${netto} → ${calculatedNetto}`);
+          p.nettolon = calculatedNetto;
+          if (nettoOff) warnings.push(`Nettoløn rettet (${netto} → ${calculatedNetto}).`);
+        } else {
+          // Last resort: 63% estimate
+          p.nettolon = Math.round(brutto * 0.63);
+          warnings.push("Nettoløn kunne ikke beregnes — estimeret. Ret venligst.");
+        }
+
         p.confidence = "low";
       }
+
+      p.warnings = warnings;
     }
 
     return new Response(JSON.stringify(parsed), {
