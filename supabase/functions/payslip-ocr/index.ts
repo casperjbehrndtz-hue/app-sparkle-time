@@ -46,6 +46,11 @@ VIGTIGT — Anonymisering:
 - "anonIndustry": Branchen i bred forstand. "IT", "Sundhed", "Finans", "Industri", "Detail", "Byggeri", "Transport", "Undervisning", "Offentlig administration" etc.
 - "anonRegion": Bred geografisk region baseret på kommune. Aldrig specifik adresse eller postnummer.
 
+KRITISK — bruttoløn og nettoløn:
+- "bruttolon": Den MÅNEDLIGE bruttoløn — totalen af alle lønkomponenter FØR fradrag. Typisk 20.000-80.000 kr for de fleste danskere. Hvis du ser et beløb over 100.000, overvej om det er en årsløn eller akkumuleret beløb — brug KUN månedsbeløbet.
+- "nettolon": Det beløb der UDBETALES til medarbejderens konto denne måned ("til udbetaling", "netto", "udbetalt"). Nettoløn er ALTID LAVERE end bruttoløn (typisk 55-70% af brutto). Forveksle IKKE nettoløn med: feriekonto-saldo, akkumulerede beløb, årsindkomst, fritvalg-saldo, eller andre informationslinjer. Kig efter "Til udbetaling", "Netto", "Udbetalt" eller lignende.
+- SANITY CHECK: Hvis nettolon > bruttolon har du læst forkert. Gå tilbage og find det rigtige nettobeløb.
+
 Regler for udtræk:
 - "grundlon": Grundlønnen/basislønnen UDEN bonus, provision, tillæg, overtid. Hvis lønsedlen eksplicit viser en grundløn/månedsløn/gage separat fra variable dele, så brug den. Hvis bruttoløn kun består af én lønlinje (fx "Månedsløn"), sæt grundlon til null (den ER grundlønnen). Sæt kun grundlon hvis der tydeligt er variable komponenter oveni.
 - "payComponents": Alle synlige lønkomponenter der TILSAMMEN udgør bruttoløn. Eksempler: grundløn/månedsløn/gage, bonus, provision, salær, overtid, vagtillæg, funktionstillæg, anciennitetstillæg, St. Bededag kompensation. Brug præcis det navn der står på lønsedlen. Medtag KUN positive lønposter (ikke fradrag). Hvis der kun er én lønlinje (fx "Månedsløn 60.000"), returner den som eneste element.
