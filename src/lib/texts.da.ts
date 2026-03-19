@@ -986,6 +986,10 @@ export const DA: Record<string, string> = {
   "onboarding.emailReminder": "Ja tak, send mig en kvartalsvis påmindelse om at tjekke mit budget.",
   "onboarding.emailUnsubscribe": "Du kan altid afmelde dig.",
   "onboarding.expenseShare": "Udgiftsandel",
+  "onboarding.encourage.income": "Super! Nu ved vi hvem du er 🎯",
+  "onboarding.encourage.housing": "Godt klaret — nu tager vi boligen 🏠",
+  "onboarding.encourage.expenses": "Halvvejs! Boligen er på plads ✅",
+  "onboarding.encourage.review": "Sidste trin — du er næsten i mål! 🏁",
 
   // Error boundary
   "error.somethingWrong": "Noget gik galt",

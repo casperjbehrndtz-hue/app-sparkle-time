@@ -25,25 +25,91 @@ import {
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 
+// ─── Celebration particles on step complete ──────────────
+function CelebrationBurst({ trigger }: { trigger: number }) {
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; color: string; delay: number }[]>([]);
+  useEffect(() => {
+    if (trigger === 0) return;
+    const colors = ["hsl(var(--primary))", "hsl(var(--nemt-gold))", "hsl(152 69% 42%)", "hsl(213 80% 60%)"];
+    const newParticles = Array.from({ length: 12 }, (_, i) => ({
+      id: Date.now() + i,
+      x: 50 + (Math.random() - 0.5) * 60,
+      y: 40 + (Math.random() - 0.5) * 30,
+      color: colors[i % colors.length],
+      delay: Math.random() * 0.15,
+    }));
+    setParticles(newParticles);
+    const timer = setTimeout(() => setParticles([]), 800);
+    return () => clearTimeout(timer);
+  }, [trigger]);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ opacity: 1, scale: 0, x: `${p.x}%`, y: `${p.y}%` }}
+          animate={{ opacity: 0, scale: 1, y: `${p.y - 15}%` }}
+          transition={{ duration: 0.7, delay: p.delay, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute w-2 h-2 rounded-full"
+          style={{ backgroundColor: p.color }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Animated count-up number ───────────────────────────
+function CountUpNumber({ value, className }: { value: number; className?: string }) {
+  const [display, setDisplay] = useState(0);
+  const ref = useRef<number | null>(null);
+  useEffect(() => {
+    const start = display;
+    const diff = value - start;
+    if (Math.abs(diff) < 10) { setDisplay(value); return; }
+    const steps = 25;
+    let step = 0;
+    const tick = () => {
+      step++;
+      const t = step / steps;
+      const ease = 1 - Math.pow(1 - t, 3); // cubic ease out
+      setDisplay(Math.round(start + diff * ease));
+      if (step < steps) ref.current = requestAnimationFrame(tick);
+    };
+    ref.current = requestAnimationFrame(tick);
+    return () => { if (ref.current) cancelAnimationFrame(ref.current); };
+  }, [value]);
+
+  return <span className={className}>{formatKr(display)}</span>;
+}
+
 function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
   label: string; value: number; onChange: (v: number) => void;
   min: number; max: number; step: number; icon: string; unit: string;
 }) {
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
-    <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
+    <motion.div
+      layout
+      className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20"
+    >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-base">{icon}</span>
           <span className="text-sm font-medium">{label}</span>
         </div>
-        <div className="flex items-center gap-1">
+        <motion.div
+          key={value}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          className="flex items-center gap-1"
+        >
           <input type="number" inputMode="numeric" min={min} max={max} value={value}
             onChange={(e) => { const v = Number(e.target.value); if (!isNaN(v)) onChange(Math.max(min, Math.min(max, v))); }}
-            className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin"
+            className="w-16 text-right bg-transparent text-sm font-bold focus:outline-none no-spin tabular-nums"
             aria-label={label} />
           <span className="text-xs text-muted-foreground">{unit}</span>
-        </div>
+        </motion.div>
       </div>
       <input
         type="range" min={min} max={max} step={step}
@@ -53,7 +119,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
         style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${pct}%, hsl(var(--secondary)) ${pct}%)` }}
         aria-label={label}
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -135,6 +201,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const [customAmount, setCustomAmount] = useState(0);
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
   const contentRef = useRef<HTMLDivElement>(null);
+  const [celebrationTrigger, setCelebrationTrigger] = useState(0);
 
   // Persist onboarding state to localStorage on changes
   useEffect(() => {
@@ -153,7 +220,10 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
   const goNext = () => {
     setDirection(1);
     const idx = getStepIndex(step);
-    if (idx < STEPS.length - 1) setStep(STEPS[idx + 1]);
+    if (idx < STEPS.length - 1) {
+      setCelebrationTrigger((n) => n + 1);
+      setStep(STEPS[idx + 1]);
+    }
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
   const goBack = () => {
@@ -270,6 +340,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
+              <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                className="text-xs font-medium text-primary">{t("onboarding.encourage.income")}</motion.p>
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">
                 {isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")}
               </h1>
@@ -379,6 +451,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
+              <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                className="text-xs font-medium text-primary">{t("onboarding.encourage.housing")}</motion.p>
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.housing.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.housing.subtitle")}</p>
             </motion.div>
@@ -458,6 +532,8 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         return (
           <div className="space-y-8 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
+              <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                className="text-xs font-medium text-primary">{t("onboarding.encourage.expenses")}</motion.p>
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.expenses.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.expenses.subtitle")}</p>
             </motion.div>
@@ -477,7 +553,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             {/* ── Streaming ── */}
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.streaming")}</h3>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 stagger-in">
                 {[
                   { key: "hasNetflix" as const, icon: "🎬", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} ${t("perMonth")}` },
                   { key: "hasSpotify" as const, icon: "🎵", label: "Spotify", sub: `${isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo} ${t("perMonth")}` },
@@ -633,28 +709,55 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         return (
           <div className="space-y-6 max-w-md mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-1">
+              <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
+                className="text-xs font-medium text-primary">{t("onboarding.encourage.review")}</motion.p>
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.review.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.review.subtitle")}</p>
             </motion.div>
 
             {/* ── Stort resultat ── */}
-            <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            <motion.div initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
               className="text-center py-12 rounded-3xl border-2 border-border relative overflow-hidden">
               <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`} />
+              <motion.div
+                className={`absolute inset-0 opacity-0 ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`}
+                animate={{ opacity: [0, 0.06, 0] }}
+                transition={{ duration: 1.5, delay: 0.3 }}
+              />
               <div className="relative">
-                <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.review.disposable")}</p>
-                <motion.div key={budget.disposableIncome} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                  className="flex items-baseline justify-center gap-1">
-                  <span className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-nemt-gold" : "text-destructive"}`}>
-                    {formatKr(budget.disposableIncome)}
-                  </span>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3"
+                >{t("step.review.disposable")}</motion.p>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  transition={{ delay: 0.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-baseline justify-center gap-1"
+                >
+                  <CountUpNumber
+                    value={budget.disposableIncome}
+                    className={`font-display font-black text-5xl sm:text-6xl ${isHealthy ? "text-primary" : isWarning ? "text-nemt-gold" : "text-destructive"}`}
+                  />
                   <span className="text-muted-foreground font-display text-xl">{t("currency")}</span>
                 </motion.div>
-                <p className="text-sm text-muted-foreground mt-3">
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="text-sm text-muted-foreground mt-3"
+                >
                   {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
-                </p>
-                <p className="text-xs text-muted-foreground/60 mt-2">{t("onboarding.perMonthAfterExpenses")}</p>
+                </motion.p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="text-xs text-muted-foreground/60 mt-2"
+                >{t("onboarding.perMonthAfterExpenses")}</motion.p>
               </div>
             </motion.div>
 
@@ -664,11 +767,17 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                 { label: t("step.review.income"), value: `${formatKr(budget.totalIncome)} ${t("unit.currency")}`, color: "text-primary" },
                 { label: t("step.review.expenses"), value: `${formatKr(budget.totalExpenses)} ${t("unit.currency")}`, color: "text-foreground" },
                 { label: t("onboarding.expenseShare"), value: `${expenseRatio}%`, color: expenseRatio > 85 ? "text-destructive" : "text-muted-foreground" },
-              ].map((s) => (
-                <div key={s.label} className="rounded-2xl border border-border p-3 text-center">
+              ].map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="rounded-2xl border border-border p-3 text-center"
+                >
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
-                  <p className={`font-display font-bold text-sm ${s.color}`}>{s.value}</p>
-                </div>
+                  <p className={`font-display font-bold text-sm tabular-nums ${s.color}`}>{s.value}</p>
+                </motion.div>
               ))}
             </div>
 
@@ -720,6 +829,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
   return (
     <div id="main-content" className="h-dvh bg-background flex flex-col overflow-x-hidden">
+      <CelebrationBurst trigger={celebrationTrigger} />
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (

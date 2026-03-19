@@ -986,6 +986,10 @@ export const EN: Record<string, string> = {
   "onboarding.emailReminder": "Yes, send me a quarterly reminder to review my budget.",
   "onboarding.emailUnsubscribe": "You can unsubscribe at any time.",
   "onboarding.expenseShare": "Expense share",
+  "onboarding.encourage.income": "Great! Now we know who you are 🎯",
+  "onboarding.encourage.housing": "Nice — let's sort out housing 🏠",
+  "onboarding.encourage.expenses": "Halfway there! Housing is locked in ✅",
+  "onboarding.encourage.review": "Last step — you're almost done! 🏁",
 
   // Error boundary
   "error.somethingWrong": "Something went wrong",

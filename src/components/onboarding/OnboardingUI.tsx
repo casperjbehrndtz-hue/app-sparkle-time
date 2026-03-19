@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight, ArrowDown } from "lucide-react";
+import { Check, ArrowRight } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { OnboardingStep } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+
+// Haptic feedback helper (mobile only, silent fail)
+function haptic(style: "light" | "medium" = "light") {
+  try { navigator?.vibrate?.(style === "light" ? 8 : 15); } catch {}
+}
 
 // ─── Cinematic transitions ────────────────────────────────
 export const pageVariants = {
@@ -41,8 +46,9 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border px-5 py-3 safe-area-bottom"
     >
       <div className="max-w-lg mx-auto">
@@ -51,25 +57,27 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
             <span className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("onboarding.leftOver")}</span>
             <motion.span
               key={remaining}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9, y: 5 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className={`font-display font-black text-lg ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-nemt-gold" : "text-destructive"}`}
             >
               {formatKr(remaining)} {t("currency")}
             </motion.span>
           </div>
           {onNext ? (
-            <button
-              onClick={onNext}
-              className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors flex items-center gap-1"
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { haptic("medium"); onNext(); }}
+              className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors flex items-center gap-1 shadow-md shadow-primary/20 tap-bounce"
             >
               {t("onboarding.seeOverview")} <ArrowRight className="w-3 h-3" />
-            </button>
+            </motion.button>
           ) : (
-            <span className="text-[10px] text-muted-foreground">{Math.round(pct)}% {t("onboarding.ofIncome")}</span>
+            <span className="text-[10px] text-muted-foreground tabular-nums">{Math.round(pct)}% {t("onboarding.ofIncome")}</span>
           )}
         </div>
-        <div className="h-2 rounded-full bg-muted overflow-hidden flex">
+        <div className="h-2.5 rounded-full bg-muted overflow-hidden flex">
           <motion.div
             className="h-full bg-destructive/60 rounded-l-full"
             animate={{ width: `${expPct}%` }}
@@ -92,23 +100,36 @@ export function StepIndicator({ step }: { step: OnboardingStep }) {
   const idx = getStepIndex(step);
   if (idx < 0) return null;
   const totalSteps = STEPS.length;
+  const pct = Math.round(((idx + 1) / totalSteps) * 100);
   return (
     <div className="flex flex-col items-center gap-1.5" aria-label={t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         {STEPS.map((s, i) => (
           <motion.div
             key={s}
-            className={`h-1 rounded-full transition-colors duration-300 ${
-              i <= idx ? "bg-primary" : "bg-border"
+            className={`h-1.5 rounded-full ${
+              i < idx ? "bg-primary" : i === idx ? "bg-primary" : "bg-border"
             }`}
-            animate={{ width: i === idx ? 24 : i < idx ? 16 : 8 }}
-            transition={{ duration: 0.3 }}
+            initial={false}
+            animate={{
+              width: i === idx ? 28 : i < idx ? 16 : 8,
+              opacity: i <= idx ? 1 : 0.4,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
           />
         ))}
       </div>
-      <span className="text-[10px] text-muted-foreground mt-1">
-        {t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}
-      </span>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={step}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          className="text-[10px] text-muted-foreground"
+        >
+          {pct}% — {t("onboarding.stepOf").replace("{current}", String(idx + 1)).replace("{total}", String(totalSteps))}
+        </motion.span>
+      </AnimatePresence>
     </div>
   );
 }
@@ -119,35 +140,41 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
 }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
+      whileHover={{ scale: 1.03, y: -3 }}
+      whileTap={{ scale: 0.96 }}
+      onClick={() => { haptic(); onClick(); }}
       role="radio"
       aria-checked={active}
       aria-label={label}
-      className={`relative p-4 sm:p-6 rounded-2xl border-2 text-center transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+      className={`relative p-4 sm:p-6 rounded-2xl border-2 text-center transition-all duration-300 tap-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
         active
           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
           : "border-border hover:border-primary/30 hover:shadow-md"
       }`}
     >
       <motion.div
-        animate={{ scale: active ? 1.1 : 1 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        animate={{ scale: active ? 1.15 : 1, rotate: active ? [0, -6, 6, 0] : 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
         className="text-5xl sm:text-6xl mb-3"
       >
         {icon}
       </motion.div>
       <div className="font-display font-bold text-base sm:text-lg leading-tight break-words hyphens-auto">{label}</div>
       {sub && <div className="text-sm text-muted-foreground mt-1">{sub}</div>}
-      {active && (
-        <motion.div
-          layoutId="bigcheck"
-          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20"
-        >
-          <Check className="w-4 h-4 text-primary-foreground" />
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            layoutId="bigcheck"
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: 90 }}
+            transition={{ type: "spring", stiffness: 500, damping: 25 }}
+            className="absolute top-3 right-3 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20"
+          >
+            <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.button>
   );
 }
@@ -176,6 +203,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
   };
 
   const nudge = (dir: 1 | -1) => {
+    haptic();
     const bigStep = step * 2;
     onChange(Math.max(min, Math.min(max, value + dir * bigStep)));
   };
@@ -191,30 +219,34 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
     <div className="space-y-4">
       <label className="text-sm font-medium text-muted-foreground">{label}</label>
       <div className="flex items-center justify-center gap-4">
-        <button
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.88 }}
           onClick={() => nudge(-1)}
           disabled={value <= min}
-          className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none"
-        >−</button>
+          className="w-12 h-12 rounded-xl bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
+        >−</motion.button>
         <div className="flex items-baseline gap-2">
-          <input
-            type="number"
-            inputMode="numeric"
-            value={localValue}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
-            className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
-          />
+          <motion.div key={value} initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={localValue}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
+              className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
+            />
+          </motion.div>
           <span className="text-lg text-muted-foreground font-display">{resolvedSuffix}</span>
         </div>
-        <button
+        <motion.button
           type="button"
+          whileTap={{ scale: 0.88 }}
           onClick={() => nudge(1)}
           disabled={value >= max}
-          className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none"
-        >+</button>
+          className="w-12 h-12 rounded-xl bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
+        >+</motion.button>
       </div>
       {/* Slider */}
       <div className="px-1">
@@ -234,15 +266,16 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
       {/* Preset chips */}
       <div className="flex justify-center gap-2 flex-wrap">
         {defaultPresets.map(p => (
-          <button
+          <motion.button
             key={p}
             type="button"
-            onClick={() => onChange(p)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${value === p
-              ? "bg-primary text-primary-foreground shadow-sm"
-              : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"
+            whileTap={{ scale: 0.92 }}
+            onClick={() => { haptic(); onChange(p); }}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all tap-bounce ${value === p
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+              : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40 hover:border-primary/20"
             }`}
-          >{formatKr(p)}</button>
+          >{formatKr(p)}</motion.button>
         ))}
       </div>
     </div>
@@ -256,29 +289,61 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
 }) {
   const { t } = useI18n();
   return (
-    <div className={`rounded-2xl border-2 transition-all duration-200 ${active ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-border"}`}>
-      <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
-        <span className="text-xl">{icon}</span>
+    <motion.div
+      layout
+      className={`rounded-2xl border-2 transition-colors duration-200 ${active ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-primary/15"}`}
+    >
+      <button onClick={() => { haptic(); onClick(); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left tap-bounce">
+        <motion.span
+          animate={{ scale: active ? 1.15 : 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          className="text-xl"
+        >{icon}</motion.span>
         <div className="flex-1 min-w-0">
           <span className="font-medium text-[14px] block">{label}</span>
           {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}
         </div>
-        <div className={`w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center transition-all ${
-          active ? "border-primary bg-primary" : "border-muted-foreground/25"
-        }`}>
-          {active && <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />}
-        </div>
-      </button>
-      {active && onAmountChange && amount !== undefined && (
-        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="px-4 pb-3">
-          <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
-            <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
-              className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24" />
-            <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
-          </div>
+        <motion.div
+          animate={{
+            scale: active ? 1 : 0.9,
+            borderColor: active ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.25)",
+            backgroundColor: active ? "hsl(var(--primary))" : "transparent",
+          }}
+          transition={{ type: "spring", stiffness: 500, damping: 25 }}
+          className="w-[22px] h-[22px] rounded-full border-2 flex items-center justify-center"
+        >
+          <AnimatePresence>
+            {active && (
+              <motion.div
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0, rotate: 45 }}
+                transition={{ type: "spring", stiffness: 500, damping: 20 }}
+              >
+                <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
-      )}
-    </div>
+      </button>
+      <AnimatePresence>
+        {active && onAmountChange && amount !== undefined && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="px-4 pb-3 overflow-hidden"
+          >
+            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+              <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
+                className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24" />
+              <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -288,13 +353,19 @@ export function ContinueButton({ onClick, disabled, label }: { onClick: () => vo
   const resolvedLabel = label ?? tFn("continue");
   return (
     <motion.button
-      whileHover={{ scale: 1.01, y: -1 }}
-      whileTap={{ scale: 0.99 }}
-      onClick={onClick}
+      whileHover={{ scale: 1.02, y: -2 }}
+      whileTap={{ scale: 0.97 }}
+      onClick={() => { haptic("medium"); onClick(); }}
       disabled={disabled}
-      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className={`w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 tap-bounce ${disabled ? "" : "btn-ready-pulse"}`}
     >
-      {resolvedLabel} <ArrowRight className="w-4 h-4" />
+      {resolvedLabel}
+      <motion.span
+        animate={{ x: [0, 4, 0] }}
+        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+      >
+        <ArrowRight className="w-4 h-4" />
+      </motion.span>
     </motion.button>
   );
 }
