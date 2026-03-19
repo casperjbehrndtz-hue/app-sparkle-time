@@ -953,6 +953,7 @@ export const EN: Record<string, string> = {
   "forward.increaseToReach20": "Increase by {amount} to reach 20%",
   "unit.krMonth": "DKK/mo.",
   "unit.krYear": "DKK/yr.",
+  "unit.krHalfYear": "DKK/half yr.",
   "unit.currency": "DKK",
 
   // AIChatPanel suggestion questions

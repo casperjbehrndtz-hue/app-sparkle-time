@@ -576,32 +576,19 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               </div>
             </div>
 
-            {/* ── Transport — car details shown directly ── */}
+            {/* ── Transport — car details as sliders ── */}
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.transport")}</h3>
               <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
                 icon="🚗" label={t("step.expenses.car")}
                 sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : undefined} />
               {profile.hasCar && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 ml-2 border-l-2 border-primary/10 pl-4 space-y-1.5">
-                  {[
-                    { key: "carLoan", label: t("step.expenses.carLoan"), freq: t("perMonth"), max: 10000 },
-                    { key: "carFuel", label: t("step.expenses.fuel"), freq: t("perMonth"), max: 5000 },
-                    { key: "carInsurance", label: t("step.expenses.carInsurance"), freq: t("perYear"), max: 12000 },
-                    { key: "carTax", label: t("step.expenses.carTax"), freq: t("perYear"), max: 8000 },
-                    { key: "carService", label: t("step.expenses.carService"), freq: t("perHalfYear"), max: 5000 },
-                  ].map((f) => (
-                    <div key={f.key} className="flex items-center justify-between rounded-xl bg-muted/50 px-3 py-2">
-                      <span className="text-xs text-muted-foreground">{f.label}</span>
-                      <div className="flex items-center gap-1">
-                        <input type="number" inputMode="numeric" min={0} max={f.max}
-                          value={(profile as any)[f.key]}
-                          onChange={(e) => { const v = Number(e.target.value) || 0; update({ [f.key]: Math.min(v, f.max) } as any); }}
-                          className="bg-transparent text-sm font-semibold text-right focus:outline-none no-spin w-20" />
-                        <span className="text-[11px] text-muted-foreground">{f.freq}</span>
-                      </div>
-                    </div>
-                  ))}
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-3 space-y-2">
+                  <CompactSlider icon="💳" label={t("step.expenses.carLoan")} value={profile.carLoan} onChange={(v) => update({ carLoan: v })} min={0} max={10000} step={100} unit={t("unit.krMonth")} />
+                  <CompactSlider icon="⛽" label={t("step.expenses.fuel")} value={profile.carFuel} onChange={(v) => update({ carFuel: v })} min={0} max={5000} step={100} unit={t("unit.krMonth")} />
+                  <CompactSlider icon="🛡️" label={t("step.expenses.carInsurance")} value={profile.carInsurance} onChange={(v) => update({ carInsurance: v })} min={0} max={12000} step={100} unit={t("unit.krYear")} />
+                  <CompactSlider icon="📋" label={t("step.expenses.carTax")} value={profile.carTax} onChange={(v) => update({ carTax: v })} min={0} max={8000} step={100} unit={t("unit.krYear")} />
+                  <CompactSlider icon="🔧" label={t("step.expenses.carService")} value={profile.carService} onChange={(v) => update({ carService: v })} min={0} max={5000} step={100} unit={t("unit.krHalfYear")} />
                 </motion.div>
               )}
             </div>
@@ -609,29 +596,24 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             {/* ── Forsyninger ── */}
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.expenses.utilities")}</h3>
-              <div className="space-y-1.5">
-                {[
-                  { icon: "📡", label: isNO ? "Internett" : t("step.expenses.internet"), field: "internetAmount" as const, def: isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price },
-                  { icon: "📱", label: isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo"), field: "mobileAmount" as const, def: (isNO ? NO_UTILITIES : UTILITIES).mobile.price_per_person * (isPar ? 2 : 1) },
-                  { icon: "⚡", label: isNO ? "Strøm" : t("step.expenses.electricity"), field: "electricityAmount" as const, def: isPar ? (isNO ? NO_UTILITIES : UTILITIES).electricity.price_par : (isNO ? NO_UTILITIES : UTILITIES).electricity.price_solo },
-                  { icon: "🔥", label: isNO ? "Oppvarming/vann" : t("step.expenses.heating"), field: "heatingAmount" as const, def: isPar ? (isNO ? NO_UTILITIES : UTILITIES).heating.price_par : (isNO ? NO_UTILITIES : UTILITIES).heating.price_solo },
-                  ...(!isNO ? [{ icon: "📺", label: t("step.expenses.drLicens"), field: "drAmount" as const, def: UTILITIES.dr_licens.price }] : []),
-                ].map((u) => (
-                  <div key={u.field} className="flex items-center justify-between rounded-2xl border border-border bg-muted/30 px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-base">{u.icon}</span>
-                      <span className="text-sm font-medium">{u.label}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <input type="number" inputMode="numeric" min={0}
-                        value={profile[u.field] ?? u.def}
-                        onChange={(e) => update({ [u.field]: Math.max(0, Number(e.target.value)) })}
-                        className="w-20 text-right text-sm font-semibold tabular-nums bg-transparent border-b border-border focus:outline-none focus:border-primary"
-                      />
-                      <span className="text-xs text-muted-foreground">{t("freq.monthlyShort")}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-2">
+                <CompactSlider icon="📡" label={isNO ? "Internett" : t("step.expenses.internet")}
+                  value={profile.internetAmount ?? (isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price)}
+                  onChange={(v) => update({ internetAmount: v })} min={0} max={600} step={10} unit={t("unit.krMonth")} />
+                <CompactSlider icon="📱" label={isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo")}
+                  value={profile.mobileAmount ?? (isNO ? NO_UTILITIES : UTILITIES).mobile.price_per_person * (isPar ? 2 : 1)}
+                  onChange={(v) => update({ mobileAmount: v })} min={0} max={isPar ? 800 : 400} step={10} unit={t("unit.krMonth")} />
+                <CompactSlider icon="⚡" label={isNO ? "Strøm" : t("step.expenses.electricity")}
+                  value={profile.electricityAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).electricity.price_par : (isNO ? NO_UTILITIES : UTILITIES).electricity.price_solo)}
+                  onChange={(v) => update({ electricityAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
+                <CompactSlider icon="🔥" label={isNO ? "Oppvarming/vann" : t("step.expenses.heating")}
+                  value={profile.heatingAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).heating.price_par : (isNO ? NO_UTILITIES : UTILITIES).heating.price_solo)}
+                  onChange={(v) => update({ heatingAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
+                {!isNO && (
+                  <CompactSlider icon="📺" label={t("step.expenses.drLicens")}
+                    value={profile.drAmount ?? UTILITIES.dr_licens.price}
+                    onChange={(v) => update({ drAmount: v })} min={0} max={300} step={5} unit={t("unit.krMonth")} />
+                )}
               </div>
             </div>
 
