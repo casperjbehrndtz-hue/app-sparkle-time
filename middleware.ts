@@ -13,7 +13,7 @@ const BOT_REGEX = new RegExp(BOT_PATTERNS.join("|"), "i");
 
 // ── Site config ──
 const SITE_URL = "https://nemtbudget.nu";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-nemtbudget.png`;
 
 // ── Supabase config ──
 const SUPABASE_URL = "https://gpzuhhfpwokevsljyumt.supabase.co";
