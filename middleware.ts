@@ -238,9 +238,11 @@ export default async function middleware(request: Request) {
     return next();
   }
 
-  // Check if request is from a bot
+  // Check if request is from a bot or non-browser tool (e.g. AI fetch, curl, API clients).
+  // Real browsers always include "Mozilla" in their UA string.
   const userAgent = request.headers.get("user-agent") || "";
-  if (BOT_REGEX.test(userAgent)) {
+  const isBot = BOT_REGEX.test(userAgent) || !userAgent || !userAgent.includes("Mozilla");
+  if (isBot) {
     const html = await buildBotHTML(pathname);
     return new Response(html, {
       status: 200,
