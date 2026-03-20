@@ -41,6 +41,10 @@ const BOT_REGEX = new RegExp(BOT_PATTERNS.join("|"), "i");
 const SITE_URL = "https://nemtbudget.nu";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
+// ── Supabase config (anon key is public — used in frontend) ──
+const SUPABASE_URL = "https://gpzuhhfpwokevsljyumt.supabase.co";
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+
 // ── Route meta data ──
 interface RouteMeta {
   title: string;
@@ -51,7 +55,29 @@ interface RouteMeta {
   ogType?: string;
 }
 
-function getRouteMeta(pathname: string): RouteMeta {
+async function fetchArticleMeta(slug: string): Promise<RouteMeta | null> {
+  if (!SUPABASE_ANON_KEY) return null;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/articles?select=title,excerpt&slug=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+    );
+    if (!res.ok) return null;
+    const rows = await res.json();
+    const row = rows?.[0];
+    if (!row?.title) return null;
+    return {
+      title: `${row.title} — NemtBudget`,
+      description: row.excerpt || `Læs "${row.title}" på NemtBudget.`,
+      ogTitle: row.title,
+      ogDescription: row.excerpt || `Gratis guide om dansk privatøkonomi.`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function getRouteMeta(pathname: string): Promise<RouteMeta> {
   const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
 
   const routes: Record<string, RouteMeta> = {
@@ -125,6 +151,11 @@ function getRouteMeta(pathname: string): RouteMeta {
   }
 
   if (path.startsWith("/guides/")) {
+    const slug = path.replace("/guides/", "");
+    if (slug) {
+      const dynamic = await fetchArticleMeta(slug);
+      if (dynamic) return dynamic;
+    }
     return {
       title: "Guide — NemtBudget",
       description:
@@ -138,8 +169,8 @@ function getRouteMeta(pathname: string): RouteMeta {
 }
 
 // ── Build HTML response for bots ──
-function buildBotHTML(pathname: string): string {
-  const meta = getRouteMeta(pathname);
+async function buildBotHTML(pathname: string): Promise<string> {
+  const meta = await getRouteMeta(pathname);
   const canonicalUrl = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
   const ogTitle = meta.ogTitle || meta.title;
   const ogDesc = meta.ogDescription || meta.description;
@@ -193,7 +224,7 @@ function buildBotHTML(pathname: string): string {
 }
 
 // ── Middleware ──
-export default function middleware(request: Request) {
+export default async function middleware(request: Request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
@@ -210,7 +241,7 @@ export default function middleware(request: Request) {
   // Check if request is from a bot
   const userAgent = request.headers.get("user-agent") || "";
   if (BOT_REGEX.test(userAgent)) {
-    const html = buildBotHTML(pathname);
+    const html = await buildBotHTML(pathname);
     return new Response(html, {
       status: 200,
       headers: {
