@@ -247,4 +247,18 @@ describe("parsePayslipResponse", () => {
     // num() returns fallback 0 for values > max, then 0 <= 0 returns null
     expect(parsePayslipResponse(validPayslip({ bruttolon: 600000 }))).toBeNull();
   });
+
+  // ── ATP defaults to 99 when missing ──
+  it("defaults ATP to 99 for full-time (brutto >= 10000)", () => {
+    const result = parsePayslipResponse(validPayslip({ atp: 0 }));
+    expect(result).not.toBeNull();
+    expect(result!.atp).toBe(99);
+    expect(result!.warnings.some(w => w.includes("ATP"))).toBe(true);
+  });
+
+  it("does not default ATP for very low brutto (part-time indicator)", () => {
+    const result = parsePayslipResponse(validPayslip({ bruttolon: 5000, nettolon: 3000, atp: 0 }));
+    expect(result).not.toBeNull();
+    expect(result!.atp).toBe(0);
+  });
 });

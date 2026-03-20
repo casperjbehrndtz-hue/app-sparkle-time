@@ -273,6 +273,13 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
 
   const extraWarnings: string[] = [];
 
+  // ATP is mandatory for all Danish full-time employees (~99 kr/month)
+  let atp = num("atp");
+  if (atp === 0 && bruttolon >= 10000) {
+    atp = 99;
+    extraWarnings.push("ATP sat til 99 kr/md (standard fuldtid). Ret hvis deltid.");
+  }
+
   // If nettolon is missing or zero, estimate from brutto (user can correct in verification)
   if (nettolon <= 0) {
     nettolon = Math.round(bruttolon * 0.63); // rough Danish average
@@ -315,7 +322,7 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
     nettolon,
     amBidrag: num("amBidrag"),
     aSkat: num("aSkat"),
-    atp: num("atp"),
+    atp,
     pensionEmployee: num("pensionEmployee"),
     pensionEmployer: num("pensionEmployer"),
     traekkort: num("traekkort", 0, 100),

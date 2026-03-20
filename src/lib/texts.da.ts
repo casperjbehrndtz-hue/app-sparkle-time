@@ -99,6 +99,14 @@ export const DA: Record<string, string> = {
   "step.income.tipSolo": "Gennemsnitlig indkomst for enlige i Danmark er ca. 27.000 kr./md. efter skat.",
   "step.income.tipCouple": "Gennemsnitlig husstandsindkomst for par i Danmark er ca. 52.000 kr./md. efter skat.",
   "step.income.netTip": "Indtast løn efter skat (netto — det du får udbetalt)",
+  "step.income.payslip.title": "Har du din lønseddel?",
+  "step.income.payslip.hint": "Upload foto eller PDF — vi læser beløbet automatisk",
+  "step.income.payslip.analyzing": "Analyserer lønseddel...",
+  "step.income.payslip.success": "Lønseddel aflæst!",
+  "step.income.payslip.applied": "Indkomst og fradrag er udfyldt automatisk.",
+  "step.income.payslip.retry": "Prøv igen",
+  "step.income.payslip.clear": "Fjern",
+  "step.income.payslip.divider": "eller indtast manuelt",
 
   // Onboarding — housing
   "step.housing.title": "Boligsituation",
@@ -155,6 +163,10 @@ export const DA: Record<string, string> = {
   "step.expenses.savingsSub": "Fast opsparing pr. måned",
   "step.everyday.title": "Hverdagsudgifter",
   "step.everyday.subtitle": "Juster dine daglige udgifter — vi har udfyldt med gennemsnit",
+  "step.everyday.smartDefaults": "Vi har gættet dit hverdagsbudget — justér det der ikke passer.",
+  "step.fixed.title": "Faste udgifter",
+  "step.fixed.subtitle": "Abonnementer, forsikring og andet fast.",
+  "step.fixed.smartDefaults": "Faste udgifter — vi har udfyldt med typiske danske priser.",
   "step.expenses.custom": "Egne udgifter",
   "step.expenses.customPlaceholder": "F.eks. Kontaktlinser",
   "step.expenses.seeOverview": "Se overblik",
@@ -990,7 +1002,8 @@ export const DA: Record<string, string> = {
   "step.income.minWarning": "Indtast mindst 1.000 kr. i samlet indkomst for at fortsætte.",
   "onboarding.encourage.income": "Super! Nu ved vi hvem du er 🎯",
   "onboarding.encourage.housing": "Godt klaret — nu tager vi boligen 🏠",
-  "onboarding.encourage.expenses": "Halvvejs! Boligen er på plads ✅",
+  "onboarding.encourage.everyday": "Halvvejs! Boligen er på plads ✅",
+  "onboarding.encourage.fixed": "Næsten færdig — bare de faste udgifter 📋",
   "onboarding.encourage.review": "Sidste trin — du er næsten i mål! 🏁",
 
   // Error boundary
@@ -1118,7 +1131,7 @@ export const DA: Record<string, string> = {
   "payslip.processingHint": "AI'en analyserer tal, fradrag og kontekst",
   "payslip.step1": "Upload billede eller PDF",
   "payslip.step2": "AI læser alle tal",
-  "payslip.step3": "Anonymiseret og klar til deling",
+  "payslip.step3": "Anonymt delingskort — klar til Reddit",
   "payslip.result.title": "Din lønseddel",
   "payslip.result.employer": "Arbejdsgiver",
   "payslip.result.municipality": "Kommune",
@@ -1207,8 +1220,8 @@ export const DA: Record<string, string> = {
   "payslip.meta.title": "Forstå din lønseddel på 10 sekunder — nemtbudget.nu",
   "payslip.meta.description": "Upload din lønseddel og forstå hvert eneste fradrag. Se hvad AM-bidrag, A-skat og pension betyder — og om din løn er normal for din branche.",
   "payslip.landing.headline": "Forstå din lønseddel på 10 sekunder",
-  "payslip.landing.subheadline": "Upload din lønseddel — vi forklarer hvert fradrag, tjekker om din løn er normal, og du kan dele anonymt på Reddit",
-  "payslip.landing.socialProof": "73.000+ ugentlige besøgende på r/dkloenseddel vil forstå deres lønseddel",
+  "payslip.landing.subheadline": "Upload din lønseddel — vi forklarer hvert fradrag, tjekker om din løn er normal, og laver et anonymt delingskort klar til f.eks. r/dkloenseddel eller r/dkfinance",
+  "payslip.landing.socialProof": "Klar til deling på r/dkloenseddel, r/dkfinance eller andre fora",
 
   // Deduction explanations — shown when user taps a deduction row
   "payslip.explain.amBidrag": "AM-bidrag (arbejdsmarkedsbidrag) er en skat på 8% der finansierer dagpenge, sygedagpenge og arbejdsmarkedsuddannelser. Alle lønmodtagere betaler det — det er det første der trækkes fra din løn.",

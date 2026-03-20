@@ -255,6 +255,14 @@ Deno.serve(async (req: Request) => {
     const warnings: string[] = Array.isArray(p.warnings) ? (p.warnings as string[]) : [];
 
     if (brutto > 0) {
+      // ATP is mandatory for all full-time employees (~99 kr/month)
+      // If AI missed it, set a reasonable default
+      const atp = num("atp");
+      if (atp === 0 && brutto >= 10000) {
+        p.atp = 99;
+        warnings.push("ATP sat til 99 kr/md (standard fuldtid).");
+      }
+
       // Check AM-bidrag ≈ 8% of (brutto - employer pension) — if way off, AI likely read accumulated
       const expectedAm = Math.round((brutto - num("pensionEmployer")) * 0.08);
       const amOff = am > 0 && Math.abs(am - expectedAm) > expectedAm * 0.5; // >50% off

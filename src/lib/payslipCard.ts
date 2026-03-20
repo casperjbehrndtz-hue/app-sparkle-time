@@ -56,8 +56,15 @@ export async function exportPayslipCard(
   const S = (v: number) => v * scale;
 
   const fmt = (n: number) => formatKr(n, currencyLocale);
-  const pct = (n: number, total: number) =>
-    total > 0 ? Math.round((n / total) * 100) : 0;
+  const pct = (n: number, total: number) => {
+    if (total <= 0) return 0;
+    const raw = (n / total) * 100;
+    return raw > 0 && raw < 1 ? 0.5 : Math.round(raw); // 0.5 signals "<1" below
+  };
+  const pctLabel = (n: number, total: number) => {
+    const v = pct(n, total);
+    return v === 0.5 ? "<1" : String(Math.round(v));
+  };
 
   const deductions = getDeductionLines(payslip);
   const brutto = payslip.bruttolon;
@@ -326,9 +333,9 @@ export async function exportPayslipCard(
   let legendX = S(pad);
 
   const legendItems = [
-    { label: `Netto ${netPct}%`, color: C.green },
+    { label: `Netto ${pctLabel(netto, brutto)}%`, color: C.green },
     ...deductions.slice(0, 4).map(d => ({
-      label: `${(d.i18nKey.startsWith("__raw:") ? d.i18nKey.slice(6) : t(d.i18nKey)).split(" (")[0]} ${pct(d.amount, brutto)}%`,
+      label: `${(d.i18nKey.startsWith("__raw:") ? d.i18nKey.slice(6) : t(d.i18nKey)).split(" (")[0]} ${pctLabel(d.amount, brutto)}%`,
       color: deductionColors[d.key] || C.gray,
     })),
   ];
@@ -345,8 +352,9 @@ export async function exportPayslipCard(
 
   y += S(legendH + 16);
 
-  // Engagement trigger: effective tax rate
-  const effectiveRate = brutto > 0 ? ((totalDeductions / brutto) * 100).toFixed(1) : "0";
+  // Engagement trigger: effective tax rate (only actual taxes, not pension/savings)
+  const taxOnly = payslip.amBidrag + payslip.aSkat + payslip.atp;
+  const effectiveRate = brutto > 0 ? ((taxOnly / brutto) * 100).toFixed(1) : "0";
   const triggerY = y;
   const triggerH = S(statsH);
 
@@ -357,7 +365,7 @@ export async function exportPayslipCard(
   ctx.fillStyle = C.green;
   ctx.font = sansFont("400", 13);
   ctx.textAlign = "left";
-  const t1 = "Din reelle skattebelastning: ";
+  const t1 = "Effektiv skattesats: ";
   ctx.fillText(t1, S(pad + 16), triggerY + S(22));
 
   const t1w = ctx.measureText(t1).width;
@@ -367,7 +375,7 @@ export async function exportPayslipCard(
   ctx.fillStyle = C.textLabel;
   ctx.font = sansFont("400", 11);
   ctx.fillText(
-    `Inkl. AM-bidrag og pension betaler du ${fmt(totalDeductions)} kr. i skat og bidrag`,
+    `AM-bidrag + A-skat + ATP = ${fmt(taxOnly)} kr. i skat af ${fmt(brutto)} kr. brutto`,
     S(pad + 16), triggerY + S(40),
   );
 
