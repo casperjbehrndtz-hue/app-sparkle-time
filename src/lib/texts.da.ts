@@ -1219,11 +1219,11 @@ export const DA: Record<string, string> = {
   "payslip.share.step2Hint": "Indsæt billedet med Ctrl+V i Reddit-opslaget",
   "payslip.share.includeBudget": "Inkluder mit budget i billedet",
   "salary.autoContributed": "Din anonyme løndata hjælper andre med at sammenligne",
-  "payslip.meta.title": "Forstå din lønseddel på 10 sekunder — nemtbudget.nu",
-  "payslip.meta.description": "Upload din lønseddel og forstå hvert eneste fradrag. Se hvad AM-bidrag, A-skat og pension betyder — og om din løn er normal for din branche.",
-  "payslip.landing.headline": "Forstå din lønseddel på 10 sekunder",
-  "payslip.landing.subheadline": "Upload din lønseddel — vi forklarer hvert fradrag, tjekker om din løn er normal, og laver et anonymt delingskort klar til f.eks. r/dkloenseddel eller r/dkfinance",
-  "payslip.landing.socialProof": "Klar til deling på r/dkloenseddel, r/dkfinance eller andre fora",
+  "payslip.meta.title": "Scan din lønseddel — se skjulte goder og sammenlign din løn",
+  "payslip.meta.description": "Upload din lønseddel og se præcis hvad du betaler i skat, hvad arbejdsgiveren betaler for dig, og om din løn er over eller under medianen i din branche.",
+  "payslip.landing.headline": "Scan din lønseddel — se hvad du går glip af",
+  "payslip.landing.subheadline": "Upload et billede eller PDF. Vi finder skjulte goder, sammenligner din løn med branchen, og laver et budget klar på 10 sekunder.",
+  "payslip.landing.socialProof": "Del anonymt på r/dkloenseddel, r/dkfinance eller andre fora",
 
   // Deduction explanations — shown when user taps a deduction row
   "payslip.explain.amBidrag": "AM-bidrag (arbejdsmarkedsbidrag) er en skat på 8% der finansierer dagpenge, sygedagpenge og arbejdsmarkedsuddannelser. Alle lønmodtagere betaler det — det er det første der trækkes fra din løn.",
