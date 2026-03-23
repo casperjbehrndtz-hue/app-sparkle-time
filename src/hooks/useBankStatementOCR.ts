@@ -2,70 +2,12 @@ import { useState, useCallback } from "react";
 import { parseBankStatementResponse, type BankStatementRaw, type StatementAnalysis } from "@/lib/bankStatementTypes";
 import { parseCSV } from "@/lib/csvParser";
 import { analyzeStatement } from "@/lib/statementAnalyzer";
+import { compressImage } from "@/lib/imageUtils";
 import type { BudgetProfile } from "@/lib/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-/** Resize image client-side to reduce upload size */
-async function compressImage(file: File): Promise<{ base64: string; mimeType: string }> {
-  // PDFs: send as-is
-  if (file.type === "application/pdf") {
-    const buf = await file.arrayBuffer();
-    const bytes = new Uint8Array(buf);
-    let binary = "";
-    for (const b of bytes) binary += String.fromCharCode(b);
-    return { base64: btoa(binary), mimeType: "application/pdf" };
-  }
-
-  // Images: resize to max 1600px and compress as JPEG
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-
-      const maxDim = 1600;
-      let { width, height } = img;
-      if (width > maxDim || height > maxDim) {
-        const scale = maxDim / Math.max(width, height);
-        width = Math.round(width * scale);
-        height = Math.round(height * scale);
-      }
-
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject(new Error("Canvas toBlob failed"));
-          const reader = new FileReader();
-          reader.onload = () => {
-            const dataUrl = reader.result as string;
-            const base64 = dataUrl.split(",")[1];
-            resolve({ base64, mimeType: "image/jpeg" });
-          };
-          reader.onerror = () => reject(new Error("FileReader failed"));
-          reader.readAsDataURL(blob);
-        },
-        "image/jpeg",
-        0.82,
-      );
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Image load failed"));
-    };
-
-    img.src = url;
-  });
-}
 
 /** Read file as text for CSV parsing */
 async function readFileAsText(file: File): Promise<string> {

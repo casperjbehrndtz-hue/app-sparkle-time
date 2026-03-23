@@ -14,10 +14,10 @@ export const EN: Record<string, string> = {
   "nav.advanced": "In-depth",
 
   // Hero
-  "hero.title": "Take control of",
-  "hero.titleHighlight": "your finances.",
-  "hero.subtitle": "Find hidden expenses, see what you really have left and be prepared for the future — free, private and in 3 minutes.",
-  "hero.cta": "Check your finances for free",
+  "hero.title": "Do you know what you really have",
+  "hero.titleHighlight": "left each month?",
+  "hero.subtitle": "Most people overestimate their disposable income by 3,000-5,000 kr. Find your hidden expenses in 3 minutes — free and private.",
+  "hero.cta": "See your disposable income now",
   "hero.imageAlt": "Personal finance and budget overview",
   "hero.socialProof": "1,200+ Danes have already checked their budget",
 
@@ -54,8 +54,8 @@ export const EN: Record<string, string> = {
   "testimonials.title": "What others say",
 
   // Bottom CTA
-  "bottomCta.title": "Ready to get started?",
-  "bottomCta.subtitle": "It only takes 3 minutes — and it's completely free.",
+  "bottomCta.title": "3 minutes. 0 kroner. Full overview.",
+  "bottomCta.subtitle": "Most people find at least one expense they didn't know they were paying.",
   "bottomCta.noLogin": "No login · No data shared · Everything stored locally",
 
   // Footer
@@ -216,7 +216,7 @@ export const EN: Record<string, string> = {
   "dash.subscriptions": "Subscriptions",
 
   // Sections
-  "section.cockpit": "Cockpit",
+  "section.cockpit": "Overview",
   "section.cockpitSub": "Your financial overview — everything in one place.",
   "section.overview": "Overview",
   "section.overviewSub": "Where does your money go? See it all at a glance.",
@@ -785,7 +785,7 @@ export const EN: Record<string, string> = {
   "forward.exceedsRecommendation": "You exceed the recommendation!",
   "forward.currentLabel": "Current",
   "forward.leftAfter": "DKK left",
-  "forward.mortgageSearch": "ortgage",
+  "forward.mortgageSearch": "Mortgage",
   "forward.seeRefinance": "See what refinancing can do →",
 
   // ShareCard
@@ -1217,6 +1217,7 @@ export const EN: Record<string, string> = {
   "payslip.share.step2Hint": "Paste the image with Ctrl+V in the Reddit post",
   "payslip.share.includeBudget": "Include my budget in the image",
   "salary.autoContributed": "Your anonymous salary data helps others compare",
+  "salary.consentLabel": "Yes, contribute my anonymous salary to the shared salary statistics. Only industry, region, and rounded gross/net salary are shared — no personal data.",
   "payslip.meta.title": "Scan your payslip — find hidden benefits and compare your salary",
   "payslip.meta.description": "Upload your payslip and see exactly what you pay in tax, what your employer pays for you, and whether your salary is above or below the median in your industry.",
   "payslip.landing.headline": "Scan your payslip — see what you're missing",
@@ -1328,6 +1329,15 @@ export const EN: Record<string, string> = {
   "a11y.historyScore": "Health score over time",
   "a11y.partnerSplit": "Expense distribution between partners",
   "a11y.bucketChart": "Budget distribution by category",
+  "a11y.skipToContent": "Skip to content",
+
+  // Consent & dropzone accessibility
+  "salary.consentLabel": "Help others: Share your anonymous salary data (industry + region + salary level) so others can compare. We never store your name or personal ID.",
+  "payslip.dropzone.ariaLabel": "Upload payslip — drag and drop or click",
+  "pengetjek.dropzone.ariaLabel": "Upload bank statement — drag and drop or click",
+
+  // Homepage meta
+  "meta.title": "Free budget calculator — Calculate your disposable income | NemtBudget",
 
   // ── Money Check ──
   "pengetjek.meta.title": "Money Check — See where your money goes | NemtBudget.nu",

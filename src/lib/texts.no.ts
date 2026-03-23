@@ -15,10 +15,10 @@ export const NO: Record<string, string> = {
   "nav.advanced": "Dybdegående",
 
   // Hero
-  "hero.title": "Ta kontroll over",
-  "hero.titleHighlight": "din privatøkonomi.",
-  "hero.subtitle": "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden — gratis, privat og på 3 minutter.",
-  "hero.cta": "Sjekk økonomien din gratis",
+  "hero.title": "Vet du hva du faktisk har",
+  "hero.titleHighlight": "til overs hver måned?",
+  "hero.subtitle": "De fleste overvurderer disponibelt beløp med 3 000-5 000 kr. Finn dine skjulte utgifter på 3 minutter — gratis og privat.",
+  "hero.cta": "Se ditt disponible beløp nå",
   "hero.imageAlt": "Personlig økonomi og budsjettoverikt",
   "hero.socialProof": "1.200+ nordmenn har allerede sjekket budsjettet sitt",
 
@@ -55,8 +55,8 @@ export const NO: Record<string, string> = {
   "testimonials.title": "Hva andre sier",
 
   // Bottom CTA
-  "bottomCta.title": "Klar til å komme i gang?",
-  "bottomCta.subtitle": "Det tar bare 3 minutter — og koster ingenting.",
+  "bottomCta.title": "3 minutter. 0 kroner. Full oversikt.",
+  "bottomCta.subtitle": "De fleste finner minst én utgift de ikke visste de betalte.",
   "bottomCta.noLogin": "Ingen innlogging · Ingen data deles · Alt lagres lokalt",
 
   // Footer
@@ -217,8 +217,8 @@ export const NO: Record<string, string> = {
   "dash.subscriptions": "Abonnementer",
 
   // Sections
-  "section.cockpit": "Cockpit",
-  "section.cockpitSub": "Ditt økonomiske oversikt — alt på ett sted.",
+  "section.cockpit": "Oversikt",
+  "section.cockpitSub": "Din økonomiske oversikt — alt på ett sted.",
   "section.overview": "Oversikt",
   "section.overviewSub": "Hvor går pengene dine? Se det hele i ett blikk.",
   "section.action": "Handling",
@@ -626,7 +626,7 @@ export const NO: Record<string, string> = {
   "forward.years": "år",
   "forward.estimatedWealth": "Estimert formue (bolig)",
   "forward.estDebt": "Est. gjeld (~70%)",
-  "forward.netWorth": "Net worth",
+  "forward.netWorth": "Nettoformue",
   "forward.goalsProgress": "Mål & fremgang",
   "forward.rateShockSim": "Rentesjokk-simulator",
   "forward.vulnerableEconomy": "Sårbar økonomi",
@@ -786,7 +786,7 @@ export const NO: Record<string, string> = {
   "forward.exceedsRecommendation": "Du overstiger anbefalingen!",
   "forward.currentLabel": "Nåværende",
   "forward.leftAfter": "kr. igjen",
-  "forward.mortgageSearch": "oliglån",
+  "forward.mortgageSearch": "Boliglån",
   "forward.seeRefinance": "Se hva refinansiering kan gjøre →",
 
   // ShareCard
@@ -1218,6 +1218,7 @@ export const NO: Record<string, string> = {
   "payslip.share.step2Hint": "Lim inn bildet med Ctrl+V i Reddit-innlegget",
   "payslip.share.includeBudget": "Inkluder budsjettet mitt i bildet",
   "salary.autoContributed": "Din anonyme lønnsdata hjelper andre med å sammenligne",
+  "salary.consentLabel": "Ja, bidra anonymt med lønnen min til den felles lønnsstatistikken. Kun bransje, region og avrundet bruttolønn/nettolønn deles — ingen persondata.",
   "payslip.meta.title": "Skann lønnsslippen din — finn skjulte goder og sammenlign lønnen",
   "payslip.meta.description": "Last opp lønnsslippen og se nøyaktig hva du betaler i skatt, hva arbeidsgiveren betaler for deg, og om lønnen din er over eller under medianen i bransjen.",
   "payslip.landing.headline": "Skann lønnsslippen — se hva du går glipp av",
@@ -1329,6 +1330,15 @@ export const NO: Record<string, string> = {
   "a11y.historyScore": "Helsescore over tid",
   "a11y.partnerSplit": "Utgiftsfordeling mellom partnere",
   "a11y.bucketChart": "Budsjettfordeling etter kategori",
+  "a11y.skipToContent": "Hopp til innhold",
+
+  // Consent & dropzone accessibility
+  "salary.consentLabel": "Hjelp andre: Del din anonyme lønnsdata (bransje + region + lønnsnivå) slik at andre kan sammenligne. Vi lagrer aldri navnet ditt eller personnummer.",
+  "payslip.dropzone.ariaLabel": "Last opp lønnsslipp — dra og slipp eller klikk",
+  "pengetjek.dropzone.ariaLabel": "Last opp kontoutskrift — dra og slipp eller klikk",
+
+  // Homepage meta
+  "meta.title": "Gratis budsjettkalkulator — Se ditt disponible beløp | NemtBudget",
 
   // ── Pengesjekken ──
   "pengetjek.meta.title": "Pengesjekken — Se hvor pengene dine forsvinner | NemtBudget.nu",

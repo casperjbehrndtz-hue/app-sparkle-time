@@ -83,6 +83,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
   } | null>(null);
   const [selectedDSTIndustry, setSelectedDSTIndustry] = useState<string | null>(null);
   const [showAllIndustries, setShowAllIndustries] = useState(false);
+  const [salaryConsent, setSalaryConsent] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [teaserUrl, setTeaserUrl] = useState<string | null>(null);
@@ -178,22 +179,16 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
     });
   }, [selectedDSTIndustry, salaryCompBrutto]);
 
-  // Auto-contribute anonymized salary data (skip atypical months — would pollute data)
+  // Contribute anonymized salary data only after explicit consent
   useEffect(() => {
-    if (!payslip.anonIndustry || !payslip.anonRegion || isAtypical) return;
-    const taxPct = payslip.traekkort > 0 ? payslip.traekkort : undefined;
-    const pensionPct = payslip.bruttolon > 0
-      ? Math.round(((payslip.pensionEmployee + payslip.pensionEmployer) / payslip.bruttolon) * 100 * 10) / 10
-      : undefined;
+    if (!salaryConsent || !payslip.anonIndustry || !payslip.anonRegion || isAtypical) return;
     submitSalaryObservation({
       industry: payslip.anonIndustry,
       region: payslip.anonRegion,
       gross_monthly: payslip.bruttolon,
       net_monthly: payslip.nettolon,
-      tax_pct: taxPct,
-      pension_pct: pensionPct,
     });
-  }, [payslip, isAtypical]);
+  }, [payslip, isAtypical, salaryConsent]);
 
   const handleCopyText = async () => {
     const text = generatePayslipText(payslip, t, lc);
@@ -816,12 +811,20 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
         )}
       </div>
 
-      {/* Auto-contributed */}
-      {payslip.anonIndustry && payslip.anonRegion && (
-        <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
-          <Heart className="w-3 h-3" />
-          {t("salary.autoContributed")}
-        </p>
+      {/* Salary observation opt-in */}
+      {payslip.anonIndustry && payslip.anonRegion && !isAtypical && (
+        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
+          <input
+            type="checkbox"
+            id="salary-consent"
+            checked={salaryConsent}
+            onChange={(e) => setSalaryConsent(e.target.checked)}
+            className="rounded border-border text-primary focus:ring-primary/30 w-4 h-4 shrink-0"
+          />
+          <label htmlFor="salary-consent" className="text-[11px] text-muted-foreground leading-relaxed cursor-pointer">
+            {t("salary.consentLabel")}
+          </label>
+        </div>
       )}
 
       {/* ── SECTION 5: Private info ── */}

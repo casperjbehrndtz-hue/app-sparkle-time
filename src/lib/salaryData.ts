@@ -68,13 +68,18 @@ interface SalaryPercentiles {
 /** Submit an anonymized salary observation (fire-and-forget). */
 export async function submitSalaryObservation(obs: SalaryObservation): Promise<void> {
   try {
+    // Bounds checking — reject implausible values
+    if (obs.gross_monthly < 10000 || obs.gross_monthly > 200000) return;
+
+    // Round to nearest 1000 to reduce re-identification risk
+    const grossRounded = Math.round(obs.gross_monthly / 1000) * 1000;
+    const netRounded = Math.round(obs.net_monthly / 1000) * 1000;
+
     await supabase.from("salary_observations").insert({
       industry: obs.industry,
       region: obs.region,
-      gross_monthly: obs.gross_monthly,
-      net_monthly: obs.net_monthly,
-      tax_pct: obs.tax_pct ?? null,
-      pension_pct: obs.pension_pct ?? null,
+      gross_monthly: grossRounded,
+      net_monthly: netRounded,
     });
   } catch {
     // fire-and-forget — silently discard errors

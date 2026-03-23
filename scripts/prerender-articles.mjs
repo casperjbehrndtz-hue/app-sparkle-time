@@ -34,7 +34,7 @@ loadEnv();
 
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const SITE_URL = (process.env.VITE_SITE_URL ?? "https://kassen.dk").replace(/\/$/, "");
+const SITE_URL = (process.env.VITE_SITE_URL ?? "https://nemtbudget.nu").replace(/\/$/, "");
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function esc(str) {
@@ -146,14 +146,14 @@ function buildPage(shellHtml, article) {
     inLanguage: "da",
     publisher: {
       "@type": "Organization",
-      name: "Kassen",
+      name: "NemtBudget",
       url: SITE_URL,
     },
   });
 
   // Replace all generic SEO tags with article-specific ones
   let html = shellHtml
-    .replace(/<title>.*?<\/title>/, `<title>${esc(title)} — Kassen</title>`)
+    .replace(/<title>.*?<\/title>/, `<title>${esc(title)} — NemtBudget</title>`)
     .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(description)}">`)
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(title)}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(description)}">`)
@@ -185,7 +185,7 @@ function buildPage(shellHtml, article) {
   <div style="margin-top:64px;padding:32px;background:#1a2332;border-radius:16px;text-align:center;">
     <h3 style="color:#fff;font-size:1.25rem;font-weight:700;margin-bottom:8px;">Beregn dit eget rådighedsbeløb</h3>
     <p style="color:rgba(255,255,255,0.6);font-size:14px;margin-bottom:20px;">Gratis · 3 minutter · Ingen login</p>
-    <a href="/" style="display:inline-block;padding:12px 24px;background:#fff;color:#1a2332;font-weight:600;font-size:14px;border-radius:12px;text-decoration:none;">Prøv Kassen →</a>
+    <a href="/" style="display:inline-block;padding:12px 24px;background:#fff;color:#1a2332;font-weight:600;font-size:14px;border-radius:12px;text-decoration:none;">Prøv NemtBudget →</a>
   </div>
 </main>
 </div>`;

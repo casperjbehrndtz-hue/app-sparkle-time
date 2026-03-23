@@ -43,6 +43,8 @@ const STATIC_ROUTES = [
   { path: "/install",  changefreq: "yearly",  priority: "0.4" },
   { path: "/privatliv",changefreq: "yearly",  priority: "0.3" },
   { path: "/vilkaar",  changefreq: "yearly",  priority: "0.3" },
+  { path: "/lonseddel",changefreq: "monthly", priority: "0.8" },
+  { path: "/pengetjek",changefreq: "monthly", priority: "0.8" },
 ];
 
 // ─── Fetch published article slugs from Supabase ──────────────────────────

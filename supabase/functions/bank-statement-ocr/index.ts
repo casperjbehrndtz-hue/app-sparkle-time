@@ -205,11 +205,11 @@ Deno.serve(async (req: Request) => {
           parsed = JSON.parse(repaired);
           console.warn("bank-statement-ocr: repaired truncated JSON successfully");
         } catch {
-          console.error("bank-statement-ocr: JSON repair failed. Raw text:", text.slice(0, 500));
+          console.error("bank-statement-ocr: JSON repair failed. Response length:", text.length);
         }
       }
       if (!parsed) {
-        console.error("bank-statement-ocr: JSON parse failed. Raw text:", text.slice(0, 500));
+        console.error("bank-statement-ocr: JSON parse failed. Response length:", text.length);
         return new Response(
           JSON.stringify({ error: "Kunne ikke læse kontoudtoget — prøv et tydeligere billede" }),
           { status: 422, headers: { ...cors, "Content-Type": "application/json" } },

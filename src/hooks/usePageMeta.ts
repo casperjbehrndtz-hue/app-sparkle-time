@@ -48,8 +48,28 @@ export function usePageMeta(
       };
     }
 
-    // Hreflang alternate links (DA/EN/NO — same URL, client-side toggle)
-    const hreflangCodes = ["da", "en", "no", "x-default"] as const;
+    // Canonical tag — strip query params, point to nemtbudget.nu
+    const canonicalHref = `https://nemtbudget.nu${window.location.pathname}`;
+    let canonicalLink = document.querySelector(
+      'link[rel="canonical"]'
+    ) as HTMLLinkElement | null;
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.rel = "canonical";
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = canonicalHref;
+
+    // Hreflang alternate links (DA + x-default only — same URL serves all languages client-side)
+    // Remove stale en/no hreflang tags if present
+    for (const stale of ["en", "no"]) {
+      const el = document.querySelector(
+        `link[rel="alternate"][hreflang="${stale}"]`
+      );
+      if (el) el.remove();
+    }
+
+    const hreflangCodes = ["da", "x-default"] as const;
     const hreflangLinks: HTMLLinkElement[] = [];
     for (const code of hreflangCodes) {
       // Remove any existing hreflang link for this code
@@ -62,7 +82,7 @@ export function usePageMeta(
       link.rel = "alternate";
       link.hreflang = code;
       // x-default points to the same URL (Danish is the default)
-      link.href = pageUrl;
+      link.href = canonicalHref;
       document.head.appendChild(link);
       hreflangLinks.push(link);
     }
@@ -85,6 +105,7 @@ export function usePageMeta(
       document.title = prev;
       cleanups.forEach((fn) => fn());
       hreflangLinks.forEach((link) => link.remove());
+      if (canonicalLink) canonicalLink.remove();
     };
   }, [title, description, imageUrl]);
 }

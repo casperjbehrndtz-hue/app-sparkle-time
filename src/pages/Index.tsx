@@ -41,7 +41,13 @@ const Index = () => {
     return null;
   });
   // "landing" = first visit, "home" = navigated from dashboard, null = app flow
-  const [landingView, setLandingView] = useState<"landing" | "home" | null>("landing");
+  // Skip landing if coming from Lonseddel/Pengetjek with prefill data
+  const [landingView, setLandingView] = useState<"landing" | "home" | null>(() => {
+    if (sessionStorage.getItem("nb_payslip_prefill") || sessionStorage.getItem("nb_pengetjek_prefill")) {
+      return null;
+    }
+    return "landing";
+  });
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);

@@ -2,6 +2,13 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
+async function hashIP(ip: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(ip + "nemtbudget-salt-2026");
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+}
+
 export async function checkRateLimit(
   functionName: string,
   ip: string,
@@ -13,7 +20,8 @@ export async function checkRateLimit(
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const id = `${functionName}:${ip}`;
+    const hashedIP = await hashIP(ip);
+    const id = `${functionName}:${hashedIP}`;
     const windowCutoff = new Date(Date.now() - WINDOW_MS).toISOString();
 
     const { data } = await supabase

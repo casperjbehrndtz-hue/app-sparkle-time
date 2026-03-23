@@ -59,6 +59,9 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
           muted
           loop
           playsInline
+          preload="none"
+          poster="/hero-couple.webp"
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
           src="/hero-video.mp4"
         />

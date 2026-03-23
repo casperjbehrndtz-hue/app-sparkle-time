@@ -122,7 +122,7 @@ export default function Lonseddel() {
   }, [navigate]);
 
   return (
-    <div id="main-content" className="min-h-screen bg-background">
+    <main id="main-content" className="min-h-screen bg-background">
       {/* Nav */}
       <nav className="border-b border-border/40 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -147,6 +147,10 @@ export default function Lonseddel() {
         {!ocrResult && !confirmedResult && !isProcessing && (
           <>
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={t("payslip.dropzone")}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInputRef.current?.click(); } }}
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
@@ -178,7 +182,7 @@ export default function Lonseddel() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center">
+              <div role="status" aria-live="assertive" className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center">
                 <p className="text-xs text-red-700 dark:text-red-300">{t(error)}</p>
                 <button
                   onClick={reset}
@@ -220,7 +224,7 @@ export default function Lonseddel() {
 
         {/* State: Processing */}
         {isProcessing && (
-          <div className="py-16 text-center space-y-4">
+          <div role="status" aria-live="polite" className="py-16 text-center space-y-4">
             <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
             <div>
               <p className="text-sm font-medium">{t("payslip.processing")}</p>
@@ -254,6 +258,6 @@ export default function Lonseddel() {
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }
