@@ -15,10 +15,12 @@ import {
 } from "@/lib/payslipTypes";
 import { exportPayslipCard, type CardPercentile } from "@/lib/payslipCard";
 import { getSalaryPercentiles, getPercentileRank, submitSalaryObservation, getDSTFallback, DST_INDUSTRIES } from "@/lib/salaryData";
+import type { ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 import type { BudgetProfile } from "@/lib/types";
 
 interface Props {
   payslip: ExtractedPayslip;
+  diagnostics?: ReconciliationDiagnostics | null;
   onCreateBudget: (partial: Partial<BudgetProfile>) => void;
 }
 
@@ -62,7 +64,7 @@ function canCopyImage(): boolean {
   return typeof ClipboardItem !== "undefined" && typeof navigator?.clipboard?.write === "function";
 }
 
-export function PayslipResult({ payslip, onCreateBudget }: Props) {
+export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
   const { t } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
@@ -93,9 +95,24 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
     } catch { return false; }
   }, []);
 
+  const isAtypical = diagnostics?.isAtypicalMonth ?? false;
+  const normalBrutto = isAtypical && diagnostics?.estimatedNormalBrutto
+    ? diagnostics.estimatedNormalBrutto
+    : payslip.bruttolon;
+
   const deductions = useMemo(() => getDeductionLines(payslip), [payslip]);
   const insights = useMemo(() => calculatePayslipInsights(payslip), [payslip]);
   const netPct = insights.retentionPct;
+
+  // For atypical months, recalculate key metrics using normal brutto
+  const annualGross = isAtypical ? normalBrutto * 12 : insights.annualGross;
+  const pensionPctNormalized = normalBrutto > 0
+    ? Math.round(((payslip.pensionEmployee + payslip.pensionEmployer) / normalBrutto) * 1000) / 10
+    : insights.pensionPct;
+  const pensionHealthNormalized: "low" | "ok" | "good" =
+    pensionPctNormalized < 12 ? "low" : pensionPctNormalized >= 15 ? "good" : "ok";
+  // For salary comparison, use normalBrutto
+  const salaryCompBrutto = normalBrutto;
 
   const fmt = (v: number) => privacyMode ? `${payslip.bruttolon > 0 ? Math.round((v / payslip.bruttolon) * 100) : 0}%` : formatKr(v, lc);
   const fmtAbs = (v: number) => formatKr(v, lc);
@@ -104,11 +121,11 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
   const isMobile = typeof window !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const isMac = typeof navigator !== "undefined" && /Mac/i.test(navigator.platform);
 
-  // Fetch salary comparison data
+  // Fetch salary comparison data — use normalBrutto for atypical months
   useEffect(() => {
     if (!payslip.anonIndustry) {
       const dst = getDSTFallback("Alle");
-      const pctRank = getPercentileRank(payslip.bruttolon, dst.p25, dst.median, dst.p75);
+      const pctRank = getPercentileRank(salaryCompBrutto, dst.p25, dst.median, dst.p75);
       setSalaryData({
         percentile: Math.round(pctRank),
         median: dst.median,
@@ -122,7 +139,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
 
     getSalaryPercentiles(payslip.anonIndustry, payslip.anonRegion).then((data) => {
       if (data && data.sample_size >= 5) {
-        const pctRank = getPercentileRank(payslip.bruttolon, data.gross_p25, data.gross_median, data.gross_p75);
+        const pctRank = getPercentileRank(salaryCompBrutto, data.gross_p25, data.gross_median, data.gross_p75);
         setSalaryData({
           percentile: Math.round(pctRank),
           median: Math.round(data.gross_median),
@@ -133,7 +150,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
         });
       } else {
         const dst = getDSTFallback(payslip.anonIndustry!);
-        const pctRank = getPercentileRank(payslip.bruttolon, dst.p25, dst.median, dst.p75);
+        const pctRank = getPercentileRank(salaryCompBrutto, dst.p25, dst.median, dst.p75);
         setSalaryData({
           percentile: Math.round(pctRank),
           median: dst.median,
@@ -144,13 +161,13 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
         });
       }
     });
-  }, [payslip]);
+  }, [payslip, salaryCompBrutto]);
 
   // Handle DST industry selector change
   useEffect(() => {
     if (!selectedDSTIndustry) return;
     const dst = getDSTFallback(selectedDSTIndustry);
-    const pctRank = getPercentileRank(payslip.bruttolon, dst.p25, dst.median, dst.p75);
+    const pctRank = getPercentileRank(salaryCompBrutto, dst.p25, dst.median, dst.p75);
     setSalaryData({
       percentile: Math.round(pctRank),
       median: dst.median,
@@ -159,11 +176,11 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
       industry: selectedDSTIndustry,
       source: dst.source,
     });
-  }, [selectedDSTIndustry, payslip.bruttolon]);
+  }, [selectedDSTIndustry, salaryCompBrutto]);
 
-  // Auto-contribute anonymized salary data
+  // Auto-contribute anonymized salary data (skip atypical months — would pollute data)
   useEffect(() => {
-    if (!payslip.anonIndustry || !payslip.anonRegion) return;
+    if (!payslip.anonIndustry || !payslip.anonRegion || isAtypical) return;
     const taxPct = payslip.traekkort > 0 ? payslip.traekkort : undefined;
     const pensionPct = payslip.bruttolon > 0
       ? Math.round(((payslip.pensionEmployee + payslip.pensionEmployer) / payslip.bruttolon) * 100 * 10) / 10
@@ -176,7 +193,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
       tax_pct: taxPct,
       pension_pct: pensionPct,
     });
-  }, [payslip]);
+  }, [payslip, isAtypical]);
 
   const handleCopyText = async () => {
     const text = generatePayslipText(payslip, t, lc);
@@ -319,13 +336,27 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
           <p className="text-lg font-bold text-foreground mt-1">
             {fmt(payslip.nettolon)} <span className="text-sm font-normal text-muted-foreground">{t("payslip.hero.paidOut")}</span>
           </p>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
-            <Calculator className="w-3 h-3" />
-            {t("payslip.hero.annual").replace("{amount}", fmtAbs(insights.annualNet))}
-          </div>
-          <p className="text-[10px] text-muted-foreground/60 mt-1.5">
-            {t("payslip.hero.gross").replace("{monthly}", fmtAbs(payslip.bruttolon)).replace("{annual}", fmtAbs(insights.annualGross))}
-          </p>
+          {isAtypical ? (
+            <>
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1 text-xs text-blue-700 dark:text-blue-400">
+                <Info className="w-3 h-3" />
+                {t("payslip.hero.atypicalMonth")}
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+                {t("payslip.hero.normalGross").replace("{amount}", fmtAbs(normalBrutto)).replace("{annual}", fmtAbs(annualGross))}
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
+                <Calculator className="w-3 h-3" />
+                {t("payslip.hero.annual").replace("{amount}", fmtAbs(insights.annualNet))}
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+                {t("payslip.hero.gross").replace("{monthly}", fmtAbs(payslip.bruttolon)).replace("{annual}", fmtAbs(insights.annualGross))}
+              </p>
+            </>
+          )}
 
           {/* Pay components */}
           {payslip.payComponents.length > 1 && (
@@ -493,40 +524,48 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
             </p>
           </div>
 
-          {/* Pension health */}
+          {/* Pension health — use normalized values for atypical months */}
           <div className="rounded-lg bg-background/50 border border-border/30 p-3">
             <div className={`flex items-center gap-1.5 mb-1.5 ${
-              insights.pensionHealth === "low" ? "text-amber-500" : insights.pensionHealth === "good" ? "text-emerald-500" : "text-blue-600 dark:text-blue-400"
+              pensionHealthNormalized === "low" ? "text-amber-500" : pensionHealthNormalized === "good" ? "text-emerald-500" : "text-blue-600 dark:text-blue-400"
             }`}>
               <Heart className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{t("payslip.insight.pensionTitle")}</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {t("payslip.insight.pensionDetail")
-                .replace("{pct}", String(insights.pensionPct))
+                .replace("{pct}", String(pensionPctNormalized))
                 .replace("{employee}", fmtAbs(payslip.pensionEmployee))
                 .replace("{employer}", fmtAbs(payslip.pensionEmployer))}
             </p>
-            {insights.pensionHealth === "low" && (
+            {pensionHealthNormalized === "low" && (
               <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1 font-medium">{t("payslip.insight.pensionLow")}</p>
             )}
-            {insights.pensionHealth === "good" && (
+            {pensionHealthNormalized === "good" && (
               <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">{t("payslip.insight.pensionGood")}</p>
             )}
           </div>
 
-          {/* Annual projection */}
+          {/* Annual projection — use normalized values for atypical months */}
           <div className="rounded-lg bg-background/50 border border-border/30 p-3">
             <div className="flex items-center gap-1.5 mb-1.5 text-primary">
               <Calculator className="w-3.5 h-3.5" />
-              <span className="text-xs font-semibold">{t("payslip.insight.annualTitle")}</span>
+              <span className="text-xs font-semibold">{isAtypical ? t("payslip.insight.annualTitleNormal") : t("payslip.insight.annualTitle")}</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {t("payslip.insight.annualDetail")
-                .replace("{gross}", fmtAbs(insights.annualGross))
-                .replace("{deductions}", fmtAbs(insights.annualDeductions))
-                .replace("{net}", fmtAbs(insights.annualNet))}
-            </p>
+            {isAtypical ? (
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t("payslip.insight.annualNormalDetail")
+                  .replace("{gross}", fmtAbs(annualGross))
+                  .replace("{monthly}", fmtAbs(normalBrutto))}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {t("payslip.insight.annualDetail")
+                  .replace("{gross}", fmtAbs(insights.annualGross))
+                  .replace("{deductions}", fmtAbs(insights.annualDeductions))
+                  .replace("{net}", fmtAbs(insights.annualNet))}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -602,13 +641,13 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
                 <span className="text-xs font-semibold text-foreground">{t("payslip.skat.annual.title")}</span>
               </div>
               <p className="text-[11px] text-muted-foreground">
-                {t("payslip.skat.annual.naive").replace("{naive}", fmtAbs(insights.annualGross))}
+                {t("payslip.skat.annual.naive").replace("{naive}", fmtAbs(annualGross))}
               </p>
               <p className="text-[11px] font-medium text-foreground">
-                {t("payslip.skat.annual.real").replace("{real}", fmtAbs(insights.annualAmGrundlag))}
+                {t("payslip.skat.annual.real").replace("{real}", fmtAbs(isAtypical ? (normalBrutto - payslip.pensionEmployee - payslip.atp) * 12 : insights.annualAmGrundlag))}
               </p>
               <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
-                {t("payslip.skat.annual.diff").replace("{diff}", fmtAbs(insights.annualGross - insights.annualAmGrundlag))}
+                {t("payslip.skat.annual.diff").replace("{diff}", fmtAbs(annualGross - (isAtypical ? (normalBrutto - payslip.pensionEmployee - payslip.atp) * 12 : insights.annualAmGrundlag)))}
               </p>
             </div>
 
@@ -641,7 +680,7 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
       )}
 
       {/* ── SECTION 3.7: Hidden employer benefits ── */}
-      {(payslip.pensionEmployer > 0 || (payslip.sundhedsforsikring && payslip.sundhedsforsikring > 0) || (payslip.feriepengeHensaet && payslip.feriepengeHensaet > 0) || (payslip.fritvalgKonto && payslip.fritvalgKonto > 0)) && (
+      {(payslip.pensionEmployer > 0 || (payslip.sundhedsforsikring && payslip.sundhedsforsikring > 0) || (payslip.fritvalgKonto && payslip.fritvalgKonto > 0)) && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border bg-emerald-50/50 dark:bg-emerald-950/20 flex items-center gap-2">
             <Heart className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -653,7 +692,6 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
               const benefits: { label: string; monthly: number; annual: number }[] = [];
               if (payslip.pensionEmployer > 0) benefits.push({ label: t("payslip.benefits.pension"), monthly: payslip.pensionEmployer, annual: payslip.pensionEmployer * 12 });
               if (payslip.sundhedsforsikring && payslip.sundhedsforsikring > 0) benefits.push({ label: t("payslip.benefits.health"), monthly: payslip.sundhedsforsikring, annual: payslip.sundhedsforsikring * 12 });
-              if (payslip.feriepengeHensaet && payslip.feriepengeHensaet > 0) benefits.push({ label: t("payslip.benefits.feriepenge"), monthly: payslip.feriepengeHensaet, annual: payslip.feriepengeHensaet * 12 });
               if (payslip.fritvalgKonto && payslip.fritvalgKonto > 0) benefits.push({ label: t("payslip.benefits.fritvalg"), monthly: payslip.fritvalgKonto, annual: payslip.fritvalgKonto * 12 });
               const totalAnnual = benefits.reduce((s, b) => s + b.annual, 0);
 
@@ -753,19 +791,19 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
 
             <div className="pt-1 space-y-0.5">
               <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">{t("payslip.salary.yourGross")}</span>
-                <span className="font-semibold tabular-nums">{fmtAbs(payslip.bruttolon)}/md</span>
+                <span className="text-muted-foreground">{t("payslip.salary.yourGross")}{isAtypical ? ` (${t("payslip.salary.normalMonth")})` : ""}</span>
+                <span className="font-semibold tabular-nums">{fmtAbs(salaryCompBrutto)}/md</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span className="text-muted-foreground">Median</span>
                 <span className="text-muted-foreground tabular-nums">{fmtAbs(salaryData.median)}/md</span>
               </div>
-              {payslip.bruttolon !== salaryData.median && (
+              {salaryCompBrutto !== salaryData.median && (
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">{t("payslip.salary.difference")}</span>
-                  <span className={`font-semibold flex items-center gap-0.5 ${payslip.bruttolon > salaryData.median ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
-                    {payslip.bruttolon > salaryData.median ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    {payslip.bruttolon > salaryData.median ? "+" : ""}{fmtAbs(payslip.bruttolon - salaryData.median)}/md
+                  <span className={`font-semibold flex items-center gap-0.5 ${salaryCompBrutto > salaryData.median ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
+                    {salaryCompBrutto > salaryData.median ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {salaryCompBrutto > salaryData.median ? "+" : ""}{fmtAbs(salaryCompBrutto - salaryData.median)}/md
                   </span>
                 </div>
               )}

@@ -1246,6 +1246,8 @@ export const EN: Record<string, string> = {
   "payslip.hero.paidOut": "paid out",
   "payslip.hero.annual": "That's {amount} per year",
   "payslip.hero.gross": "Gross: {monthly}/mo · {annual}/yr",
+  "payslip.hero.atypicalMonth": "This month is atypical (one-time payments)",
+  "payslip.hero.normalGross": "Normal gross: approx. {amount}/mo · {annual}/yr",
 
   // Section headers
   "payslip.section.breakdown": "From gross to take-home",
@@ -1263,7 +1265,9 @@ export const EN: Record<string, string> = {
   "payslip.insight.pensionLow": "Below average — consider increasing your pension contribution.",
   "payslip.insight.pensionGood": "Great! Your pension is above average.",
   "payslip.insight.annualTitle": "Annual overview",
+  "payslip.insight.annualTitleNormal": "Typical annual salary",
   "payslip.insight.annualDetail": "Over 12 months: {gross} gross → {deductions} in tax/deductions → {net} paid out.",
+  "payslip.insight.annualNormalDetail": "Based on your base salary: approx. {gross}/yr ({monthly}/mo). This month's one-time payments are excluded.",
 
   // What does SKAT see?
   "payslip.section.hiddenBenefits": "Hidden benefits from your employer",
@@ -1313,6 +1317,7 @@ export const EN: Record<string, string> = {
   "payslip.salary.difference": "Difference",
   "payslip.salary.showAll": "Show all industries",
   "payslip.salary.showFewer": "Show fewer",
+  "payslip.salary.normalMonth": "typical month",
   "payslip.ctaTitle": "Have a payslip?",
   "payslip.ctaDesc": "Upload your payslip image and get a full analysis with deductions, salary comparison and a shareable image.",
 

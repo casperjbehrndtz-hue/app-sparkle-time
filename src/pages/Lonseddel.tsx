@@ -242,7 +242,7 @@ export default function Lonseddel() {
         {/* State: Result — only after user confirms */}
         {confirmedResult && (
           <>
-            <PayslipResult payslip={confirmedResult} onCreateBudget={handleCreateBudget} />
+            <PayslipResult payslip={confirmedResult} diagnostics={diagnostics} onCreateBudget={handleCreateBudget} />
 
             <button
               onClick={reset}

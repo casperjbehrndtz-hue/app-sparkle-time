@@ -1247,6 +1247,8 @@ export const NO: Record<string, string> = {
   "payslip.hero.paidOut": "utbetalt",
   "payslip.hero.annual": "Det tilsvarer {amount} i året",
   "payslip.hero.gross": "Bruttolønn: {monthly}/md · {annual}/år",
+  "payslip.hero.atypicalMonth": "Denne måneden er atypisk (engangsposter)",
+  "payslip.hero.normalGross": "Normal bruttolønn: ca. {amount}/md · {annual}/år",
 
   // Seksjonsoverskrifter
   "payslip.section.breakdown": "Fra bruttolønn til utbetaling",
@@ -1264,7 +1266,9 @@ export const NO: Record<string, string> = {
   "payslip.insight.pensionLow": "Det er under gjennomsnittet — vurder å øke pensjonsinnbetalingen.",
   "payslip.insight.pensionGood": "Flott! Pensjonen din er over gjennomsnittet.",
   "payslip.insight.annualTitle": "Årsoppgjør",
+  "payslip.insight.annualTitleNormal": "Typisk årslønn",
   "payslip.insight.annualDetail": "Over 12 måneder: {gross} brutto → {deductions} i skatt/fradrag → {net} utbetalt.",
+  "payslip.insight.annualNormalDetail": "Basert på grunnlønnen din: ca. {gross}/år ({monthly}/md). Denne månedens engangsposter er ikke medregnet.",
 
   // Hva ser Skatteetaten?
   "payslip.section.hiddenBenefits": "Skjulte goder fra arbeidsgiveren din",
@@ -1314,6 +1318,7 @@ export const NO: Record<string, string> = {
   "payslip.salary.difference": "Forskjell",
   "payslip.salary.showAll": "Vis alle bransjer",
   "payslip.salary.showFewer": "Vis færre",
+  "payslip.salary.normalMonth": "typisk måned",
   "payslip.ctaTitle": "Har du en lønnsslipp?",
   "payslip.ctaDesc": "Last opp lønnsslipp-bildet ditt og få en komplett analyse med fradrag, lønnssammenligning og delbart bilde.",
 
