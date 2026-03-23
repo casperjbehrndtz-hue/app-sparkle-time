@@ -164,8 +164,21 @@ serve(async (req) => {
       });
     }
 
-    // ─── Fetch live data in parallel with topic selection ─────────────────
+    // ─── Fetch live data and related articles ──────────────────────────────
     const liveData = await fetchLiveData(topic.category);
+
+    let internalLinks = "";
+    try {
+      const { data: related } = await supabase
+        .from("articles")
+        .select("title, slug")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(10);
+      if (related?.length) {
+        internalLinks = related.map((r: { title: string; slug: string }) => `- "${r.title}" → /guides/${r.slug}`).join("\n");
+      }
+    } catch { /* ignore */ }
 
     // ─── Build Google E-E-A-T optimised prompt ────────────────────────────
     const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
@@ -228,6 +241,12 @@ ${liveData}
 
 **[Spørgsmål 3]**
 [Svar]
+
+─── INTERN LINKING ───────────────────────────────────────────────────────────
+- Inkluder 2-3 kontekstuelle links til relaterede guides på NemtBudget (brug <a href="/guides/slug">titel</a>)
+- Afslut med en "Læs også"-sektion med 2-3 relaterede artikellinks
+- Hvor relevant, inkluder cross-link til søstersites: <a href="https://www.parfinans.dk">ParFinans</a> (parøkonomi for par) eller <a href="https://xn--brneskat-54a.dk">Børneskat.dk</a> (børneopsparing)
+${internalLinks ? `\nEksisterende guides du kan linke til:\n${internalLinks}` : ""}
 
 ─── SLUTNING ─────────────────────────────────────────────────────────────────
 Afslut naturligt med en overgang til at beregne i NemtBudget — ikke som en reklame, men som et logisk næste skridt for læseren.

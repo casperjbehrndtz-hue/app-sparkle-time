@@ -83,6 +83,12 @@ serve(async (req) => {
     fetch(deployHook, { method: "POST" }).catch(() => {});
   }
 
+  // Ping IndexNow for fast indexing
+  const articleUrl = `https://nemtbudget.nu/guides/${draft.slug}`;
+  try {
+    await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+  } catch { /* non-critical */ }
+
   return new Response(JSON.stringify({ success: true, action: "approved", slug: draft.slug }), {
     headers: { ...cors, "Content-Type": "application/json" },
   });

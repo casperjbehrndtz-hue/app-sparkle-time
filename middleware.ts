@@ -1,174 +1,135 @@
-import { next } from "@vercel/edge";
+import { createMiddleware, createArticleFetcher, defaultMatcherConfig } from "./src/lib/dk-seo/middleware";
 
-// ── Bot User-Agent patterns ──
-const BOT_PATTERNS = [
-  "Googlebot", "Bingbot", "bingbot", "Slurp", "DuckDuckBot", "Baiduspider",
-  "YandexBot", "facebookexternalhit", "Facebot", "LinkedInBot", "Twitterbot",
-  "Slackbot", "WhatsApp", "TelegramBot", "ChatGPT-User", "GPTBot", "ClaudeBot",
-  "Claude-Web", "Anthropic", "Applebot", "Pinterestbot", "Discordbot", "Embedly",
-  "Quora Link Preview", "Redditbot", "Rogerbot", "Screaming Frog", "Semrushbot",
-  "AhrefsBot", "MJ12bot", "PetalBot",
-];
-const BOT_REGEX = new RegExp(BOT_PATTERNS.join("|"), "i");
+// ── Article fetcher with Article schema + breadcrumbs ──
+const fetchGuide = createArticleFetcher({
+  table: "articles",
+  select: "title,excerpt,content,published_at",
+  siteName: "NemtBudget",
+  urlPrefix: "/guides",
+  parentLabel: "Guides",
+  fields: { excerpt: "excerpt", content: "content", publishedAt: "published_at" },
+});
 
-// ── Site config ──
-const SITE_URL = "https://nemtbudget.nu";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-nemtbudget.png`;
+// ── Middleware ──
+export default createMiddleware({
+  siteUrl: "https://nemtbudget.nu",
+  siteName: "NemtBudget",
+  defaultOgImage: "/og-nemtbudget.png",
+  supabaseUrl: "https://gpzuhhfpwokevsljyumt.supabase.co",
 
-// ── Supabase config ──
-const SUPABASE_URL = "https://gpzuhhfpwokevsljyumt.supabase.co";
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "";
+  organization: {
+    name: "NemtBudget",
+    url: "https://nemtbudget.nu",
+    logo: "https://nemtbudget.nu/og-nemtbudget.png",
+    description: "Danmarks nemmeste budgetværktøj. Gratis, privat, udfyldt på 3 minutter.",
+    foundingDate: "2025",
+  },
 
-// ── Route content ──
-interface RouteMeta {
-  title: string;
-  description: string;
-  ogTitle?: string;
-  ogDescription?: string;
-  ogImage?: string;
-  ogType?: string;
-  bodyContent?: string;
-}
+  ecosystemLinks: [
+    { name: "ParFinans", url: "https://www.parfinans.dk", description: "Fair fordeling af fællesudgifter for par" },
+    { name: "Børneskat.dk", url: "https://xn--brneskat-54a.dk", description: "Skatteeffektiv investering til dit barn via frikortet" },
+  ],
 
-async function fetchArticleContent(slug: string): Promise<RouteMeta | null> {
-  if (!SUPABASE_ANON_KEY) return null;
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/articles?select=title,excerpt,content&slug=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
-      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
-    );
-    if (!res.ok) return null;
-    const rows = await res.json();
-    const row = rows?.[0];
-    if (!row?.title) return null;
-    return {
-      title: `${row.title} — NemtBudget`,
-      description: row.excerpt || `Læs "${row.title}" på NemtBudget.`,
-      ogTitle: row.title,
-      ogDescription: row.excerpt || `Gratis guide om dansk privatøkonomi.`,
-      bodyContent: row.content || "",
-    };
-  } catch {
-    return null;
-  }
-}
+  footerTagline: "NemtBudget.nu — Danmarks nemmeste budgetværktøj. Gratis, privat, udfyldt på 3 minutter.",
 
-// ── Rich page content ──
-const PAGE_CONTENT: Record<string, string> = {
-  "/": `
-<h2>Tag kontrol over din privatøkonomi</h2>
-<p>Find skjulte udgifter, se hvad du reelt har til overs og stå stærkt til fremtiden — gratis, privat og på 3 minutter.</p>
-
-<h3>Hvad NemtBudget gør</h3>
-<ul>
-  <li><strong>Find skjulte udgifter:</strong> Analyser streaming, forsikring, transport og andre faste udgifter du måske har glemt.</li>
-  <li><strong>Beregn dit rådighedsbeløb:</strong> Se hvad du reelt har til overs efter skat og faste udgifter.</li>
-  <li><strong>AI-indsigt:</strong> Intelligent analyse af dine udgiftsmønstre med personlige besparelsesforslag.</li>
-  <li><strong>Sammenlign med andre:</strong> Se din økonomi sammenlignet med andre i dit område og din aldersgruppe.</li>
-  <li><strong>Stress-test:</strong> Hvad sker der med dit budget ved jobmistelse, rentestigning eller uventede udgifter?</li>
-  <li><strong>Opsparingsplanlægger:</strong> Se hvornår du når dine opsparingsmål.</li>
-  <li><strong>Bankmøde-rapport:</strong> Generer en rapport du kan tage med til din bankrådgiver.</li>
-</ul>
-
-<h3>Husstandstyper</h3>
-<ul>
-  <li><strong>Enlig husstand:</strong> Gennemsnitlig nettoindkomst ca. 27.000 kr/md efter skat.</li>
-  <li><strong>Par / samboende:</strong> Gennemsnitlig husstandsindkomst ca. 52.000 kr/md.</li>
-</ul>
-
-<h3>Vigtige detaljer</h3>
-<ul>
-  <li>100% gratis. Ingen login påkrævet.</li>
-  <li>Al beregning sker i din browser — vi gemmer ingen persondata.</li>
-  <li>Bygget til dansk finanslovgivning.</li>
-  <li>Udfyldt på 3 minutter.</li>
-  <li>Data gemmes kun lokalt på din enhed.</li>
-</ul>
-`,
-
-  "/lonseddel": `
-<h2>Forstå din lønseddel på 10 sekunder</h2>
-<p>Upload din lønseddel (foto eller PDF) og forstå hvert eneste fradrag. Se hvad AM-bidrag, A-skat, ATP og pension betyder — og om din løn er normal for din branche.</p>
-
-<h3>Sådan virker det</h3>
-<ol>
-  <li>Upload foto eller PDF af din lønseddel (eller indsæt med Ctrl+V).</li>
-  <li>AI læser automatisk alle beløb og fradrag.</li>
-  <li>Se forklaring af hvert fradrag: AM-bidrag (8% af bruttoløn), A-skat, ATP (99 kr/md), pension osv.</li>
-  <li>Få et anonymt delingskort du kan dele på Reddit (r/dkloenseddel, r/dkfinance) eller andre fora.</li>
-</ol>
-
-<h3>Privatliv</h3>
-<ul>
-  <li>Din lønseddel sendes krypteret til AI-analyse og slettes umiddelbart efter.</li>
-  <li>Ingen mennesker ser din lønseddel.</li>
-  <li>Delingskortet er anonymiseret — ingen personlige oplysninger.</li>
-</ul>
-`,
-
-  "/guides": `
-<h2>Guides — NemtBudget</h2>
-<p>Artikler og guides om dansk privatøkonomi, budgetlægning, skat og opsparing. Gratis viden til at forbedre din økonomi.</p>
-`,
-
-  "/b2b": `
-<h2>NemtBudget til virksomheder — White-label budgetværktøj</h2>
-<p>Tilbyd dine kunder et white-label budgetværktøj med jeres eget brand. Perfekt til banker, pensionsselskaber og fagforeninger der vil give kunderne overblik over privatøkonomien.</p>
-<ul>
-  <li>Jeres logo og farver</li>
-  <li>Integreret i jeres platform</li>
-  <li>Dansk skatteberegning for alle 98 kommuner</li>
-</ul>
-`,
-
-  "/partner": `
-<h2>Bliv partner — NemtBudget</h2>
-<p>Bliv partner med NemtBudget og tilbyd dine kunder Danmarks nemmeste budgetværktøj. Perfekt for finansielle rådgivere, revisorer og coaches.</p>
-`,
-
-  "/privatliv": `
-<h2>Privatlivspolitik — NemtBudget</h2>
-<p>Vi gemmer ingen persondata. Al beregning sker i din browser. Data gemmes kun lokalt på din enhed. Ingen cookies til tracking. GDPR-overholdende.</p>
-`,
-
-  "/vilkaar": `
-<h2>Vilkår og betingelser — NemtBudget</h2>
-<p>NemtBudget er et informationsværktøj og yder ikke finansiel rådgivning. Brug det som vejledning.</p>
-`,
-
-  "/install": `
-<h2>Installér NemtBudget — Gratis app</h2>
-<p>Installér NemtBudget som app på din telefon. Ingen App Store — bare tilføj til startskærm. Virker offline efter installation.</p>
-`,
-};
-
-async function getRouteMeta(pathname: string): Promise<RouteMeta> {
-  const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
-
-  const routes: Record<string, RouteMeta> = {
+  routes: {
     "/": {
-      title: "NemtBudget – Danmarks nemmeste budgetværktøj | Gratis",
-      description: "Find ud af hvad du reelt har til overs. Beregn dit rådighedsbeløb gratis på 3 minutter. Ingen login, 100% privat.",
+      title: "NemtBudget – Danmarks nemmeste budgetværktøj | Gratis budgetberegner",
+      description: "Find ud af hvad du reelt har til overs. Beregn dit rådighedsbeløb gratis på 3 minutter. Ingen login, 100% privat. Dansk skat for alle 98 kommuner.",
       ogTitle: "NemtBudget – Familieøkonomi der føles som lettelse",
       ogDescription: "NemtBudget giver din familie overblik over økonomien på under 3 minutter. Gratis og privat.",
+      jsonLd: [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: "NemtBudget",
+          url: "https://nemtbudget.nu",
+          description: "Beregn dit rådighedsbeløb gratis på 3 minutter. Dansk skat for alle 98 kommuner.",
+          applicationCategory: "FinanceApplication",
+          operatingSystem: "Web",
+          inLanguage: "da",
+          isAccessibleForFree: true,
+          offers: { "@type": "Offer", price: "0", priceCurrency: "DKK" },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "Hvad er et rådighedsbeløb?",
+              acceptedAnswer: { "@type": "Answer", text: "Rådighedsbeløbet er det beløb du har til overs efter alle faste udgifter som bolig, forsikring, transport og skat er betalt. Det er dine penge til mad, tøj, oplevelser og opsparing." },
+            },
+            {
+              "@type": "Question",
+              name: "Hvordan beregner NemtBudget min skat?",
+              acceptedAnswer: { "@type": "Answer", text: "NemtBudget beregner dansk skat med 2026-satser for alle 98 kommuner: AM-bidrag 8%, personfradrag 54.100 kr., bundskat 12,06%, topskat og kommuneskat. Beregningen sker i din browser." },
+            },
+            {
+              "@type": "Question",
+              name: "Er NemtBudget gratis?",
+              acceptedAnswer: { "@type": "Answer", text: "Ja, NemtBudget er 100% gratis. Ingen login påkrævet. Al beregning sker i din browser og vi gemmer ingen persondata." },
+            },
+            {
+              "@type": "Question",
+              name: "Hvad er et godt rådighedsbeløb?",
+              acceptedAnswer: { "@type": "Answer", text: "For en enlig husstand er et rådighedsbeløb på 5.000-8.000 kr/md efter alle faste udgifter typisk. For par er 8.000-15.000 kr/md normalt. Det afhænger af indkomst, boligform og livsstil." },
+            },
+          ],
+        },
+      ],
     },
     "/lonseddel": {
       title: "Forstå din lønseddel på 10 sekunder — nemtbudget.nu",
       description: "Upload din lønseddel og forstå hvert eneste fradrag. Se hvad AM-bidrag, A-skat og pension betyder — og om din løn er normal for din branche.",
       ogTitle: "Forstå din lønseddel på 10 sekunder",
-      ogDescription: "Upload din lønseddel — vi forklarer hvert fradrag, tjekker om din løn er normal, og laver et anonymt delingskort klar til Reddit.",
+      ogDescription: "Upload din lønseddel — vi forklarer hvert fradrag, tjekker om din løn er normal, og laver et anonymt delingskort.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Lønseddel-analyse", url: "/lonseddel" },
+      ],
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        name: "Forstå din lønseddel",
+        description: "Upload din lønseddel og få forklaring af hvert fradrag på 10 sekunder.",
+        step: [
+          { "@type": "HowToStep", name: "Upload", text: "Tag et foto eller upload PDF af din lønseddel." },
+          { "@type": "HowToStep", name: "AI-analyse", text: "AI læser automatisk bruttoløn, AM-bidrag, A-skat, ATP og pension." },
+          { "@type": "HowToStep", name: "Resultat", text: "Se forklaring af hvert fradrag og sammenlign med andre i din branche." },
+        ],
+        totalTime: "PT10S",
+      },
+    },
+    "/pengetjek": {
+      title: "Pengetjek — Se hvor dine penge forsvinder hen | NemtBudget",
+      description: "Upload dit kontoudtog og se dine pengeslugere på 30 sekunder. Find abonnementer du har glemt og få overblik over dit forbrug.",
+      ogTitle: "Pengetjek — Se hvor dine penge forsvinder hen",
+      ogDescription: "Upload kontoudtog og se dine pengeslugere. Find glemte abonnementer og få overblik.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Pengetjek", url: "/pengetjek" },
+      ],
     },
     "/guides": {
-      title: "Guides — NemtBudget",
-      description: "Artikler og guides om dansk privatøkonomi, budgetlægning, skat og opsparing.",
+      title: "Guides om privatøkonomi — NemtBudget",
+      description: "Gratis artikler og guides om dansk privatøkonomi, budgetlægning, rådighedsbeløb, skat og opsparing.",
       ogTitle: "Guides — NemtBudget",
       ogDescription: "Lær om dansk privatøkonomi med gratis guides fra NemtBudget.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Guides", url: "/guides" },
+      ],
     },
     "/b2b": {
       title: "NemtBudget til virksomheder — White-label budgetværktøj",
       description: "Tilbyd dine kunder et white-label budgetværktøj med jeres eget brand. Perfekt til banker, pensionsselskaber og fagforeninger.",
       ogTitle: "NemtBudget til virksomheder",
       ogDescription: "White-label budgetværktøj til banker, pensionsselskaber og fagforeninger.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Virksomheder", url: "/b2b" },
+      ],
     },
     "/partner": {
       title: "Bliv partner — NemtBudget",
@@ -182,133 +143,132 @@ async function getRouteMeta(pathname: string): Promise<RouteMeta> {
       title: "Vilkår og betingelser — NemtBudget",
       description: "Læs vilkår og betingelser for brug af NemtBudget.",
     },
-    "/login": {
-      title: "Log ind — NemtBudget",
-      description: "Log ind på din NemtBudget-konto for at gemme og dele dit budget.",
-    },
     "/install": {
-      title: "Installér NemtBudget — Gratis app",
-      description: "Installér NemtBudget som app på din telefon. Ingen App Store — bare tilføj til startskærm.",
+      title: "Installér NemtBudget — Gratis app til telefonen",
+      description: "Installér NemtBudget som app på din telefon. Ingen App Store — bare tilføj til startskærm. Virker offline.",
     },
-  };
+  },
 
-  if (path.startsWith("/s/")) {
-    return {
-      title: "Delt budget — NemtBudget",
-      description: "Se dette budget delt via NemtBudget. Beregn dit eget gratis.",
-      ogTitle: "Se dette budget — NemtBudget",
-      ogDescription: "Nogen har delt deres budget med dig. Beregn dit eget gratis på nemtbudget.nu.",
-    };
-  }
-
-  if (path.startsWith("/guides/")) {
-    const slug = path.replace("/guides/", "");
-    if (slug) {
-      const dynamic = await fetchArticleContent(slug);
-      if (dynamic) return dynamic;
-    }
-    return { title: "Guide — NemtBudget", description: "Læs denne guide om dansk privatøkonomi på NemtBudget." };
-  }
-
-  const meta = routes[path] || routes["/"];
-  meta.bodyContent = PAGE_CONTENT[path] || PAGE_CONTENT["/"];
-  return meta;
-}
-
-// ── Build HTML ──
-async function buildBotHTML(pathname: string): Promise<string> {
-  const meta = await getRouteMeta(pathname);
-  const canonicalUrl = `${SITE_URL}${pathname === "/" ? "" : pathname}`;
-  const ogTitle = meta.ogTitle || meta.title;
-  const ogDesc = meta.ogDescription || meta.description;
-  const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
-  const ogType = meta.ogType || "website";
-  const body = meta.bodyContent || `<h1>${ogTitle}</h1><p>${meta.description}</p>`;
-
-  return `<!DOCTYPE html>
-<html lang="da">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${meta.title}</title>
-  <meta name="description" content="${meta.description}" />
-  <link rel="canonical" href="${canonicalUrl}" />
-  <meta property="og:type" content="${ogType}" />
-  <meta property="og:url" content="${canonicalUrl}" />
-  <meta property="og:title" content="${ogTitle}" />
-  <meta property="og:description" content="${ogDesc}" />
-  <meta property="og:image" content="${ogImage}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="da_DK" />
-  <meta property="og:site_name" content="NemtBudget" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${ogTitle}" />
-  <meta name="twitter:description" content="${ogDesc}" />
-  <meta name="twitter:image" content="${ogImage}" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "NemtBudget",
-    "url": "${SITE_URL}",
-    "description": "${meta.description}",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web",
-    "inLanguage": "da",
-    "isAccessibleForFree": true
-  }
-  </script>
-</head>
-<body>
-  <main>
-    ${body}
-  </main>
-  <footer>
-    <p><a href="${SITE_URL}">NemtBudget.nu</a> — Danmarks nemmeste budgetværktøj. Gratis, privat, udfyldt på 3 minutter.</p>
-    <nav>
-      <a href="${SITE_URL}/lonseddel">Lønseddel-læser</a> ·
-      <a href="${SITE_URL}/guides">Guides</a> ·
-      <a href="${SITE_URL}/b2b">Virksomheder</a> ·
-      <a href="${SITE_URL}/partner">Partnere</a>
-    </nav>
-  </footer>
-</body>
-</html>`;
-}
-
-// ── Middleware ──
-export default async function middleware(request: Request) {
-  const url = new URL(request.url);
-  const { pathname } = url;
-
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/functions") ||
-    /\.(js|css|ico|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|mp4|webm|json|xml|txt|map)$/.test(pathname)
-  ) {
-    return next();
-  }
-
-  const userAgent = request.headers.get("user-agent") || "";
-  const isBot = BOT_REGEX.test(userAgent) || !userAgent || !userAgent.includes("Mozilla");
-  if (isBot) {
-    const html = await buildBotHTML(pathname);
-    return new Response(html, {
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
+  dynamicRoutes: [
+    {
+      prefix: "/s/",
+      fetch: async () => null,
+      fallback: {
+        title: "Delt budget — NemtBudget",
+        description: "Se dette budget delt via NemtBudget. Beregn dit eget gratis.",
+        ogTitle: "Se dette budget — NemtBudget",
+        ogDescription: "Nogen har delt deres budget med dig. Beregn dit eget gratis på nemtbudget.nu.",
       },
-    });
-  }
-
-  return next();
-}
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|mp4|webm|json|xml|txt|map)$).*)",
+    },
+    {
+      prefix: "/guides/",
+      fetch: fetchGuide,
+      fallback: {
+        title: "Guide — NemtBudget",
+        description: "Læs denne guide om dansk privatøkonomi på NemtBudget.",
+        breadcrumbs: [
+          { name: "NemtBudget", url: "/" },
+          { name: "Guides", url: "/guides" },
+        ],
+      },
+    },
   ],
-};
+
+  pageContent: {
+    "/": `
+<h1>NemtBudget — Beregn dit rådighedsbeløb gratis</h1>
+<p>Find ud af hvad du reelt har til overs efter skat og faste udgifter. <strong>Udfyldt på 3 minutter, 100% gratis, ingen login.</strong></p>
+
+<h2>Hvad NemtBudget gør for dig</h2>
+<ul>
+  <li><strong>Beregn dit rådighedsbeløb:</strong> Se hvad du reelt har til overs efter skat og faste udgifter. <a href="https://nemtbudget.nu/guides/raadighedsbeloeb-beregning">Læs mere om rådighedsbeløb →</a></li>
+  <li><strong>Find skjulte udgifter:</strong> Analyser streaming, forsikring, transport og andre faste udgifter du måske har glemt.</li>
+  <li><strong>AI-indsigt:</strong> Intelligent analyse af dine udgiftsmønstre med personlige besparelsesforslag.</li>
+  <li><strong>Sammenlign med andre:</strong> Se din økonomi sammenlignet med andre i dit område og din aldersgruppe.</li>
+  <li><strong>Stress-test:</strong> Hvad sker der med dit budget ved jobmistelse, rentestigning eller uventede udgifter?</li>
+  <li><strong>Opsparingsplanlægger:</strong> Se hvornår du når dine opsparingsmål. <a href="https://nemtbudget.nu/guides/noedbuffer-hvad-er-det">Hvad er en nødbuffer? →</a></li>
+</ul>
+
+<h2>Forstå din lønseddel</h2>
+<p><a href="https://nemtbudget.nu/lonseddel"><strong>Upload din lønseddel</strong></a> og forstå hvert eneste fradrag: AM-bidrag, A-skat, ATP og pension. Se om din løn er normal for din branche.</p>
+
+<h2>Se hvor dine penge forsvinder hen</h2>
+<p><a href="https://nemtbudget.nu/pengetjek"><strong>Upload dit kontoudtog</strong></a> og find pengeslugere, glemte abonnementer og få overblik over dit faktiske forbrug.</p>
+
+<h2>Dansk skat for alle 98 kommuner</h2>
+<p>NemtBudget beregner med 2026-satser: AM-bidrag 8%, personfradrag 54.100 kr., bundskat 12,06%, topskat og kommuneskat. Al beregning sker i din browser — vi gemmer ingen persondata.</p>
+
+<h2>Gratis guides om privatøkonomi</h2>
+<p>Lær om <a href="https://nemtbudget.nu/guides/50-30-20-reglen-budget">50/30/20-reglen</a>, <a href="https://nemtbudget.nu/guides/raadighedsbeloeb-beregning">hvordan du beregner dit rådighedsbeløb</a>, og <a href="https://nemtbudget.nu/guides/noedbuffer-hvad-er-det">hvad en nødbuffer er</a>.</p>`,
+
+    "/lonseddel": `
+<h1>Forstå din lønseddel på 10 sekunder</h1>
+<p>Upload din lønseddel (foto eller PDF) og forstå hvert eneste fradrag. Se hvad AM-bidrag, A-skat, ATP og pension betyder — og om din løn er normal for din branche.</p>
+
+<h2>Sådan virker det</h2>
+<ol>
+  <li>Upload foto eller PDF af din lønseddel (eller indsæt med Ctrl+V).</li>
+  <li>AI læser automatisk alle beløb og fradrag.</li>
+  <li>Se forklaring af hvert fradrag: AM-bidrag (8% af bruttoløn), A-skat, ATP (99 kr/md), pension.</li>
+  <li>Sammenlign din løn med andre i din branche.</li>
+</ol>
+
+<h2>Privatliv</h2>
+<p>Din lønseddel sendes krypteret til AI-analyse og slettes umiddelbart efter. Ingen mennesker ser din lønseddel.</p>
+
+<p>Vil du se hvad du har til overs? <a href="https://nemtbudget.nu"><strong>Beregn dit budget gratis →</strong></a></p>`,
+
+    "/pengetjek": `
+<h1>Pengetjek — Se hvor dine penge forsvinder hen</h1>
+<p>Upload dit kontoudtog (CSV, PDF eller billede) og se dine største pengeslugere på 30 sekunder.</p>
+
+<h2>Hvad Pengetjek viser dig</h2>
+<ul>
+  <li>Dine top 5 pengeslugere med beløb og procent af forbrug</li>
+  <li>Glemte abonnementer (Netflix, fitness, streaming osv.)</li>
+  <li>Kategorifordeling af alle udgifter</li>
+  <li>Sammenligning med gennemsnitligt dansk forbrug</li>
+</ul>
+
+<p>Klar til at lave et budget? <a href="https://nemtbudget.nu"><strong>Beregn dit rådighedsbeløb gratis →</strong></a></p>`,
+
+    "/guides": `
+<h1>Guides om dansk privatøkonomi</h1>
+<p>Gratis artikler og guides om budgetlægning, skat, opsparing og hverdagsøkonomi.</p>
+<ul>
+  <li><a href="https://nemtbudget.nu/guides/raadighedsbeloeb-beregning">Rådighedsbeløb: Hvad er det og hvordan beregner du det?</a></li>
+  <li><a href="https://nemtbudget.nu/guides/50-30-20-reglen-budget">50/30/20-reglen: Den nemmeste budgetmetode</a></li>
+  <li><a href="https://nemtbudget.nu/guides/noedbuffer-hvad-er-det">Nødbuffer: Hvad er det og hvor stor skal den være?</a></li>
+</ul>
+<p><a href="https://nemtbudget.nu"><strong>Beregn dit budget gratis →</strong></a></p>`,
+
+    "/b2b": `
+<h1>NemtBudget til virksomheder — White-label budgetværktøj</h1>
+<p>Tilbyd dine kunder et white-label budgetværktøj med jeres eget brand. Perfekt til banker, pensionsselskaber og fagforeninger.</p>
+<ul>
+  <li>Jeres logo og farver</li>
+  <li>Integreret i jeres platform</li>
+  <li>Dansk skatteberegning for alle 98 kommuner med 2026-satser</li>
+</ul>`,
+
+    "/privatliv": `
+<h1>Privatlivspolitik — NemtBudget</h1>
+<p>Vi gemmer ingen persondata. Al beregning sker i din browser. Data gemmes kun lokalt på din enhed. Ingen cookies til tracking. GDPR-overholdende.</p>`,
+
+    "/vilkaar": `
+<h1>Vilkår og betingelser — NemtBudget</h1>
+<p>NemtBudget er et informationsværktøj og yder ikke finansiel rådgivning. Brug det som vejledning.</p>`,
+
+    "/install": `
+<h1>Installér NemtBudget</h1>
+<p>Installér NemtBudget som app på din telefon. Ingen App Store — bare tilføj til startskærm. Virker offline efter installation.</p>`,
+  },
+
+  footerNav: `
+      <a href="https://nemtbudget.nu/lonseddel">Lønseddel-analyse</a> ·
+      <a href="https://nemtbudget.nu/pengetjek">Pengetjek</a> ·
+      <a href="https://nemtbudget.nu/guides">Guides</a> ·
+      <a href="https://nemtbudget.nu/b2b">Virksomheder</a>`,
+});
+
+export const config = defaultMatcherConfig;
