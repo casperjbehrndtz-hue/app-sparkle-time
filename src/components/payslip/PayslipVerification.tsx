@@ -284,7 +284,7 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
                           isMeta ? "text-muted-foreground" :
                           "text-foreground"
                         }`}>
-                          {row.type === "deduction" ? "-" : ""}{isMeta && row.key === "traekkort" ? val + "%" : formatKr(val, lc)}
+                          {row.type === "deduction" ? "-" : ""}{isMeta && row.key === "traekkort" ? val + "%" : formatKr(val, lc)}{isMeta && row.key === "personfradrag" ? " kr/md" : ""}
                           {isOverridden && <span className="text-[9px] text-primary ml-1">*</span>}
                         </span>
                         {isEditable && (
