@@ -1,12 +1,14 @@
 import { useState, useCallback } from "react";
-import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
-import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
+import { parseBankStatementResponse, type BankStatementRaw, type StatementAnalysis } from "@/lib/bankStatementTypes";
+import { parseCSV } from "@/lib/csvParser";
+import { analyzeStatement } from "@/lib/statementAnalyzer";
+import type { BudgetProfile } from "@/lib/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-/** Resize image client-side to reduce upload size and latency */
+/** Resize image client-side to reduce upload size */
 async function compressImage(file: File): Promise<{ base64: string; mimeType: string }> {
   // PDFs: send as-is
   if (file.type === "application/pdf") {
@@ -65,36 +67,70 @@ async function compressImage(file: File): Promise<{ base64: string; mimeType: st
   });
 }
 
-export function usePayslipOCR() {
-  const [result, setResult] = useState<ExtractedPayslip | null>(null);
-  const [diagnostics, setDiagnostics] = useState<ReconciliationDiagnostics | null>(null);
+/** Read file as text for CSV parsing */
+async function readFileAsText(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Kunne ikke læse filen"));
+    reader.readAsText(file, "utf-8");
+  });
+}
+
+function isCSV(file: File): boolean {
+  if (file.type === "text/csv" || file.type === "application/csv") return true;
+  if (file.name.toLowerCase().endsWith(".csv")) return true;
+  // Also detect TSV / semicolon-separated
+  if (file.name.toLowerCase().endsWith(".tsv")) return true;
+  return false;
+}
+
+export function useBankStatementOCR() {
+  const [raw, setRaw] = useState<BankStatementRaw | null>(null);
+  const [analysis, setAnalysis] = useState<StatementAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processPayslip = useCallback(async (file: File) => {
+  const processFile = useCallback(async (file: File) => {
     setError(null);
-    setResult(null);
-
-    // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-    if (!validTypes.includes(file.type)) {
-      setError("payslip.error.invalidType");
-      return;
-    }
+    setRaw(null);
+    setAnalysis(null);
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError("payslip.error.tooLarge");
+      setError("pengetjek.error.tooLarge");
       return;
     }
 
     setIsProcessing(true);
 
     try {
+      // ── CSV path: parse client-side (free, no AI) ──
+      if (isCSV(file)) {
+        const content = await readFileAsText(file);
+        const parsed = parseCSV(content);
+
+        if (!parsed || parsed.transaktioner.length === 0) {
+          setError("pengetjek.error.csvParseFailed");
+          return;
+        }
+
+        setRaw(parsed);
+        setAnalysis(analyzeStatement(parsed));
+        return;
+      }
+
+      // ── Image/PDF path: send to edge function ──
+      const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+      if (!validTypes.includes(file.type)) {
+        setError("pengetjek.error.invalidType");
+        return;
+      }
+
       const { base64, mimeType } = await compressImage(file);
 
       const callOCR = async (): Promise<Response> => {
-        return fetch(`${SUPABASE_URL}/functions/v1/payslip-ocr`, {
+        return fetch(`${SUPABASE_URL}/functions/v1/bank-statement-ocr`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${SUPABASE_KEY}`,
@@ -104,7 +140,6 @@ export function usePayslipOCR() {
         });
       };
 
-      // Try up to 2 times — AI output can be flaky
       let lastError = "";
       for (let attempt = 0; attempt < 2; attempt++) {
         try {
@@ -112,60 +147,57 @@ export function usePayslipOCR() {
 
           if (!res.ok) {
             const body = await res.json().catch(() => ({}));
-            console.error(`Payslip OCR API error (attempt ${attempt + 1}):`, res.status, body);
+            console.error(`Bank statement OCR error (attempt ${attempt + 1}):`, res.status, body);
             lastError = body.detail || body.error || `HTTP ${res.status}`;
-            // Don't retry on 4xx client errors (except 422 = parse fail)
             if (res.status >= 400 && res.status < 500 && res.status !== 422) {
               throw new Error(lastError);
             }
             continue;
           }
 
-          const raw = await res.json();
-          const parsed = parsePayslipResponse(raw);
+          const rawJson = await res.json();
+          const parsed = parseBankStatementResponse(rawJson);
 
-          if (!parsed) {
-            const rawObj = raw as Record<string, unknown>;
-            lastError = `bruttolon=${rawObj?.bruttolon}(${typeof rawObj?.bruttolon}), nettolon=${rawObj?.nettolon}(${typeof rawObj?.nettolon})`;
-            console.warn(`Payslip parse failed (attempt ${attempt + 1}).`, lastError);
-            continue; // retry — AI may produce better output
+          if (!parsed || parsed.transaktioner.length === 0) {
+            lastError = "Ingen transaktioner fundet";
+            console.warn(`Bank statement parse failed (attempt ${attempt + 1}).`, lastError);
+            continue;
           }
 
-          // Reconcile: cross-validate brutto, AM-bidrag, netto using math invariants
-          const reconciled = reconcilePayslip(parsed);
-          if (reconciled.diagnostics.fixes.length > 0) {
-            console.info("Payslip reconciliation applied fixes:", reconciled.diagnostics.fixes);
-          }
-
-          setResult(reconciled.payslip);
-          setDiagnostics(reconciled.diagnostics);
+          setRaw(parsed);
+          setAnalysis(analyzeStatement(parsed));
           return;
         } catch (innerErr) {
           lastError = innerErr instanceof Error ? innerErr.message : "Ukendt fejl";
           if (attempt === 0) {
-            console.warn("Payslip OCR attempt 1 failed, retrying...", lastError);
+            console.warn("Bank statement OCR attempt 1 failed, retrying...", lastError);
           }
         }
       }
 
-      // Both attempts failed
-      console.error("Payslip OCR failed after 2 attempts:", lastError);
-      setError(lastError ? `Fejl: ${lastError}` : "payslip.error.readFailed");
+      console.error("Bank statement OCR failed after 2 attempts:", lastError);
+      setError(lastError ? `Fejl: ${lastError}` : "pengetjek.error.readFailed");
     } catch (err) {
-      console.error("Payslip OCR error:", err);
+      console.error("Bank statement OCR error:", err);
       const detail = err instanceof Error ? err.message : "";
-      setError(detail ? `Fejl: ${detail}` : "payslip.error.readFailed");
+      setError(detail ? `Fejl: ${detail}` : "pengetjek.error.readFailed");
     } finally {
       setIsProcessing(false);
     }
   }, []);
 
+  /** Re-run analysis with budget profile for comparison */
+  const analyzeWithBudget = useCallback((profile: BudgetProfile) => {
+    if (!raw) return;
+    setAnalysis(analyzeStatement(raw, profile));
+  }, [raw]);
+
   const reset = useCallback(() => {
-    setResult(null);
-    setDiagnostics(null);
+    setRaw(null);
+    setAnalysis(null);
     setError(null);
     setIsProcessing(false);
   }, []);
 
-  return { result, diagnostics, isProcessing, error, processPayslip, reset };
+  return { raw, analysis, isProcessing, error, processFile, analyzeWithBudget, reset };
 }

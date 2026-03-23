@@ -83,9 +83,9 @@ export function getDeductionInsights(p: ExtractedPayslip): Record<string, Deduct
   const insights: Record<string, DeductionInsight> = {};
   const brutto = p.bruttolon;
 
-  // AM-bidrag: always 8% of (brutto - employer pension)
+  // AM-bidrag: always 8% of AM-grundlag (brutto - employee pension - ATP)
   if (p.amBidrag > 0) {
-    const base = brutto - (p.pensionEmployer || 0);
+    const base = brutto - p.pensionEmployee - p.atp;
     const expectedAm = Math.round(base * 0.08);
     const diff = Math.abs(p.amBidrag - expectedAm);
     insights.amBidrag = {
@@ -176,6 +176,14 @@ export interface PayslipInsights {
   pensionHealth: "low" | "ok" | "good";
   retentionPct: number;          // netto / brutto × 100
   personfradragMonthly: number;  // monthly personfradrag
+
+  // SKAT-view: hvad ser SKAT?
+  amGrundlag: number;            // brutto - pensionEmployee - atp
+  aIndkomst: number;             // amGrundlag - amBidrag
+  annualAmGrundlag: number;      // amGrundlag × 12
+  annualAIndkomst: number;       // aIndkomst × 12
+  hasOpsparingsNote: boolean;    // fritvalg/ferietillæg opspares
+  opsparetMonthly: number;       // samlet opsparing pr. md
 }
 
 export function calculatePayslipInsights(p: ExtractedPayslip): PayslipInsights {
@@ -197,6 +205,11 @@ export function calculatePayslipInsights(p: ExtractedPayslip): PayslipInsights {
 
   const personfradragMonthly = p.personfradrag > 0 ? p.personfradrag : Math.round(54_100 / 12);
 
+  // SKAT-view
+  const amGrundlag = brutto - p.pensionEmployee - p.atp;
+  const aIndkomst = amGrundlag - p.amBidrag;
+  const opsparetMonthly = (p.fritvalgKonto || 0) + (p.feriepengeHensaet || 0);
+
   return {
     effectiveTaxRate: Math.round(effectiveTaxRate * 10) / 10,
     marginalTaxRate: p.traekkort,
@@ -208,6 +221,13 @@ export function calculatePayslipInsights(p: ExtractedPayslip): PayslipInsights {
     pensionHealth,
     retentionPct: Math.round((netto / brutto) * 1000) / 10,
     personfradragMonthly,
+
+    amGrundlag,
+    aIndkomst,
+    annualAmGrundlag: amGrundlag * 12,
+    annualAIndkomst: aIndkomst * 12,
+    hasOpsparingsNote: opsparetMonthly > 0,
+    opsparetMonthly,
   };
 }
 
@@ -273,6 +293,60 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
 
   const extraWarnings: string[] = [];
 
+  // ── Fix accumulated values: any single deduction > brutto is wrong ──
+  const deductionKeys = ["amBidrag", "aSkat", "atp", "pensionEmployee", "fagforening", "sundhedsforsikring", "fritvalgKonto", "feriepengeHensaet"] as const;
+  for (const key of deductionKeys) {
+    const val = num(key);
+    if (val > bruttolon && val > 0) {
+      (r as Record<string, unknown>)[key] = 0;
+      extraWarnings.push(`${key} nulstillet — beløbet virkede akkumuleret.`);
+    }
+  }
+
+  // Pension employer: typically 8-15% of brutto. If > 25%, it's accumulated.
+  let pensionEmployer = num("pensionEmployer");
+  if (pensionEmployer > bruttolon * 0.25 && bruttolon > 0) {
+    pensionEmployer = Math.round(bruttolon * 0.12);
+    (r as Record<string, unknown>)["pensionEmployer"] = pensionEmployer;
+    extraWarnings.push("Arbejdsgiverpension rettet — virkede akkumuleret.");
+  }
+
+  // ── Deduplicate otherDeductions (same name → keep smallest = "Denne periode") ──
+  if (Array.isArray(r["otherDeductions"])) {
+    const ods = r["otherDeductions"] as Array<{ name?: string; amount?: number }>;
+    const byName = new Map<string, { name: string; amount: number }>();
+    for (const d of ods) {
+      if (!d?.name || typeof d.amount !== "number" || d.amount <= 0) continue;
+      // Skip if amount > brutto (accumulated)
+      if (d.amount > bruttolon) continue;
+      const key = d.name.toLowerCase().trim();
+      const existing = byName.get(key);
+      if (existing) {
+        if (d.amount < existing.amount) byName.set(key, { name: d.name, amount: d.amount });
+      } else {
+        byName.set(key, { name: d.name, amount: d.amount });
+      }
+    }
+    (r as Record<string, unknown>)["otherDeductions"] = Array.from(byName.values());
+  }
+
+  // ── Deduplicate payComponents (same name → keep smallest) ──
+  if (Array.isArray(r["payComponents"])) {
+    const pcs = r["payComponents"] as Array<{ name?: unknown; amount?: number }>;
+    const byName = new Map<string, { name: string; amount: number }>();
+    for (const pc of pcs) {
+      if (!pc?.name || typeof pc.name !== "string" || typeof pc.amount !== "number" || pc.amount <= 0) continue;
+      const key = pc.name.toLowerCase().trim();
+      const existing = byName.get(key);
+      if (existing) {
+        if (pc.amount < existing.amount) byName.set(key, { name: pc.name, amount: pc.amount });
+      } else {
+        byName.set(key, { name: pc.name, amount: pc.amount });
+      }
+    }
+    (r as Record<string, unknown>)["payComponents"] = Array.from(byName.values());
+  }
+
   // ATP is mandatory for all Danish full-time employees (~99 kr/month)
   let atp = num("atp");
   if (atp === 0 && bruttolon >= 10000) {
@@ -280,32 +354,11 @@ export function parsePayslipResponse(raw: unknown): ExtractedPayslip | null {
     extraWarnings.push("ATP sat til 99 kr/md (standard fuldtid). Ret hvis deltid.");
   }
 
-  // If nettolon is missing or zero, estimate from brutto (user can correct in verification)
-  if (nettolon <= 0) {
-    nettolon = Math.round(bruttolon * 0.63); // rough Danish average
-    extraWarnings.push("Nettoløn kunne ikke læses — estimeret til 63% af brutto. Ret venligst.");
-  }
-
-  // If nettolon > bruttolon, AI likely read an accumulated/year-to-date figure
-  if (nettolon > bruttolon) {
-    // Try to see if AM-bidrag + A-skat etc. can help us estimate netto
-    const amBidrag = num("amBidrag");
-    const aSkat = num("aSkat");
-    const atp = num("atp");
-    const pensionEmployee = num("pensionEmployee");
-    const totalDeductions = amBidrag + aSkat + atp + pensionEmployee;
-
-    if (totalDeductions > 0 && totalDeductions < bruttolon) {
-      nettolon = bruttolon - totalDeductions;
-      extraWarnings.push("Nettoløn virkede forkert (højere end brutto) — beregnet ud fra fradrag. Tjek venligst.");
-    } else {
-      nettolon = Math.round(bruttolon * 0.63);
-      extraWarnings.push("Nettoløn virkede forkert (højere end brutto) — estimeret til 63% af brutto. Ret venligst.");
-    }
-  }
+  // NOTE: Netto estimation and brutto/netto reconciliation is now handled
+  // client-side by payslipReconciler.ts which uses three-way brutto
+  // cross-validation. Parser only passes through the raw AI values.
 
   const confidence = r["confidence"];
-  // Force low confidence when we had to fix nettolon
   const validConfidence = extraWarnings.length > 0 ? "low" :
     (confidence === "high" || confidence === "medium" || confidence === "low"
     ? confidence : "low");

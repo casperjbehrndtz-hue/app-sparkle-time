@@ -1,0 +1,241 @@
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { TrendingDown, Repeat, BarChart3, ArrowRight, AlertTriangle, Scale } from "lucide-react";
+import { formatKr } from "@/lib/budgetCalculator";
+import { useLocale } from "@/lib/locale";
+import { useI18n } from "@/lib/i18n";
+import { TransactionList } from "./TransactionList";
+import type { StatementAnalysis, BudgetComparisonItem } from "@/lib/bankStatementTypes";
+import type { BankTransaction } from "@/lib/bankStatementTypes";
+
+interface Props {
+  analysis: StatementAnalysis;
+  transactions: BankTransaction[];
+  truncated?: boolean;
+  onCreateBudget: () => void;
+}
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.35, delay },
+});
+
+function StatusBadge({ status, diff, lc }: { status: "good" | "watch" | "over"; diff: number; lc: string }) {
+  const styles = {
+    good: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    watch: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    over: "bg-red-500/10 text-red-700 dark:text-red-400",
+  };
+
+  return (
+    <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${styles[status]}`}>
+      {diff > 0 ? "+" : ""}{formatKr(diff, lc)} kr
+    </span>
+  );
+}
+
+export function PengetjekResult({ analysis, transactions, truncated, onCreateBudget }: Props) {
+  const { t } = useI18n();
+  const locale = useLocale();
+  const lc = locale.currencyLocale;
+
+  const periodLabel = useMemo(() => {
+    if (!analysis.periodeStart || !analysis.periodeSlut) return null;
+    const start = new Date(analysis.periodeStart).toLocaleDateString("da-DK", { day: "numeric", month: "short" });
+    const end = new Date(analysis.periodeSlut).toLocaleDateString("da-DK", { day: "numeric", month: "short", year: "numeric" });
+    return `${start} — ${end}`;
+  }, [analysis.periodeStart, analysis.periodeSlut]);
+
+  // Max bar width for category breakdown
+  const maxCatTotal = analysis.categories.length > 0 ? analysis.categories[0].total : 1;
+
+  return (
+    <div className="space-y-4">
+      {/* ── Truncation warning ── */}
+      {truncated && (
+        <motion.div {...fadeUp(0)} className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-700 dark:text-amber-300">{t("pengetjek.result.truncated")}</p>
+        </motion.div>
+      )}
+
+      {/* ── Section 1: Hero ── */}
+      <motion.div {...fadeUp(0.05)} className="rounded-2xl border border-border bg-card p-5 text-center">
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
+          {t("pengetjek.result.hero.spent")}
+        </p>
+        <p className="text-3xl font-display font-bold text-foreground">
+          {formatKr(analysis.totalUdgifter, lc)} <span className="text-lg text-muted-foreground">kr</span>
+        </p>
+        <div className="flex items-center justify-center gap-3 mt-2 text-xs text-muted-foreground">
+          <span>{analysis.antalTransaktioner} {t("pengetjek.result.hero.transactions")}</span>
+          {periodLabel && (
+            <>
+              <span className="text-border">|</span>
+              <span>{periodLabel}</span>
+            </>
+          )}
+        </div>
+        {analysis.totalIndkomst > 0 && (
+          <p className="text-[10px] text-muted-foreground/60 mt-1">
+            Indkomst i perioden: {formatKr(analysis.totalIndkomst, lc)} kr
+          </p>
+        )}
+      </motion.div>
+
+      {/* ── Section 2: Pengeslugere ── */}
+      {analysis.pengeslugere.length > 0 && (
+        <motion.div {...fadeUp(0.1)} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+            <TrendingDown className="w-4 h-4 text-red-500" />
+            <div>
+              <h3 className="text-sm font-semibold">{t("pengetjek.result.pengeslugere.title")}</h3>
+              <p className="text-[10px] text-muted-foreground">{t("pengetjek.result.pengeslugere.subtitle")}</p>
+            </div>
+          </div>
+          <div className="p-4 space-y-2.5">
+            {analysis.pengeslugere.map((p, i) => (
+              <motion.div
+                key={p.kategori}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 + i * 0.06 }}
+                className={`flex items-center justify-between p-3 rounded-xl border ${
+                  i === 0
+                    ? "bg-red-500/5 border-red-500/20"
+                    : i === 1
+                    ? "bg-amber-500/5 border-amber-500/20"
+                    : "bg-muted/30 border-border"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">{p.emoji}</span>
+                  <div>
+                    <p className="text-xs font-semibold">{p.kategori}</p>
+                    <p className="text-[10px] text-muted-foreground">{p.pctOfTotal}% af dit forbrug</p>
+                  </div>
+                </div>
+                <p className="text-sm font-bold font-mono tabular-nums">{formatKr(p.total, lc)} kr</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Section 3: Abonnementer fundet ── */}
+      {analysis.abonnementer.length > 0 && (
+        <motion.div {...fadeUp(0.2)} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+            <Repeat className="w-4 h-4 text-primary" />
+            <div>
+              <h3 className="text-sm font-semibold">{t("pengetjek.result.subscriptions.title")}</h3>
+              <p className="text-[10px] text-muted-foreground">
+                {t("pengetjek.result.subscriptions.total").replace("{amount}", formatKr(
+                  analysis.abonnementer.reduce((s, a) => s + a.amount, 0), lc
+                ))}
+              </p>
+            </div>
+          </div>
+          <div className="p-4 space-y-1">
+            {analysis.abonnementer.map((sub, i) => (
+              <div key={`${sub.name}-${i}`} className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-muted/20 transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">{sub.emoji}</span>
+                  <span className="text-xs">{sub.name}</span>
+                </div>
+                <span className="text-xs font-mono tabular-nums text-red-600 dark:text-red-400">
+                  -{formatKr(sub.amount, lc)} kr/md
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Section 4: Kategori-breakdown ── */}
+      {analysis.categories.length > 0 && (
+        <motion.div {...fadeUp(0.3)} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">{t("pengetjek.result.categories.title")}</h3>
+          </div>
+          <div className="p-4 space-y-2">
+            {analysis.categories
+              .filter((c) => !["Løn", "Overførsel"].includes(c.kategori))
+              .map((cat) => (
+                <div key={cat.kategori} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5">
+                      <span>{cat.emoji}</span>
+                      <span>{cat.kategori}</span>
+                      <span className="text-muted-foreground/50">({cat.count})</span>
+                    </span>
+                    <span className="font-mono tabular-nums font-medium">{formatKr(cat.total, lc)} kr</span>
+                  </div>
+                  <div className="h-2 bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary/70 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.max(2, (cat.total / maxCatTotal) * 100)}%` }}
+                      transition={{ duration: 0.5, delay: 0.1 }}
+                    />
+                  </div>
+                </div>
+              ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Section 5: Budget-sammenligning ── */}
+      {analysis.budgetComparison && analysis.budgetComparison.length > 0 && (
+        <motion.div {...fadeUp(0.35)} className="rounded-2xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+            <Scale className="w-4 h-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold">{t("pengetjek.result.budget.title")}</h3>
+          </div>
+          <div className="p-4 space-y-2">
+            {analysis.budgetComparison.map((item: BudgetComparisonItem) => (
+              <div
+                key={item.kategori}
+                className={`flex items-center justify-between p-3 rounded-xl border ${
+                  item.status === "good"
+                    ? "bg-emerald-500/5 border-emerald-500/20"
+                    : item.status === "watch"
+                    ? "bg-amber-500/5 border-amber-500/20"
+                    : "bg-red-500/5 border-red-500/20"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">{item.emoji}</span>
+                  <div>
+                    <p className="text-xs font-semibold">{item.kategori}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Budget: {formatKr(item.budgeted, lc)} kr → Faktisk: {formatKr(item.actual, lc)} kr
+                    </p>
+                  </div>
+                </div>
+                <StatusBadge status={item.status} diff={item.diff} lc={lc} />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Section 6: Transaktionsliste ── */}
+      <TransactionList transactions={transactions} />
+
+      {/* ── Section 7: CTA ── */}
+      <motion.button
+        {...fadeUp(0.4)}
+        onClick={onCreateBudget}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
+      >
+        {t("pengetjek.result.cta")}
+        <ArrowRight className="w-4 h-4" />
+      </motion.button>
+    </div>
+  );
+}

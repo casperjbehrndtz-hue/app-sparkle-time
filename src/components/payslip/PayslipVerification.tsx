@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
-import { Check, AlertTriangle, Pencil, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, AlertTriangle, Pencil, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { ExtractedPayslip } from "@/lib/payslipTypes";
+import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 
 interface Props {
   payslip: ExtractedPayslip;
+  diagnostics?: ReconciliationDiagnostics | null;
   onConfirm: (confirmed: ExtractedPayslip) => void;
   onRetry: () => void;
 }
@@ -18,7 +20,7 @@ interface EditableRow {
   type: "income" | "deduction" | "info" | "meta";
 }
 
-export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
+export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, onConfirm, onRetry }: Props) {
   const { t } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
@@ -61,28 +63,51 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
     return r;
   }, [payslip, t]);
 
-  // Sanity checks — recompute when overrides change
-  const checks = useMemo(() => {
+  // Re-reconcile when user edits fields, to keep diagnostics up to date
+  const { checks, activeDiagnostics } = useMemo(() => {
+    const hasOverrides = Object.keys(overrides).length > 0;
+
+    // If user has edited fields, re-run reconciliation on the modified payslip
+    let diag: ReconciliationDiagnostics | null | undefined;
+    if (hasOverrides) {
+      const modified: ExtractedPayslip = {
+        ...payslip,
+        bruttolon: overrides.bruttolon ?? payslip.bruttolon,
+        nettolon: overrides.nettolon ?? payslip.nettolon,
+        amBidrag: overrides.amBidrag ?? payslip.amBidrag,
+        aSkat: overrides.aSkat ?? payslip.aSkat,
+        atp: overrides.atp ?? payslip.atp,
+        pensionEmployee: overrides.pensionEmployee ?? payslip.pensionEmployee,
+        traekkort: overrides.traekkort ?? payslip.traekkort,
+        personfradrag: overrides.personfradrag ?? payslip.personfradrag,
+      };
+      const result = reconcilePayslip(modified);
+      diag = result.diagnostics;
+    } else {
+      diag = initialDiagnostics;
+    }
+
     const issues: string[] = [];
-    const b = overrides.bruttolon ?? payslip.bruttolon;
-    const n = overrides.nettolon ?? payslip.nettolon;
+
+    // Show reconciler fixes (auto-corrections already applied)
+    if (diag && !hasOverrides) {
+      for (const fix of diag.fixes) {
+        issues.push(fix);
+      }
+    }
+
+    // Balance error warning
+    if (diag && Math.abs(diag.balanceError) > 200) {
+      issues.push(`Lønsedlen balancerer ikke helt (forskel: ${Math.abs(diag.balanceError).toLocaleString("da-DK")} kr). Der kan mangle et fradrag.`);
+    }
 
     // payComponents vs brutto
+    const b = overrides.bruttolon ?? payslip.bruttolon;
+    const n = overrides.nettolon ?? payslip.nettolon;
     if (payslip.payComponents.length > 1) {
       const sum = payslip.payComponents.reduce((s, pc) => s + pc.amount, 0);
       if (Math.abs(sum - b) > 100) {
         issues.push(`Lønposterne summer til ${formatKr(sum, lc)} men bruttoløn er ${formatKr(b, lc)}. Tjek tallene.`);
-      }
-    }
-
-    // AM-bidrag ≈ 8% of (brutto - employer pension)
-    const am = overrides.amBidrag ?? payslip.amBidrag;
-    const empPension = overrides.pensionEmployer ?? payslip.pensionEmployer;
-    if (am > 0) {
-      const amBase = b - empPension;
-      const expectedAm = Math.round(amBase * 0.08);
-      if (Math.abs(am - expectedAm) > 200) {
-        issues.push(`AM-bidrag (${formatKr(am, lc)}) afviger fra forventet 8% (${formatKr(expectedAm, lc)}).`);
       }
     }
 
@@ -95,8 +120,8 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
       issues.push(`Trækprocent ${traek}% virker usandsynlig. Normal: 33-45%.`);
     }
 
-    return issues;
-  }, [payslip, overrides, lc]);
+    return { checks: issues, activeDiagnostics: diag };
+  }, [payslip, overrides, lc, initialDiagnostics]);
 
   const handleEdit = (key: string, value: string) => {
     const num = Math.round(Number(value.replace(/[^0-9]/g, "")));
@@ -148,6 +173,43 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
           <h2 className="text-sm font-semibold">{t("payslip.verify.title")}</h2>
           <p className="text-xs text-muted-foreground mt-0.5">{t("payslip.verify.subtitle")}</p>
         </div>
+
+        {/* Confidence banner from reconciler */}
+        {activeDiagnostics && (
+          <div className={`mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 ${
+            payslip.confidence === "high"
+              ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
+              : payslip.confidence === "medium"
+              ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
+              : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+          }`}>
+            {payslip.confidence === "high" ? (
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+            ) : payslip.confidence === "medium" ? (
+              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+            ) : (
+              <ShieldX className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+            )}
+            <div>
+              <p className={`text-xs font-medium ${
+                payslip.confidence === "high" ? "text-emerald-700 dark:text-emerald-300" :
+                payslip.confidence === "medium" ? "text-amber-700 dark:text-amber-300" :
+                "text-red-700 dark:text-red-300"
+              }`}>
+                {payslip.confidence === "high" ? "Alle tal stemmer overens" :
+                 payslip.confidence === "medium" ? "Tal er rettet automatisk — tjek nedenfor" :
+                 "Tallene stemmer ikke overens — tjek venligst"}
+              </p>
+              {activeDiagnostics.bruttoSource !== "ai" && (
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {activeDiagnostics.bruttoSource === "am_derived"
+                    ? "Bruttoløn beregnet fra AM-bidrag (8%-reglen)"
+                    : "Bruttoløn beregnet fra netto + fradrag"}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Sanity warnings */}
         {checks.length > 0 && (
@@ -222,7 +284,7 @@ export function PayslipVerification({ payslip, onConfirm, onRetry }: Props) {
                           isMeta ? "text-muted-foreground" :
                           "text-foreground"
                         }`}>
-                          {row.type === "deduction" ? "-" : ""}{isMeta ? val + "%" : formatKr(val, lc)}
+                          {row.type === "deduction" ? "-" : ""}{isMeta && row.key === "traekkort" ? val + "%" : formatKr(val, lc)}
                           {isOverridden && <span className="text-[9px] text-primary ml-1">*</span>}
                         </span>
                         {isEditable && (

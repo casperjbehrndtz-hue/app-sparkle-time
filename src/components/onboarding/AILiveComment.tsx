@@ -20,7 +20,7 @@ export function AILiveComment({ profile, step }: Props) {
 
   // Only fetch for certain steps, and debounce
   useEffect(() => {
-    const validSteps = ["income", "housing", "expenses"];
+    const validSteps = ["income", "housing", "everyday", "fixed"];
     if (!validSteps.includes(step)) {
       setComment(null);
       return;

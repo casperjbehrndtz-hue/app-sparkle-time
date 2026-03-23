@@ -26,6 +26,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const Partner = lazy(() => import("./pages/Partner"));
 const Vilkaar = lazy(() => import("./pages/Vilkaar"));
 const Lonseddel = lazy(() => import("./pages/Lonseddel"));
+const Pengetjek = lazy(() => import("./pages/Pengetjek"));
 
 // Build-time locale — mirrors i18n.tsx
 const BUILD_LOCALE = (import.meta.env.VITE_LOCALE ?? "da") as "da" | "no";
@@ -104,6 +105,7 @@ const App = () => {
                       <Route path="/partner" element={<Partner />} />
                       <Route path="/vilkaar" element={<Vilkaar />} />
                       <Route path="/lonseddel" element={<Lonseddel />} />
+                      <Route path="/pengetjek" element={<Pengetjek />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>

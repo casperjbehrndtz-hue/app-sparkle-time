@@ -1,34 +1,29 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard, Smartphone, Bot, Trash2, ArrowRight } from "lucide-react";
+import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Smartphone, Bot, Trash2, ArrowRight } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { usePayslipOCR } from "@/hooks/usePayslipOCR";
-import { PayslipVerification } from "@/components/payslip/PayslipVerification";
-import { PayslipResult } from "@/components/payslip/PayslipResult";
-import { payslipToProfile } from "@/lib/payslipTypes";
-import type { ExtractedPayslip } from "@/lib/payslipTypes";
+import { useBankStatementOCR } from "@/hooks/useBankStatementOCR";
+import { PengetjekResult } from "@/components/pengetjek/PengetjekResult";
 import type { BudgetProfile } from "@/lib/types";
 
-const PREFILL_KEY = "nb_payslip_prefill";
+const PREFILL_KEY = "nb_pengetjek_prefill";
 
 function DataJourney({ t }: { t: (key: string) => string }) {
   const steps = [
-    { icon: Smartphone, label: t("payslip.journey.step1"), detail: t("payslip.journey.step1Detail") },
-    { icon: Bot, label: t("payslip.journey.step2"), detail: t("payslip.journey.step2Detail") },
-    { icon: Trash2, label: t("payslip.journey.step3"), detail: t("payslip.journey.step3Detail") },
+    { icon: Smartphone, label: t("pengetjek.journey.step1"), detail: t("pengetjek.journey.step1Detail") },
+    { icon: Bot, label: t("pengetjek.journey.step2"), detail: t("pengetjek.journey.step2Detail") },
+    { icon: Trash2, label: t("pengetjek.journey.step3"), detail: t("pengetjek.journey.step3Detail") },
   ];
 
   return (
     <div className="space-y-3">
-      {/* Visual flow */}
       <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-4">
         <div className="flex items-center gap-1.5">
           <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-xs font-semibold text-foreground">{t("payslip.journey.title")}</span>
+          <span className="text-xs font-semibold text-foreground">{t("pengetjek.journey.title")}</span>
         </div>
 
-        {/* 3-step horizontal flow */}
         <div className="flex items-start gap-1">
           {steps.map((step, i) => (
             <div key={i} className="flex items-start flex-1 min-w-0">
@@ -46,40 +41,29 @@ function DataJourney({ t }: { t: (key: string) => string }) {
           ))}
         </div>
 
-        {/* Honesty note — always visible */}
         <p className="text-[10px] text-muted-foreground leading-relaxed border-t border-border/40 pt-3">
-          {t("payslip.journey.honest")}
+          {t("pengetjek.journey.honest")}
         </p>
       </div>
-
-      <p className="text-[10px] text-muted-foreground/50 leading-relaxed px-1">
-        {t("payslip.journey.disclaimer")}
-      </p>
     </div>
   );
 }
 
-export default function Lonseddel() {
+export default function Pengetjek() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { result: ocrResult, diagnostics, isProcessing, error, processPayslip, reset: ocrReset } = usePayslipOCR();
-  const [confirmedResult, setConfirmedResult] = useState<ExtractedPayslip | null>(null);
+  const { analysis, raw, isProcessing, error, processFile, reset } = useBankStatementOCR();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const reset = useCallback(() => {
-    ocrReset();
-    setConfirmedResult(null);
-  }, [ocrReset]);
-
   usePageMeta(
-    t("payslip.meta.title"),
-    t("payslip.meta.description"),
+    t("pengetjek.meta.title"),
+    t("pengetjek.meta.description"),
   );
 
   const handleFile = useCallback((file: File) => {
-    processPayslip(file);
-  }, [processPayslip]);
+    processFile(file);
+  }, [processFile]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -93,9 +77,9 @@ export default function Lonseddel() {
     if (file) handleFile(file);
   }, [handleFile]);
 
-  // Global paste handler — Ctrl+V anywhere on the page
+  // Global paste handler
   useEffect(() => {
-    if (ocrResult || confirmedResult || isProcessing) return;
+    if (analysis || isProcessing) return;
 
     const handlePaste = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -114,12 +98,47 @@ export default function Lonseddel() {
 
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
-  }, [handleFile, ocrResult, confirmedResult, isProcessing]);
+  }, [handleFile, analysis, isProcessing]);
 
-  const handleCreateBudget = useCallback((partial: Partial<BudgetProfile>) => {
+  const handleCreateBudget = useCallback(() => {
+    if (!analysis) return;
+
+    // Map statement analysis to budget profile fields
+    const partial: Partial<BudgetProfile> = {};
+    for (const cat of analysis.categories) {
+      switch (cat.kategori) {
+        case "Mad": partial.foodAmount = cat.total; break;
+        case "Restaurant": partial.restaurantAmount = cat.total; break;
+        case "Fritid": partial.leisureAmount = cat.total; break;
+        case "Tøj": partial.clothingAmount = cat.total; break;
+        case "Sundhed": partial.healthAmount = cat.total; break;
+      }
+    }
+
+    // Map detected subscriptions to toggles
+    for (const sub of analysis.abonnementer) {
+      const lower = sub.name.toLowerCase();
+      if (lower.includes("netflix")) partial.hasNetflix = true;
+      else if (lower.includes("spotify")) partial.hasSpotify = true;
+      else if (lower.includes("hbo")) partial.hasHBO = true;
+      else if (lower.includes("viaplay")) partial.hasViaplay = true;
+      else if (lower.includes("disney")) partial.hasDisney = true;
+      else if (lower.includes("apple tv")) partial.hasAppleTV = true;
+      else if (lower.includes("amazon")) partial.hasAmazonPrime = true;
+      else if (lower.includes("fitness")) {
+        partial.hasFitness = true;
+        partial.fitnessAmount = sub.amount;
+      }
+    }
+
+    // Detect income
+    if (analysis.totalIndkomst > 0) {
+      partial.income = analysis.totalIndkomst;
+    }
+
     sessionStorage.setItem(PREFILL_KEY, JSON.stringify(partial));
     navigate("/");
-  }, [navigate]);
+  }, [analysis, navigate]);
 
   return (
     <div id="main-content" className="min-h-screen bg-background">
@@ -134,17 +153,16 @@ export default function Lonseddel() {
       </nav>
 
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
-        {/* Title — marketing on landing, data-focused on result */}
-        {!ocrResult && !confirmedResult && (
+        {/* Title — marketing on landing */}
+        {!analysis && !isProcessing && (
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight">{t("payslip.landing.headline")}</h1>
-            <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("payslip.landing.subheadline")}</p>
-            <p className="text-[10px] text-muted-foreground/50">{t("payslip.landing.socialProof")}</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t("pengetjek.landing.headline")}</h1>
+            <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("pengetjek.landing.subheadline")}</p>
           </div>
         )}
 
         {/* State: Upload */}
-        {!ocrResult && !confirmedResult && !isProcessing && (
+        {!analysis && !isProcessing && (
           <>
             <div
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -160,7 +178,7 @@ export default function Lonseddel() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,application/pdf"
+                accept="image/jpeg,image/png,image/webp,application/pdf,.csv"
                 onChange={handleFileInput}
                 className="hidden"
               />
@@ -169,9 +187,9 @@ export default function Lonseddel() {
                   <Upload className={`w-6 h-6 ${dragOver ? "text-primary" : "text-muted-foreground"}`} />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{t("payslip.dropzone")}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">{t("payslip.pasteHint")}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">{t("payslip.acceptedFormats")}</p>
+                  <p className="text-sm font-medium">{t("pengetjek.dropzone")}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{t("pengetjek.pasteHint")}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">{t("pengetjek.acceptedFormats")}</p>
                 </div>
               </div>
             </div>
@@ -179,12 +197,12 @@ export default function Lonseddel() {
             {/* Error */}
             {error && (
               <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center">
-                <p className="text-xs text-red-700 dark:text-red-300">{t(error)}</p>
+                <p className="text-xs text-red-700 dark:text-red-300">{t(error) !== error ? t(error) : error}</p>
                 <button
                   onClick={reset}
                   className="mt-2 text-xs text-red-600 hover:text-red-700 underline"
                 >
-                  {t("payslip.cta.retry")}
+                  {t("pengetjek.cta.retry")}
                 </button>
               </div>
             )}
@@ -193,16 +211,16 @@ export default function Lonseddel() {
             <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
               <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-[10px] text-muted-foreground leading-relaxed">
-                {t("payslip.privacy")}
+                {t("pengetjek.privacy.summary")}
               </p>
             </div>
 
             {/* How it works */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               {[
-                { icon: Upload, label: t("payslip.step1") },
-                { icon: FileText, label: t("payslip.step2") },
-                { icon: Shield, label: t("payslip.step3") },
+                { icon: Upload, label: t("pengetjek.step1") },
+                { icon: FileText, label: t("pengetjek.step2") },
+                { icon: Shield, label: t("pengetjek.step3") },
               ].map((step, i) => (
                 <div key={i} className="text-center space-y-1.5">
                   <div className="mx-auto w-8 h-8 rounded-full bg-muted flex items-center justify-center">
@@ -213,7 +231,6 @@ export default function Lonseddel() {
               ))}
             </div>
 
-            {/* Data journey — always visible */}
             <DataJourney t={t} />
           </>
         )}
@@ -223,33 +240,28 @@ export default function Lonseddel() {
           <div className="py-16 text-center space-y-4">
             <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
             <div>
-              <p className="text-sm font-medium">{t("payslip.processing")}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{t("payslip.processingHint")}</p>
+              <p className="text-sm font-medium">{t("pengetjek.processing")}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{t("pengetjek.processingHint")}</p>
             </div>
           </div>
         )}
 
-        {/* State: Verification — user confirms OCR data before analysis */}
-        {ocrResult && !confirmedResult && (
-          <PayslipVerification
-            payslip={ocrResult}
-            diagnostics={diagnostics}
-            onConfirm={setConfirmedResult}
-            onRetry={reset}
-          />
-        )}
-
-        {/* State: Result — only after user confirms */}
-        {confirmedResult && (
+        {/* State: Results */}
+        {analysis && raw && (
           <>
-            <PayslipResult payslip={confirmedResult} onCreateBudget={handleCreateBudget} />
+            <PengetjekResult
+              analysis={analysis}
+              transactions={raw.transaktioner}
+              truncated={raw.truncated}
+              onCreateBudget={handleCreateBudget}
+            />
 
             <button
               onClick={reset}
               className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
-              {t("payslip.cta.retry")}
+              {t("pengetjek.cta.retry")}
             </button>
           </>
         )}

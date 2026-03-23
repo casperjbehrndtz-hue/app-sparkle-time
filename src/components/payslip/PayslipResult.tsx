@@ -531,6 +531,103 @@ export function PayslipResult({ payslip, onCreateBudget }: Props) {
         </div>
       </div>
 
+      {/* ── SECTION 3.5: Hvad ser SKAT? ── */}
+      {insights.amGrundlag < payslip.bruttolon && (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5 text-primary" />
+            <span className="text-sm font-semibold">{t("payslip.section.skatView")}</span>
+          </div>
+          <div className="p-4 space-y-3">
+            <p className="text-xs text-muted-foreground leading-relaxed">{t("payslip.skat.intro")}</p>
+
+            {/* Waterfall flow */}
+            <div className="rounded-lg bg-background/50 border border-border/30 p-3">
+              {/* Start: Bruttoløn */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="text-xs font-medium text-foreground">{t("payslip.skat.step.brutto")}</span>
+                </div>
+                <span className="text-xs font-semibold text-foreground tabular-nums">{fmt(payslip.bruttolon)}</span>
+              </div>
+
+              {/* Subtract: Pension */}
+              {payslip.pensionEmployee > 0 && (
+                <div className="flex items-center justify-between ml-1 border-l-2 border-red-300 dark:border-red-800 pl-3 py-1.5">
+                  <span className="text-[11px] text-muted-foreground">− {t("payslip.skat.step.pension")}</span>
+                  <span className="text-[11px] text-red-600 dark:text-red-400 tabular-nums font-medium">−{fmt(payslip.pensionEmployee)}</span>
+                </div>
+              )}
+
+              {/* Subtract: ATP */}
+              {payslip.atp > 0 && (
+                <div className="flex items-center justify-between ml-1 border-l-2 border-red-300 dark:border-red-800 pl-3 py-1.5">
+                  <span className="text-[11px] text-muted-foreground">− {t("payslip.skat.step.atp")}</span>
+                  <span className="text-[11px] text-red-600 dark:text-red-400 tabular-nums font-medium">−{fmt(payslip.atp)}</span>
+                </div>
+              )}
+
+              {/* Subtotal: AM-grundlag */}
+              <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-sm bg-blue-500 shrink-0" />
+                  <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">{t("payslip.skat.step.amGrundlag")}</span>
+                </div>
+                <span className="text-xs font-bold text-blue-700 dark:text-blue-300 tabular-nums">{fmt(insights.amGrundlag)}</span>
+              </div>
+              <p className="text-[10px] text-blue-600/60 dark:text-blue-400/50 ml-4 mt-0.5">{t("payslip.skat.step.amGrundlagNote")}</p>
+
+              {/* Subtract: AM-bidrag */}
+              <div className="flex items-center justify-between ml-1 border-l-2 border-red-300 dark:border-red-800 pl-3 py-1.5 mt-1">
+                <span className="text-[11px] text-muted-foreground">− {t("payslip.skat.step.amBidrag")}</span>
+                <span className="text-[11px] text-red-600 dark:text-red-400 tabular-nums font-medium">−{fmt(payslip.amBidrag)}</span>
+              </div>
+
+              {/* Result: A-indkomst */}
+              <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-sm bg-primary shrink-0" />
+                  <span className="text-xs font-semibold text-primary">{t("payslip.skat.step.aIndkomst")}</span>
+                </div>
+                <span className="text-xs font-bold text-primary tabular-nums">{fmt(insights.aIndkomst)}</span>
+              </div>
+              <p className="text-[10px] text-primary/50 ml-4 mt-0.5">{t("payslip.skat.step.aIndkomstNote")}</p>
+            </div>
+
+            {/* Annual comparison */}
+            <div className="rounded-lg bg-background/50 border border-border/30 p-3 space-y-1.5">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Calculator className="w-3 h-3 text-primary" />
+                <span className="text-xs font-semibold text-foreground">{t("payslip.skat.annual.title")}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {t("payslip.skat.annual.naive").replace("{naive}", fmtAbs(insights.annualGross))}
+              </p>
+              <p className="text-[11px] font-medium text-foreground">
+                {t("payslip.skat.annual.real").replace("{real}", fmtAbs(insights.annualAmGrundlag))}
+              </p>
+              <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                {t("payslip.skat.annual.diff").replace("{diff}", fmtAbs(insights.annualGross - insights.annualAmGrundlag))}
+              </p>
+            </div>
+
+            {/* Opsparede beløb (conditional) */}
+            {insights.hasOpsparingsNote && (
+              <div className="rounded-lg bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200/30 dark:border-amber-800/30 p-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <AlertTriangle className="w-3 h-3 text-amber-500" />
+                  <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">{t("payslip.skat.opsparing.title")}</span>
+                </div>
+                <p className="text-[11px] text-amber-700/80 dark:text-amber-300/70 leading-relaxed">
+                  {t("payslip.skat.opsparing.detail").replace("{amount}", fmtAbs(insights.opsparetMonthly))}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Warnings ── */}
       {payslip.warnings.length > 0 && (
         <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
