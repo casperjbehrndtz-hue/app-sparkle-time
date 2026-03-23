@@ -10,6 +10,8 @@ export interface ReconciliationDiagnostics {
   balanceError: number;         // computedNetto - netto
   amBidragCheck: "pass" | "fixed";
   askatCheck: "pass" | "warn";
+  isAtypicalMonth: boolean;     // fratrædelsesgodtgørelse, store bonusser, etc.
+  estimatedNormalBrutto?: number; // grundløn-based estimate for typical month
   fixes: string[];
 }
 
@@ -46,12 +48,45 @@ function totalDeductions(p: ExtractedPayslip): number {
   return p.amBidrag + p.aSkat + p.atp + p.pensionEmployee + sumOtherDeductions(p);
 }
 
+// ─── One-time payment detection ─────────────────────
+
+const ONE_TIME_KEYWORDS = [
+  "fratrædelsesgodtgørelse", "fratrædelse", "severance",
+  "bonus", "gratiale", "engangsvederlag", "engangsbeløb",
+  "feriepenge", "feriefri", "feriegodtgørelse",
+  "jubilæum", "anciennitet", "efterregulering",
+  "overarbejde", "overtidsudbetaling",
+];
+
+function detectOneTimePayments(p: ExtractedPayslip): { isAtypical: boolean; oneTimeTotal: number; normalComponents: number } {
+  let oneTimeTotal = 0;
+  let normalTotal = 0;
+
+  for (const comp of p.payComponents) {
+    const lower = comp.name.toLowerCase();
+    const isOneTime = ONE_TIME_KEYWORDS.some(kw => lower.includes(kw));
+    if (isOneTime) {
+      oneTimeTotal += comp.amount;
+    } else {
+      normalTotal += comp.amount;
+    }
+  }
+
+  // Atypical if one-time payments exceed 50% of normal salary, or > 20,000 kr
+  const isAtypical = oneTimeTotal > 20_000 || (normalTotal > 0 && oneTimeTotal > normalTotal * 0.5);
+  return { isAtypical, oneTimeTotal, normalComponents: normalTotal };
+}
+
 // ─── Reconciliation Engine ───────────────────────────
 
 export function reconcilePayslip(raw: ExtractedPayslip): ReconciliationResult {
   const p = { ...raw }; // shallow copy — we'll mutate fields
   const fixes: string[] = [];
   let confidence: "high" | "medium" | "low" = "high";
+
+  // ── Step 0: Detect atypical month (one-time payments) ──
+  const { isAtypical, oneTimeTotal, normalComponents } = detectOneTimePayments(p);
+  let estimatedNormalBrutto: number | undefined;
 
   // ── Step 1: Anchor validation ──
   // ATP: should be ~99 for full-time. Default if missing.
@@ -92,7 +127,31 @@ export function reconcilePayslip(raw: ExtractedPayslip): ReconciliationResult {
     const aiMatchB = near(bruttoAi, bruttoBalanceDerived, BRUTTO_TOLERANCE);
     const abMatch = near(bruttoAmDerived, bruttoBalanceDerived, BRUTTO_TOLERANCE);
 
-    if (aiMatchA && aiMatchB) {
+    if (isAtypical) {
+      // ── Atypical month: one-time payments present ──
+      // Balance-derived is technically correct for THIS month.
+      // But don't scare the user — explain the situation.
+      bruttoFinal = bruttoBalanceDerived;
+      bruttoSource = "balance_derived";
+      confidence = "medium"; // not "low" — the data is fine, just unusual
+
+      // Estimate what a normal month looks like
+      if (p.grundlon && p.grundlon > 0) {
+        estimatedNormalBrutto = p.grundlon;
+      } else if (normalComponents > 0) {
+        estimatedNormalBrutto = normalComponents;
+      }
+
+      // Don't add scary "AI's tal stemte ikke" — explain WHY
+      const oneTimeNames = p.payComponents
+        .filter(c => ONE_TIME_KEYWORDS.some(kw => c.name.toLowerCase().includes(kw)))
+        .map(c => c.name)
+        .slice(0, 3)
+        .join(", ");
+      fixes.push(
+        `Denne lønseddel indeholder engangsposter (${oneTimeNames}: ${oneTimeTotal.toLocaleString("da-DK")} kr). Tallene afspejler denne måned, ikke din typiske løn.`
+      );
+    } else if (aiMatchA && aiMatchB) {
       // All three agree — HIGH confidence
       bruttoFinal = bruttoAi;
       bruttoSource = "ai";
@@ -156,18 +215,21 @@ export function reconcilePayslip(raw: ExtractedPayslip): ReconciliationResult {
   p.bruttolon = bruttoFinal;
 
   // ── Step 6: Validate AM-bidrag against final brutto ──
+  // Skip for atypical months — one-time payments may have different AM treatment
   let amBidragCheck: ReconciliationDiagnostics["amBidragCheck"] = "pass";
-  const expectedAmGrundlag = bruttoFinal - p.pensionEmployee - p.atp;
-  const expectedAm = Math.round(expectedAmGrundlag * 0.08);
+  if (!isAtypical) {
+    const expectedAmGrundlag = bruttoFinal - p.pensionEmployee - p.atp;
+    const expectedAm = Math.round(expectedAmGrundlag * 0.08);
 
-  if (p.amBidrag > 0 && !near(p.amBidrag, expectedAm, AM_TOLERANCE)) {
-    const oldAm = p.amBidrag;
-    p.amBidrag = expectedAm;
-    amBidragCheck = "fixed";
-    fixes.push(
-      `AM-bidrag rettet: ${oldAm.toLocaleString("da-DK")} → ${expectedAm.toLocaleString("da-DK")} kr (8% af ${expectedAmGrundlag.toLocaleString("da-DK")}).`
-    );
-    if (confidence === "high") confidence = "medium";
+    if (p.amBidrag > 0 && !near(p.amBidrag, expectedAm, AM_TOLERANCE)) {
+      const oldAm = p.amBidrag;
+      p.amBidrag = expectedAm;
+      amBidragCheck = "fixed";
+      fixes.push(
+        `AM-bidrag rettet: ${oldAm.toLocaleString("da-DK")} → ${expectedAm.toLocaleString("da-DK")} kr (8% af ${expectedAmGrundlag.toLocaleString("da-DK")}).`
+      );
+      if (confidence === "high") confidence = "medium";
+    }
   }
 
   // ── Step 7: Soft-check A-skat ──
@@ -239,6 +301,8 @@ export function reconcilePayslip(raw: ExtractedPayslip): ReconciliationResult {
       balanceError: Math.round(balanceError),
       amBidragCheck,
       askatCheck,
+      isAtypicalMonth: isAtypical,
+      estimatedNormalBrutto,
       fixes,
     },
   };

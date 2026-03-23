@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Check, AlertTriangle, Pencil, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
+import { Check, AlertTriangle, Pencil, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, ShieldX, Info } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -96,15 +96,16 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
       }
     }
 
-    // Balance error warning
-    if (diag && Math.abs(diag.balanceError) > 200) {
+    // Balance error warning — skip for atypical months
+    if (diag && !diag.isAtypicalMonth && Math.abs(diag.balanceError) > 200) {
       issues.push(`Lønsedlen balancerer ikke helt (forskel: ${Math.abs(diag.balanceError).toLocaleString("da-DK")} kr). Der kan mangle et fradrag.`);
     }
 
-    // payComponents vs brutto
+    // payComponents vs brutto — skip for atypical months (one-time payments explain the gap)
     const b = overrides.bruttolon ?? payslip.bruttolon;
     const n = overrides.nettolon ?? payslip.nettolon;
-    if (payslip.payComponents.length > 1) {
+    const isAtypical = diag?.isAtypicalMonth ?? false;
+    if (!isAtypical && payslip.payComponents.length > 1) {
       const sum = payslip.payComponents.reduce((s, pc) => s + pc.amount, 0);
       if (Math.abs(sum - b) > 100) {
         issues.push(`Lønposterne summer til ${formatKr(sum, lc)} men bruttoløn er ${formatKr(b, lc)}. Tjek tallene.`);
@@ -176,39 +177,62 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
 
         {/* Confidence banner from reconciler */}
         {activeDiagnostics && (
-          <div className={`mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 ${
-            payslip.confidence === "high"
-              ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
-              : payslip.confidence === "medium"
-              ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
-              : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-          }`}>
-            {payslip.confidence === "high" ? (
-              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
-            ) : payslip.confidence === "medium" ? (
-              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-            ) : (
-              <ShieldX className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+          <>
+            {/* Atypical month banner — friendly, not scary */}
+            {activeDiagnostics.isAtypicalMonth && (
+              <div className="mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+                <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                    Denne lønseddel er ikke en typisk måned
+                  </p>
+                  <p className="text-[10px] text-blue-600/80 dark:text-blue-400/80 mt-0.5">
+                    Den indeholder engangsposter. Tallene er korrekte for denne måned, men afspejler ikke din faste løn.
+                    {activeDiagnostics.estimatedNormalBrutto && activeDiagnostics.estimatedNormalBrutto > 0 && (
+                      <> Normal brutto: ca. {activeDiagnostics.estimatedNormalBrutto.toLocaleString("da-DK")} kr/md.</>
+                    )}
+                  </p>
+                </div>
+              </div>
             )}
-            <div>
-              <p className={`text-xs font-medium ${
-                payslip.confidence === "high" ? "text-emerald-700 dark:text-emerald-300" :
-                payslip.confidence === "medium" ? "text-amber-700 dark:text-amber-300" :
-                "text-red-700 dark:text-red-300"
+
+            {/* Confidence banner */}
+            {!activeDiagnostics.isAtypicalMonth && (
+              <div className={`mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 ${
+                payslip.confidence === "high"
+                  ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
+                  : payslip.confidence === "medium"
+                  ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
+                  : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
               }`}>
-                {payslip.confidence === "high" ? "Alle tal stemmer overens" :
-                 payslip.confidence === "medium" ? "Tal er rettet automatisk — tjek nedenfor" :
-                 "Tallene stemmer ikke overens — tjek venligst"}
-              </p>
-              {activeDiagnostics.bruttoSource !== "ai" && (
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {activeDiagnostics.bruttoSource === "am_derived"
-                    ? "Bruttoløn beregnet fra AM-bidrag (8%-reglen)"
-                    : "Bruttoløn beregnet fra netto + fradrag"}
-                </p>
-              )}
-            </div>
-          </div>
+                {payslip.confidence === "high" ? (
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0" />
+                ) : payslip.confidence === "medium" ? (
+                  <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                ) : (
+                  <ShieldX className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                )}
+                <div>
+                  <p className={`text-xs font-medium ${
+                    payslip.confidence === "high" ? "text-emerald-700 dark:text-emerald-300" :
+                    payslip.confidence === "medium" ? "text-amber-700 dark:text-amber-300" :
+                    "text-red-700 dark:text-red-300"
+                  }`}>
+                    {payslip.confidence === "high" ? "Alle tal stemmer overens" :
+                     payslip.confidence === "medium" ? "Tal er rettet automatisk — tjek nedenfor" :
+                     "Tallene stemmer ikke overens — tjek venligst"}
+                  </p>
+                  {activeDiagnostics.bruttoSource !== "ai" && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {activeDiagnostics.bruttoSource === "am_derived"
+                        ? "Bruttoløn beregnet fra AM-bidrag (8%-reglen)"
+                        : "Bruttoløn beregnet fra netto + fradrag"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Sanity warnings */}
