@@ -333,7 +333,7 @@ export function createArticleFetcher(opts: ArticleFetcherOptions) {
         ],
         jsonLd: {
           "@context": "https://schema.org",
-          "@type": "Article",
+          "@type": "BlogPosting",
           headline: title,
           description: row[metaDescField] || row[excerptField] || "",
           ...(published ? { datePublished: published } : {}),
