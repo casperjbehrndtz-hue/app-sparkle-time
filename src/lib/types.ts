@@ -76,6 +76,19 @@ export interface BudgetProfile {
   customExpenses: CustomExpense[];
   // Consent
   emailReminders?: boolean;
+  // Payslip-derived context (enriches dashboard when available)
+  bruttolon?: number;           // gross salary — enables personal dagpenge calc
+  traekkort?: number;           // tax rate % — enables precise interest deduction
+  personfradrag?: number;       // personal deduction kr/md
+  pensionEmployee?: number;     // employee pension contribution
+  pensionEmployer?: number;     // employer pension contribution
+  sundhedsforsikring?: number;  // employer-paid health insurance
+  grundlon?: number;            // base salary (null = unknown)
+  variableIncomePct?: number;   // % of brutto that is variable (bonus, overtime)
+  anonIndustry?: string;        // e.g. "IT", "Pharma" — for benchmarks
+  anonRegion?: string;          // e.g. "Storkøbenhavn" — for benchmarks
+  feriepengeHensaet?: number;   // vacation pay accrual
+  fritvalgKonto?: number;       // flexible benefit account
 }
 
 export function frequencyToMonthly(amount: number, freq: PaymentFrequency): number {

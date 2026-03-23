@@ -33,6 +33,23 @@ const NO_BENCHMARKS = {
   housing_pct: 33,
 };
 
+// Industry multipliers (relative to national average) — DST forbrugsundersøgelsen
+// Higher-income industries spend more on restaurant/leisure, less on food proportionally
+const INDUSTRY_MULTIPLIERS: Record<string, { food: number; restaurant: number; transport: number; leisure: number }> = {
+  "IT":         { food: 0.95, restaurant: 1.35, transport: 1.10, leisure: 1.30 },
+  "Finans":     { food: 0.95, restaurant: 1.40, transport: 1.15, leisure: 1.25 },
+  "Pharma":     { food: 1.00, restaurant: 1.20, transport: 1.15, leisure: 1.15 },
+  "Consulting": { food: 0.95, restaurant: 1.45, transport: 1.20, leisure: 1.25 },
+  "Sundhed":    { food: 1.05, restaurant: 0.90, transport: 1.00, leisure: 0.95 },
+  "Undervisning": { food: 1.05, restaurant: 0.85, transport: 0.95, leisure: 1.00 },
+  "Detail":     { food: 1.05, restaurant: 0.95, transport: 0.90, leisure: 0.90 },
+  "Byggeri":    { food: 1.10, restaurant: 0.95, transport: 1.15, leisure: 0.95 },
+  "Industri":   { food: 1.05, restaurant: 0.90, transport: 1.10, leisure: 0.95 },
+  "Hotel":      { food: 1.05, restaurant: 1.10, transport: 0.90, leisure: 1.00 },
+  "Transport":  { food: 1.05, restaurant: 0.90, transport: 1.25, leisure: 0.90 },
+  "Offentlig":  { food: 1.00, restaurant: 0.90, transport: 1.00, leisure: 1.00 },
+};
+
 function deltaStatus(pct: number): "good" | "watch" | "over" {
   if (pct <= 5) return "good";
   if (pct <= 25) return "watch";
@@ -55,7 +72,19 @@ export function NaboeffektView({ profile, budget }: Props) {
   const locale = useLocale();
   const { data: marketData } = useMarketData();
   const isPar = profile.householdType === "par";
-  const BENCHMARKS = locale.code === "no" ? NO_BENCHMARKS : DK_BENCHMARKS;
+  const BASE_BENCHMARKS = locale.code === "no" ? NO_BENCHMARKS : DK_BENCHMARKS;
+  const industryMult = profile.anonIndustry ? INDUSTRY_MULTIPLIERS[profile.anonIndustry] ?? null : null;
+  const BENCHMARKS = industryMult ? {
+    food: { solo: Math.round(BASE_BENCHMARKS.food.solo * industryMult.food), par: Math.round(BASE_BENCHMARKS.food.par * industryMult.food) },
+    restaurant: { solo: Math.round(BASE_BENCHMARKS.restaurant.solo * industryMult.restaurant), par: Math.round(BASE_BENCHMARKS.restaurant.par * industryMult.restaurant) },
+    transport: { solo: Math.round(BASE_BENCHMARKS.transport.solo * industryMult.transport), par: Math.round(BASE_BENCHMARKS.transport.par * industryMult.transport) },
+    streaming: BASE_BENCHMARKS.streaming,
+    leisure: { solo: Math.round(BASE_BENCHMARKS.leisure.solo * industryMult.leisure), par: Math.round(BASE_BENCHMARKS.leisure.par * industryMult.leisure) },
+    housing_pct: BASE_BENCHMARKS.housing_pct,
+  } : BASE_BENCHMARKS;
+  const benchmarkLabel = profile.anonIndustry
+    ? t("neighbor.industryLabel").replace("{industry}", profile.anonIndustry)
+    : t("neighbor.typicalLabel");
 
   // Streaming cost
   const streamingCost = useMemo(() => {
@@ -157,7 +186,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       <motion.div variants={fadeUp(0)} initial="hidden" animate="visible"
         className="rounded-2xl border border-border bg-card p-5">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
-          {t("neighbor.comparedWith")} · {isPar ? t("neighbor.pair") : t("neighbor.single")}
+          {t("neighbor.comparedWith")}{profile.anonIndustry ? ` · ${profile.anonIndustry}` : ""} · {isPar ? t("neighbor.pair") : t("neighbor.single")}
         </p>
         {isAboveAvg ? (
           <div>
@@ -222,7 +251,7 @@ export function NaboeffektView({ profile, budget }: Props) {
                     <p className="text-xs text-muted-foreground">
                       {isPar ? t("neighbor.youLabelPar") : t("neighbor.youLabel")}: <span className="text-foreground font-medium">{formatKr(card.yours)} {t("unit.currency")}</span>
                       <span className="mx-1.5 opacity-40">·</span>
-                      {t("neighbor.typicalLabel")}: {formatKr(card.avg)} {t("unit.currency")}
+                      {benchmarkLabel}: {formatKr(card.avg)} {t("unit.currency")}
                     </p>
                     {status !== "good" && (
                       <button
@@ -247,7 +276,7 @@ export function NaboeffektView({ profile, budget }: Props) {
 
       {/* Footnote */}
       <p className="text-[10px] text-muted-foreground/50 text-center pb-2">
-        {t("neighbor.benchmarkFootnote")} {isPar ? t("neighbor.benchmarkCouples") : t("neighbor.benchmarkSingles")} {t("neighbor.benchmarkSuffix")}
+        {t("neighbor.benchmarkFootnote")} {isPar ? t("neighbor.benchmarkCouples") : t("neighbor.benchmarkSingles")} {t("neighbor.benchmarkSuffix")}{profile.anonIndustry ? ` ${t("neighbor.benchmarkIndustry")}` : ""}
       </p>
     </div>
   );

@@ -13,6 +13,13 @@ interface Props {
   context?: "cockpit" | "optimize" | "forward" | "compare";
 }
 
+// Industry-specific food spending multipliers (same source as NaboeffektView)
+const INDUSTRY_FOOD_MULT: Record<string, number> = {
+  "IT": 0.95, "Finans": 0.95, "Pharma": 1.00, "Consulting": 0.95,
+  "Sundhed": 1.05, "Undervisning": 1.05, "Detail": 1.05, "Byggeri": 1.10,
+  "Industri": 1.05, "Hotel": 1.05, "Transport": 1.05, "Offentlig": 1.00,
+};
+
 interface Nudge {
   icon: React.ReactNode;
   text: string;
@@ -53,8 +60,11 @@ export function SocialProofNudge({ profile, budget, health, context = "cockpit" 
       });
     }
 
-    // Food spending comparison
-    const avgFood = isPar ? 5500 : 3200;
+    // Food spending comparison — adjust for industry if available
+    const baseAvgFood = isPar ? 5500 : 3200;
+    const avgFood = profile.anonIndustry && INDUSTRY_FOOD_MULT[profile.anonIndustry]
+      ? Math.round(baseAvgFood * INDUSTRY_FOOD_MULT[profile.anonIndustry])
+      : baseAvgFood;
     if (profile.foodAmount > avgFood * 1.2) {
       const pctOver = Math.round(((profile.foodAmount - avgFood) / avgFood) * 100);
       result.push({

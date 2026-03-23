@@ -43,6 +43,11 @@ export function calculateHealth(profile: BudgetProfile, budget: ComputedBudget):
   else if (coverageRatio <= 0.75) stabilityScore = 55;
   else stabilityScore = Math.max(10, 55 - (coverageRatio - 0.75) * 200);
 
+  // Penalize high variable income — bonus/overtime is risky income
+  const varPct = profile.variableIncomePct ?? 0;
+  if (varPct > 30) stabilityScore = Math.round(stabilityScore * 0.75);
+  else if (varPct > 15) stabilityScore = Math.round(stabilityScore * 0.88);
+
   // --- Health Score (0-100) ---
   const bufferScore = Math.min(100, bufferMonths * 12);
   const debtScore = debtRatio <= 0 ? 40 : debtRatio <= 25 ? 90 : debtRatio <= 35 ? 70 : debtRatio <= 45 ? 45 : Math.max(0, 45 - (debtRatio - 45) * 2);
@@ -109,6 +114,26 @@ export function generateSmartSteps(
     steps.push({
       icon: "📈",
       text: `Din opsparingsrate er ${health.savingsRate}%. Selv 500 kr./md. ekstra bygger ${formatKr(500 * 12)} kr./år i formue.`,
+      priority: "medium",
+    });
+  }
+
+  // Variable income warning
+  const varPct = profile.variableIncomePct ?? 0;
+  if (varPct > 15) {
+    const grundlon = profile.grundlon ?? 0;
+    steps.push({
+      icon: "⚠️",
+      text: `${varPct}% af din løn er variabel (bonus, overtid). Budgettér ud fra grundlønnen${grundlon > 0 ? ` (${formatKr(grundlon)} kr.)` : ""} — så klarer du dig også uden tillæg.`,
+      priority: varPct > 30 ? "high" : "medium",
+    });
+  }
+
+  // Employer health insurance overlap
+  if (profile.sundhedsforsikring && profile.sundhedsforsikring > 0 && profile.hasInsurance && profile.insuranceAmount > 0) {
+    steps.push({
+      icon: "🏥",
+      text: `Du har sundhedsforsikring via arbejdsgiver OG privat forsikring (${formatKr(profile.insuranceAmount)} kr./md). Tjek for overlap — du kan muligvis spare.`,
       priority: "medium",
     });
   }

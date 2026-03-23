@@ -58,7 +58,12 @@ export function StressTestView({ profile, budget }: Props) {
     // Dagpenge DK 2026: maks. 19.845 kr./md. (Beskæftigelsesministeriet)
     // Dagpenger NO 2026: maks. ~16.361 kr./md. (755 kr/dag × 260 dage / 12, Nav.no)
     const MAX_DAGPENGE = isNO ? 16361 : 19845;
-    const eligibleDagpenge = Math.min(MAX_DAGPENGE, Math.round(lostIncome * 0.9));
+    // If we have brutto from payslip, calculate personal dagpenge rate (90% of brutto, capped)
+    // Otherwise fall back to 90% of lost income estimate
+    const dagpengeBase = profile.bruttolon && profile.bruttolon > 0
+      ? profile.bruttolon
+      : lostIncome / 0.9; // rough reverse estimate
+    const eligibleDagpenge = Math.min(MAX_DAGPENGE, Math.round(dagpengeBase * 0.9));
     const withDagpenge = eligibleDagpenge + (totalIncome - lostIncome) - budget.totalExpenses;
     const jobLossMonths = jobLossDisposable < 0
       ? Math.max(0, Math.floor((profile.hasSavings ? profile.savingsAmount * 6 : 0) / Math.abs(jobLossDisposable)))
@@ -73,7 +78,7 @@ export function StressTestView({ profile, budget }: Props) {
     return {
       inflation: { delta: inflationDisposable - budget.disposableIncome, disposable: inflationDisposable, survivalMonths: inflationSurvivalMonths },
       rateHike: { delta: -mortgageIncrease, disposable: rateDisposable, increase: mortgageIncrease },
-      jobLoss: { delta: jobLossDisposable - budget.disposableIncome, disposable: jobLossDisposable, withDagpenge, months: jobLossMonths, lostAmount: lostIncome },
+      jobLoss: { delta: jobLossDisposable - budget.disposableIncome, disposable: jobLossDisposable, withDagpenge, dagpenge: eligibleDagpenge, months: jobLossMonths, lostAmount: lostIncome },
       combined: { disposable: worstDisposable, months: worstMonths },
     };
   }, [profile, budget, inflationRate, rateHike, incomeDrop]);
@@ -192,6 +197,14 @@ export function StressTestView({ profile, budget }: Props) {
             </p>
           </div>
         </div>
+        {profile.bruttolon && profile.bruttolon > 0 && (
+          <div className="flex items-center gap-2 bg-blue-500/10 rounded-xl p-3">
+            <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+            <p className="text-xs text-blue-600 dark:text-blue-400">
+              {t("stress.personalDagpenge")}: <strong>{formatKr(scenarios.jobLoss.dagpenge, locale.currencyLocale)} {t("perMonth")}</strong>
+            </p>
+          </div>
+        )}
         {scenarios.jobLoss.months !== null && (
           <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
             <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />

@@ -70,15 +70,44 @@ const Index = () => {
     }
   }, [sharedParam, shareId]);
 
-  // Pre-fill from payslip upload (sessionStorage handoff from /lonseddel)
+  // Pre-fill from payslip and/or pengetjek (sessionStorage handoff)
+  // Payslip provides: income, tax context, pension, industry/region
+  // Pengetjek provides: actual spending amounts, subscription toggles
+  // When both exist, merge with payslip income taking priority
   useEffect(() => {
     try {
-      const prefill = sessionStorage.getItem("nb_payslip_prefill");
-      if (!prefill) return;
-      sessionStorage.removeItem("nb_payslip_prefill");
-      const partial = JSON.parse(prefill) as Partial<BudgetProfile>;
+      const payslipRaw = sessionStorage.getItem("nb_payslip_prefill");
+      const pengetjekRaw = sessionStorage.getItem("nb_pengetjek_prefill");
+      if (!payslipRaw && !pengetjekRaw) return;
+
+      if (payslipRaw) sessionStorage.removeItem("nb_payslip_prefill");
+      if (pengetjekRaw) sessionStorage.removeItem("nb_pengetjek_prefill");
+
+      const payslipData = payslipRaw ? JSON.parse(payslipRaw) as Partial<BudgetProfile> : {};
+      const pengetjekData = pengetjekRaw ? JSON.parse(pengetjekRaw) as Partial<BudgetProfile> : {};
+
+      // Merge: pengetjek spending first, then payslip income/tax on top
+      // Payslip income is more accurate (exact netto), pengetjek spending is real
+      const partial: Partial<BudgetProfile> = { ...pengetjekData, ...payslipData };
+
+      // But for spending categories, prefer pengetjek (actual data) over payslip (which doesn't have it)
+      if (pengetjekData.foodAmount) partial.foodAmount = pengetjekData.foodAmount;
+      if (pengetjekData.restaurantAmount) partial.restaurantAmount = pengetjekData.restaurantAmount;
+      if (pengetjekData.leisureAmount) partial.leisureAmount = pengetjekData.leisureAmount;
+      if (pengetjekData.clothingAmount) partial.clothingAmount = pengetjekData.clothingAmount;
+      if (pengetjekData.healthAmount) partial.healthAmount = pengetjekData.healthAmount;
+
+      // Merge subscription toggles (union of both sources)
+      if (pengetjekData.hasNetflix) partial.hasNetflix = true;
+      if (pengetjekData.hasSpotify) partial.hasSpotify = true;
+      if (pengetjekData.hasHBO) partial.hasHBO = true;
+      if (pengetjekData.hasViaplay) partial.hasViaplay = true;
+      if (pengetjekData.hasDisney) partial.hasDisney = true;
+      if (pengetjekData.hasAppleTV) partial.hasAppleTV = true;
+      if (pengetjekData.hasAmazonPrime) partial.hasAmazonPrime = true;
+      if (pengetjekData.hasFitness) partial.hasFitness = true;
+
       if (partial.income && partial.income > 0) {
-        // Merge with defaults so all required fields exist
         const defaultProfile: BudgetProfile = {
           householdType: "solo", income: 35000, partnerIncome: 0, additionalIncome: [], postalCode: "",
           housingType: "lejer", hasMortgage: false, rentAmount: 9000, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,

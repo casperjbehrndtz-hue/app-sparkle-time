@@ -256,6 +256,19 @@ export default function Pengetjek() {
               onCreateBudget={handleCreateBudget}
             />
 
+            {/* Cross-promote lønseddel for combo effect */}
+            <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
+              <p className="text-xs font-semibold text-foreground">{t("pengetjek.crossPromo.title")}</p>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">{t("pengetjek.crossPromo.desc")}</p>
+              <a
+                href="/lonseddel"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+              >
+                {t("pengetjek.crossPromo.cta")}
+                <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+
             <button
               onClick={reset}
               className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors"

@@ -53,12 +53,42 @@ export interface ExtractedPayslip {
 export function payslipToProfile(p: ExtractedPayslip): Partial<BudgetProfile> {
   const partial: Partial<BudgetProfile> = {
     income: p.nettolon,
+    bruttolon: p.bruttolon,
   };
 
+  // Union
   if (p.fagforening && p.fagforening > 0) {
     partial.hasUnion = true;
     partial.unionAmount = p.fagforening;
   }
+
+  // Tax context — enables precise interest deductions + dagpenge calc
+  if (p.traekkort > 0) partial.traekkort = p.traekkort;
+  if (p.personfradrag > 0) partial.personfradrag = p.personfradrag;
+
+  // Pension — if employee contributes, hint that user has savings mindset
+  if (p.pensionEmployee > 0) partial.pensionEmployee = p.pensionEmployee;
+  if (p.pensionEmployer > 0) partial.pensionEmployer = p.pensionEmployer;
+
+  // Employer-paid health insurance — may overlap with private insurance
+  if (p.sundhedsforsikring && p.sundhedsforsikring > 0) {
+    partial.sundhedsforsikring = p.sundhedsforsikring;
+  }
+
+  // Hidden employer benefits
+  if (p.feriepengeHensaet && p.feriepengeHensaet > 0) partial.feriepengeHensaet = p.feriepengeHensaet;
+  if (p.fritvalgKonto && p.fritvalgKonto > 0) partial.fritvalgKonto = p.fritvalgKonto;
+
+  // Income stability — grundløn vs brutto reveals variable pay risk
+  if (p.grundlon && p.grundlon > 0 && p.bruttolon > 0) {
+    partial.grundlon = p.grundlon;
+    const variable = p.bruttolon - p.grundlon;
+    partial.variableIncomePct = Math.round((variable / p.bruttolon) * 100);
+  }
+
+  // Industry + region — for personalized benchmarks
+  if (p.anonIndustry) partial.anonIndustry = p.anonIndustry;
+  if (p.anonRegion) partial.anonRegion = p.anonRegion;
 
   return partial;
 }
