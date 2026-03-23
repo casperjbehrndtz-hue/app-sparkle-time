@@ -3,11 +3,12 @@ import { createMiddleware, createArticleFetcher, defaultMatcherConfig } from "./
 // ── Article fetcher with Article schema + breadcrumbs ──
 const fetchGuide = createArticleFetcher({
   table: "articles",
-  select: "title,excerpt,content,published_at",
+  select: "title,excerpt,content,published_at,updated_at,keywords",
   siteName: "NemtBudget",
+  siteUrl: "https://nemtbudget.nu",
   urlPrefix: "/guides",
   parentLabel: "Guides",
-  fields: { excerpt: "excerpt", content: "content", publishedAt: "published_at" },
+  fields: { excerpt: "excerpt", content: "content", publishedAt: "published_at", updatedAt: "updated_at", keyword: "keywords" },
 });
 
 // ── Middleware ──
