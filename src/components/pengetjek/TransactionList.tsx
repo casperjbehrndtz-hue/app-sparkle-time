@@ -20,7 +20,7 @@ export function TransactionList({ transactions }: Props) {
   // Group by date
   const grouped = new Map<string, BankTransaction[]>();
   for (const tx of transactions) {
-    const key = tx.dato || "Ukendt dato";
+    const key = tx.dato || t("pengetjek.result.transactions.unknownDate");
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(tx);
   }
@@ -49,8 +49,8 @@ export function TransactionList({ transactions }: Props) {
               {sortedDates.map((date) => (
                 <div key={date}>
                   <div className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider mb-1 sticky top-0 bg-card py-1">
-                    {date !== "Ukendt dato"
-                      ? new Date(date).toLocaleDateString("da-DK", { weekday: "short", day: "numeric", month: "short" })
+                    {date !== t("pengetjek.result.transactions.unknownDate")
+                      ? new Date(date).toLocaleDateString(locale.currencyLocale || "da-DK", { weekday: "short", day: "numeric", month: "short" })
                       : date}
                   </div>
                   <div className="space-y-0.5">

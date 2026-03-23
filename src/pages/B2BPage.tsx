@@ -3,9 +3,14 @@ import { Link } from "react-router-dom";
 import { Building2, Palette, Brain, ShieldCheck, Check, ArrowRight, Monitor, Send } from "lucide-react";
 import { AppFooter } from "@/components/AppFooter";
 import { useI18n } from "@/lib/i18n";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function B2BPage() {
   const { t } = useI18n();
+  usePageMeta(
+    "B2B White-Label Budgetværktøj — NemtBudget for virksomheder",
+    "Integrer NemtBudget som white-label løsning i din virksomhed. AI-drevet budgetværktøj til banker, forsikring og fintech. Dansk, GDPR-compliant."
+  );
   const [form, setForm] = useState({ name: "", company: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
 

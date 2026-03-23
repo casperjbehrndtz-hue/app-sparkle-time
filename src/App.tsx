@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { MotionConfig } from "framer-motion";
 import { WhiteLabelProvider, AVAILABLE_CONFIGS } from "@/lib/whiteLabel";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import { LocaleProvider, DK_LOCALE, NO_LOCALE } from "@/lib/locale";
@@ -89,6 +90,7 @@ const App = () => {
                 </a>
                 <Toaster />
                 <Sonner />
+                <MotionConfig reducedMotion="user">
                 <BrowserRouter>
                   <ScrollToTop />
                   <Suspense fallback={<PageLoader />}>
@@ -110,6 +112,7 @@ const App = () => {
                     </Routes>
                   </Suspense>
                 </BrowserRouter>
+                </MotionConfig>
                 {!isEmbed && <CookieBanner />}
               </TooltipProvider>
             </MarketDataProvider>

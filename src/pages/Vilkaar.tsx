@@ -2,11 +2,16 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 export default function Vilkaar() {
   const config = useWhiteLabel();
   const brand = config.brandName ?? "NemtBudget";
   const { t } = useI18n();
+  usePageMeta(
+    "Vilkår og betingelser — NemtBudget",
+    "Læs vilkår og betingelser for brug af NemtBudget. Gratis budgetværktøj uden login, data gemmes lokalt."
+  );
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingDown, Repeat, BarChart3, ArrowRight, AlertTriangle, Scale } from "lucide-react";
+import { TrendingDown, Repeat, BarChart3, ArrowRight, AlertTriangle, Scale, Check, Copy } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
 import { useI18n } from "@/lib/i18n";
@@ -21,7 +21,7 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.35, delay },
 });
 
-function StatusBadge({ status, diff, lc }: { status: "good" | "watch" | "over"; diff: number; lc: string }) {
+function StatusBadge({ status, diff, lc, currencyLabel }: { status: "good" | "watch" | "over"; diff: number; lc: string; currencyLabel: string }) {
   const styles = {
     good: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
     watch: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
@@ -30,22 +30,55 @@ function StatusBadge({ status, diff, lc }: { status: "good" | "watch" | "over"; 
 
   return (
     <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${styles[status]}`}>
-      {diff > 0 ? "+" : ""}{formatKr(diff, lc)} kr
+      {diff > 0 ? "+" : ""}{formatKr(diff, lc)} {currencyLabel}
     </span>
   );
+}
+
+function generateSummaryText(analysis: StatementAnalysis, t: (key: string) => string, lc: string, periodLabel: string | null): string {
+  const lines: string[] = [];
+  lines.push(`📊 ${t("pengetjek.share.title")}`);
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━");
+  if (periodLabel) lines.push(`${t("pengetjek.share.period")}: ${periodLabel}`);
+  lines.push(`${t("pengetjek.share.totalSpending")}: ${formatKr(analysis.totalUdgifter, lc)} ${t("pengetjek.currency")}`);
+  lines.push(`${t("pengetjek.share.transactionCount")}: ${analysis.antalTransaktioner}`);
+  lines.push("");
+
+  const topCats = analysis.categories
+    .filter((c) => !["Løn", "Overførsel"].includes(c.kategori))
+    .slice(0, 5);
+  if (topCats.length > 0) {
+    lines.push(`${t("pengetjek.share.topCategories")}:`);
+    topCats.forEach((cat, i) => {
+      const pct = analysis.totalUdgifter > 0 ? Math.round((cat.total / analysis.totalUdgifter) * 100) : 0;
+      lines.push(`${i + 1}. ${cat.kategori}: ${formatKr(cat.total, lc)} ${t("pengetjek.currency")} (${pct}%)`);
+    });
+    lines.push("");
+  }
+
+  if (analysis.abonnementer.length > 0) {
+    const monthlyTotal = analysis.abonnementer.reduce((s, a) => s + a.amount, 0);
+    lines.push(`${t("pengetjek.share.subscriptions")}: ${analysis.abonnementer.length} (${formatKr(monthlyTotal, lc)} ${t("pengetjek.currency")}/${t("pengetjek.perMonth")})`);
+  }
+
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("nemtbudget.nu/pengetjek");
+  return lines.join("\n");
 }
 
 export function PengetjekResult({ analysis, transactions, truncated, onCreateBudget }: Props) {
   const { t } = useI18n();
   const locale = useLocale();
   const lc = locale.currencyLocale;
+  const [copied, setCopied] = useState(false);
 
   const periodLabel = useMemo(() => {
     if (!analysis.periodeStart || !analysis.periodeSlut) return null;
-    const start = new Date(analysis.periodeStart).toLocaleDateString("da-DK", { day: "numeric", month: "short" });
-    const end = new Date(analysis.periodeSlut).toLocaleDateString("da-DK", { day: "numeric", month: "short", year: "numeric" });
+    const dlc = locale.currencyLocale || "da-DK";
+    const start = new Date(analysis.periodeStart).toLocaleDateString(dlc, { day: "numeric", month: "short" });
+    const end = new Date(analysis.periodeSlut).toLocaleDateString(dlc, { day: "numeric", month: "short", year: "numeric" });
     return `${start} — ${end}`;
-  }, [analysis.periodeStart, analysis.periodeSlut]);
+  }, [analysis.periodeStart, analysis.periodeSlut, locale.currencyLocale]);
 
   // Max bar width for category breakdown
   const maxCatTotal = analysis.categories.length > 0 ? analysis.categories[0].total : 1;
@@ -66,7 +99,7 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
           {t("pengetjek.result.hero.spent")}
         </p>
         <p className="text-3xl font-display font-bold text-foreground">
-          {formatKr(analysis.totalUdgifter, lc)} <span className="text-lg text-muted-foreground">kr</span>
+          {formatKr(analysis.totalUdgifter, lc)} <span className="text-lg text-muted-foreground">{t("pengetjek.currency")}</span>
         </p>
         <div className="flex items-center justify-center gap-3 mt-2 text-xs text-muted-foreground">
           <span>{analysis.antalTransaktioner} {t("pengetjek.result.hero.transactions")}</span>
@@ -79,9 +112,16 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
         </div>
         {analysis.totalIndkomst > 0 && (
           <p className="text-[10px] text-muted-foreground/60 mt-1">
-            Indkomst i perioden: {formatKr(analysis.totalIndkomst, lc)} kr
+            {t("pengetjek.result.hero.income").replace("{amount}", formatKr(analysis.totalIndkomst, lc))}
           </p>
         )}
+        {/* Emotional framing: compare to Danish household average */}
+        {(() => {
+          const monthly = analysis.totalUdgifter;
+          if (monthly > 25000) return <p className="text-[10px] text-muted-foreground/60 mt-1">{t("pengetjek.result.hero.aboveAverage")}</p>;
+          if (monthly < 15000) return <p className="text-[10px] text-muted-foreground/60 mt-1">{t("pengetjek.result.hero.belowAverage")}</p>;
+          return <p className="text-[10px] text-muted-foreground/60 mt-1">{t("pengetjek.result.hero.nearAverage")}</p>;
+        })()}
       </motion.div>
 
       {/* ── Section 2: Pengeslugere ── */}
@@ -113,10 +153,10 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
                   <span className="text-lg">{p.emoji}</span>
                   <div>
                     <p className="text-xs font-semibold">{p.kategori}</p>
-                    <p className="text-[10px] text-muted-foreground">{p.pctOfTotal}% af dit forbrug</p>
+                    <p className="text-[10px] text-muted-foreground">{p.pctOfTotal}% {t("pengetjek.result.pengeslugere.ofSpending")}</p>
                   </div>
                 </div>
-                <p className="text-sm font-bold font-mono tabular-nums">{formatKr(p.total, lc)} kr</p>
+                <p className="text-sm font-bold font-mono tabular-nums">{formatKr(p.total, lc)} {t("pengetjek.currency")}</p>
               </motion.div>
             ))}
           </div>
@@ -145,7 +185,7 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
                   <span className="text-xs">{sub.name}</span>
                 </div>
                 <span className="text-xs font-mono tabular-nums text-red-600 dark:text-red-400">
-                  -{formatKr(sub.amount, lc)} kr/md
+                  -{formatKr(sub.amount, lc)} {t("pengetjek.currency")}/{t("pengetjek.perMonth")}
                 </span>
               </div>
             ))}
@@ -171,7 +211,7 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
                       <span>{cat.kategori}</span>
                       <span className="text-muted-foreground/50">({cat.count})</span>
                     </span>
-                    <span className="font-mono tabular-nums font-medium">{formatKr(cat.total, lc)} kr</span>
+                    <span className="font-mono tabular-nums font-medium">{formatKr(cat.total, lc)} {t("pengetjek.currency")}</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <motion.div
@@ -211,11 +251,11 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
                   <div>
                     <p className="text-xs font-semibold">{item.kategori}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      Budget: {formatKr(item.budgeted, lc)} kr → Faktisk: {formatKr(item.actual, lc)} kr
+                      {t("pengetjek.result.budget.budgeted")}: {formatKr(item.budgeted, lc)} {t("pengetjek.currency")} → {t("pengetjek.result.budget.actual")}: {formatKr(item.actual, lc)} {t("pengetjek.currency")}
                     </p>
                   </div>
                 </div>
-                <StatusBadge status={item.status} diff={item.diff} lc={lc} />
+                <StatusBadge status={item.status} diff={item.diff} lc={lc} currencyLabel={t("pengetjek.currency")} />
               </div>
             ))}
           </div>
@@ -235,6 +275,26 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
       >
         {t("pengetjek.result.cta")}
         <ArrowRight className="w-4 h-4" />
+      </motion.button>
+
+      {/* ── Copy summary ── */}
+      <motion.button
+        {...fadeUp(0.45)}
+        onClick={async () => {
+          const text = generateSummaryText(analysis, t, lc, periodLabel);
+          try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          } catch {}
+        }}
+        className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold border border-border hover:bg-muted transition-colors"
+      >
+        {copied ? (
+          <><Check className="w-3.5 h-3.5" />{t("pengetjek.result.copied")}</>
+        ) : (
+          <><Copy className="w-3.5 h-3.5" />{t("pengetjek.result.copyShare")}</>
+        )}
       </motion.button>
     </div>
   );

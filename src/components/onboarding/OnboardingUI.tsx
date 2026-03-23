@@ -337,6 +337,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
           >
             <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
               <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
+                aria-label={label}
                 className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24" />
               <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
             </div>
@@ -362,7 +363,7 @@ export function ContinueButton({ onClick, disabled, label }: { onClick: () => vo
       {resolvedLabel}
       <motion.span
         animate={{ x: [0, 4, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+        transition={{ repeat: 3, duration: 1.5, ease: "easeInOut" }}
       >
         <ArrowRight className="w-4 h-4" />
       </motion.span>

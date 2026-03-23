@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
-import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
-import { WelcomePage } from "@/components/onboarding/WelcomePage";
-import { AIWelcomeInsight } from "@/components/onboarding/AIWelcomeInsight";
-import { Dashboard } from "@/components/dashboard/Dashboard";
+
+const WelcomePage = lazy(() => import("@/components/onboarding/WelcomePage").then(m => ({ default: m.WelcomePage })));
+const OnboardingFlow = lazy(() => import("@/components/onboarding/OnboardingFlow").then(m => ({ default: m.OnboardingFlow })));
+const AIWelcomeInsight = lazy(() => import("@/components/onboarding/AIWelcomeInsight").then(m => ({ default: m.AIWelcomeInsight })));
+const Dashboard = lazy(() => import("@/components/dashboard/Dashboard").then(m => ({ default: m.Dashboard })));
 import { DemoBanner } from "@/components/DemoBanner";
 import { computeBudget, generateOptimizations } from "@/lib/budgetCalculator";
 import { useWhiteLabel } from "@/lib/whiteLabel";
@@ -258,7 +259,7 @@ const Index = () => {
   if (isDemo && demoBudget) {
     const noop = () => {};
     return (
-      <>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
         <DemoBanner brandName={config.brandName} />
         <Dashboard
           profile={demoProfile}
@@ -268,7 +269,7 @@ const Index = () => {
           onProfileChange={noop}
           onEditProfile={noop}
         />
-      </>
+      </Suspense>
     );
   }
 
@@ -276,7 +277,7 @@ const Index = () => {
   if (sharedParam && sharedProfile && sharedBudget) {
     const noop = () => {};
     return (
-      <>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
         <SharedBudgetBanner profile={sharedProfile} budget={sharedBudget} meta={sharedMeta} />
         <Dashboard
           profile={sharedProfile}
@@ -286,46 +287,56 @@ const Index = () => {
           onProfileChange={noop}
           onEditProfile={noop}
         />
-      </>
+      </Suspense>
     );
   }
 
   // Forside — vises når bruger klikker "Hjem" fra dashboard, eller ingen profil
   if (landingView && (landingView === "home" || (!profile && !editingProfile))) {
     return (
-      <WelcomePage
-        onStart={() => setLandingView(null)}
-        hasExistingProfile={!!profile}
-        onGoToApp={() => setLandingView(null)}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <WelcomePage
+          onStart={() => setLandingView(null)}
+          hasExistingProfile={!!profile}
+          onGoToApp={() => setLandingView(null)}
+        />
+      </Suspense>
     );
   }
 
   if (showWelcome && pendingProfile && pendingBudget) {
     return (
-      <AIWelcomeInsight
-        profile={pendingProfile}
-        budget={pendingBudget}
-        onContinue={handleWelcomeContinue}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <AIWelcomeInsight
+          profile={pendingProfile}
+          budget={pendingBudget}
+          onContinue={handleWelcomeContinue}
+        />
+      </Suspense>
     );
   }
 
   if (profile && budget) {
     return (
-      <Dashboard
-        profile={profile}
-        budget={budget}
-        optimizations={optimizations}
-        onReset={handleReset}
-        onProfileChange={handleProfileChange}
-        onEditProfile={handleEditProfile}
-        onHome={() => setLandingView("home")}
-      />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <Dashboard
+          profile={profile}
+          budget={budget}
+          optimizations={optimizations}
+          onReset={handleReset}
+          onProfileChange={handleProfileChange}
+          onEditProfile={handleEditProfile}
+          onHome={() => setLandingView("home")}
+        />
+      </Suspense>
     );
   }
 
-  return <OnboardingFlow onComplete={handleComplete} initialProfile={editingProfile ?? undefined} />;
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+      <OnboardingFlow onComplete={handleComplete} initialProfile={editingProfile ?? undefined} />
+    </Suspense>
+  );
 };
 
 export default Index;

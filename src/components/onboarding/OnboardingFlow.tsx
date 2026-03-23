@@ -291,7 +291,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl text-foreground">{t("step.household.title")}</h1>
               <p className="text-muted-foreground text-sm sm:text-base">{t("step.household.subtitle")}</p>
             </motion.div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full" role="radiogroup" aria-label={t("step.household.title")}>
               {[
                 { type: "solo" as const, emoji: "🧍", label: t("step.household.solo"), sub: t("step.household.soloSub") },
                 { type: "par" as const, emoji: "👫", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
@@ -327,7 +327,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
 
             {/* Children — integrated into household */}
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4" role="radiogroup" aria-label={t("step.children.title")}>
                 <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
                 <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
               </div>
@@ -578,7 +578,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
               <h1 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("step.housing.title")}</h1>
               <p className="text-muted-foreground text-sm">{t("step.housing.subtitle")}</p>
             </motion.div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" role="radiogroup" aria-label={t("step.housing.title")}>
               {[
                 { type: "lejer" as const, emoji: "🏢", label: locale.housingTypeLabels.lejer },
                 { type: "andel" as const, emoji: "🏘️", label: locale.housingTypeLabels.andel },
