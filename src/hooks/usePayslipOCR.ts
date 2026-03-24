@@ -21,14 +21,18 @@ export function usePayslipOCR() {
 
   // Redaction review state
   const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
-  // Fallback preview when redaction fails but we still want to show the image
-  const [fallbackPreview, setFallbackPreview] = useState<string | null>(null);
+  // Preview base64 shown in consent modal — set explicitly alongside showConsent
+  const [consentPreview, setConsentPreview] = useState<string | null>(null);
+  const [consentCprCount, setConsentCprCount] = useState(0);
+  const [consentAccountCount, setConsentAccountCount] = useState(0);
 
   const requestProcessing = useCallback((file: File) => {
     setError(null);
     setResult(null);
     setRedactionReview(null);
-    setFallbackPreview(null);
+    setConsentPreview(null);
+    setConsentCprCount(0);
+    setConsentAccountCount(0);
 
     // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -52,19 +56,22 @@ export function usePayslipOCR() {
           terminateRedactWorker();
           if (redacted) {
             setRedactionReview(redacted);
-            setPendingFile(file);
-            setShowConsent(true);
+            setConsentPreview(redacted.base64);
+            setConsentCprCount(redacted.cprCount);
+            setConsentAccountCount(redacted.accountCount);
           } else {
-            const compressed = await compressImage(file);
-            setFallbackPreview(compressed.base64);
-            setPendingFile(file);
-            setShowConsent(true);
+            try {
+              const compressed = await compressImage(file);
+              setConsentPreview(compressed.base64);
+            } catch { /* */ }
           }
+          setPendingFile(file);
+          setShowConsent(true);
         })
         .catch(async () => {
           try {
             const compressed = await compressImage(file);
-            setFallbackPreview(compressed.base64);
+            setConsentPreview(compressed.base64);
           } catch { /* truly broken */ }
           setPendingFile(file);
           setShowConsent(true);
@@ -225,11 +232,10 @@ export function usePayslipOCR() {
     setIsProcessing(false);
     setStatusMessage(null);
     setRedactionReview(null);
-    setFallbackPreview(null);
+    setConsentPreview(null);
+    setConsentCprCount(0);
+    setConsentAccountCount(0);
   }, []);
-
-  /** Best available preview: redacted image > fallback compressed > nothing */
-  const previewBase64 = redactionReview?.base64 ?? fallbackPreview ?? undefined;
 
   return {
     result,
@@ -243,7 +249,9 @@ export function usePayslipOCR() {
     redactionReview,
     onRedactionApprove,
     onRedactionCancel,
-    previewBase64,
+    consentPreview,
+    consentCprCount,
+    consentAccountCount,
     processPayslip: requestProcessing,
     reset,
   };

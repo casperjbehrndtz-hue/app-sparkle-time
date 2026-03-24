@@ -40,14 +40,18 @@ export function useBankStatementOCR() {
 
   // Redaction review state
   const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
-  const [fallbackPreview, setFallbackPreview] = useState<string | null>(null);
+  const [consentPreview, setConsentPreview] = useState<string | null>(null);
+  const [consentCprCount, setConsentCprCount] = useState(0);
+  const [consentAccountCount, setConsentAccountCount] = useState(0);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
     setRaw(null);
     setAnalysis(null);
     setRedactionReview(null);
-    setFallbackPreview(null);
+    setConsentPreview(null);
+    setConsentCprCount(0);
+    setConsentAccountCount(0);
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
@@ -93,20 +97,21 @@ export function useBankStatementOCR() {
         terminateRedactWorker();
         if (redacted) {
           setRedactionReview(redacted);
-          setPendingFile(file);
-          setShowConsent(true);
+          setConsentPreview(redacted.base64);
+          setConsentCprCount(redacted.cprCount);
+          setConsentAccountCount(redacted.accountCount);
         } else {
           try {
             const compressed = await compressImage(file);
-            setFallbackPreview(compressed.base64);
-          } catch { /* truly broken */ }
-          setPendingFile(file);
-          setShowConsent(true);
+            setConsentPreview(compressed.base64);
+          } catch { /* */ }
         }
+        setPendingFile(file);
+        setShowConsent(true);
       } catch {
         try {
           const compressed = await compressImage(file);
-          setFallbackPreview(compressed.base64);
+          setConsentPreview(compressed.base64);
         } catch { /* truly broken */ }
         setPendingFile(file);
         setShowConsent(true);
@@ -258,10 +263,10 @@ export function useBankStatementOCR() {
     setIsProcessing(false);
     setStatusMessage(null);
     setRedactionReview(null);
-    setFallbackPreview(null);
+    setConsentPreview(null);
+    setConsentCprCount(0);
+    setConsentAccountCount(0);
   }, []);
-
-  const previewBase64 = redactionReview?.base64 ?? fallbackPreview ?? undefined;
 
   return {
     raw,
@@ -275,7 +280,9 @@ export function useBankStatementOCR() {
     redactionReview,
     onRedactionApprove,
     onRedactionCancel,
-    previewBase64,
+    consentPreview,
+    consentCprCount,
+    consentAccountCount,
     processFile,
     analyzeWithBudget,
     reset,

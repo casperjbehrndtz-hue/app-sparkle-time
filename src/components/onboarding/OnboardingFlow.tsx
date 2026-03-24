@@ -1017,9 +1017,9 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
       <OcrConsentModal
         open={payslipOCR.showConsent}
         type="payslip"
-        redactedPreview={payslipOCR.previewBase64}
-        cprCount={payslipOCR.redactionReview?.cprCount}
-        accountCount={payslipOCR.redactionReview?.accountCount}
+        redactedPreview={payslipOCR.consentPreview ?? undefined}
+        cprCount={payslipOCR.consentCprCount}
+        accountCount={payslipOCR.consentAccountCount}
         onAccept={payslipOCR.onConsentAccept}
         onDecline={payslipOCR.onConsentDecline}
       />

@@ -44,9 +44,9 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
             {da ? "Før vi scanner" : "Before we scan"} {docLabel}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {da
-              ? "Tjek billedet herunder og læs betingelserne inden du fortsætter."
-              : "Check the image below and read the conditions before continuing."}
+            {redactedPreview
+              ? (da ? "Tjek billedet herunder og læs betingelserne inden du fortsætter." : "Check the image below and read the conditions before continuing.")
+              : (da ? "Læs venligst nedenstående inden du fortsætter." : "Please read the following before continuing.")}
           </DialogDescription>
         </DialogHeader>
 
