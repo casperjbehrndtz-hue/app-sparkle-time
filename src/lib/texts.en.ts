@@ -14,10 +14,10 @@ export const EN: Record<string, string> = {
   "nav.advanced": "In-depth",
 
   // Hero
-  "hero.title": "Do you know what you really have",
-  "hero.titleHighlight": "left each month?",
+  "hero.title": "You have less than you think",
+  "hero.titleHighlight": "left each month.",
   "hero.subtitle": "Most people overestimate their disposable income by 3,000-5,000 kr. Find your hidden expenses in 3 minutes — free and private.",
-  "hero.cta": "See your disposable income now",
+  "hero.cta": "Calculate your disposable income",
   "hero.imageAlt": "Personal finance and budget overview",
   "hero.socialProof": "1,200+ Danes have already checked their budget",
 

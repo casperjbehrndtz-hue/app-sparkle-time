@@ -216,6 +216,11 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
                 <li><Link to="/install" className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-medium"><Download className="w-3 h-3" />{t("footer.installApp")}</Link></li>
                 <li><Link to="/guides" className="hover:text-foreground transition-colors">{t("footer.guides")}</Link></li>
               </ul>
+              <h4 className="text-xs font-semibold text-foreground mb-3 mt-5 uppercase tracking-wider">{lang === "da" ? "Se også" : "See also"}</h4>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li><a href="https://www.parfinans.dk" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">{lang === "da" ? "ParFinans — Parøkonomi" : "ParFinans — Couple Finance"}</a></li>
+                <li><a href="https://børneskat.dk" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">{lang === "da" ? "Børneskat — Børneopsparing" : "Børneskat — Children's Savings"}</a></li>
+              </ul>
             </div>
           </div>
           <div className="border-t border-border pt-6 flex flex-col md:flex-row items-center justify-between gap-2">

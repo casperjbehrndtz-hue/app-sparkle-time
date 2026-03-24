@@ -14,10 +14,10 @@ export const DA: Record<string, string> = {
   "nav.advanced": "Dybdegående",
 
   // Hero
-  "hero.title": "Ved du hvad du reelt har",
-  "hero.titleHighlight": "til overs hver måned?",
+  "hero.title": "Du har mindre end du tror",
+  "hero.titleHighlight": "til overs hver måned.",
   "hero.subtitle": "De fleste danskere overvurderer deres rådighedsbeløb med 3.000-5.000 kr. Find dine skjulte udgifter på 3 minutter — gratis og privat.",
-  "hero.cta": "Se dit rådighedsbeløb nu",
+  "hero.cta": "Beregn dit rådighedsbeløb",
   "hero.imageAlt": "Personlig økonomi og budgetoverblik",
   "hero.socialProof": "1.200+ danskere har allerede tjekket deres budget",
 
