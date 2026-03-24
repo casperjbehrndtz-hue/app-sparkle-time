@@ -54,7 +54,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Pengetjek() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, processFile, reset } = useBankStatementOCR();
+  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, previewBase64, processFile, reset } = useBankStatementOCR();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -302,7 +302,7 @@ export default function Pengetjek() {
       <OcrConsentModal
         open={showConsent}
         type="bank"
-        redactedPreview={redactionReview?.base64}
+        redactedPreview={previewBase64}
         cprCount={redactionReview?.cprCount}
         accountCount={redactionReview?.accountCount}
         onAccept={onConsentAccept}

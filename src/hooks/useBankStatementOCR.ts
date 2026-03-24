@@ -40,12 +40,14 @@ export function useBankStatementOCR() {
 
   // Redaction review state
   const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
+  const [fallbackPreview, setFallbackPreview] = useState<string | null>(null);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
     setRaw(null);
     setAnalysis(null);
     setRedactionReview(null);
+    setFallbackPreview(null);
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
@@ -92,10 +94,19 @@ export function useBankStatementOCR() {
         if (redacted) {
           setRedactionReview(redacted);
         } else {
+          // Redaction returned null — generate simple preview
+          try {
+            const compressed = await compressImage(file);
+            setFallbackPreview(compressed.base64);
+          } catch { /* truly broken */ }
           setPendingFile(file);
           setShowConsent(true);
         }
       } catch {
+        try {
+          const compressed = await compressImage(file);
+          setFallbackPreview(compressed.base64);
+        } catch { /* truly broken */ }
         setPendingFile(file);
         setShowConsent(true);
       } finally {
@@ -246,7 +257,10 @@ export function useBankStatementOCR() {
     setIsProcessing(false);
     setStatusMessage(null);
     setRedactionReview(null);
+    setFallbackPreview(null);
   }, []);
+
+  const previewBase64 = redactionReview?.base64 ?? fallbackPreview ?? undefined;
 
   return {
     raw,
@@ -260,6 +274,7 @@ export function useBankStatementOCR() {
     redactionReview,
     onRedactionApprove,
     onRedactionCancel,
+    previewBase64,
     processFile,
     analyzeWithBudget,
     reset,

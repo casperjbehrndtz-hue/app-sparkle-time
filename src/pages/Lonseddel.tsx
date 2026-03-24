@@ -64,7 +64,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Lonseddel() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, processPayslip, reset: ocrReset } = usePayslipOCR();
+  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, previewBase64, processPayslip, reset: ocrReset } = usePayslipOCR();
   const [confirmedResult, setConfirmedResult] = useState<ExtractedPayslip | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -277,7 +277,7 @@ export default function Lonseddel() {
       <OcrConsentModal
         open={showConsent}
         type="payslip"
-        redactedPreview={redactionReview?.base64}
+        redactedPreview={previewBase64}
         cprCount={redactionReview?.cprCount}
         accountCount={redactionReview?.accountCount}
         onAccept={onConsentAccept}

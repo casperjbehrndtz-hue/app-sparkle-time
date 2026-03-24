@@ -21,11 +21,14 @@ export function usePayslipOCR() {
 
   // Redaction review state
   const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
+  // Fallback preview when redaction fails but we still want to show the image
+  const [fallbackPreview, setFallbackPreview] = useState<string | null>(null);
 
   const requestProcessing = useCallback((file: File) => {
     setError(null);
     setResult(null);
     setRedactionReview(null);
+    setFallbackPreview(null);
 
     // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -45,17 +48,23 @@ export function usePayslipOCR() {
       setIsProcessing(true);
       setStatusMessage("cpr.redacting");
       redactSensitiveData(file)
-        .then((redacted) => {
+        .then(async (redacted) => {
           terminateRedactWorker();
           if (redacted) {
             setRedactionReview(redacted);
           } else {
-            // Redaction failed — skip review, go straight to consent
+            // Redaction returned null — generate simple preview and go to consent
+            const compressed = await compressImage(file);
+            setFallbackPreview(compressed.base64);
             setPendingFile(file);
             setShowConsent(true);
           }
         })
-        .catch(() => {
+        .catch(async () => {
+          try {
+            const compressed = await compressImage(file);
+            setFallbackPreview(compressed.base64);
+          } catch { /* truly broken */ }
           setPendingFile(file);
           setShowConsent(true);
         })
@@ -215,7 +224,11 @@ export function usePayslipOCR() {
     setIsProcessing(false);
     setStatusMessage(null);
     setRedactionReview(null);
+    setFallbackPreview(null);
   }, []);
+
+  /** Best available preview: redacted image > fallback compressed > nothing */
+  const previewBase64 = redactionReview?.base64 ?? fallbackPreview ?? undefined;
 
   return {
     result,
@@ -229,6 +242,7 @@ export function usePayslipOCR() {
     redactionReview,
     onRedactionApprove,
     onRedactionCancel,
+    previewBase64,
     processPayslip: requestProcessing,
     reset,
   };

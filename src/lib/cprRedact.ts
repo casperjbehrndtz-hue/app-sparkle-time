@@ -66,8 +66,14 @@ export async function redactSensitiveData(
   // PDFs: skip redaction (Tesseract can't read PDFs in browser)
   if (file.type === "application/pdf") return null;
 
-  // Load image onto canvas
-  const img = await loadImage(file);
+  let img: HTMLImageElement;
+  try {
+    img = await loadImage(file);
+  } catch (err) {
+    console.warn("Image load failed for redaction:", err);
+    return null;
+  }
+
   let { width, height } = img;
   if (width > maxDim || height > maxDim) {
     const scale = maxDim / Math.max(width, height);
