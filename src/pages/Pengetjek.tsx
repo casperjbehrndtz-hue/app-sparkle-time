@@ -302,6 +302,9 @@ export default function Pengetjek() {
       <OcrConsentModal
         open={showConsent}
         type="bank"
+        redactedPreview={redactionReview?.base64}
+        cprCount={redactionReview?.cprCount}
+        accountCount={redactionReview?.accountCount}
         onAccept={onConsentAccept}
         onDecline={onConsentDecline}
       />

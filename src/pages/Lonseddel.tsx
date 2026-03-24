@@ -277,6 +277,9 @@ export default function Lonseddel() {
       <OcrConsentModal
         open={showConsent}
         type="payslip"
+        redactedPreview={redactionReview?.base64}
+        cprCount={redactionReview?.cprCount}
+        accountCount={redactionReview?.accountCount}
         onAccept={onConsentAccept}
         onDecline={onConsentDecline}
       />

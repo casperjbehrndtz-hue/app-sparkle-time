@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Eye, Clock, Trash2, Server } from "lucide-react";
+import { Shield, Eye, Clock, Trash2, Server, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -15,11 +15,17 @@ interface OcrConsentModalProps {
   open: boolean;
   /** "payslip" or "bank" — changes the wording slightly */
   type: "payslip" | "bank";
+  /** Base64 of the redacted image (optional — only for images, not PDFs) */
+  redactedPreview?: string;
+  /** How many CPR patterns were auto-redacted */
+  cprCount?: number;
+  /** How many account patterns were auto-redacted */
+  accountCount?: number;
   onAccept: () => void;
   onDecline: () => void;
 }
 
-const OcrConsentModal = ({ open, type, onAccept, onDecline }: OcrConsentModalProps) => {
+const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCount = 0, onAccept, onDecline }: OcrConsentModalProps) => {
   const { t, lang } = useI18n();
   const [understood, setUnderstood] = useState(false);
   const da = lang === "da" || lang === "nb";
@@ -28,22 +34,53 @@ const OcrConsentModal = ({ open, type, onAccept, onDecline }: OcrConsentModalPro
     ? (da ? "din lønseddel" : "your payslip")
     : (da ? "dit kontoudtog" : "your bank statement");
 
+  const hasRedactions = cprCount > 0 || accountCount > 0;
+
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onDecline(); }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-display">
             {da ? "Før vi scanner" : "Before we scan"} {docLabel}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             {da
-              ? "Læs venligst nedenstående inden du fortsætter."
-              : "Please read the following before continuing."}
+              ? "Tjek billedet herunder og læs betingelserne inden du fortsætter."
+              : "Check the image below and read the conditions before continuing."}
           </DialogDescription>
         </DialogHeader>
 
+        {/* Redacted image preview */}
+        {redactedPreview && (
+          <div className="space-y-2">
+            <div className="relative rounded-lg border border-border overflow-hidden bg-muted/20">
+              <img
+                src={`data:image/jpeg;base64,${redactedPreview}`}
+                alt={da ? "Sløret billede der sendes" : "Redacted image to be sent"}
+                className="w-full h-auto max-h-56 object-contain"
+              />
+            </div>
+            {hasRedactions && (
+              <div className="flex items-center justify-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                  {da
+                    ? `${cprCount} CPR-nr. og ${accountCount} kontonr. sløret`
+                    : `${cprCount} CPR no. and ${accountCount} account no. redacted`}
+                </span>
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground text-center">
+              {da
+                ? "↑ Dette er præcis det billede der sendes. Sorte felter kan ikke genskabes."
+                : "↑ This is exactly the image that will be sent. Black boxes cannot be reversed."}
+            </p>
+          </div>
+        )}
+
         <div className="space-y-3 my-2">
-          {/* CPR auto-redaction */}
+          {/* CPR auto-redaction — only show if no preview (PDF path) */}
+          {!redactedPreview && (
           <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5 border border-accent/10">
             <Shield className="w-5 h-5 text-accent shrink-0 mt-0.5" />
             <div>
@@ -57,6 +94,7 @@ const OcrConsentModal = ({ open, type, onAccept, onDecline }: OcrConsentModalPro
               </p>
             </div>
           </div>
+          )}
 
           {/* Where data goes */}
           <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
