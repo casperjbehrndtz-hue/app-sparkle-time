@@ -8,6 +8,37 @@ const COOKIE_KEY = "nb_cookie_consent";
 
 function activateAnalytics() {
   try { inject(); } catch { /* already injected */ }
+  activatePostHog();
+}
+
+/** Load PostHog only after explicit cookie consent */
+function activatePostHog() {
+  try {
+    const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
+    if (!key || key.includes("VITE_")) return;
+    // Avoid double-init
+    if ((window as Record<string, unknown>).__posthog_loaded) return;
+    (window as Record<string, unknown>).__posthog_loaded = true;
+
+    const script = document.createElement("script");
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.src = "https://eu-assets.i.posthog.com/static/array.js";
+    script.onload = () => {
+      const ph = (window as Record<string, unknown>).posthog as {
+        init: (key: string, opts: Record<string, unknown>) => void;
+      } | undefined;
+      ph?.init(key, {
+        api_host: "https://eu.i.posthog.com",
+        persistence: "memory",
+        autocapture: true,
+        capture_pageview: true,
+        capture_pageleave: true,
+        disable_session_recording: false,
+      });
+    };
+    document.head.appendChild(script);
+  } catch { /* PostHog load failed — non-critical */ }
 }
 
 /** Dispatch this event from anywhere to re-open the cookie banner. */

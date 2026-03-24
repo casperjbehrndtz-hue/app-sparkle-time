@@ -71,7 +71,7 @@ export const DA: Record<string, string> = {
   "footer.private": "100% privat · Data gemmes lokalt",
   "footer.tools": "Værktøjer",
   "footer.legal": "Juridisk",
-  "footer.disclaimer": "NemtBudget er et budgetværktøj og yder ikke finansiel rådgivning. Tal med din bank eller en rådgiver om konkrete økonomiske beslutninger.",
+  "footer.disclaimer": "NemtBudget.nu yder ikke finansiel r\u00e5dgivning. Beregninger er vejledende. AI-r\u00e5dgiveren kan producere fejl. Tal med din bank eller en r\u00e5dgiver om konkrete \u00f8konomiske beslutninger.",
   "footer.based": "Beregnet på danske gennemsnitstal 2026 · Data gemmes lokalt",
   "footer.installApp": "Installér app",
   "footer.guides": "Guides & tips",
@@ -1402,6 +1402,11 @@ export const DA: Record<string, string> = {
   "pengetjek.share.transactionCount": "Antal transaktioner",
   "pengetjek.share.topCategories": "Top 5 kategorier",
   "pengetjek.share.subscriptions": "Abonnementer fundet",
+
+  // OCR consent
+  "ocr.consent": "Dit kontoudtog sendes til en AI-tjeneste (Anthropic) i USA for at afl\u00e6se transaktioner. Data opbevares i op til 7 dage og bruges ikke til tr\u00e6ning. Vil du forts\u00e6tte?",
+  "ocr.consentPayslip": "Din l\u00f8nseddel sendes til en AI-tjeneste (Anthropic) i USA for at afl\u00e6se tal. Data opbevares i op til 7 dage og bruges ikke til tr\u00e6ning. Vil du forts\u00e6tte?",
+  "salary.contributeAnonymous": "Bidrag anonymt til l\u00f8nstatistik",
 
   // GDPR
   "gdpr.section": "Privatliv & data",

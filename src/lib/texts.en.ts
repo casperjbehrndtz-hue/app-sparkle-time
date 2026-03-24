@@ -71,7 +71,7 @@ export const EN: Record<string, string> = {
   "footer.private": "100% private · Data stored locally",
   "footer.tools": "Tools",
   "footer.legal": "Legal",
-  "footer.disclaimer": "NemtBudget is a budgeting tool and does not provide financial advice. Talk to your bank or an advisor about specific financial decisions.",
+  "footer.disclaimer": "NemtBudget.nu does not provide financial advice. Calculations are indicative. The AI advisor can produce errors. Talk to your bank or an advisor about specific financial decisions.",
   "footer.based": "Based on Danish averages 2026 · Data stored locally",
   "footer.installApp": "Install app",
   "footer.guides": "Guides & tips",
@@ -1400,6 +1400,11 @@ export const EN: Record<string, string> = {
   "pengetjek.share.transactionCount": "Number of transactions",
   "pengetjek.share.topCategories": "Top 5 categories",
   "pengetjek.share.subscriptions": "Subscriptions found",
+
+  // OCR consent
+  "ocr.consent": "Your bank statement will be sent to an AI service (Anthropic) in the US to read transactions. Data is kept for up to 7 days and is not used for training. Continue?",
+  "ocr.consentPayslip": "Your payslip will be sent to an AI service (Anthropic) in the US to read data. Data is kept for up to 7 days and is not used for training. Continue?",
+  "salary.contributeAnonymous": "Contribute anonymously to salary statistics",
 
   // GDPR
   "gdpr.section": "Privacy & data",

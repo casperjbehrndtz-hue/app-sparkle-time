@@ -51,7 +51,7 @@ const Privatliv = () => {
               Data forlader aldrig din enhed. Retsgrundlag: samtykke via brug af tjenesten (GDPR art. 6(1)(a)).
             </li>
             <li>
-              <strong>Lønseddel- og kontoudtog-OCR:</strong> Når du uploader et billede af din lønseddel eller kontoudtog, sendes det krypteret til en AI-tjeneste for at aflæse tal.
+              <strong>Lønseddel- og kontoudtog-OCR:</strong> Når du uploader et billede af din lønseddel eller kontoudtog, sendes det via sikker TLS-forbindelse til en AI-tjeneste (Anthropic/Claude) for at afl&aelig;se tal.
               Retsgrundlag: samtykke — du uploader aktivt dokumentet (GDPR art. 6(1)(a)).
             </li>
             <li>
@@ -67,8 +67,12 @@ const Privatliv = () => {
               Retsgrundlag: legitim interesse i at beskytte tjenesten (GDPR art. 6(1)(f)).
             </li>
             <li>
-              <strong>Vercel Analytics:</strong> Hvis du accepterer cookies i cookiebanneret, indsamles anonym brugsstatistik (sidevisninger, enhedstype).
-              Retsgrundlag: samtykke via cookie-banner (GDPR art. 6(1)(a)).
+              <strong>Vercel Analytics & PostHog:</strong> Hvis du accepterer cookies i cookiebanneret, indsamles anonym brugsstatistik (sidevisninger, enhedstype).
+              PostHog indl&aelig;ses kun efter dit samtykke. Retsgrundlag: samtykke via cookie-banner (GDPR art. 6(1)(a)).
+            </li>
+            <li>
+              <strong>Partnersporing:</strong> Hvis du bes&oslash;ger NemtBudget via en partner, registrerer vi anonyme brugsdata (sessionsbaseret) for at m&aring;le partnersamarbejdets effekt.
+              Ingen personhenf&oslash;rbare data indsamles. Retsgrundlag: legitim interesse (GDPR art. 6(1)(f)).
             </li>
           </ul>
         </section>
@@ -83,7 +87,7 @@ const Privatliv = () => {
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
-              <strong>Anthropic / Claude (USA)</strong> — AI-analyse af lønsedler og kontoudtog. Billeder sendes krypteret (TLS).
+              <strong>Anthropic / Claude (USA)</strong> — AI-analyse af lønsedler og kontoudtog. Billeder sendes via sikker TLS-forbindelse.
               Anthropic træner ikke på API-data. API-input opbevares i op til 7 dage hos Anthropic (jf. deres <a href="https://www.anthropic.com/legal/data-processing-addendum" target="_blank" rel="noopener noreferrer" className="underline">DPA</a>), herefter automatisk sletning. Overførsel til USA sker via standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c). Retsgrundlag: art. 6(1)(a) samtykke — du uploader aktivt dokumentet.
             </li>
             <li>
@@ -105,7 +109,7 @@ const Privatliv = () => {
           </p>
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
-              <strong>Anthropic / Claude (USA):</strong> Når du uploader en lønseddel eller et kontoudtog, sendes billedet krypteret til Anthropic i USA til AI-analyse.
+              <strong>Anthropic / Claude (USA):</strong> Når du uploader en lønseddel eller et kontoudtog, sendes billedet via sikker TLS-forbindelse til Anthropic i USA til AI-analyse.
               Anthropic træner ikke på data modtaget via deres API. API-input opbevares i op til 7 dage, herefter automatisk sletning.
               Overførslen sker på baggrund af EU-Kommissionens standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c).
             </li>

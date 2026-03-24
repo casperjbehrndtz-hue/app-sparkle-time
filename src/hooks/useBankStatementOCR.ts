@@ -3,6 +3,7 @@ import { parseBankStatementResponse, type BankStatementRaw, type StatementAnalys
 import { parseCSV } from "@/lib/csvParser";
 import { analyzeStatement } from "@/lib/statementAnalyzer";
 import { compressImage } from "@/lib/imageUtils";
+import { useI18n } from "@/lib/i18n";
 import type { BudgetProfile } from "@/lib/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -28,6 +29,7 @@ function isCSV(file: File): boolean {
 }
 
 export function useBankStatementOCR() {
+  const { t } = useI18n();
   const [raw, setRaw] = useState<BankStatementRaw | null>(null);
   const [analysis, setAnalysis] = useState<StatementAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -66,6 +68,11 @@ export function useBankStatementOCR() {
       const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
       if (!validTypes.includes(file.type)) {
         setError("pengetjek.error.invalidType");
+        return;
+      }
+
+      // GDPR consent: user must confirm before sending to AI service
+      if (!window.confirm(t("ocr.consent"))) {
         return;
       }
 

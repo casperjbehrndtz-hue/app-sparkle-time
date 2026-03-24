@@ -72,7 +72,7 @@ export const NO: Record<string, string> = {
   "footer.private": "All data lagres lokalt i nettleseren din. Vi selger aldri dine data.",
   "footer.tools": "Verktøy",
   "footer.legal": "Juridisk",
-  "footer.disclaimer": "NemtBudget er et budsjetteringsverktøy og gir ikke finansiell rådgivning. Snakk med banken din eller en rådgiver om konkrete økonomiske beslutninger.",
+  "footer.disclaimer": "NemtBudget.nu gir ikke finansiell r\u00e5dgivning. Beregninger er veiledende. AI-r\u00e5dgiveren kan produsere feil. Snakk med banken din eller en r\u00e5dgiver om konkrete \u00f8konomiske beslutninger.",
   "footer.based": "Beregnet på norske gjennomsnittstall 2026 · Data lagres lokalt",
   "footer.installApp": "Installer app",
   "footer.guides": "Guider & tips",
@@ -1399,4 +1399,9 @@ export const NO: Record<string, string> = {
   "pengetjek.share.transactionCount": "Antall transaksjoner",
   "pengetjek.share.topCategories": "Topp 5 kategorier",
   "pengetjek.share.subscriptions": "Abonnementer funnet",
+
+  // OCR consent
+  "ocr.consent": "Kontoutskriften din sendes til en AI-tjeneste (Anthropic) i USA for \u00e5 lese transaksjoner. Data oppbevares i opptil 7 dager og brukes ikke til trening. Vil du fortsette?",
+  "ocr.consentPayslip": "L\u00f8nnsslippen din sendes til en AI-tjeneste (Anthropic) i USA for \u00e5 lese tall. Data oppbevares i opptil 7 dager og brukes ikke til trening. Vil du fortsette?",
+  "salary.contributeAnonymous": "Bidra anonymt til l\u00f8nnsstatistikk",
 };

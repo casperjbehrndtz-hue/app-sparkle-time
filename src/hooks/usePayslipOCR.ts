@@ -2,12 +2,14 @@ import { useState, useCallback } from "react";
 import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
 import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 import { compressImage } from "@/lib/imageUtils";
+import { useI18n } from "@/lib/i18n";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function usePayslipOCR() {
+  const { t } = useI18n();
   const [result, setResult] = useState<ExtractedPayslip | null>(null);
   const [diagnostics, setDiagnostics] = useState<ReconciliationDiagnostics | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -27,6 +29,11 @@ export function usePayslipOCR() {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       setError("payslip.error.tooLarge");
+      return;
+    }
+
+    // GDPR consent: user must confirm before sending to AI service
+    if (!window.confirm(t("ocr.consentPayslip"))) {
       return;
     }
 
