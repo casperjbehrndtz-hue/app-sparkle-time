@@ -21,7 +21,7 @@ GlobalWorkerOptions.workerSrc = new URL(
  */
 export async function pdfToImage(
   pdfFile: File,
-  scale = 2,
+  scale = 3,
   quality = 0.85,
 ): Promise<File> {
   const buffer = await pdfFile.arrayBuffer();

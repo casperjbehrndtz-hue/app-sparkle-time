@@ -9,12 +9,14 @@
  */
 import { createWorker, type Worker } from "tesseract.js";
 
-// Danish CPR: 6 digits, optional dash/space, 4 digits
-// Matches: 010190-1234, 0101901234, 010190 1234
-const CPR_PATTERN = /\b(\d{2}[01]\d[0-9]\d)[\s\-]?(\d{4})\b/g;
+// Danish CPR: 6 digits, optional separator (dash/space/dot), 4 digits
+// More permissive: allows OCR noise like dots, any 6+4 digit pattern with separator
+// Matches: 010190-1234, 0101901234, 010190 1234, 01.01.90-1234, 010190.1234
+const CPR_PATTERN = /(?<!\d)(\d{2}[\.\s]?\d{2}[\.\s]?\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
 
 // Bank account: reg.nr (4 digits) + account (6-10 digits)
-const ACCOUNT_PATTERN = /\b\d{4}[\s\-]?\d{6,10}\b/g;
+// Also catches 10-digit continuous number sequences (common account format)
+const ACCOUNT_PATTERN = /(?<!\d)\d{4}[\s\-\.]?\d{6,10}(?!\d)/g;
 
 let workerInstance: Worker | null = null;
 

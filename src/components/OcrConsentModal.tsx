@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Eye, Clock, Trash2, Server, Check, FileText } from "lucide-react";
+import { Shield, Eye, Clock, Trash2, Server, Check, ChevronDown, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -30,6 +30,7 @@ interface OcrConsentModalProps {
 const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCount = 0, isPdf, onAccept, onDecline }: OcrConsentModalProps) => {
   const { t, lang } = useI18n();
   const [understood, setUnderstood] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const da = lang === "da" || lang === "nb";
 
   const docLabel = type === "payslip"
@@ -43,122 +44,95 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-display">
-            {da ? "Før vi scanner" : "Before we scan"} {docLabel}
+            {da ? "Tjek billedet inden vi scanner" : "Check the image before we scan"}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {redactedPreview
-              ? (da ? "Tjek billedet herunder og læs betingelserne inden du fortsætter." : "Check the image below and read the conditions before continuing.")
-              : (da ? "Læs venligst nedenstående inden du fortsætter." : "Please read the following before continuing.")}
+            {da
+              ? "Dette er præcis det billede der sendes. Sorte felter kan ikke genskabes."
+              : "This is exactly the image that will be sent. Black boxes cannot be reversed."}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Redacted image preview */}
+        {/* Redacted image preview — large and prominent */}
         {redactedPreview && (
           <div className="space-y-2">
             <div className="relative rounded-lg border border-border overflow-hidden bg-muted/20">
               <img
                 src={`data:image/jpeg;base64,${redactedPreview}`}
                 alt={da ? "Sløret billede der sendes" : "Redacted image to be sent"}
-                className="w-full h-auto max-h-56 object-contain"
+                className="w-full h-auto max-h-[50vh] object-contain"
               />
             </div>
-            {hasRedactions && (
+            {hasRedactions ? (
               <div className="flex items-center justify-center gap-1.5">
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
                   {da
-                    ? `${cprCount} CPR-nr. og ${accountCount} kontonr. sløret`
-                    : `${cprCount} CPR no. and ${accountCount} account no. redacted`}
+                    ? `${cprCount} CPR-nr. og ${accountCount} kontonr. automatisk sløret`
+                    : `${cprCount} CPR no. and ${accountCount} account no. auto-redacted`}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                  {da
+                    ? "Ingen CPR-numre fundet — tjek selv at følsomme data er dækket"
+                    : "No CPR numbers found — check that sensitive data is covered"}
                 </span>
               </div>
             )}
-            <p className="text-[10px] text-muted-foreground text-center">
+          </div>
+        )}
+
+        {/* Compact privacy summary — one line with expandable details */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Shield className="w-3.5 h-3.5 shrink-0" />
+            <span>
               {da
-                ? "↑ Dette er præcis det billede der sendes. Sorte felter kan ikke genskabes."
-                : "↑ This is exactly the image that will be sent. Black boxes cannot be reversed."}
-            </p>
+                ? "Sendes krypteret til Anthropic (USA) · slettet efter 7 dage · bruges ikke til træning"
+                : "Sent encrypted to Anthropic (USA) · deleted after 7 days · not used for training"}
+            </span>
           </div>
-        )}
 
-        {/* PDF notice */}
-        {isPdf && !redactedPreview && (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-            <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                {da ? "PDF-fil uploadet" : "PDF file uploaded"}
-              </p>
-              <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
-                {da
-                  ? "Vi kan ikke vise et preview af PDF'er, og CPR-numre kan ikke auto-sløres i PDF-filer. Sørg selv for at følsomme data er fjernet inden upload."
-                  : "We cannot preview PDFs, and CPR numbers cannot be auto-redacted in PDF files. Make sure sensitive data is removed before uploading."}
-              </p>
-            </div>
-          </div>
-        )}
+          <button
+            type="button"
+            onClick={() => setDetailsOpen(!detailsOpen)}
+            className="flex items-center gap-1 text-[11px] text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+          >
+            <ChevronDown className={`w-3 h-3 transition-transform ${detailsOpen ? "rotate-180" : ""}`} />
+            {da ? "Vis detaljer" : "Show details"}
+          </button>
 
-        <div className="space-y-3 my-2">
-          {/* CPR auto-redaction — only show if no preview and not PDF */}
-          {!redactedPreview && !isPdf && (
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5 border border-accent/10">
-            <Shield className="w-5 h-5 text-accent shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {da ? "CPR-numre sløres automatisk" : "CPR numbers auto-redacted"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {da
-                  ? "Vi kører lokal tekstgenkendelse i din browser (Tesseract.js) og maler sort over CPR-numre og kontonumre FØR billedet forlader din enhed."
-                  : "We run local text recognition in your browser (Tesseract.js) and paint over CPR and account numbers BEFORE the image leaves your device."}
-              </p>
+          {detailsOpen && (
+            <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+                <Server className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-muted-foreground leading-relaxed">
+                  {da
+                    ? "Billedet sendes via sikker TLS til Anthropic's Claude API i USA. Overførsel baseret på EU-standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c)."
+                    : "Image sent via secure TLS to Anthropic's Claude API in the US. Transfer based on EU SCCs, GDPR art. 46(2)(c)."}
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+                <Clock className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-muted-foreground leading-relaxed">
+                  {da
+                    ? "Anthropic opbevarer API-input i op til 7 dage, herefter automatisk sletning. Data bruges IKKE til modeltræning."
+                    : "Anthropic retains API input up to 7 days, then auto-deleted. NOT used for model training."}
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+                <Trash2 className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-muted-foreground leading-relaxed">
+                  {da
+                    ? "NemtBudget gemmer aldrig dit billede. Alt processeres i hukommelsen og kasseres efter svar."
+                    : "NemtBudget never stores your image. Processed in memory and discarded after response."}
+                </p>
+              </div>
             </div>
-          </div>
           )}
-
-          {/* Where data goes */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Server className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {da ? "Billedet sendes til Anthropic (USA)" : "Image sent to Anthropic (USA)"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {da
-                  ? "Det slørede billede sendes via sikker TLS-forbindelse til Anthropic's Claude API i USA for at aflæse tal. Overførsel sker på baggrund af EU-Kommissionens standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c)."
-                  : "The redacted image is sent via secure TLS to Anthropic's Claude API in the US. Transfer based on EU Standard Contractual Clauses (SCCs), GDPR art. 46(2)(c)."}
-              </p>
-            </div>
-          </div>
-
-          {/* Retention */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Clock className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {da ? "Opbevares maks. 7 dage" : "Retained max 7 days"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {da
-                  ? "Anthropic opbevarer API-input i op til 7 dage jf. deres API-vilkår, herefter automatisk sletning. Data bruges IKKE til modeltræning."
-                  : "Anthropic retains API input for up to 7 days per their API terms, then auto-deleted. Data is NOT used for model training."}
-              </p>
-            </div>
-          </div>
-
-          {/* No persistence */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-            <Trash2 className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                {da ? "Vi gemmer ingenting" : "We store nothing"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {da
-                  ? "NemtBudget gemmer aldrig dit billede, din lønseddel eller dit kontoudtog. Alt processeres i hukommelsen og kasseres efter svar."
-                  : "NemtBudget never stores your image. Everything is processed in memory and discarded after response."}
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Consent checkbox */}
@@ -170,13 +144,13 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
           />
           <span className="text-xs text-foreground leading-relaxed">
             {da
-              ? `Jeg forstår at det slørede billede af ${docLabel} sendes til Anthropic (USA) via sikker forbindelse, opbevares maks. 7 dage, og ikke bruges til træning.`
-              : `I understand the redacted image of ${docLabel} is sent to Anthropic (USA) via secure connection, retained max 7 days, and not used for training.`}
+              ? `Jeg forstår at billedet af ${docLabel} sendes til Anthropic (USA), opbevares maks. 7 dage, og ikke bruges til træning.`
+              : `I understand the image of ${docLabel} is sent to Anthropic (USA), retained max 7 days, and not used for training.`}
           </span>
         </label>
 
         {/* Buttons */}
-        <div className="flex items-center gap-3 pt-1">
+        <div className="flex items-center gap-3">
           <Button
             onClick={onAccept}
             disabled={!understood}
@@ -198,7 +172,7 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
             rel="noopener noreferrer"
             className="underline hover:text-muted-foreground"
           >
-            Anthropic Data Processing Addendum
+            Anthropic DPA
           </a>
           {" · "}
           <a href="/privatliv" className="underline hover:text-muted-foreground">
