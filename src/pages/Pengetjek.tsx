@@ -5,7 +5,6 @@ import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useBankStatementOCR } from "@/hooks/useBankStatementOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
-import RedactionReview from "@/components/RedactionReview";
 import { PengetjekResult } from "@/components/pengetjek/PengetjekResult";
 import type { BudgetProfile } from "@/lib/types";
 
@@ -54,7 +53,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Pengetjek() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, previewBase64, processFile, reset } = useBankStatementOCR();
+  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, previewBase64, processFile, reset } = useBankStatementOCR();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -156,7 +155,7 @@ export default function Pengetjek() {
 
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
         {/* Title — marketing on landing */}
-        {!analysis && !isProcessing && !redactionReview && (
+        {!analysis && !isProcessing && (
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold tracking-tight">{t("pengetjek.landing.headline")}</h1>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("pengetjek.landing.subheadline")}</p>
@@ -164,7 +163,7 @@ export default function Pengetjek() {
         )}
 
         {/* State: Upload */}
-        {!analysis && !isProcessing && !redactionReview && (
+        {!analysis && !isProcessing && (
           <>
             <div
               role="button"
@@ -250,20 +249,6 @@ export default function Pengetjek() {
               <p className="text-[10px] text-muted-foreground mt-1">{t("pengetjek.processingHint")}</p>
             </div>
           </div>
-        )}
-
-        {/* State: Redaction Review */}
-        {redactionReview && !showConsent && (
-          <RedactionReview
-            originalDataUrl={redactionReview.originalDataUrl}
-            autoRects={redactionReview.autoRects}
-            width={redactionReview.width}
-            height={redactionReview.height}
-            cprCount={redactionReview.cprCount}
-            accountCount={redactionReview.accountCount}
-            onApprove={onRedactionApprove}
-            onCancel={onRedactionCancel}
-          />
         )}
 
         {/* State: Results */}

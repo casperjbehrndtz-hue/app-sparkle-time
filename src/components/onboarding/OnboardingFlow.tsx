@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronDown, Plus, X, Info, Sparkles, Upload, Loader2, CheckCircle2 } from "lucide-react";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
-import RedactionReview from "@/components/RedactionReview";
 import { payslipToProfile } from "@/lib/payslipTypes";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -408,7 +407,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
             {/* ── Payslip upload ── */}
             <div className="space-y-4">
-              {!payslipOCR.result && !payslipOCR.redactionReview && (
+              {!payslipOCR.result && (
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -456,18 +455,6 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                     </div>
                   )}
                 </motion.div>
-              )}
-              {payslipOCR.redactionReview && !payslipOCR.showConsent && (
-                <RedactionReview
-                  originalDataUrl={payslipOCR.redactionReview.originalDataUrl}
-                  autoRects={payslipOCR.redactionReview.autoRects}
-                  width={payslipOCR.redactionReview.width}
-                  height={payslipOCR.redactionReview.height}
-                  cprCount={payslipOCR.redactionReview.cprCount}
-                  accountCount={payslipOCR.redactionReview.accountCount}
-                  onApprove={payslipOCR.onRedactionApprove}
-                  onCancel={payslipOCR.onRedactionCancel}
-                />
               )}
               {payslipOCR.result && (
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}

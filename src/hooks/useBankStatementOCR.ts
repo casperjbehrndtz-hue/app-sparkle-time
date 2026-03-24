@@ -84,7 +84,7 @@ export function useBankStatementOCR() {
       return;
     }
 
-    // For images: run auto-redaction first, then show review
+    // For images: run auto-redaction, then go straight to consent with preview
     if (file.type !== "application/pdf") {
       setIsProcessing(true);
       setStatusMessage("cpr.redacting");
@@ -93,8 +93,9 @@ export function useBankStatementOCR() {
         terminateRedactWorker();
         if (redacted) {
           setRedactionReview(redacted);
+          setPendingFile(file);
+          setShowConsent(true);
         } else {
-          // Redaction returned null — generate simple preview
           try {
             const compressed = await compressImage(file);
             setFallbackPreview(compressed.base64);
@@ -116,7 +117,7 @@ export function useBankStatementOCR() {
       return;
     }
 
-    // PDFs: skip redaction review, go to consent
+    // PDFs: no preview possible, go to consent
     setPendingFile(file);
     setShowConsent(true);
   }, []);

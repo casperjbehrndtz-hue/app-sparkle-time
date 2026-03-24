@@ -5,7 +5,6 @@ import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
-import RedactionReview from "@/components/RedactionReview";
 import { PayslipVerification } from "@/components/payslip/PayslipVerification";
 import { PayslipResult } from "@/components/payslip/PayslipResult";
 import { payslipToProfile } from "@/lib/payslipTypes";
@@ -64,7 +63,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Lonseddel() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, previewBase64, processPayslip, reset: ocrReset } = usePayslipOCR();
+  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, previewBase64, processPayslip, reset: ocrReset } = usePayslipOCR();
   const [confirmedResult, setConfirmedResult] = useState<ExtractedPayslip | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -137,7 +136,7 @@ export default function Lonseddel() {
 
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
         {/* Title — marketing on landing, data-focused on result */}
-        {!ocrResult && !confirmedResult && !redactionReview && (
+        {!ocrResult && !confirmedResult && (
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold tracking-tight">{t("payslip.landing.headline")}</h1>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("payslip.landing.subheadline")}</p>
@@ -146,7 +145,7 @@ export default function Lonseddel() {
         )}
 
         {/* State: Upload */}
-        {!ocrResult && !confirmedResult && !isProcessing && !redactionReview && (
+        {!ocrResult && !confirmedResult && !isProcessing && (
           <>
             <div
               role="button"
@@ -233,20 +232,6 @@ export default function Lonseddel() {
               <p className="text-[10px] text-muted-foreground mt-1">{t("payslip.processingHint")}</p>
             </div>
           </div>
-        )}
-
-        {/* State: Redaction Review */}
-        {redactionReview && !showConsent && (
-          <RedactionReview
-            originalDataUrl={redactionReview.originalDataUrl}
-            autoRects={redactionReview.autoRects}
-            width={redactionReview.width}
-            height={redactionReview.height}
-            cprCount={redactionReview.cprCount}
-            accountCount={redactionReview.accountCount}
-            onApprove={onRedactionApprove}
-            onCancel={onRedactionCancel}
-          />
         )}
 
         {/* State: Verification — user confirms OCR data before analysis */}
