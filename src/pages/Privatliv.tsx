@@ -84,7 +84,7 @@ const Privatliv = () => {
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
               <strong>Anthropic / Claude (USA)</strong> — AI-analyse af lønsedler og kontoudtog. Billeder sendes krypteret (TLS).
-              Anthropic træner ikke på API-data og sletter input efter behandling. Overførsel til USA sker via standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c). Retsgrundlag: art. 6(1)(a) samtykke — du uploader aktivt dokumentet.
+              Anthropic træner ikke på API-data. API-input opbevares i op til 7 dage hos Anthropic (jf. deres <a href="https://www.anthropic.com/legal/data-processing-addendum" target="_blank" rel="noopener noreferrer" className="underline">DPA</a>), herefter automatisk sletning. Overførsel til USA sker via standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c). Retsgrundlag: art. 6(1)(a) samtykke — du uploader aktivt dokumentet.
             </li>
             <li>
               <strong>Supabase (EU)</strong> — Database til anonyme prisdata, lønobservationer og rate limiting. Data opbevares i EU. Retsgrundlag: art. 6(1)(f) legitim interesse.
@@ -106,7 +106,7 @@ const Privatliv = () => {
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
               <strong>Anthropic / Claude (USA):</strong> Når du uploader en lønseddel eller et kontoudtog, sendes billedet krypteret til Anthropic i USA til AI-analyse.
-              Anthropic træner ikke på data modtaget via deres API og sletter input efter behandling.
+              Anthropic træner ikke på data modtaget via deres API. API-input opbevares i op til 7 dage, herefter automatisk sletning.
               Overførslen sker på baggrund af EU-Kommissionens standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c).
             </li>
             <li>
@@ -122,7 +122,7 @@ const Privatliv = () => {
           <h2 className="text-lg font-semibold text-foreground">5. Opbevaringsperioder</h2>
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
-              <strong>Lønseddel-/kontoudtog-billeder:</strong> Slettes straks efter AI-analyse. Hverken vi eller Anthropic opbevarer billederne.
+              <strong>Lønseddel-/kontoudtog-billeder:</strong> Slettes straks hos os efter AI-analyse. Anthropic opbevarer API-input i op til 7 dage jf. deres standard API-vilkår, herefter automatisk sletning.
             </li>
             <li>
               <strong>Budgetdata:</strong> Gemmes kun i din browsers localStorage. Du styrer selv sletning.
