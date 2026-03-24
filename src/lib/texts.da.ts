@@ -1039,6 +1039,8 @@ export const DA: Record<string, string> = {
   "cookie.consent": "Cookie-samtykke",
   "cookie.acceptAnalytics": "Accepter analytics-cookies",
   "cookie.declineAnalytics": "Afvis analytics-cookies",
+  "cookie.settings": "Cookie-indstillinger",
+  "cookie.changeAnytime": "Du kan til enhver tid ændre dit cookie-valg via \"Cookie-indstillinger\" i sidefoden.",
 
   // Cockpit
   "cockpit.alertsLabel": "Advarsler",
@@ -1400,4 +1402,17 @@ export const DA: Record<string, string> = {
   "pengetjek.share.transactionCount": "Antal transaktioner",
   "pengetjek.share.topCategories": "Top 5 kategorier",
   "pengetjek.share.subscriptions": "Abonnementer fundet",
+
+  // GDPR
+  "gdpr.section": "Privatliv & data",
+  "gdpr.exportData": "Eksportér mine data",
+  "gdpr.exportDesc": "Download alle dine budgetdata som JSON-fil.",
+  "gdpr.deleteAccount": "Slet min konto",
+  "gdpr.deleteDesc": "Slet din konto og alle tilknyttede data permanent.",
+  "gdpr.confirmDelete": "Er du sikker? Skriv 'SLET' for at bekræfte.",
+  "gdpr.exporting": "Eksporterer...",
+  "gdpr.deleting": "Sletter...",
+  "gdpr.exportSuccess": "Dine data er downloadet.",
+  "gdpr.deleteSuccess": "Din konto er slettet.",
+  "gdpr.error": "Der opstod en fejl. Prøv igen.",
 };

@@ -3,6 +3,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useToast } from "@/hooks/use-toast";
 import type { BudgetProfile } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 
 interface Props {
   open: boolean;
@@ -51,6 +54,102 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
     >
       <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? "left-5" : "left-1"}`} />
     </button>
+  );
+}
+
+function GdprSection() {
+  const { t } = useI18n();
+  const { toast } = useToast();
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const callGdpr = async (action: "export" | "delete") => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) throw new Error("Not authenticated");
+
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/gdpr-request`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Request failed");
+    }
+    return res;
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await callGdpr("export");
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `nemtbudget-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast({ title: t("gdpr.exportSuccess") });
+    } catch {
+      toast({ title: t("gdpr.error"), variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const answer = window.prompt(t("gdpr.confirmDelete"));
+    const expected = t("gdpr.confirmDelete").includes("SLET") ? "SLET" : "DELETE";
+    if (answer !== expected) return;
+
+    setDeleting(true);
+    try {
+      await callGdpr("delete");
+      toast({ title: t("gdpr.deleteSuccess") });
+      // Sign out and redirect after deletion
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch {
+      toast({ title: t("gdpr.error"), variant: "destructive" });
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <section>
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("gdpr.section")}</h3>
+      <div className="rounded-xl border border-border/60 px-4 py-3 space-y-4">
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">{t("gdpr.exportDesc")}</p>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="w-full py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-muted/50 transition-colors disabled:opacity-50"
+          >
+            {exporting ? t("gdpr.exporting") : t("gdpr.exportData")}
+          </button>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-2">{t("gdpr.deleteDesc")}</p>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="w-full py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+          >
+            {deleting ? t("gdpr.deleting") : t("gdpr.deleteAccount")}
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -244,6 +343,9 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
               )}
             </div>
           </section>
+
+          {/* ── Privatliv & data (GDPR) ──────────────────────────────────── */}
+          <GdprSection />
         </div>
 
         {/* Sticky save button */}

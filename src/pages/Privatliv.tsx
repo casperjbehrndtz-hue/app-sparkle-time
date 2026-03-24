@@ -27,11 +27,16 @@ const Privatliv = () => {
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-foreground">1. Dataansvarlig</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            NemtBudget.nu er et budgetværktøj udviklet til at hjælpe danske husstande med at få overblik over deres økonomi.
-            Værktøjet drives af en soloiværksætter.
+            Den dataansvarlige for behandling af personoplysninger på NemtBudget.nu er:
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            <strong>Kontakt:</strong> hej@nemtbudget.nu
+            <strong>ParFinans v/ Casper Behrndtz</strong><br />
+            Snarestræde 16B, 2750 Ballerup<br />
+            E-mail: hej@nemtbudget.nu<br />
+            Hjemmeside: <a href="https://nemtbudget.nu" className="underline hover:text-foreground">nemtbudget.nu</a>
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Har du spørgsmål om vores behandling af dine personoplysninger, er du altid velkommen til at kontakte os.
           </p>
         </section>
 
@@ -73,16 +78,22 @@ const Privatliv = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             Vi bruger følgende tredjeparter til at levere tjenesten:
           </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Alle databehandlere har indgået databehandleraftaler med os:
+          </p>
           <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
             <li>
-              <strong>Anthropic (USA)</strong> — AI-analyse af lønsedler og kontoudtog. Billeder sendes krypteret.
-              Anthropic træner ikke på API-data og sletter input efter behandling.
+              <strong>Anthropic / Claude (USA)</strong> — AI-analyse af lønsedler og kontoudtog. Billeder sendes krypteret (TLS).
+              Anthropic træner ikke på API-data og sletter input efter behandling. Overførsel til USA sker via standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c). Retsgrundlag: art. 6(1)(a) samtykke — du uploader aktivt dokumentet.
             </li>
             <li>
-              <strong>Supabase (EU)</strong> — Database til anonyme prisdata, lønobservationer og rate limiting.
+              <strong>Supabase (EU)</strong> — Database til anonyme prisdata, lønobservationer og rate limiting. Data opbevares i EU. Retsgrundlag: art. 6(1)(f) legitim interesse.
             </li>
             <li>
-              <strong>Vercel (global)</strong> — Hosting af websiden og analytics (kun efter samtykke).
+              <strong>Vercel (USA)</strong> — Hosting af websiden og analytics (kun efter samtykke). Certificeret under EU-US Data Privacy Framework (DPF), jf. GDPR art. 45. Retsgrundlag: art. 6(1)(b) kontraktopfyldelse / art. 6(1)(a) samtykke (analytics).
+            </li>
+            <li>
+              <strong>Umami (EU)</strong> — Trafikanalytics i cookieless-tilstand. Ingen personhenførbare data indsamles. Data opbevares i EU. Retsgrundlag: art. 6(1)(f) legitim interesse.
             </li>
           </ul>
         </section>
@@ -90,10 +101,18 @@ const Privatliv = () => {
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-foreground">4. International overførsel</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Når du uploader en lønseddel eller et kontoudtog, sendes billedet krypteret til Anthropic i USA til AI-analyse.
-            Anthropic træner ikke på data modtaget via deres API og sletter input efter behandling.
-            Overførslen sker på baggrund af Anthropics standardkontraktbestemmelser (SCCs) i overensstemmelse med GDPR kapitel V.
+            Vores primære databehandling sker i EU/EØS. Følgende databehandlere befinder sig i USA:
           </p>
+          <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
+            <li>
+              <strong>Anthropic / Claude (USA):</strong> Når du uploader en lønseddel eller et kontoudtog, sendes billedet krypteret til Anthropic i USA til AI-analyse.
+              Anthropic træner ikke på data modtaget via deres API og sletter input efter behandling.
+              Overførslen sker på baggrund af EU-Kommissionens standardkontraktbestemmelser (SCCs), jf. GDPR art. 46(2)(c).
+            </li>
+            <li>
+              <strong>Vercel (USA):</strong> Certificeret under EU-US Data Privacy Framework (DPF), jf. GDPR art. 45 (tilstrækkelighedsafgørelse).
+            </li>
+          </ul>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Alle øvrige data (anonyme prisdata, lønobservationer, rate limiting) opbevares inden for EU via Supabase.
           </p>
@@ -114,6 +133,9 @@ const Privatliv = () => {
             <li>
               <strong>Rate limit-data:</strong> Hashede IP-adresser slettes automatisk efter 1 time.
             </li>
+            <li>
+              <strong>Analytics-data:</strong> Anonymiserede data opbevares i op til 12 måneder, herefter slettes de.
+            </li>
           </ul>
         </section>
 
@@ -123,12 +145,13 @@ const Privatliv = () => {
             Du har følgende rettigheder i henhold til GDPR:
           </p>
           <ul className="space-y-1 text-sm text-muted-foreground leading-relaxed list-disc pl-5">
-            <li><strong>Indsigt:</strong> Du kan få oplyst, hvilke data vi behandler om dig.</li>
-            <li><strong>Berigtigelse:</strong> Du kan få rettet forkerte oplysninger.</li>
-            <li><strong>Sletning:</strong> Du kan bede om, at dine data slettes.</li>
-            <li><strong>Begrænsning:</strong> Du kan bede om, at behandlingen begrænses.</li>
-            <li><strong>Dataportabilitet:</strong> Du kan få udleveret dine data i et maskinlæsbart format.</li>
-            <li><strong>Indsigelse:</strong> Du kan gøre indsigelse mod behandling baseret på legitim interesse.</li>
+            <li><strong>Ret til indsigt</strong> (art. 15) — du kan få oplyst, hvilke data vi behandler om dig.</li>
+            <li><strong>Ret til berigtigelse</strong> (art. 16) — du kan få rettet forkerte oplysninger.</li>
+            <li><strong>Ret til sletning</strong> (art. 17) — du kan bede om, at dine data slettes.</li>
+            <li><strong>Ret til begrænsning</strong> (art. 18) — du kan bede om, at behandlingen begrænses.</li>
+            <li><strong>Ret til dataportabilitet</strong> (art. 20) — du kan få udleveret dine data i et maskinlæsbart format.</li>
+            <li><strong>Ret til indsigelse</strong> (art. 21) — du kan gøre indsigelse mod behandling baseret på legitim interesse.</li>
+            <li><strong>Ret til at trække samtykke tilbage</strong> (art. 7(3)) — hvis behandlingen er baseret på samtykke, kan du til enhver tid trække det tilbage. Tilbagetrækning berører ikke lovligheden af behandling foretaget inden tilbagetrækningen.</li>
           </ul>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Da budgetdata kun gemmes lokalt i din browser, kan du til enhver tid slette dem ved at rydde browserdata eller trykke "Ny beregning".
@@ -137,11 +160,13 @@ const Privatliv = () => {
             Kontakt os på <strong>hej@nemtbudget.nu</strong> for at udøve dine rettigheder.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Du har også ret til at klage til <strong>Datatilsynet</strong> ({" "}
-            <a href="https://datatilsynet.dk" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-              datatilsynet.dk
-            </a>
-            ), hvis du mener, at vi behandler dine data i strid med reglerne.
+            Du har også ret til at klage over vores behandling af dine personoplysninger til:
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            <strong>Datatilsynet</strong><br />
+            Carl Jacobsens Vej 35, 2500 Valby<br />
+            E-mail: <a href="mailto:dt@datatilsynet.dk" className="underline hover:text-foreground">dt@datatilsynet.dk</a><br />
+            Hjemmeside: <a href="https://www.datatilsynet.dk" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">www.datatilsynet.dk</a>
           </p>
         </section>
 
@@ -163,7 +188,7 @@ const Privatliv = () => {
             Dine præferencer (f.eks. cookie-samtykke, tema) gemmes i localStorage, som ikke er cookies og ikke deles med nogen.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Du kan til enhver tid ændre dit cookie-valg ved at rydde din browsers data.
+            Du kan til enhver tid ændre dit cookie-valg via "Cookie-indstillinger" i sidefoden eller ved at klikke på det lille cookie-ikon i nederste venstre hjørne.
           </p>
         </section>
 
@@ -175,7 +200,7 @@ const Privatliv = () => {
         </section>
 
         <p className="text-xs text-muted-foreground/50 pt-4 border-t border-border">
-          Sidst opdateret: marts 2026
+          Sidst opdateret: 24. marts 2026
         </p>
       </main>
     </div>

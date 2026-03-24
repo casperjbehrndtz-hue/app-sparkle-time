@@ -1039,6 +1039,8 @@ export const EN: Record<string, string> = {
   "cookie.consent": "Cookie consent",
   "cookie.acceptAnalytics": "Accept analytics cookies",
   "cookie.declineAnalytics": "Decline analytics cookies",
+  "cookie.settings": "Cookie settings",
+  "cookie.changeAnytime": "You can change your cookie preferences at any time via \"Cookie settings\" in the footer.",
 
   // Cockpit
   "cockpit.alertsLabel": "Alerts",
@@ -1398,4 +1400,17 @@ export const EN: Record<string, string> = {
   "pengetjek.share.transactionCount": "Number of transactions",
   "pengetjek.share.topCategories": "Top 5 categories",
   "pengetjek.share.subscriptions": "Subscriptions found",
+
+  // GDPR
+  "gdpr.section": "Privacy & data",
+  "gdpr.exportData": "Export my data",
+  "gdpr.exportDesc": "Download all your budget data as a JSON file.",
+  "gdpr.deleteAccount": "Delete my account",
+  "gdpr.deleteDesc": "Permanently delete your account and all associated data.",
+  "gdpr.confirmDelete": "Are you sure? Type 'DELETE' to confirm.",
+  "gdpr.exporting": "Exporting...",
+  "gdpr.deleting": "Deleting...",
+  "gdpr.exportSuccess": "Your data has been downloaded.",
+  "gdpr.deleteSuccess": "Your account has been deleted.",
+  "gdpr.error": "An error occurred. Please try again.",
 };
