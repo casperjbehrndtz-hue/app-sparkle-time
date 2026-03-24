@@ -91,29 +91,44 @@ export function useBankStatementOCR() {
       return;
     }
 
-    // Convert PDF to image first so it goes through the same redaction+preview flow
-    let imageFile = file;
+    // PDF path: use pdf.js native text extraction for redaction (100% reliable)
     if (file.type === "application/pdf") {
       setIsProcessing(true);
-      setStatusMessage("cpr.convertingPdf");
+      setStatusMessage("cpr.redacting");
       try {
-        imageFile = await pdfToImage(file);
+        const result = await pdfToImage(file);
+        setRedactionReview({
+          base64: result.base64,
+          mimeType: "image/jpeg",
+          cprCount: result.cprCount,
+          accountCount: result.accountCount,
+          originalDataUrl: result.originalDataUrl,
+          autoRects: result.autoRects,
+          width: result.width,
+          height: result.height,
+        });
+        setConsentPreview(result.base64);
+        setConsentCprCount(result.cprCount);
+        setConsentAccountCount(result.accountCount);
+        setPendingFile(file);
+        setShowConsent(true);
       } catch (err) {
-        console.error("PDF to image conversion failed:", err);
+        console.error("PDF processing failed:", err);
         setConsentIsPdf(true);
         setPendingFile(file);
         setShowConsent(true);
+      } finally {
         setIsProcessing(false);
         setStatusMessage(null);
-        return;
       }
+      return;
     }
 
-    // Run auto-redaction + show consent with preview
+    // Image path: use Tesseract OCR for redaction
     setIsProcessing(true);
     setStatusMessage("cpr.redacting");
     try {
-      const redacted = await redactSensitiveData(imageFile);
+      const redacted = await redactSensitiveData(file);
       terminateRedactWorker();
       if (redacted) {
         setRedactionReview(redacted);
@@ -122,7 +137,7 @@ export function useBankStatementOCR() {
         setConsentAccountCount(redacted.accountCount);
       } else {
         try {
-          const compressed = await compressImage(imageFile);
+          const compressed = await compressImage(file);
           setConsentPreview(compressed.base64);
         } catch { /* */ }
       }
@@ -130,7 +145,7 @@ export function useBankStatementOCR() {
       setShowConsent(true);
     } catch {
       try {
-        const compressed = await compressImage(imageFile);
+        const compressed = await compressImage(file);
         setConsentPreview(compressed.base64);
       } catch { /* truly broken */ }
       setPendingFile(file);
