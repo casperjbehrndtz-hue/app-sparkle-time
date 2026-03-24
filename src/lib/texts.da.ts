@@ -105,6 +105,7 @@ export const DA: Record<string, string> = {
   "step.income.payslip.success": "Lønseddel aflæst!",
   "step.income.payslip.applied": "Indkomst og fradrag er udfyldt automatisk.",
   "step.income.payslip.retry": "Prøv igen",
+  "step.income.payslip.skipManual": "Skriv selv",
   "step.income.payslip.clear": "Fjern",
   "step.income.payslip.divider": "eller indtast manuelt",
 
@@ -1221,7 +1222,6 @@ export const DA: Record<string, string> = {
   "payslip.share.step2Hint": "Indsæt billedet med Ctrl+V i Reddit-opslaget",
   "payslip.share.includeBudget": "Inkluder mit budget i billedet",
   "salary.autoContributed": "Din anonyme løndata hjælper andre med at sammenligne",
-  "salary.consentLabel": "Ja, bidrag anonymt med min løn til den fælles lønstatistik. Kun branche, region og afrundet bruttoløn/nettoløn deles — ingen persondata.",
   "payslip.meta.title": "Scan din lønseddel — se skjulte goder og sammenlign din løn",
   "payslip.meta.description": "Upload din lønseddel og se præcis hvad du betaler i skat, hvad arbejdsgiveren betaler for dig, og om din løn er over eller under medianen i din branche.",
   "payslip.landing.headline": "Scan din lønseddel — se hvad du går glip af",

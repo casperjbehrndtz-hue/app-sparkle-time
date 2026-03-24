@@ -168,6 +168,8 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
 interface Props {
   onComplete: (profile: BudgetProfile) => void;
   initialProfile?: BudgetProfile;
+  /** Called when user wants to go back from step 1 (return to welcome) */
+  onExit?: () => void;
 }
 
 const defaultProfile: BudgetProfile = {
@@ -208,7 +210,7 @@ function clearOnboardingState() {
   try { localStorage.removeItem(ONBOARDING_SESSION_KEY); } catch { /* ignore */ }
 }
 
-export function OnboardingFlow({ onComplete, initialProfile }: Props) {
+export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
   const config = useWhiteLabel();
   const { t, lang } = useI18n();
   const isEditing = !!initialProfile;
@@ -432,12 +434,19 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
                       <p className="text-sm font-medium text-primary">{t("step.income.payslip.analyzing")}</p>
                     </div>
                   ) : payslipOCR.error ? (
-                    <div className="flex flex-col items-center gap-2 py-2">
+                    <div className="flex flex-col items-center gap-2 py-2" onClick={(e) => e.stopPropagation()}>
                       <p className="text-sm text-destructive">{t(payslipOCR.error) !== payslipOCR.error ? t(payslipOCR.error) : payslipOCR.error}</p>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); payslipOCR.reset(); }}
-                        className="text-xs text-primary font-medium hover:underline"
-                      >{t("step.income.payslip.retry")}</button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => payslipOCR.reset()}
+                          className="text-xs text-primary font-medium hover:underline"
+                        >{t("step.income.payslip.retry")}</button>
+                        <span className="text-xs text-muted-foreground">·</span>
+                        <button
+                          onClick={() => payslipOCR.reset()}
+                          className="text-xs text-muted-foreground font-medium hover:underline"
+                        >{t("step.income.payslip.skipManual")}</button>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2 py-2">
@@ -529,7 +538,10 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             </motion.div>
             <AILiveComment profile={profile} step="income" />
             {(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000 && (
-              <p className="text-xs text-muted-foreground text-center">{t("step.income.minWarning")}</p>
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <p className="text-xs text-amber-700 dark:text-amber-300">{t("step.income.minWarning")}</p>
+              </div>
             )}
             <ContinueButton onClick={goNext} disabled={(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000} label={t("continue")} />
           </div>
@@ -974,7 +986,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             </label>
 
             {(profile.income + profile.partnerIncome) < 1000 && (
-              <div className="rounded-xl bg-amber-50 text-amber-800 border border-amber-200 p-3 text-sm">
+              <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 p-3 text-sm">
                 {t("step.review.zeroIncomeWarning")}
               </div>
             )}
@@ -998,6 +1010,10 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
             <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
             </button>
+          ) : onExit ? (
+            <button onClick={() => { clearOnboardingState(); onExit(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
+              <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
+            </button>
           ) : <div />}
           <StepIndicator step={step} />
           <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
@@ -1010,7 +1026,7 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
           </motion.div>
         </AnimatePresence>
       </div>
-      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "fixed" ? goNext : undefined} />}
+      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "everyday" ? goNext : undefined} />}
       <OcrConsentModal
         open={payslipOCR.showConsent}
         type="payslip"

@@ -31,7 +31,7 @@ export const pageVariants = {
   }),
 };
 
-export const STEPS: OnboardingStep[] = ["household", "income", "housing", "everyday", "fixed", "review"];
+export const STEPS: OnboardingStep[] = ["household", "income", "housing", "fixed", "everyday", "review"];
 export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step); }
 
 // ─── Live Budget Bar ──────────────────────────────────────

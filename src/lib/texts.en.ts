@@ -105,6 +105,7 @@ export const EN: Record<string, string> = {
   "step.income.payslip.success": "Payslip read!",
   "step.income.payslip.applied": "Income and deductions have been filled in automatically.",
   "step.income.payslip.retry": "Try again",
+  "step.income.payslip.skipManual": "Enter manually",
   "step.income.payslip.clear": "Remove",
   "step.income.payslip.divider": "or enter manually",
 
@@ -1219,7 +1220,6 @@ export const EN: Record<string, string> = {
   "payslip.share.step2Hint": "Paste the image with Ctrl+V in the Reddit post",
   "payslip.share.includeBudget": "Include my budget in the image",
   "salary.autoContributed": "Your anonymous salary data helps others compare",
-  "salary.consentLabel": "Yes, contribute my anonymous salary to the shared salary statistics. Only industry, region, and rounded gross/net salary are shared — no personal data.",
   "payslip.meta.title": "Scan your payslip — find hidden benefits and compare your salary",
   "payslip.meta.description": "Upload your payslip and see exactly what you pay in tax, what your employer pays for you, and whether your salary is above or below the median in your industry.",
   "payslip.landing.headline": "Scan your payslip — see what you're missing",
