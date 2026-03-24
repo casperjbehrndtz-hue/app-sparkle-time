@@ -5,29 +5,31 @@
  * finds Danish CPR patterns (DDMMYY-XXXX), and paints black
  * rectangles over them on a canvas before the image is sent anywhere.
  *
- * Also redacts bank account numbers (10-digit patterns) for safety.
+ * Also redacts bank account numbers (reg.nr + account) for safety.
  */
 import { createWorker, type Worker } from "tesseract.js";
 
-// Danish CPR: 6 digits, optional separator (dash/space/dot), 4 digits
-// More permissive: allows OCR noise like dots, any 6+4 digit pattern with separator
-// Matches: 010190-1234, 0101901234, 010190 1234, 01.01.90-1234, 010190.1234
-const CPR_PATTERN = /(?<!\d)(\d{2}[\.\s]?\d{2}[\.\s]?\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
+// Danish CPR: DDMMYY-XXXX with valid day (01-31) and month (01-12)
+const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
 
-// Bank account: reg.nr (4 digits) + account (6-10 digits)
-// Also catches 10-digit continuous number sequences (common account format)
-const ACCOUNT_PATTERN = /(?<!\d)\d{4}[\s\-\.]?\d{6,10}(?!\d)/g;
+// Bank account: reg.nr (4 digits) + separator + account (6-10 digits)
+const ACCOUNT_RE = /(?<!\d)(\d{4})[\s\-\.](\d{6,10})(?!\d)/g;
 
 let workerInstance: Worker | null = null;
 
 async function getWorker(): Promise<Worker> {
   if (!workerInstance) {
     workerInstance = await createWorker("dan+eng", undefined, {
-      // Silence noisy logs in production
       logger: () => {},
     });
   }
   return workerInstance;
+}
+
+/** Test a string against a global regex without mutating lastIndex state */
+function testPattern(re: RegExp, text: string): RegExpMatchArray | null {
+  re.lastIndex = 0;
+  return text.match(re);
 }
 
 export interface RedactionRect {
@@ -58,14 +60,13 @@ export interface RedactionResult {
  * Detects and blacks out CPR numbers and bank account numbers
  * from an image, entirely client-side.
  *
- * For PDFs, returns null (can't canvas-redact PDFs easily).
+ * For PDFs, returns null — use pdfToImage() instead.
  */
 export async function redactSensitiveData(
   file: File,
   maxDim = 1600,
   quality = 0.82,
 ): Promise<RedactionResult | null> {
-  // PDFs: skip redaction (Tesseract can't read PDFs in browser)
   if (file.type === "application/pdf") return null;
 
   let img: HTMLImageElement;
@@ -89,7 +90,6 @@ export async function redactSensitiveData(
   const ctx = canvas.getContext("2d")!;
   ctx.drawImage(img, 0, 0, width, height);
 
-  // Save original image as data URL for review step
   const originalDataUrl = canvas.toDataURL("image/jpeg", quality);
 
   let cprCount = 0;
@@ -101,18 +101,15 @@ export async function redactSensitiveData(
     const worker = await getWorker();
     const { data } = await worker.recognize(canvas);
 
-    // Check each word for sensitive patterns
+    // Check each line for sensitive patterns
     for (const line of data.lines) {
       const lineText = line.words.map((w) => w.text).join(" ");
+      const cprMatches = testPattern(CPR_RE, lineText);
+      const accMatches = testPattern(ACCOUNT_RE, lineText);
 
-      if (CPR_PATTERN.test(lineText) || ACCOUNT_PATTERN.test(lineText)) {
-        CPR_PATTERN.lastIndex = 0;
-        ACCOUNT_PATTERN.lastIndex = 0;
-
-        const cprMatches = lineText.match(CPR_PATTERN);
-        const accMatches = lineText.match(ACCOUNT_PATTERN);
-        if (cprMatches) cprCount += cprMatches.length;
-        if (accMatches) accountCount += accMatches.length;
+      if (cprMatches || accMatches) {
+        cprCount += cprMatches?.length ?? 0;
+        accountCount += accMatches?.length ?? 0;
 
         const bbox = line.bbox;
         const pad = 4;
@@ -128,14 +125,14 @@ export async function redactSensitiveData(
       }
     }
 
-    // Also check individual words for partial matches
+    // Also check individual words (CPR might be a single word)
     for (const line of data.lines) {
       for (const word of line.words) {
         const text = word.text.replace(/[^0-9\-\s]/g, "");
-        CPR_PATTERN.lastIndex = 0;
-        ACCOUNT_PATTERN.lastIndex = 0;
+        const cprMatches = testPattern(CPR_RE, text);
+        const accMatches = testPattern(ACCOUNT_RE, text);
 
-        if (CPR_PATTERN.test(text) || ACCOUNT_PATTERN.test(text)) {
+        if (cprMatches || accMatches) {
           const bbox = word.bbox;
           const pad = 4;
           const rect: RedactionRect = {
@@ -154,7 +151,6 @@ export async function redactSensitiveData(
     console.warn("Tesseract OCR failed — manual review still available:", err);
   }
 
-  // Export redacted canvas
   const base64 = await canvasToBase64(canvas, quality);
   return { base64, mimeType: "image/jpeg", cprCount, accountCount, originalDataUrl, autoRects, width, height };
 }
@@ -217,10 +213,7 @@ function canvasToBase64(canvas: HTMLCanvasElement, quality: number): Promise<str
       (blob) => {
         if (!blob) return reject(new Error("Canvas toBlob failed"));
         const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result as string;
-          resolve(dataUrl.split(",")[1]);
-        };
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
         reader.onerror = () => reject(new Error("FileReader failed"));
         reader.readAsDataURL(blob);
       },

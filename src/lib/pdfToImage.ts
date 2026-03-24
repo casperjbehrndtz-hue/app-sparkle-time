@@ -1,5 +1,5 @@
 /**
- * Convert the first page of a PDF file to a JPEG image File,
+ * Convert the first page of a PDF file to a JPEG image,
  * with CPR numbers and account numbers redacted using native PDF text extraction.
  *
  * Unlike Tesseract OCR, pdf.js text extraction is 100% reliable for digital PDFs
@@ -16,14 +16,15 @@ GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-// Danish CPR: 6 digits, optional separator, 4 digits
-const CPR_PATTERN = /(?<!\d)(\d{2}[\.\s]?\d{2}[\.\s]?\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
-// Bank account: reg.nr (4 digits) + account (6-10 digits)
-const ACCOUNT_PATTERN = /(?<!\d)\d{4}[\s\-\.]?\d{6,10}(?!\d)/g;
+// Danish CPR: DDMMYY-XXXX with valid day (01-31) and month (01-12)
+// Accepts separators: dash, space, dot, slash, or nothing
+const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
+
+// Bank account: reg.nr (4 digits) + separator + account (6-10 digits)
+// Requires a separator to avoid matching arbitrary long numbers
+const ACCOUNT_RE = /(?<!\d)(\d{4})[\s\-\.](\d{6,10})(?!\d)/g;
 
 interface PdfRedactionResult {
-  /** The rendered+redacted image as a File */
-  file: File;
   /** Base64 JPEG (no data: prefix) */
   base64: string;
   /** Redaction rects applied */
@@ -37,6 +38,12 @@ interface PdfRedactionResult {
   height: number;
   /** Original (unredacted) data URL for review */
   originalDataUrl: string;
+}
+
+/** Test a string against a global regex without mutating lastIndex state */
+function testPattern(re: RegExp, text: string): RegExpMatchArray | null {
+  re.lastIndex = 0;
+  return text.match(re);
 }
 
 /**
@@ -70,104 +77,74 @@ export async function pdfToImage(
   let cprCount = 0;
   let accountCount = 0;
 
-  // Build lines by grouping text items with similar Y positions
-  const items = textContent.items.filter((item: any) => item.str && item.str.trim());
+  const items = textContent.items.filter((item: any) => item.str && item.str.trim()) as any[];
 
-  for (const item of items as any[]) {
-    const text = item.str;
-    CPR_PATTERN.lastIndex = 0;
-    ACCOUNT_PATTERN.lastIndex = 0;
+  // Helper: convert a pdf.js text item to a canvas RedactionRect
+  function itemToRect(item: any, pad = 6): RedactionRect {
+    const tx = item.transform;
+    const [x, y] = viewport.convertToViewportPoint(tx[4], tx[5]);
+    const fontHeight = Math.abs(tx[3]) * scale;
+    const textWidth = item.width * scale;
+    return {
+      x: x - pad,
+      y: y - fontHeight - pad,
+      w: textWidth + pad * 2,
+      h: fontHeight + pad * 2,
+    };
+  }
 
-    const hasCpr = CPR_PATTERN.test(text);
-    CPR_PATTERN.lastIndex = 0;
-    const hasAccount = ACCOUNT_PATTERN.test(text);
-    ACCOUNT_PATTERN.lastIndex = 0;
+  // Track which items have been redacted to avoid double-counting
+  const redactedItemIndices = new Set<number>();
 
-    if (hasCpr || hasAccount) {
-      if (hasCpr) {
-        const matches = text.match(CPR_PATTERN);
-        cprCount += matches ? matches.length : 0;
-      }
-      if (hasAccount) {
-        const matches = text.match(ACCOUNT_PATTERN);
-        accountCount += matches ? matches.length : 0;
-      }
+  // Pass 1: check each individual text item
+  for (let i = 0; i < items.length; i++) {
+    const text = items[i].str;
+    const cprMatches = testPattern(CPR_RE, text);
+    const accMatches = testPattern(ACCOUNT_RE, text);
 
-      // pdf.js transform: [scaleX, skewX, skewY, scaleY, translateX, translateY]
-      const tx = item.transform;
-      // Convert PDF coordinates to canvas coordinates using the viewport
-      const [x, y] = viewport.convertToViewportPoint(tx[4], tx[5]);
-      const fontHeight = Math.abs(tx[3]) * scale;
-      const textWidth = item.width * scale;
-
-      const pad = 6;
-      const rect: RedactionRect = {
-        x: x - pad,
-        y: y - fontHeight - pad,
-        w: textWidth + pad * 2,
-        h: fontHeight + pad * 2,
-      };
-      autoRects.push(rect);
+    if (cprMatches || accMatches) {
+      cprCount += cprMatches?.length ?? 0;
+      accountCount += accMatches?.length ?? 0;
+      autoRects.push(itemToRect(items[i]));
+      redactedItemIndices.add(i);
     }
   }
 
-  // Also scan concatenated text of nearby items (CPR might span two text items)
-  // Group items by Y position (within 5px tolerance)
-  const lineGroups = new Map<number, any[]>();
-  for (const item of items as any[]) {
-    const y = Math.round(item.transform[5]);
+  // Pass 2: group items into lines (CPR might span two text items, e.g. "070990" + "-1741")
+  const lineGroups = new Map<number, { items: any[]; indices: number[] }>();
+  for (let i = 0; i < items.length; i++) {
+    const y = Math.round(items[i].transform[5]);
+    // Find existing line group within 5 PDF units
     const key = [...lineGroups.keys()].find(k => Math.abs(k - y) < 5) ?? y;
-    if (!lineGroups.has(key)) lineGroups.set(key, []);
-    lineGroups.get(key)!.push(item);
+    if (!lineGroups.has(key)) lineGroups.set(key, { items: [], indices: [] });
+    const group = lineGroups.get(key)!;
+    group.items.push(items[i]);
+    group.indices.push(i);
   }
 
-  for (const [, lineItems] of lineGroups) {
-    // Sort by X position
-    lineItems.sort((a: any, b: any) => a.transform[4] - b.transform[4]);
-    const lineText = lineItems.map((it: any) => it.str).join(" ");
-    CPR_PATTERN.lastIndex = 0;
-    ACCOUNT_PATTERN.lastIndex = 0;
+  for (const [, group] of lineGroups) {
+    // Skip lines where all items are already redacted
+    if (group.indices.every(i => redactedItemIndices.has(i))) continue;
 
-    const hasCpr = CPR_PATTERN.test(lineText);
-    CPR_PATTERN.lastIndex = 0;
-    const hasAccount = ACCOUNT_PATTERN.test(lineText);
-    ACCOUNT_PATTERN.lastIndex = 0;
+    // Sort by X position and concatenate
+    const sorted = group.items
+      .map((item, j) => ({ item, idx: group.indices[j] }))
+      .sort((a, b) => a.item.transform[4] - b.item.transform[4]);
+    const lineText = sorted.map(s => s.item.str).join(" ");
 
-    if (hasCpr || hasAccount) {
-      // Check if we already have rects for these items
-      const firstItem = lineItems[0];
-      const lastItem = lineItems[lineItems.length - 1];
-      const tx1 = firstItem.transform;
-      const tx2 = lastItem.transform;
+    const cprMatches = testPattern(CPR_RE, lineText);
+    const accMatches = testPattern(ACCOUNT_RE, lineText);
 
-      const [x1, y1] = viewport.convertToViewportPoint(tx1[4], tx1[5]);
-      const [x2] = viewport.convertToViewportPoint(tx2[4], tx2[5]);
-      const fontHeight = Math.abs(tx1[3]) * scale;
-      const endX = x2 + lastItem.width * scale;
+    if (cprMatches || accMatches) {
+      cprCount += cprMatches?.length ?? 0;
+      accountCount += accMatches?.length ?? 0;
 
-      // Check overlap with existing rects
-      const alreadyCovered = autoRects.some(r =>
-        r.y < y1 && r.y + r.h > y1 - fontHeight && r.x < endX && r.x + r.w > x1
-      );
-
-      if (!alreadyCovered) {
-        if (hasCpr) {
-          const matches = lineText.match(CPR_PATTERN);
-          cprCount += matches ? matches.length : 0;
+      // Redact each unredacted item in this line
+      for (const s of sorted) {
+        if (!redactedItemIndices.has(s.idx)) {
+          autoRects.push(itemToRect(s.item));
+          redactedItemIndices.add(s.idx);
         }
-        if (hasAccount) {
-          const matches = lineText.match(ACCOUNT_PATTERN);
-          accountCount += matches ? matches.length : 0;
-        }
-
-        const pad = 6;
-        const rect: RedactionRect = {
-          x: x1 - pad,
-          y: y1 - fontHeight - pad,
-          w: endX - x1 + pad * 2,
-          h: fontHeight + pad * 2,
-        };
-        autoRects.push(rect);
       }
     }
   }
@@ -178,34 +155,19 @@ export async function pdfToImage(
     ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   }
 
-  // Convert to JPEG
+  // Convert to base64 JPEG (single toBlob call)
   const base64 = await new Promise<string>((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
         if (!blob) return reject(new Error("Canvas toBlob failed"));
         const reader = new FileReader();
-        reader.onload = () => {
-          const dataUrl = reader.result as string;
-          resolve(dataUrl.split(",")[1]);
-        };
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
         reader.onerror = () => reject(new Error("FileReader failed"));
         reader.readAsDataURL(blob);
       },
       "image/jpeg",
       quality,
     );
-  });
-
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("Canvas toBlob failed"))),
-      "image/jpeg",
-      quality,
-    );
-  });
-
-  const file = new File([blob], pdfFile.name.replace(/\.pdf$/i, ".jpg"), {
-    type: "image/jpeg",
   });
 
   // Clean up
@@ -215,7 +177,6 @@ export async function pdfToImage(
   console.info(`PDF redaction: ${cprCount} CPR, ${accountCount} account numbers found via text extraction`);
 
   return {
-    file,
     base64,
     autoRects,
     cprCount,

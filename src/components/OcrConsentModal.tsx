@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Shield, Eye, Clock, Trash2, Server, Check, ChevronDown, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -31,6 +31,14 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
   const { t, lang } = useI18n();
   const [understood, setUnderstood] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (open) {
+      setUnderstood(false);
+      setDetailsOpen(false);
+    }
+  }, [open]);
   const da = lang === "da" || lang === "nb";
 
   const docLabel = type === "payslip"
