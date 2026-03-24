@@ -53,7 +53,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Pengetjek() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, consentPreview, consentCprCount, consentAccountCount, processFile, reset } = useBankStatementOCR();
+  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, consentPreview, consentCprCount, consentAccountCount, consentIsPdf, processFile, reset } = useBankStatementOCR();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -290,6 +290,7 @@ export default function Pengetjek() {
         redactedPreview={consentPreview ?? undefined}
         cprCount={consentCprCount}
         accountCount={consentAccountCount}
+        isPdf={consentIsPdf}
         onAccept={onConsentAccept}
         onDecline={onConsentDecline}
       />

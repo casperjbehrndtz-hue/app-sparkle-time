@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Eye, Clock, Trash2, Server, Check } from "lucide-react";
+import { Shield, Eye, Clock, Trash2, Server, Check, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -21,11 +21,13 @@ interface OcrConsentModalProps {
   cprCount?: number;
   /** How many account patterns were auto-redacted */
   accountCount?: number;
+  /** True if the uploaded file is a PDF */
+  isPdf?: boolean;
   onAccept: () => void;
   onDecline: () => void;
 }
 
-const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCount = 0, onAccept, onDecline }: OcrConsentModalProps) => {
+const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCount = 0, isPdf, onAccept, onDecline }: OcrConsentModalProps) => {
   const { t, lang } = useI18n();
   const [understood, setUnderstood] = useState(false);
   const da = lang === "da" || lang === "nb";
@@ -78,9 +80,26 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
           </div>
         )}
 
+        {/* PDF notice */}
+        {isPdf && !redactedPreview && (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+            <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                {da ? "PDF-fil uploadet" : "PDF file uploaded"}
+              </p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                {da
+                  ? "Vi kan ikke vise et preview af PDF'er, og CPR-numre kan ikke auto-sløres i PDF-filer. Sørg selv for at følsomme data er fjernet inden upload."
+                  : "We cannot preview PDFs, and CPR numbers cannot be auto-redacted in PDF files. Make sure sensitive data is removed before uploading."}
+              </p>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3 my-2">
-          {/* CPR auto-redaction — only show if no preview (PDF path) */}
-          {!redactedPreview && (
+          {/* CPR auto-redaction — only show if no preview and not PDF */}
+          {!redactedPreview && !isPdf && (
           <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5 border border-accent/10">
             <Shield className="w-5 h-5 text-accent shrink-0 mt-0.5" />
             <div>

@@ -21,10 +21,11 @@ export function usePayslipOCR() {
 
   // Redaction review state
   const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
-  // Preview base64 shown in consent modal — set explicitly alongside showConsent
+  // Preview shown in consent modal — set explicitly alongside showConsent
   const [consentPreview, setConsentPreview] = useState<string | null>(null);
   const [consentCprCount, setConsentCprCount] = useState(0);
   const [consentAccountCount, setConsentAccountCount] = useState(0);
+  const [consentIsPdf, setConsentIsPdf] = useState(false);
 
   const requestProcessing = useCallback((file: File) => {
     setError(null);
@@ -33,6 +34,7 @@ export function usePayslipOCR() {
     setConsentPreview(null);
     setConsentCprCount(0);
     setConsentAccountCount(0);
+    setConsentIsPdf(false);
 
     // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -83,7 +85,8 @@ export function usePayslipOCR() {
       return;
     }
 
-    // PDFs: no preview possible, go to consent
+    // PDFs: can't redact or preview, but flag it
+    setConsentIsPdf(true);
     setPendingFile(file);
     setShowConsent(true);
   }, []);
@@ -235,6 +238,7 @@ export function usePayslipOCR() {
     setConsentPreview(null);
     setConsentCprCount(0);
     setConsentAccountCount(0);
+    setConsentIsPdf(false);
   }, []);
 
   return {
@@ -252,6 +256,7 @@ export function usePayslipOCR() {
     consentPreview,
     consentCprCount,
     consentAccountCount,
+    consentIsPdf,
     processPayslip: requestProcessing,
     reset,
   };

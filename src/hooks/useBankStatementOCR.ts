@@ -43,6 +43,7 @@ export function useBankStatementOCR() {
   const [consentPreview, setConsentPreview] = useState<string | null>(null);
   const [consentCprCount, setConsentCprCount] = useState(0);
   const [consentAccountCount, setConsentAccountCount] = useState(0);
+  const [consentIsPdf, setConsentIsPdf] = useState(false);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
@@ -52,6 +53,7 @@ export function useBankStatementOCR() {
     setConsentPreview(null);
     setConsentCprCount(0);
     setConsentAccountCount(0);
+    setConsentIsPdf(false);
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
@@ -122,7 +124,8 @@ export function useBankStatementOCR() {
       return;
     }
 
-    // PDFs: no preview possible, go to consent
+    // PDFs: can't redact or preview
+    setConsentIsPdf(true);
     setPendingFile(file);
     setShowConsent(true);
   }, []);
@@ -266,6 +269,7 @@ export function useBankStatementOCR() {
     setConsentPreview(null);
     setConsentCprCount(0);
     setConsentAccountCount(0);
+    setConsentIsPdf(false);
   }, []);
 
   return {
@@ -283,6 +287,7 @@ export function useBankStatementOCR() {
     consentPreview,
     consentCprCount,
     consentAccountCount,
+    consentIsPdf,
     processFile,
     analyzeWithBudget,
     reset,
