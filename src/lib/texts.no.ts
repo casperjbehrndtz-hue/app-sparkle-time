@@ -1405,6 +1405,7 @@ export const NO: Record<string, string> = {
   "ocr.consentPayslip": "L\u00f8nnsslippen din sendes til en AI-tjeneste (Anthropic) i USA for \u00e5 lese tall. Data oppbevares i opptil 7 dager og brukes ikke til trening. Vil du fortsette?",
   "salary.contributeAnonymous": "Bidra anonymt til l\u00f8nnsstatistikk",
   "cpr.redacting": "Sl\u00f8rer personnummer og kontonumre...",
+  "cpr.convertingPdf": "Konverterer PDF til bilde...",
   "payslip.scanning": "AI leser l\u00f8nnsslippen din...",
   "pengetjek.scanning": "AI leser kontoutskriften din...",
 

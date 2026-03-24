@@ -3,6 +3,7 @@ import { parseBankStatementResponse, type BankStatementRaw, type StatementAnalys
 import { parseCSV } from "@/lib/csvParser";
 import { analyzeStatement } from "@/lib/statementAnalyzer";
 import { compressImage } from "@/lib/imageUtils";
+import { pdfToImage } from "@/lib/pdfToImage";
 import { redactSensitiveData, flattenRedaction, terminateRedactWorker, type RedactionResult, type RedactionRect } from "@/lib/cprRedact";
 import type { BudgetProfile } from "@/lib/types";
 
@@ -90,44 +91,54 @@ export function useBankStatementOCR() {
       return;
     }
 
-    // For images: run auto-redaction, then go straight to consent with preview
-    if (file.type !== "application/pdf") {
+    // Convert PDF to image first so it goes through the same redaction+preview flow
+    let imageFile = file;
+    if (file.type === "application/pdf") {
       setIsProcessing(true);
-      setStatusMessage("cpr.redacting");
+      setStatusMessage("cpr.convertingPdf");
       try {
-        const redacted = await redactSensitiveData(file);
-        terminateRedactWorker();
-        if (redacted) {
-          setRedactionReview(redacted);
-          setConsentPreview(redacted.base64);
-          setConsentCprCount(redacted.cprCount);
-          setConsentAccountCount(redacted.accountCount);
-        } else {
-          try {
-            const compressed = await compressImage(file);
-            setConsentPreview(compressed.base64);
-          } catch { /* */ }
-        }
+        imageFile = await pdfToImage(file);
+      } catch (err) {
+        console.error("PDF to image conversion failed:", err);
+        setConsentIsPdf(true);
         setPendingFile(file);
         setShowConsent(true);
-      } catch {
-        try {
-          const compressed = await compressImage(file);
-          setConsentPreview(compressed.base64);
-        } catch { /* truly broken */ }
-        setPendingFile(file);
-        setShowConsent(true);
-      } finally {
         setIsProcessing(false);
         setStatusMessage(null);
+        return;
       }
-      return;
     }
 
-    // PDFs: can't redact or preview
-    setConsentIsPdf(true);
-    setPendingFile(file);
-    setShowConsent(true);
+    // Run auto-redaction + show consent with preview
+    setIsProcessing(true);
+    setStatusMessage("cpr.redacting");
+    try {
+      const redacted = await redactSensitiveData(imageFile);
+      terminateRedactWorker();
+      if (redacted) {
+        setRedactionReview(redacted);
+        setConsentPreview(redacted.base64);
+        setConsentCprCount(redacted.cprCount);
+        setConsentAccountCount(redacted.accountCount);
+      } else {
+        try {
+          const compressed = await compressImage(imageFile);
+          setConsentPreview(compressed.base64);
+        } catch { /* */ }
+      }
+      setPendingFile(file);
+      setShowConsent(true);
+    } catch {
+      try {
+        const compressed = await compressImage(imageFile);
+        setConsentPreview(compressed.base64);
+      } catch { /* truly broken */ }
+      setPendingFile(file);
+      setShowConsent(true);
+    } finally {
+      setIsProcessing(false);
+      setStatusMessage(null);
+    }
   }, []);
 
   const onRedactionApprove = useCallback(

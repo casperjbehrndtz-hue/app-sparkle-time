@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
 import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 import { compressImage } from "@/lib/imageUtils";
+import { pdfToImage } from "@/lib/pdfToImage";
 import { redactSensitiveData, flattenRedaction, terminateRedactWorker, type RedactionResult, type RedactionRect } from "@/lib/cprRedact";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -27,7 +28,7 @@ export function usePayslipOCR() {
   const [consentAccountCount, setConsentAccountCount] = useState(0);
   const [consentIsPdf, setConsentIsPdf] = useState(false);
 
-  const requestProcessing = useCallback((file: File) => {
+  const requestProcessing = useCallback(async (file: File) => {
     setError(null);
     setResult(null);
     setRedactionReview(null);
@@ -49,46 +50,57 @@ export function usePayslipOCR() {
       return;
     }
 
-    // For images: run auto-redaction, then go straight to consent with preview
-    if (file.type !== "application/pdf") {
+    // Convert PDF to image first so it goes through the same redaction+preview flow
+    let imageFile = file;
+    if (file.type === "application/pdf") {
       setIsProcessing(true);
-      setStatusMessage("cpr.redacting");
-      redactSensitiveData(file)
-        .then(async (redacted) => {
-          terminateRedactWorker();
-          if (redacted) {
-            setRedactionReview(redacted);
-            setConsentPreview(redacted.base64);
-            setConsentCprCount(redacted.cprCount);
-            setConsentAccountCount(redacted.accountCount);
-          } else {
-            try {
-              const compressed = await compressImage(file);
-              setConsentPreview(compressed.base64);
-            } catch { /* */ }
-          }
-          setPendingFile(file);
-          setShowConsent(true);
-        })
-        .catch(async () => {
-          try {
-            const compressed = await compressImage(file);
-            setConsentPreview(compressed.base64);
-          } catch { /* truly broken */ }
-          setPendingFile(file);
-          setShowConsent(true);
-        })
-        .finally(() => {
-          setIsProcessing(false);
-          setStatusMessage(null);
-        });
-      return;
+      setStatusMessage("cpr.convertingPdf");
+      try {
+        imageFile = await pdfToImage(file);
+      } catch (err) {
+        console.error("PDF to image conversion failed:", err);
+        // Fallback: show consent without preview
+        setConsentIsPdf(true);
+        setPendingFile(file);
+        setShowConsent(true);
+        setIsProcessing(false);
+        setStatusMessage(null);
+        return;
+      }
     }
 
-    // PDFs: can't redact or preview, but flag it
-    setConsentIsPdf(true);
-    setPendingFile(file);
-    setShowConsent(true);
+    // Run auto-redaction + show consent with preview
+    setIsProcessing(true);
+    setStatusMessage("cpr.redacting");
+    redactSensitiveData(imageFile)
+      .then(async (redacted) => {
+        terminateRedactWorker();
+        if (redacted) {
+          setRedactionReview(redacted);
+          setConsentPreview(redacted.base64);
+          setConsentCprCount(redacted.cprCount);
+          setConsentAccountCount(redacted.accountCount);
+        } else {
+          try {
+            const compressed = await compressImage(imageFile);
+            setConsentPreview(compressed.base64);
+          } catch { /* */ }
+        }
+        setPendingFile(file);
+        setShowConsent(true);
+      })
+      .catch(async () => {
+        try {
+          const compressed = await compressImage(imageFile);
+          setConsentPreview(compressed.base64);
+        } catch { /* truly broken */ }
+        setPendingFile(file);
+        setShowConsent(true);
+      })
+      .finally(() => {
+        setIsProcessing(false);
+        setStatusMessage(null);
+      });
   }, []);
 
   const onRedactionApprove = useCallback(
