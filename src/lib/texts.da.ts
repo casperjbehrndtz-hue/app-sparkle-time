@@ -1407,6 +1407,9 @@ export const DA: Record<string, string> = {
   "ocr.consent": "Dit kontoudtog sendes til en AI-tjeneste (Anthropic) i USA for at afl\u00e6se transaktioner. Data opbevares i op til 7 dage og bruges ikke til tr\u00e6ning. Vil du forts\u00e6tte?",
   "ocr.consentPayslip": "Din l\u00f8nseddel sendes til en AI-tjeneste (Anthropic) i USA for at afl\u00e6se tal. Data opbevares i op til 7 dage og bruges ikke til tr\u00e6ning. Vil du forts\u00e6tte?",
   "salary.contributeAnonymous": "Bidrag anonymt til l\u00f8nstatistik",
+  "cpr.redacting": "Sl\u00f8rer CPR og kontonumre...",
+  "payslip.scanning": "AI l\u00e6ser din l\u00f8nseddel...",
+  "pengetjek.scanning": "AI l\u00e6ser dit kontoudtog...",
 
   // GDPR
   "gdpr.section": "Privatliv & data",

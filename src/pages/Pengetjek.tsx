@@ -4,6 +4,7 @@ import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Smartphone, Bo
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useBankStatementOCR } from "@/hooks/useBankStatementOCR";
+import OcrConsentModal from "@/components/OcrConsentModal";
 import { PengetjekResult } from "@/components/pengetjek/PengetjekResult";
 import type { BudgetProfile } from "@/lib/types";
 
@@ -52,7 +53,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Pengetjek() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { analysis, raw, isProcessing, error, processFile, reset } = useBankStatementOCR();
+  const { analysis, raw, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, processFile, reset } = useBankStatementOCR();
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -283,6 +284,12 @@ export default function Pengetjek() {
           </>
         )}
       </div>
+      <OcrConsentModal
+        open={showConsent}
+        type="bank"
+        onAccept={onConsentAccept}
+        onDecline={onConsentDecline}
+      />
     </main>
   );
 }

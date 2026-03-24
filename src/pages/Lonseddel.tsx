@@ -4,6 +4,7 @@ import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard, Sma
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
+import OcrConsentModal from "@/components/OcrConsentModal";
 import { PayslipVerification } from "@/components/payslip/PayslipVerification";
 import { PayslipResult } from "@/components/payslip/PayslipResult";
 import { payslipToProfile } from "@/lib/payslipTypes";
@@ -62,7 +63,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Lonseddel() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { result: ocrResult, diagnostics, isProcessing, error, processPayslip, reset: ocrReset } = usePayslipOCR();
+  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, processPayslip, reset: ocrReset } = usePayslipOCR();
   const [confirmedResult, setConfirmedResult] = useState<ExtractedPayslip | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -258,6 +259,12 @@ export default function Lonseddel() {
           </>
         )}
       </div>
+      <OcrConsentModal
+        open={showConsent}
+        type="payslip"
+        onAccept={onConsentAccept}
+        onDecline={onConsentDecline}
+      />
     </main>
   );
 }

@@ -2,20 +2,24 @@ import { useState, useCallback } from "react";
 import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
 import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 import { compressImage } from "@/lib/imageUtils";
-import { useI18n } from "@/lib/i18n";
+import { redactSensitiveData, terminateRedactWorker } from "@/lib/cprRedact";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function usePayslipOCR() {
-  const { t } = useI18n();
   const [result, setResult] = useState<ExtractedPayslip | null>(null);
   const [diagnostics, setDiagnostics] = useState<ReconciliationDiagnostics | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  const processPayslip = useCallback(async (file: File) => {
+  // Consent state — caller renders OcrConsentModal
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [showConsent, setShowConsent] = useState(false);
+
+  const requestProcessing = useCallback((file: File) => {
     setError(null);
     setResult(null);
 
@@ -32,15 +36,56 @@ export function usePayslipOCR() {
       return;
     }
 
-    // GDPR consent: user must confirm before sending to AI service
-    if (!window.confirm(t("ocr.consentPayslip"))) {
-      return;
-    }
+    // Show consent modal
+    setPendingFile(file);
+    setShowConsent(true);
+  }, []);
+
+  const onConsentDecline = useCallback(() => {
+    setPendingFile(null);
+    setShowConsent(false);
+  }, []);
+
+  const onConsentAccept = useCallback(async () => {
+    const file = pendingFile;
+    setShowConsent(false);
+    setPendingFile(null);
+    if (!file) return;
 
     setIsProcessing(true);
 
     try {
-      const { base64, mimeType } = await compressImage(file);
+      let base64: string;
+      let mimeType: string;
+
+      // Step 1: Client-side CPR redaction (images only)
+      if (file.type !== "application/pdf") {
+        setStatusMessage("cpr.redacting");
+        const redacted = await redactSensitiveData(file);
+        if (redacted) {
+          base64 = redacted.base64;
+          mimeType = redacted.mimeType;
+          if (redacted.cprCount > 0 || redacted.accountCount > 0) {
+            console.info(
+              `CPR redaction: removed ${redacted.cprCount} CPR pattern(s), ${redacted.accountCount} account pattern(s)`,
+            );
+          }
+          // Free memory
+          terminateRedactWorker();
+        } else {
+          // Fallback if redaction fails
+          const compressed = await compressImage(file);
+          base64 = compressed.base64;
+          mimeType = compressed.mimeType;
+        }
+      } else {
+        const compressed = await compressImage(file);
+        base64 = compressed.base64;
+        mimeType = compressed.mimeType;
+      }
+
+      // Step 2: Send redacted image to AI
+      setStatusMessage("payslip.scanning");
 
       const callOCR = async (): Promise<Response> => {
         return fetch(`${SUPABASE_URL}/functions/v1/payslip-ocr`, {
@@ -106,15 +151,28 @@ export function usePayslipOCR() {
       setError(detail ? `Fejl: ${detail}` : "payslip.error.readFailed");
     } finally {
       setIsProcessing(false);
+      setStatusMessage(null);
     }
-  }, []);
+  }, [pendingFile]);
 
   const reset = useCallback(() => {
     setResult(null);
     setDiagnostics(null);
     setError(null);
     setIsProcessing(false);
+    setStatusMessage(null);
   }, []);
 
-  return { result, diagnostics, isProcessing, error, processPayslip, reset };
+  return {
+    result,
+    diagnostics,
+    isProcessing,
+    error,
+    statusMessage,
+    showConsent,
+    onConsentAccept,
+    onConsentDecline,
+    processPayslip: requestProcessing,
+    reset,
+  };
 }

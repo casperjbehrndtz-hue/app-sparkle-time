@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronDown, Plus, X, Info, Sparkles, Upload, Loader2, CheckCircle2 } from "lucide-react";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
+import OcrConsentModal from "@/components/OcrConsentModal";
 import { payslipToProfile } from "@/lib/payslipTypes";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -999,6 +1000,12 @@ export function OnboardingFlow({ onComplete, initialProfile }: Props) {
         </AnimatePresence>
       </div>
       {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "fixed" ? goNext : undefined} />}
+      <OcrConsentModal
+        open={payslipOCR.showConsent}
+        type="payslip"
+        onAccept={payslipOCR.onConsentAccept}
+        onDecline={payslipOCR.onConsentDecline}
+      />
     </div>
   );
 }

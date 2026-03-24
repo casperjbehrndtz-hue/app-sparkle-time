@@ -1405,6 +1405,9 @@ export const EN: Record<string, string> = {
   "ocr.consent": "Your bank statement will be sent to an AI service (Anthropic) in the US to read transactions. Data is kept for up to 7 days and is not used for training. Continue?",
   "ocr.consentPayslip": "Your payslip will be sent to an AI service (Anthropic) in the US to read data. Data is kept for up to 7 days and is not used for training. Continue?",
   "salary.contributeAnonymous": "Contribute anonymously to salary statistics",
+  "cpr.redacting": "Redacting CPR and account numbers...",
+  "payslip.scanning": "AI is reading your payslip...",
+  "pengetjek.scanning": "AI is reading your bank statement...",
 
   // GDPR
   "gdpr.section": "Privacy & data",

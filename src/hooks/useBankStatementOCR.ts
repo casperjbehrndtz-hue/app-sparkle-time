@@ -3,7 +3,7 @@ import { parseBankStatementResponse, type BankStatementRaw, type StatementAnalys
 import { parseCSV } from "@/lib/csvParser";
 import { analyzeStatement } from "@/lib/statementAnalyzer";
 import { compressImage } from "@/lib/imageUtils";
-import { useI18n } from "@/lib/i18n";
+import { redactSensitiveData, terminateRedactWorker } from "@/lib/cprRedact";
 import type { BudgetProfile } from "@/lib/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -23,17 +23,20 @@ async function readFileAsText(file: File): Promise<string> {
 function isCSV(file: File): boolean {
   if (file.type === "text/csv" || file.type === "application/csv") return true;
   if (file.name.toLowerCase().endsWith(".csv")) return true;
-  // Also detect TSV / semicolon-separated
   if (file.name.toLowerCase().endsWith(".tsv")) return true;
   return false;
 }
 
 export function useBankStatementOCR() {
-  const { t } = useI18n();
   const [raw, setRaw] = useState<BankStatementRaw | null>(null);
   const [analysis, setAnalysis] = useState<StatementAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  // Consent state — caller renders OcrConsentModal
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [showConsent, setShowConsent] = useState(false);
 
   const processFile = useCallback(async (file: File) => {
     setError(null);
@@ -46,11 +49,10 @@ export function useBankStatementOCR() {
       return;
     }
 
-    setIsProcessing(true);
-
-    try {
-      // ── CSV path: parse client-side (free, no AI) ──
-      if (isCSV(file)) {
+    // ── CSV path: parse client-side (free, no AI, no consent needed) ──
+    if (isCSV(file)) {
+      setIsProcessing(true);
+      try {
         const content = await readFileAsText(file);
         const parsed = parseCSV(content);
 
@@ -61,22 +63,69 @@ export function useBankStatementOCR() {
 
         setRaw(parsed);
         setAnalysis(analyzeStatement(parsed));
-        return;
+      } catch {
+        setError("pengetjek.error.csvParseFailed");
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
+
+    // ── Image/PDF path: needs consent ──
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+    if (!validTypes.includes(file.type)) {
+      setError("pengetjek.error.invalidType");
+      return;
+    }
+
+    // Show consent modal
+    setPendingFile(file);
+    setShowConsent(true);
+  }, []);
+
+  const onConsentDecline = useCallback(() => {
+    setPendingFile(null);
+    setShowConsent(false);
+  }, []);
+
+  const onConsentAccept = useCallback(async () => {
+    const file = pendingFile;
+    setShowConsent(false);
+    setPendingFile(null);
+    if (!file) return;
+
+    setIsProcessing(true);
+
+    try {
+      let base64: string;
+      let mimeType: string;
+
+      // Step 1: Client-side CPR redaction (images only)
+      if (file.type !== "application/pdf") {
+        setStatusMessage("cpr.redacting");
+        const redacted = await redactSensitiveData(file);
+        if (redacted) {
+          base64 = redacted.base64;
+          mimeType = redacted.mimeType;
+          if (redacted.cprCount > 0 || redacted.accountCount > 0) {
+            console.info(
+              `CPR redaction: removed ${redacted.cprCount} CPR pattern(s), ${redacted.accountCount} account pattern(s)`,
+            );
+          }
+          terminateRedactWorker();
+        } else {
+          const compressed = await compressImage(file);
+          base64 = compressed.base64;
+          mimeType = compressed.mimeType;
+        }
+      } else {
+        const compressed = await compressImage(file);
+        base64 = compressed.base64;
+        mimeType = compressed.mimeType;
       }
 
-      // ── Image/PDF path: send to edge function ──
-      const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-      if (!validTypes.includes(file.type)) {
-        setError("pengetjek.error.invalidType");
-        return;
-      }
-
-      // GDPR consent: user must confirm before sending to AI service
-      if (!window.confirm(t("ocr.consent"))) {
-        return;
-      }
-
-      const { base64, mimeType } = await compressImage(file);
+      // Step 2: Send redacted image to AI
+      setStatusMessage("pengetjek.scanning");
 
       const callOCR = async (): Promise<Response> => {
         return fetch(`${SUPABASE_URL}/functions/v1/bank-statement-ocr`, {
@@ -132,8 +181,9 @@ export function useBankStatementOCR() {
       setError(detail ? `Fejl: ${detail}` : "pengetjek.error.readFailed");
     } finally {
       setIsProcessing(false);
+      setStatusMessage(null);
     }
-  }, []);
+  }, [pendingFile]);
 
   /** Re-run analysis with budget profile for comparison */
   const analyzeWithBudget = useCallback((profile: BudgetProfile) => {
@@ -146,7 +196,20 @@ export function useBankStatementOCR() {
     setAnalysis(null);
     setError(null);
     setIsProcessing(false);
+    setStatusMessage(null);
   }, []);
 
-  return { raw, analysis, isProcessing, error, processFile, analyzeWithBudget, reset };
+  return {
+    raw,
+    analysis,
+    isProcessing,
+    error,
+    statusMessage,
+    showConsent,
+    onConsentAccept,
+    onConsentDecline,
+    processFile,
+    analyzeWithBudget,
+    reset,
+  };
 }
