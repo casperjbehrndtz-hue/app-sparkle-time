@@ -84,53 +84,29 @@ export async function redactSensitiveData(
   // Save original image as data URL for review step
   const originalDataUrl = canvas.toDataURL("image/jpeg", quality);
 
-  // Run Tesseract OCR client-side to find text + bounding boxes
-  const worker = await getWorker();
-  const { data } = await worker.recognize(canvas);
-
   let cprCount = 0;
   let accountCount = 0;
   const autoRects: RedactionRect[] = [];
 
-  // Check each word for sensitive patterns
-  for (const line of data.lines) {
-    const lineText = line.words.map((w) => w.text).join(" ");
+  // Run Tesseract OCR — if it fails, still return image for manual review
+  try {
+    const worker = await getWorker();
+    const { data } = await worker.recognize(canvas);
 
-    // Check for CPR in the full line text (catches split across words)
-    if (CPR_PATTERN.test(lineText) || ACCOUNT_PATTERN.test(lineText)) {
-      CPR_PATTERN.lastIndex = 0;
-      ACCOUNT_PATTERN.lastIndex = 0;
+    // Check each word for sensitive patterns
+    for (const line of data.lines) {
+      const lineText = line.words.map((w) => w.text).join(" ");
 
-      // Count matches
-      const cprMatches = lineText.match(CPR_PATTERN);
-      const accMatches = lineText.match(ACCOUNT_PATTERN);
-      if (cprMatches) cprCount += cprMatches.length;
-      if (accMatches) accountCount += accMatches.length;
+      if (CPR_PATTERN.test(lineText) || ACCOUNT_PATTERN.test(lineText)) {
+        CPR_PATTERN.lastIndex = 0;
+        ACCOUNT_PATTERN.lastIndex = 0;
 
-      // Black out the entire line's bounding box (safer than per-word)
-      const bbox = line.bbox;
-      const pad = 4;
-      const rect: RedactionRect = {
-        x: bbox.x0 - pad,
-        y: bbox.y0 - pad,
-        w: bbox.x1 - bbox.x0 + pad * 2,
-        h: bbox.y1 - bbox.y0 + pad * 2,
-      };
-      autoRects.push(rect);
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-    }
-  }
+        const cprMatches = lineText.match(CPR_PATTERN);
+        const accMatches = lineText.match(ACCOUNT_PATTERN);
+        if (cprMatches) cprCount += cprMatches.length;
+        if (accMatches) accountCount += accMatches.length;
 
-  // Also check individual words for partial matches
-  for (const line of data.lines) {
-    for (const word of line.words) {
-      const text = word.text.replace(/[^0-9\-\s]/g, ""); // digits only
-      CPR_PATTERN.lastIndex = 0;
-      ACCOUNT_PATTERN.lastIndex = 0;
-
-      if (CPR_PATTERN.test(text) || ACCOUNT_PATTERN.test(text)) {
-        const bbox = word.bbox;
+        const bbox = line.bbox;
         const pad = 4;
         const rect: RedactionRect = {
           x: bbox.x0 - pad,
@@ -141,9 +117,33 @@ export async function redactSensitiveData(
         autoRects.push(rect);
         ctx.fillStyle = "#000000";
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        // Don't double-count — already counted at line level
       }
     }
+
+    // Also check individual words for partial matches
+    for (const line of data.lines) {
+      for (const word of line.words) {
+        const text = word.text.replace(/[^0-9\-\s]/g, "");
+        CPR_PATTERN.lastIndex = 0;
+        ACCOUNT_PATTERN.lastIndex = 0;
+
+        if (CPR_PATTERN.test(text) || ACCOUNT_PATTERN.test(text)) {
+          const bbox = word.bbox;
+          const pad = 4;
+          const rect: RedactionRect = {
+            x: bbox.x0 - pad,
+            y: bbox.y0 - pad,
+            w: bbox.x1 - bbox.x0 + pad * 2,
+            h: bbox.y1 - bbox.y0 + pad * 2,
+          };
+          autoRects.push(rect);
+          ctx.fillStyle = "#000000";
+          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Tesseract OCR failed — manual review still available:", err);
   }
 
   // Export redacted canvas

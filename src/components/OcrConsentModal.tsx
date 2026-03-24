@@ -20,9 +20,9 @@ interface OcrConsentModalProps {
 }
 
 const OcrConsentModal = ({ open, type, onAccept, onDecline }: OcrConsentModalProps) => {
-  const { t, locale } = useI18n();
+  const { t, lang } = useI18n();
   const [understood, setUnderstood] = useState(false);
-  const da = locale === "da" || locale === "no";
+  const da = lang === "da" || lang === "nb";
 
   const docLabel = type === "payslip"
     ? (da ? "din lønseddel" : "your payslip")

@@ -156,7 +156,7 @@ export default function Pengetjek() {
 
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
         {/* Title — marketing on landing */}
-        {!analysis && !isProcessing && (
+        {!analysis && !isProcessing && !redactionReview && (
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold tracking-tight">{t("pengetjek.landing.headline")}</h1>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("pengetjek.landing.subheadline")}</p>
@@ -164,7 +164,7 @@ export default function Pengetjek() {
         )}
 
         {/* State: Upload */}
-        {!analysis && !isProcessing && (
+        {!analysis && !isProcessing && !redactionReview && (
           <>
             <div
               role="button"

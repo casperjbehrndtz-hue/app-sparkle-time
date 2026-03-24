@@ -137,7 +137,7 @@ export default function Lonseddel() {
 
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6">
         {/* Title — marketing on landing, data-focused on result */}
-        {!ocrResult && !confirmedResult && (
+        {!ocrResult && !confirmedResult && !redactionReview && (
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold tracking-tight">{t("payslip.landing.headline")}</h1>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t("payslip.landing.subheadline")}</p>
@@ -146,7 +146,7 @@ export default function Lonseddel() {
         )}
 
         {/* State: Upload */}
-        {!ocrResult && !confirmedResult && !isProcessing && (
+        {!ocrResult && !confirmedResult && !isProcessing && !redactionReview && (
           <>
             <div
               role="button"
