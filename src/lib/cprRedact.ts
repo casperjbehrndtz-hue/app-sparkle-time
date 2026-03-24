@@ -1,19 +1,26 @@
 /**
- * Client-side CPR number detection and redaction.
+ * Client-side sensitive data detection and redaction for images.
  *
  * Uses Tesseract.js (WASM) to run OCR entirely in the browser,
- * finds Danish CPR patterns (DDMMYY-XXXX), and paints black
- * rectangles over them on a canvas before the image is sent anywhere.
- *
- * Also redacts bank account numbers (reg.nr + account) for safety.
+ * finds Danish CPR patterns, names, addresses, account numbers,
+ * and paints black rectangles over them before the image is sent anywhere.
  */
 import { createWorker, type Worker } from "tesseract.js";
 
 // Danish CPR: DDMMYY-XXXX with valid day (01-31) and month (01-12)
-const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
+const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/;
 
 // Bank account: reg.nr (4 digits) + separator + account (6-10 digits)
-const ACCOUNT_RE = /(?<!\d)(\d{4})[\s\-\.](\d{6,10})(?!\d)/g;
+const ACCOUNT_RE = /(?<!\d)\d{4}[\s\-\.]\d{6,10}(?!\d)/;
+
+// Danish postal code: 4 digits + space + capitalized city name
+const POSTAL_RE = /(?<!\d)\d{4}\s+[A-ZÆØÅ]/;
+
+// Labels that mark sensitive fields
+const SENSITIVE_LABELS = /\b(CPR|Lønnr|Lønr|Medarb\.?nr|NemKonto|Lønkonto|Bankkonto|Konto\s*nr|SE[\-\s]?nr|SE[\-\s]?nummer|Personnr|Personale\s*nr)\b/i;
+
+// Labels that indicate safe financial data (don't redact)
+const SAFE_LABELS = /\b(Månedsløn|Bruttoløn|Nettoløn|A-skat|AM-bidrag|ATP|Pension|Feriepenge|Fradrag|Skat|Indkomst|Disposition|Supplerende|periode|Side\s*:?\s*\d|Firmabidrag|solidarisk|helbreds|År til dato|Ferie)/i;
 
 let workerInstance: Worker | null = null;
 
@@ -26,12 +33,6 @@ async function getWorker(): Promise<Worker> {
   return workerInstance;
 }
 
-/** Test a string against a global regex without mutating lastIndex state */
-function testPattern(re: RegExp, text: string): RegExpMatchArray | null {
-  re.lastIndex = 0;
-  return text.match(re);
-}
-
 export interface RedactionRect {
   x: number;
   y: number;
@@ -40,26 +41,20 @@ export interface RedactionRect {
 }
 
 export interface RedactionResult {
-  /** Base64 of the redacted image (JPEG, no data: prefix) */
   base64: string;
   mimeType: "image/jpeg";
-  /** Number of CPR patterns found and redacted */
   cprCount: number;
-  /** Number of account patterns found and redacted */
   accountCount: number;
-  /** Original image as data URL (before redaction) for review canvas */
+  /** Total sensitive lines redacted */
+  redactionCount: number;
   originalDataUrl: string;
-  /** Bounding boxes of auto-redacted regions */
   autoRects: RedactionRect[];
-  /** Canvas dimensions */
   width: number;
   height: number;
 }
 
 /**
- * Detects and blacks out CPR numbers and bank account numbers
- * from an image, entirely client-side.
- *
+ * Detects and blacks out sensitive personal data from an image.
  * For PDFs, returns null — use pdfToImage() instead.
  */
 export async function redactSensitiveData(
@@ -95,64 +90,70 @@ export async function redactSensitiveData(
   let cprCount = 0;
   let accountCount = 0;
   const autoRects: RedactionRect[] = [];
+  const sensitiveLineIndices = new Set<number>();
 
-  // Run Tesseract OCR — if it fails, still return image for manual review
   try {
     const worker = await getWorker();
     const { data } = await worker.recognize(canvas);
 
-    // Check each line for sensitive patterns
-    for (const line of data.lines) {
-      const lineText = line.words.map((w) => w.text).join(" ");
-      const cprMatches = testPattern(CPR_RE, lineText);
-      const accMatches = testPattern(ACCOUNT_RE, lineText);
+    // Classify each line
+    for (let i = 0; i < data.lines.length; i++) {
+      const lineText = data.lines[i].words.map((w) => w.text).join(" ");
 
-      if (cprMatches || accMatches) {
-        cprCount += cprMatches?.length ?? 0;
-        accountCount += accMatches?.length ?? 0;
+      // Skip safe financial lines
+      if (SAFE_LABELS.test(lineText)) continue;
 
-        const bbox = line.bbox;
-        const pad = 4;
-        const rect: RedactionRect = {
-          x: bbox.x0 - pad,
-          y: bbox.y0 - pad,
-          w: bbox.x1 - bbox.x0 + pad * 2,
-          h: bbox.y1 - bbox.y0 + pad * 2,
-        };
-        autoRects.push(rect);
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+      let isSensitive = false;
+
+      if (CPR_RE.test(lineText)) { cprCount++; isSensitive = true; }
+      if (ACCOUNT_RE.test(lineText)) { accountCount++; isSensitive = true; }
+      if (SENSITIVE_LABELS.test(lineText)) isSensitive = true;
+      if (POSTAL_RE.test(lineText)) isSensitive = true;
+
+      if (isSensitive) sensitiveLineIndices.add(i);
+    }
+
+    // Expand: redact name/address lines above sensitive anchors
+    const expanded = new Set(sensitiveLineIndices);
+    for (const idx of sensitiveLineIndices) {
+      const lineText = data.lines[idx].words.map((w) => w.text).join(" ");
+      if (CPR_RE.test(lineText) || POSTAL_RE.test(lineText) || SENSITIVE_LABELS.test(lineText)) {
+        for (let above = 1; above <= 3; above++) {
+          const aboveIdx = idx - above;
+          if (aboveIdx < 0) break;
+          const aboveText = data.lines[aboveIdx].words.map((w) => w.text).join(" ");
+          if (SAFE_LABELS.test(aboveText)) break;
+          if (/\b(A\/S|ApS|I\/S|K\/S|P\/S|Holding|Inc\.|Ltd\.)\b/i.test(aboveText)) break;
+          expanded.add(aboveIdx);
+        }
       }
     }
 
-    // Also check individual words (CPR might be a single word)
-    for (const line of data.lines) {
-      for (const word of line.words) {
-        const text = word.text.replace(/[^0-9\-\s]/g, "");
-        const cprMatches = testPattern(CPR_RE, text);
-        const accMatches = testPattern(ACCOUNT_RE, text);
-
-        if (cprMatches || accMatches) {
-          const bbox = word.bbox;
-          const pad = 4;
-          const rect: RedactionRect = {
-            x: bbox.x0 - pad,
-            y: bbox.y0 - pad,
-            w: bbox.x1 - bbox.x0 + pad * 2,
-            h: bbox.y1 - bbox.y0 + pad * 2,
-          };
-          autoRects.push(rect);
-          ctx.fillStyle = "#000000";
-          ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-        }
-      }
+    // Draw black rectangles over all sensitive lines
+    ctx.fillStyle = "#000000";
+    for (const idx of expanded) {
+      const line = data.lines[idx];
+      const bbox = line.bbox;
+      const pad = 4;
+      const rect: RedactionRect = {
+        x: bbox.x0 - pad,
+        y: bbox.y0 - pad,
+        w: bbox.x1 - bbox.x0 + pad * 2,
+        h: bbox.y1 - bbox.y0 + pad * 2,
+      };
+      autoRects.push(rect);
+      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
     }
   } catch (err) {
     console.warn("Tesseract OCR failed — manual review still available:", err);
   }
 
   const base64 = await canvasToBase64(canvas, quality);
-  return { base64, mimeType: "image/jpeg", cprCount, accountCount, originalDataUrl, autoRects, width, height };
+  return {
+    base64, mimeType: "image/jpeg", cprCount, accountCount,
+    redactionCount: autoRects.length,
+    originalDataUrl, autoRects, width, height,
+  };
 }
 
 /** Terminate the Tesseract worker to free memory */
@@ -164,8 +165,7 @@ export async function terminateRedactWorker(): Promise<void> {
 }
 
 /**
- * Renders the original image with auto + manual redaction rects
- * and returns the final base64 JPEG.
+ * Renders the original image with auto + manual redaction rects.
  */
 export async function flattenRedaction(
   originalDataUrl: string,

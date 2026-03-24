@@ -1,55 +1,57 @@
 /**
  * Convert the first page of a PDF file to a JPEG image,
- * with CPR numbers and account numbers redacted using native PDF text extraction.
+ * with ALL personal data redacted using native PDF text extraction.
  *
- * Unlike Tesseract OCR, pdf.js text extraction is 100% reliable for digital PDFs
- * because it reads the actual text data from the PDF structure.
+ * Redacts: CPR numbers, names, addresses, employee IDs, account numbers,
+ * SE-numbers — everything that isn't salary/deduction amounts.
  */
 
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import type { RedactionRect } from "./cprRedact";
 
-// Use the bundled worker from pdfjs-dist
 GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url,
 ).toString();
 
-// Danish CPR: DDMMYY-XXXX with valid day (01-31) and month (01-12)
-// Accepts separators: dash, space, dot, slash, or nothing
-const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/g;
+// ── Detection patterns ──
+
+// Danish CPR: DDMMYY-XXXX with valid day/month
+const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/;
 
 // Bank account: reg.nr (4 digits) + separator + account (6-10 digits)
-// Requires a separator to avoid matching arbitrary long numbers
-const ACCOUNT_RE = /(?<!\d)(\d{4})[\s\-\.](\d{6,10})(?!\d)/g;
+const ACCOUNT_RE = /(?<!\d)\d{4}[\s\-\.]\d{6,10}(?!\d)/;
+
+// Danish postal code: 4 digits + space + capitalized city name
+const POSTAL_RE = /(?<!\d)\d{4}\s+[A-ZÆØÅ]/;
+
+// Labels that mark sensitive fields (case-insensitive)
+const SENSITIVE_LABELS = /\b(CPR|Lønnr|Lønr|Medarb\.?nr|NemKonto|Lønkonto|Bankkonto|Konto\s*nr|SE[\-\s]?nr|SE[\-\s]?nummer|Personnr|Personale\s*nr)\b/i;
+
+// Labels that indicate the line contains ONLY financial data (safe to keep)
+const SAFE_LABELS = /\b(Månedsløn|Bruttoløn|Nettoløn|A-skat|AM-bidrag|ATP|Pension|Feriepenge|Fradrag|Skat|Indkomst|Disposition|Supplerende|periode|Side\s*:?\s*\d|Firmabidrag|solidarisk|helbreds|År til dato|Ferie)/i;
 
 interface PdfRedactionResult {
-  /** Base64 JPEG (no data: prefix) */
   base64: string;
-  /** Redaction rects applied */
   autoRects: RedactionRect[];
-  /** Number of CPR patterns found */
+  /** Total number of sensitive fields redacted */
+  redactionCount: number;
   cprCount: number;
-  /** Number of account patterns found */
   accountCount: number;
-  /** Canvas dimensions */
   width: number;
   height: number;
-  /** Original (unredacted) data URL for review */
   originalDataUrl: string;
 }
 
-/** Test a string against a global regex without mutating lastIndex state */
-function testPattern(re: RegExp, text: string): RegExpMatchArray | null {
-  re.lastIndex = 0;
-  return text.match(re);
+interface LineGroup {
+  items: any[];
+  indices: number[];
+  text: string;
+  /** Average Y position in PDF coordinates */
+  pdfY: number;
 }
 
-/**
- * Renders the first page of a PDF to a JPEG, redacting CPR and account numbers.
- * Uses pdf.js native text extraction — no OCR needed, 100% reliable for digital PDFs.
- */
 export async function pdfToImage(
   pdfFile: File,
   scale = 3,
@@ -68,18 +70,104 @@ export async function pdfToImage(
   const ctx = canvas.getContext("2d")!;
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-  // Save original before redaction
   const originalDataUrl = canvas.toDataURL("image/jpeg", quality);
 
-  // Extract text with positions from PDF structure (not OCR!)
+  // ── Extract text + build lines ──
   const textContent = await page.getTextContent();
-  const autoRects: RedactionRect[] = [];
+  const items = textContent.items.filter((item: any) => item.str && item.str.trim()) as any[];
+
+  // Group items into lines by Y position (within 3 PDF units)
+  const lineMap = new Map<number, LineGroup>();
+  for (let i = 0; i < items.length; i++) {
+    const y = Math.round(items[i].transform[5]);
+    const key = [...lineMap.keys()].find(k => Math.abs(k - y) < 3) ?? y;
+    if (!lineMap.has(key)) lineMap.set(key, { items: [], indices: [], text: "", pdfY: y });
+    const group = lineMap.get(key)!;
+    group.items.push(items[i]);
+    group.indices.push(i);
+  }
+
+  // Sort lines top-to-bottom (highest PDF Y = top of page)
+  const lines = [...lineMap.values()].sort((a, b) => b.pdfY - a.pdfY);
+
+  // Build concatenated text per line (sorted left-to-right)
+  for (const line of lines) {
+    line.items.sort((a: any, b: any) => a.transform[4] - b.transform[4]);
+    line.text = line.items.map((it: any) => it.str).join(" ");
+  }
+
+  // ── Detect sensitive lines ──
+  const sensitiveLines = new Set<number>(); // indices into `lines` array
   let cprCount = 0;
   let accountCount = 0;
 
-  const items = textContent.items.filter((item: any) => item.str && item.str.trim()) as any[];
+  for (let i = 0; i < lines.length; i++) {
+    const text = lines[i].text;
 
-  // Helper: convert a pdf.js text item to a canvas RedactionRect
+    // Skip lines that are clearly safe financial data
+    if (SAFE_LABELS.test(text)) continue;
+
+    let isSensitive = false;
+
+    // CPR pattern
+    if (CPR_RE.test(text)) {
+      cprCount++;
+      isSensitive = true;
+    }
+
+    // Account pattern
+    if (ACCOUNT_RE.test(text)) {
+      accountCount++;
+      isSensitive = true;
+    }
+
+    // Sensitive labels (CPR, Lønnr, NemKonto, SE-nummer, etc.)
+    if (SENSITIVE_LABELS.test(text)) {
+      isSensitive = true;
+    }
+
+    // Danish postal code (address line)
+    if (POSTAL_RE.test(text)) {
+      isSensitive = true;
+    }
+
+    if (isSensitive) {
+      sensitiveLines.add(i);
+    }
+  }
+
+  // ── Expand: redact name/address lines ABOVE sensitive markers ──
+  // On Danish payslips, the recipient block is:
+  //   Name                    ← 2-3 lines above CPR/postal
+  //   Street Address          ← 1-2 lines above CPR/postal
+  //   Postal Code + City      ← often detected by POSTAL_RE
+  //   CPR: 070990-1741        ← detected by CPR_RE
+  //
+  // Strategy: for each postal code or CPR line, also redact up to 3 lines above it
+  // (unless those lines match SAFE_LABELS — don't redact salary data)
+
+  const expandedSensitive = new Set(sensitiveLines);
+
+  for (const idx of sensitiveLines) {
+    const text = lines[idx].text;
+    // Only expand upwards from CPR or postal code lines (the anchor points)
+    if (CPR_RE.test(text) || POSTAL_RE.test(text) || SENSITIVE_LABELS.test(text)) {
+      for (let above = 1; above <= 3; above++) {
+        const aboveIdx = idx - above;
+        if (aboveIdx < 0) break;
+        const aboveText = lines[aboveIdx].text;
+        // Stop expanding if we hit a safe financial line or an empty/header line
+        if (SAFE_LABELS.test(aboveText)) break;
+        // Stop if line looks like company header (A/S, ApS, I/S, etc.)
+        if (/\b(A\/S|ApS|I\/S|K\/S|P\/S|Holding|Inc\.|Ltd\.)\b/i.test(aboveText)) break;
+        expandedSensitive.add(aboveIdx);
+      }
+    }
+  }
+
+  // ── Build redaction rects ──
+  const autoRects: RedactionRect[] = [];
+
   function itemToRect(item: any, pad = 6): RedactionRect {
     const tx = item.transform;
     const [x, y] = viewport.convertToViewportPoint(tx[4], tx[5]);
@@ -93,69 +181,19 @@ export async function pdfToImage(
     };
   }
 
-  // Track which items have been redacted to avoid double-counting
-  const redactedItemIndices = new Set<number>();
-
-  // Pass 1: check each individual text item
-  for (let i = 0; i < items.length; i++) {
-    const text = items[i].str;
-    const cprMatches = testPattern(CPR_RE, text);
-    const accMatches = testPattern(ACCOUNT_RE, text);
-
-    if (cprMatches || accMatches) {
-      cprCount += cprMatches?.length ?? 0;
-      accountCount += accMatches?.length ?? 0;
-      autoRects.push(itemToRect(items[i]));
-      redactedItemIndices.add(i);
+  for (const lineIdx of expandedSensitive) {
+    for (const item of lines[lineIdx].items) {
+      autoRects.push(itemToRect(item));
     }
   }
 
-  // Pass 2: group items into lines (CPR might span two text items, e.g. "070990" + "-1741")
-  const lineGroups = new Map<number, { items: any[]; indices: number[] }>();
-  for (let i = 0; i < items.length; i++) {
-    const y = Math.round(items[i].transform[5]);
-    // Find existing line group within 5 PDF units
-    const key = [...lineGroups.keys()].find(k => Math.abs(k - y) < 5) ?? y;
-    if (!lineGroups.has(key)) lineGroups.set(key, { items: [], indices: [] });
-    const group = lineGroups.get(key)!;
-    group.items.push(items[i]);
-    group.indices.push(i);
-  }
-
-  for (const [, group] of lineGroups) {
-    // Skip lines where all items are already redacted
-    if (group.indices.every(i => redactedItemIndices.has(i))) continue;
-
-    // Sort by X position and concatenate
-    const sorted = group.items
-      .map((item, j) => ({ item, idx: group.indices[j] }))
-      .sort((a, b) => a.item.transform[4] - b.item.transform[4]);
-    const lineText = sorted.map(s => s.item.str).join(" ");
-
-    const cprMatches = testPattern(CPR_RE, lineText);
-    const accMatches = testPattern(ACCOUNT_RE, lineText);
-
-    if (cprMatches || accMatches) {
-      cprCount += cprMatches?.length ?? 0;
-      accountCount += accMatches?.length ?? 0;
-
-      // Redact each unredacted item in this line
-      for (const s of sorted) {
-        if (!redactedItemIndices.has(s.idx)) {
-          autoRects.push(itemToRect(s.item));
-          redactedItemIndices.add(s.idx);
-        }
-      }
-    }
-  }
-
-  // Draw black rectangles over detected areas
+  // Draw black rectangles
   ctx.fillStyle = "#000000";
   for (const rect of autoRects) {
     ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   }
 
-  // Convert to base64 JPEG (single toBlob call)
+  // Convert to base64 JPEG
   const base64 = await new Promise<string>((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -170,15 +208,16 @@ export async function pdfToImage(
     );
   });
 
-  // Clean up
   page.cleanup();
   await pdf.destroy();
 
-  console.info(`PDF redaction: ${cprCount} CPR, ${accountCount} account numbers found via text extraction`);
+  const redactionCount = expandedSensitive.size;
+  console.info(`PDF redaction: ${redactionCount} lines redacted (${cprCount} CPR, ${accountCount} account)`);
 
   return {
     base64,
     autoRects,
+    redactionCount,
     cprCount,
     accountCount,
     width: canvas.width,

@@ -45,7 +45,8 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
     ? (da ? "din lønseddel" : "your payslip")
     : (da ? "dit kontoudtog" : "your bank statement");
 
-  const hasRedactions = cprCount > 0 || accountCount > 0;
+  const totalRedactions = cprCount + accountCount;
+  const hasRedactions = totalRedactions > 0;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onDecline(); }}>
@@ -76,8 +77,8 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
                 <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
                   {da
-                    ? `${cprCount} CPR-nr. og ${accountCount} kontonr. automatisk sløret`
-                    : `${cprCount} CPR no. and ${accountCount} account no. auto-redacted`}
+                    ? "Personlige oplysninger automatisk sløret (CPR, navn, adresse, kontonr.)"
+                    : "Personal data auto-redacted (CPR, name, address, account no.)"}
                 </span>
               </div>
             ) : (
@@ -85,8 +86,8 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                 <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
                   {da
-                    ? "Ingen CPR-numre fundet — tjek selv at følsomme data er dækket"
-                    : "No CPR numbers found — check that sensitive data is covered"}
+                    ? "Ingen følsomme data fundet — tjek selv at personlige oplysninger er dækket"
+                    : "No sensitive data found — check that personal info is covered"}
                 </span>
               </div>
             )}
