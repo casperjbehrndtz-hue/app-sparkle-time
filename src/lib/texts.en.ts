@@ -1409,6 +1409,17 @@ export const EN: Record<string, string> = {
   "payslip.scanning": "AI is reading your payslip...",
   "pengetjek.scanning": "AI is reading your bank statement...",
 
+  // Redaction review
+  "redaction.title": "Review redaction",
+  "redaction.instruction": "Check that all sensitive information is blacked out. Draw over anything that was missed.",
+  "redaction.autoFound": "{cpr} CPR numbers and {account} account numbers found and redacted",
+  "redaction.undo": "Undo",
+  "redaction.clearMine": "Clear mine",
+  "redaction.regions": "redacted regions",
+  "redaction.approve": "Approve and continue",
+  "redaction.cancel": "Cancel",
+  "redaction.hint": "The image only leaves your device once you approve. Black boxes cannot be removed.",
+
   // GDPR
   "gdpr.section": "Privacy & data",
   "gdpr.exportData": "Export my data",

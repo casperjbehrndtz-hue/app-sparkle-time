@@ -1411,6 +1411,17 @@ export const DA: Record<string, string> = {
   "payslip.scanning": "AI l\u00e6ser din l\u00f8nseddel...",
   "pengetjek.scanning": "AI l\u00e6ser dit kontoudtog...",
 
+  // Redaction review
+  "redaction.title": "Tjek sl\u00f8ringen",
+  "redaction.instruction": "Tjek at alle f\u00f8lsomme oplysninger er sl\u00f8ret. Tegn hen over det der mangler.",
+  "redaction.autoFound": "{cpr} CPR-numre og {account} kontonumre fundet og sl\u00f8ret",
+  "redaction.undo": "Fortryd",
+  "redaction.clearMine": "Ryd mine",
+  "redaction.regions": "sl\u00f8rede omr\u00e5der",
+  "redaction.approve": "Godkend og forts\u00e6t",
+  "redaction.cancel": "Annull\u00e9r",
+  "redaction.hint": "Billedet forlader f\u00f8rst din enhed n\u00e5r du godkender. Sorte felter kan ikke fjernes.",
+
   // GDPR
   "gdpr.section": "Privatliv & data",
   "gdpr.exportData": "Eksportér mine data",

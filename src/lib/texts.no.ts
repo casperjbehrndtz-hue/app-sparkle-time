@@ -1407,4 +1407,15 @@ export const NO: Record<string, string> = {
   "cpr.redacting": "Sl\u00f8rer personnummer og kontonumre...",
   "payslip.scanning": "AI leser l\u00f8nnsslippen din...",
   "pengetjek.scanning": "AI leser kontoutskriften din...",
+
+  // Redaction review
+  "redaction.title": "Sjekk sl\u00f8ringen",
+  "redaction.instruction": "Sjekk at all sensitiv informasjon er sl\u00f8ret. Tegn over det som mangler.",
+  "redaction.autoFound": "{cpr} personnumre og {account} kontonumre funnet og sl\u00f8ret",
+  "redaction.undo": "Angre",
+  "redaction.clearMine": "Fjern mine",
+  "redaction.regions": "sl\u00f8rede omr\u00e5der",
+  "redaction.approve": "Godkjenn og fortsett",
+  "redaction.cancel": "Avbryt",
+  "redaction.hint": "Bildet forlater f\u00f8rst enheten din n\u00e5r du godkjenner. Svarte felt kan ikke fjernes.",
 };

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
 import { reconcilePayslip, type ReconciliationDiagnostics } from "@/lib/payslipReconciler";
 import { compressImage } from "@/lib/imageUtils";
-import { redactSensitiveData, terminateRedactWorker } from "@/lib/cprRedact";
+import { redactSensitiveData, flattenRedaction, terminateRedactWorker, type RedactionResult, type RedactionRect } from "@/lib/cprRedact";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -19,9 +19,13 @@ export function usePayslipOCR() {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [showConsent, setShowConsent] = useState(false);
 
+  // Redaction review state
+  const [redactionReview, setRedactionReview] = useState<RedactionResult | null>(null);
+
   const requestProcessing = useCallback((file: File) => {
     setError(null);
     setResult(null);
+    setRedactionReview(null);
 
     // Validate file type
     const validTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -36,21 +40,65 @@ export function usePayslipOCR() {
       return;
     }
 
-    // Show consent modal
+    // For images: run auto-redaction first, then show review
+    if (file.type !== "application/pdf") {
+      setIsProcessing(true);
+      setStatusMessage("cpr.redacting");
+      redactSensitiveData(file)
+        .then((redacted) => {
+          terminateRedactWorker();
+          if (redacted) {
+            setRedactionReview(redacted);
+          } else {
+            // Redaction failed — skip review, go straight to consent
+            setPendingFile(file);
+            setShowConsent(true);
+          }
+        })
+        .catch(() => {
+          setPendingFile(file);
+          setShowConsent(true);
+        })
+        .finally(() => {
+          setIsProcessing(false);
+          setStatusMessage(null);
+        });
+      return;
+    }
+
+    // PDFs: skip redaction review, go to consent
     setPendingFile(file);
     setShowConsent(true);
   }, []);
 
+  const onRedactionApprove = useCallback(
+    (manualRects: RedactionRect[]) => {
+      if (!redactionReview) return;
+      // Store review data + manual rects for later flattening
+      setPendingFile(null); // not needed — we use redactionReview
+      setRedactionReview((prev) => (prev ? { ...prev, _manualRects: manualRects } as RedactionResult & { _manualRects: RedactionRect[] } : null));
+      setShowConsent(true);
+    },
+    [redactionReview],
+  );
+
+  const onRedactionCancel = useCallback(() => {
+    setRedactionReview(null);
+  }, []);
+
   const onConsentDecline = useCallback(() => {
     setPendingFile(null);
+    setRedactionReview(null);
     setShowConsent(false);
   }, []);
 
   const onConsentAccept = useCallback(async () => {
     const file = pendingFile;
+    const review = redactionReview as (RedactionResult & { _manualRects?: RedactionRect[] }) | null;
     setShowConsent(false);
     setPendingFile(null);
-    if (!file) return;
+    setRedactionReview(null);
+    if (!file && !review) return;
 
     setIsProcessing(true);
 
@@ -58,33 +106,38 @@ export function usePayslipOCR() {
       let base64: string;
       let mimeType: string;
 
-      // Step 1: Client-side CPR redaction (images only)
-      if (file.type !== "application/pdf") {
-        setStatusMessage("cpr.redacting");
-        const redacted = await redactSensitiveData(file);
-        if (redacted) {
-          base64 = redacted.base64;
-          mimeType = redacted.mimeType;
-          if (redacted.cprCount > 0 || redacted.accountCount > 0) {
-            console.info(
-              `CPR redaction: removed ${redacted.cprCount} CPR pattern(s), ${redacted.accountCount} account pattern(s)`,
-            );
-          }
-          // Free memory
-          terminateRedactWorker();
+      if (review) {
+        // Flatten with manual rects
+        const manualRects = review._manualRects || [];
+        if (manualRects.length > 0) {
+          base64 = await flattenRedaction(
+            review.originalDataUrl,
+            review.autoRects,
+            manualRects,
+            review.width,
+            review.height,
+          );
         } else {
-          // Fallback if redaction fails
-          const compressed = await compressImage(file);
-          base64 = compressed.base64;
-          mimeType = compressed.mimeType;
+          base64 = review.base64;
         }
-      } else {
+        mimeType = review.mimeType;
+        console.info(
+          `CPR redaction: ${review.cprCount} CPR, ${review.accountCount} account, ${manualRects.length} manual`,
+        );
+      } else if (file && file.type !== "application/pdf") {
+        // Fallback: image without review (shouldn't normally happen)
         const compressed = await compressImage(file);
         base64 = compressed.base64;
         mimeType = compressed.mimeType;
+      } else if (file) {
+        const compressed = await compressImage(file);
+        base64 = compressed.base64;
+        mimeType = compressed.mimeType;
+      } else {
+        return;
       }
 
-      // Step 2: Send redacted image to AI
+      // Send redacted image to AI
       setStatusMessage("payslip.scanning");
 
       const callOCR = async (): Promise<Response> => {
@@ -153,7 +206,7 @@ export function usePayslipOCR() {
       setIsProcessing(false);
       setStatusMessage(null);
     }
-  }, [pendingFile]);
+  }, [pendingFile, redactionReview]);
 
   const reset = useCallback(() => {
     setResult(null);
@@ -161,6 +214,7 @@ export function usePayslipOCR() {
     setError(null);
     setIsProcessing(false);
     setStatusMessage(null);
+    setRedactionReview(null);
   }, []);
 
   return {
@@ -172,6 +226,9 @@ export function usePayslipOCR() {
     showConsent,
     onConsentAccept,
     onConsentDecline,
+    redactionReview,
+    onRedactionApprove,
+    onRedactionCancel,
     processPayslip: requestProcessing,
     reset,
   };

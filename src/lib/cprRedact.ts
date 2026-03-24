@@ -28,6 +28,13 @@ async function getWorker(): Promise<Worker> {
   return workerInstance;
 }
 
+export interface RedactionRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface RedactionResult {
   /** Base64 of the redacted image (JPEG, no data: prefix) */
   base64: string;
@@ -36,6 +43,13 @@ export interface RedactionResult {
   cprCount: number;
   /** Number of account patterns found and redacted */
   accountCount: number;
+  /** Original image as data URL (before redaction) for review canvas */
+  originalDataUrl: string;
+  /** Bounding boxes of auto-redacted regions */
+  autoRects: RedactionRect[];
+  /** Canvas dimensions */
+  width: number;
+  height: number;
 }
 
 /**
@@ -67,12 +81,16 @@ export async function redactSensitiveData(
   const ctx = canvas.getContext("2d")!;
   ctx.drawImage(img, 0, 0, width, height);
 
+  // Save original image as data URL for review step
+  const originalDataUrl = canvas.toDataURL("image/jpeg", quality);
+
   // Run Tesseract OCR client-side to find text + bounding boxes
   const worker = await getWorker();
   const { data } = await worker.recognize(canvas);
 
   let cprCount = 0;
   let accountCount = 0;
+  const autoRects: RedactionRect[] = [];
 
   // Check each word for sensitive patterns
   for (const line of data.lines) {
@@ -91,15 +109,16 @@ export async function redactSensitiveData(
 
       // Black out the entire line's bounding box (safer than per-word)
       const bbox = line.bbox;
-      // Add padding for safety
       const pad = 4;
+      const rect: RedactionRect = {
+        x: bbox.x0 - pad,
+        y: bbox.y0 - pad,
+        w: bbox.x1 - bbox.x0 + pad * 2,
+        h: bbox.y1 - bbox.y0 + pad * 2,
+      };
+      autoRects.push(rect);
       ctx.fillStyle = "#000000";
-      ctx.fillRect(
-        bbox.x0 - pad,
-        bbox.y0 - pad,
-        bbox.x1 - bbox.x0 + pad * 2,
-        bbox.y1 - bbox.y0 + pad * 2,
-      );
+      ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
     }
   }
 
@@ -113,13 +132,15 @@ export async function redactSensitiveData(
       if (CPR_PATTERN.test(text) || ACCOUNT_PATTERN.test(text)) {
         const bbox = word.bbox;
         const pad = 4;
+        const rect: RedactionRect = {
+          x: bbox.x0 - pad,
+          y: bbox.y0 - pad,
+          w: bbox.x1 - bbox.x0 + pad * 2,
+          h: bbox.y1 - bbox.y0 + pad * 2,
+        };
+        autoRects.push(rect);
         ctx.fillStyle = "#000000";
-        ctx.fillRect(
-          bbox.x0 - pad,
-          bbox.y0 - pad,
-          bbox.x1 - bbox.x0 + pad * 2,
-          bbox.y1 - bbox.y0 + pad * 2,
-        );
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
         // Don't double-count — already counted at line level
       }
     }
@@ -127,7 +148,7 @@ export async function redactSensitiveData(
 
   // Export redacted canvas
   const base64 = await canvasToBase64(canvas, quality);
-  return { base64, mimeType: "image/jpeg", cprCount, accountCount };
+  return { base64, mimeType: "image/jpeg", cprCount, accountCount, originalDataUrl, autoRects, width, height };
 }
 
 /** Terminate the Tesseract worker to free memory */
@@ -136,6 +157,40 @@ export async function terminateRedactWorker(): Promise<void> {
     await workerInstance.terminate();
     workerInstance = null;
   }
+}
+
+/**
+ * Renders the original image with auto + manual redaction rects
+ * and returns the final base64 JPEG.
+ */
+export async function flattenRedaction(
+  originalDataUrl: string,
+  autoRects: RedactionRect[],
+  manualRects: RedactionRect[],
+  width: number,
+  height: number,
+  quality = 0.82,
+): Promise<string> {
+  const img = await loadImageFromUrl(originalDataUrl);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0, width, height);
+  ctx.fillStyle = "#000000";
+  for (const r of [...autoRects, ...manualRects]) {
+    ctx.fillRect(r.x, r.y, r.w, r.h);
+  }
+  return canvasToBase64(canvas, quality);
+}
+
+function loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = url;
+  });
 }
 
 function loadImage(file: File): Promise<HTMLImageElement> {

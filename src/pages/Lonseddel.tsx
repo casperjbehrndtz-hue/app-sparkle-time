@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
+import RedactionReview from "@/components/RedactionReview";
 import { PayslipVerification } from "@/components/payslip/PayslipVerification";
 import { PayslipResult } from "@/components/payslip/PayslipResult";
 import { payslipToProfile } from "@/lib/payslipTypes";
@@ -63,7 +64,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 export default function Lonseddel() {
   const { t } = useI18n();
   const navigate = useNavigate();
-  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, processPayslip, reset: ocrReset } = usePayslipOCR();
+  const { result: ocrResult, diagnostics, isProcessing, error, statusMessage, showConsent, onConsentAccept, onConsentDecline, redactionReview, onRedactionApprove, onRedactionCancel, processPayslip, reset: ocrReset } = usePayslipOCR();
   const [confirmedResult, setConfirmedResult] = useState<ExtractedPayslip | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -232,6 +233,20 @@ export default function Lonseddel() {
               <p className="text-[10px] text-muted-foreground mt-1">{t("payslip.processingHint")}</p>
             </div>
           </div>
+        )}
+
+        {/* State: Redaction Review */}
+        {redactionReview && !showConsent && (
+          <RedactionReview
+            originalDataUrl={redactionReview.originalDataUrl}
+            autoRects={redactionReview.autoRects}
+            width={redactionReview.width}
+            height={redactionReview.height}
+            cprCount={redactionReview.cprCount}
+            accountCount={redactionReview.accountCount}
+            onApprove={onRedactionApprove}
+            onCancel={onRedactionCancel}
+          />
         )}
 
         {/* State: Verification — user confirms OCR data before analysis */}
