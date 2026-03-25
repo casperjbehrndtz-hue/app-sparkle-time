@@ -39,6 +39,12 @@ const PAGES = [
       "Upload dit kontoudtog og få overblik over dit forbrug på 30 sekunder. Find skjulte abonnementer og unødvendige udgifter. Gratis og anonymt.",
   },
   {
+    path: "/jobskifte",
+    title: "Jobskifte-sammenligner — Sammenlign dit nuværende og nye job | NemtBudget",
+    description:
+      "Sammenlign dit nuværende job med et nyt tilbud. Se den reelle forskel i netto, pension og total kompensation efter skat. Dansk skatteberegning med 2026-satser.",
+  },
+  {
     path: "/guides",
     title: "Guides & sparetips — NemtBudget",
     description:
