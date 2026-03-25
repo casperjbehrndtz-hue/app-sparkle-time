@@ -9,28 +9,12 @@
 import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import type { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import type { RedactionRect } from "./cprRedact";
+import { CPR_RE, ACCOUNT_RE, POSTAL_RE, SENSITIVE_LABELS, SAFE_LABELS } from "./sensitivePatterns";
 
 GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url,
 ).toString();
-
-// ── Detection patterns ──
-
-// Danish CPR: DDMMYY-XXXX with valid day/month
-const CPR_RE = /(?<!\d)((?:0[1-9]|[12]\d|3[01])(?:0[1-9]|1[0-2])\d{2})[\s\-\.\/]?(\d{4})(?!\d)/;
-
-// Bank account: reg.nr (4 digits) + separator + account (6-10 digits)
-const ACCOUNT_RE = /(?<!\d)\d{4}[\s\-\.]\d{6,10}(?!\d)/;
-
-// Danish postal code: 4 digits + space + capitalized city name
-const POSTAL_RE = /(?<!\d)\d{4}\s+[A-ZÆØÅ]/;
-
-// Labels that mark sensitive fields (case-insensitive)
-const SENSITIVE_LABELS = /\b(CPR|Lønnr|Lønr|Medarb\.?nr|NemKonto|Lønkonto|Bankkonto|Konto\s*nr|SE[\-\s]?nr|SE[\-\s]?nummer|Personnr|Personale\s*nr)\b/i;
-
-// Labels that indicate the line contains ONLY financial data (safe to keep)
-const SAFE_LABELS = /\b(Månedsløn|Bruttoløn|Nettoløn|A-skat|AM-bidrag|ATP|Pension|Feriepenge|Fradrag|Skat|Indkomst|Disposition|Supplerende|periode|Side\s*:?\s*\d|Firmabidrag|solidarisk|helbreds|År til dato|Ferie)/i;
 
 interface PdfRedactionResult {
   base64: string;

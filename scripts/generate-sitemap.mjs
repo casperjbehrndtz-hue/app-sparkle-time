@@ -20,6 +20,7 @@ generateSitemap({
     { path: "/vilkaar",   changefreq: "yearly",  priority: "0.3" },
     { path: "/lonseddel", changefreq: "monthly", priority: "0.8" },
     { path: "/pengetjek", changefreq: "monthly", priority: "0.8" },
+    { path: "/jobskifte", changefreq: "monthly", priority: "0.8" },
   ],
 
   articleTable: "articles",

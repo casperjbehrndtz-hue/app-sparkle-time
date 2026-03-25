@@ -80,11 +80,11 @@ describe("payslip sanity fixes", () => {
     }
   });
 
-  it("fixes unrealistic nettolon (retention < 40%)", () => {
+  // NOTE: Netto estimation is now handled by payslipReconciler.ts client-side.
+  // Parser passes through the raw AI value.
+  it("passes through nettolon as-is (reconciler handles fixes)", () => {
     const result = parsePayslipResponse(makeBrokenInput())!;
-    // 262 is way too low for 2651 brutto (9.9%), should be re-estimated
-    expect(result.nettolon).toBeGreaterThan(262);
-    expect(result.nettolon).toBeLessThan(result.bruttolon);
+    expect(result.nettolon).toBe(262); // raw AI value, reconciler fixes it
   });
 
   it("sets confidence to low when corrections were made", () => {

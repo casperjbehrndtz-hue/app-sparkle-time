@@ -68,9 +68,18 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  const emailLower = email.toLowerCase();
+
+  // Opt out from monthly reminders (auth users)
   await supabase
     .from("email_opt_outs")
-    .upsert({ email: email.toLowerCase() }, { onConflict: "email" });
+    .upsert({ email: emailLower }, { onConflict: "email" });
+
+  // Also unsubscribe from financial calendar (anonymous subscribers)
+  await supabase
+    .from("reminder_subscribers")
+    .update({ unsubscribed_at: new Date().toISOString() })
+    .eq("email", emailLower);
 
   const baseUrl = Deno.env.get("PUBLIC_APP_URL") ?? "https://app-sparkle-time.vercel.app";
 

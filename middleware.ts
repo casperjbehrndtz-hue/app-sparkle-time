@@ -112,6 +112,28 @@ export default createMiddleware({
         { name: "Pengetjek", url: "/pengetjek" },
       ],
     },
+    "/jobskifte": {
+      title: "Jobskifte-sammenligner — NemtBudget",
+      description: "Sammenlign dit nuværende job med et nyt tilbud. Se den reelle forskel i netto, pension og total kompensation efter skat.",
+      ogTitle: "Jobskifte-sammenligner — NemtBudget",
+      ogDescription: "Sammenlign dit nuværende job med et nyt tilbud. Se den reelle forskel i netto, pension og total kompensation efter skat.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Jobskifte-sammenligner", url: "/jobskifte" },
+      ],
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        name: "Jobskifte-sammenligner",
+        url: "https://nemtbudget.nu/jobskifte",
+        description: "Sammenlign dit nuværende job med et nyt tilbud. Se den reelle forskel i netto, pension og total kompensation efter skat.",
+        applicationCategory: "FinanceApplication",
+        operatingSystem: "Web",
+        inLanguage: "da",
+        isAccessibleForFree: true,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "DKK" },
+      },
+    },
     "/guides": {
       title: "Guides om privatøkonomi — NemtBudget",
       description: "Gratis artikler og guides om dansk privatøkonomi, budgetlægning, rådighedsbeløb, skat og opsparing.",
@@ -233,6 +255,20 @@ export default createMiddleware({
 
 <p>Klar til at lave et budget? <a href="https://nemtbudget.nu"><strong>Beregn dit rådighedsbeløb gratis →</strong></a></p>`,
 
+    "/jobskifte": `
+<h1>Jobskifte-sammenligner — Sammenlign dit nuværende og nye job</h1>
+<p>Overvejer du at skifte job? Sammenlign dit nuværende job med et nyt tilbud og se den reelle forskel i netto, pension og total kompensation efter skat.</p>
+
+<h2>Hvad jobskifte-sammenligningen viser dig</h2>
+<ul>
+  <li>Reelt nettoløn-forskel efter skat og AM-bidrag</li>
+  <li>Pensionsforskel inkl. arbejdsgiver- og medarbejderbidrag</li>
+  <li>Total kompensation side-om-side</li>
+  <li>Dansk skatteberegning med 2026-satser for alle 98 kommuner</li>
+</ul>
+
+<p>Klar til at lave et budget? <a href="https://nemtbudget.nu"><strong>Beregn dit rådighedsbeløb gratis →</strong></a></p>`,
+
     "/guides": `
 <h1>Guides om dansk privatøkonomi</h1>
 <p>Gratis artikler og guides om budgetlægning, skat, opsparing og hverdagsøkonomi.</p>
@@ -268,6 +304,7 @@ export default createMiddleware({
   footerNav: `
       <a href="https://nemtbudget.nu/lonseddel">Lønseddel-analyse</a> ·
       <a href="https://nemtbudget.nu/pengetjek">Pengetjek</a> ·
+      <a href="https://nemtbudget.nu/jobskifte">Jobskifte</a> ·
       <a href="https://nemtbudget.nu/guides">Guides</a> ·
       <a href="https://nemtbudget.nu/b2b">Virksomheder</a>`,
 });

@@ -9,10 +9,11 @@ export function SuiteNav() {
   if (config.brandName !== "NemtBudget") return null;
 
   const suiteLinks = [
-    { label: t("nav.budget"), href: "/", current: true, external: false },
+    { label: "NemtBudget", href: "/", current: true, external: false },
+    { label: t("nav.jobChange") || "Jobskifte", href: "/jobskifte", current: false, external: false },
     { label: t("nav.guides") || "Guides", href: "/guides", current: false, external: false },
-    { label: t("nav.coupleFinance"), href: "https://www.parfinans.dk", current: false, external: true },
-    { label: t("nav.childTax"), href: "https://xn--brneskat-54a.dk", current: false, external: true },
+    { label: "ParFinans", href: "https://www.parfinans.dk", current: false, external: true },
+    { label: "Børneskat", href: "https://xn--brneskat-54a.dk", current: false, external: true },
   ];
 
   return (

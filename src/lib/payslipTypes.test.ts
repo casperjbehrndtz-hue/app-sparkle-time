@@ -73,43 +73,23 @@ describe("parsePayslipResponse", () => {
     expect(parsePayslipResponse(validPayslip({ bruttolon: null }))).toBeNull();
   });
 
-  it("estimates nettolon when missing", () => {
+  // NOTE: Netto estimation and brutto/netto reconciliation is now handled
+  // client-side by payslipReconciler.ts. Parser only passes through raw AI values.
+
+  it("passes through nettolon 0 when missing (reconciler handles it)", () => {
     const result = parsePayslipResponse(validPayslip({ nettolon: undefined }));
     expect(result).not.toBeNull();
-    expect(result!.nettolon).toBe(Math.round(45000 * 0.63));
-    expect(result!.confidence).toBe("low");
-    expect(result!.warnings.some(w => w.includes("estimeret"))).toBe(true);
+    expect(result!.nettolon).toBe(0); // num() returns fallback 0
   });
 
-  it("recovers when nettolon > bruttolon using deductions", () => {
+  it("passes through nettolon even when > bruttolon (reconciler handles it)", () => {
     const result = parsePayslipResponse(validPayslip({
       bruttolon: 60000,
-      nettolon: 130000, // AI read wrong field
-      amBidrag: 4800,
-      aSkat: 15000,
-      atp: 99,
-      pensionEmployee: 2000,
+      nettolon: 130000, // AI read wrong field — reconciler will fix
     }));
     expect(result).not.toBeNull();
     expect(result!.bruttolon).toBe(60000);
-    // Should be calculated from deductions: 60000 - 4800 - 15000 - 99 - 2000
-    expect(result!.nettolon).toBe(60000 - 4800 - 15000 - 99 - 2000);
-    expect(result!.confidence).toBe("low");
-    expect(result!.warnings.some(w => w.includes("beregnet ud fra fradrag"))).toBe(true);
-  });
-
-  it("estimates nettolon when > bruttolon and no deductions available", () => {
-    const result = parsePayslipResponse(validPayslip({
-      bruttolon: 40000,
-      nettolon: 120000,
-      amBidrag: 0,
-      aSkat: 0,
-      atp: 0,
-      pensionEmployee: 0,
-    }));
-    expect(result).not.toBeNull();
-    expect(result!.nettolon).toBe(Math.round(40000 * 0.63));
-    expect(result!.warnings.some(w => w.includes("estimeret"))).toBe(true);
+    expect(result!.nettolon).toBe(130000); // passed through as-is
   });
 
   it("returns null for non-object input", () => {

@@ -88,6 +88,8 @@ export default defineConfig({
           ],
           "vendor-d3": ["d3-sankey", "d3-shape"],
           "vendor-supabase": ["@supabase/supabase-js"],
+          "vendor-tesseract": ["tesseract.js"],
+          "vendor-pdfjs": ["pdfjs-dist"],
         },
       },
     },
