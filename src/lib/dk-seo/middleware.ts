@@ -1,5 +1,9 @@
 import { next } from "@vercel/edge";
-import type { MiddlewareConfig, RouteMeta } from "./types";
+import type {
+  MiddlewareConfig, RouteMeta,
+  HowToSchema, FinancialProductSchema, DefinedTermSchema,
+  SpeakableSpec, DatasetSchema, Citation, AnswerBox,
+} from "./types";
 
 // ── Bot User-Agent patterns ──
 const BOT_PATTERNS = [
@@ -49,6 +53,121 @@ function buildBreadcrumbHtml(siteUrl: string, crumbs: { name: string; url: strin
         : `<li><strong>${esc(c.name)}</strong></li>`;
     })
     .join("")}</ol></nav>`;
+}
+
+// ── Rich Schema Builders (Upgrade 3) ──
+
+export function buildHowToLd(schema: HowToSchema) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: schema.name,
+    description: schema.description,
+    ...(schema.totalTime ? { totalTime: schema.totalTime } : {}),
+    ...(schema.estimatedCost ? {
+      estimatedCost: { "@type": "MonetaryAmount", ...schema.estimatedCost },
+    } : {}),
+    step: schema.steps.map((s, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      ...(s.url ? { url: s.url } : {}),
+      ...(s.image ? { image: s.image } : {}),
+    })),
+  };
+}
+
+export function buildFinancialProductLd(schema: FinancialProductSchema) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FinancialProduct",
+    name: schema.name,
+    description: schema.description,
+    ...(schema.provider ? { provider: { "@type": "Organization", name: schema.provider } } : {}),
+    ...(schema.category ? { category: schema.category } : {}),
+    ...(schema.interestRate ? {
+      interestRate: {
+        "@type": "QuantitativeValue",
+        ...schema.interestRate,
+        unitText: "PERCENT",
+      },
+    } : {}),
+    ...(schema.annualPercentageRate ? {
+      annualPercentageRate: schema.annualPercentageRate,
+    } : {}),
+    ...(schema.feesAndCommissions ? {
+      feesAndCommissionsSpecification: schema.feesAndCommissions,
+    } : {}),
+    ...(schema.currency ? { currency: schema.currency } : {}),
+  };
+}
+
+export function buildDefinedTermLd(schema: DefinedTermSchema) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    name: schema.name,
+    description: schema.description,
+    ...(schema.termCode ? { termCode: schema.termCode } : {}),
+    ...(schema.inDefinedTermSet ? {
+      inDefinedTermSet: {
+        "@type": "DefinedTermSet",
+        name: schema.inDefinedTermSet,
+      },
+    } : {}),
+    ...(schema.url ? { url: schema.url } : {}),
+  };
+}
+
+export function buildSpeakableLd(spec: SpeakableSpec, pageUrl: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    url: pageUrl,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: spec.cssSelector,
+    },
+  };
+}
+
+export function buildDatasetLd(schema: DatasetSchema) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: schema.name,
+    description: schema.description,
+    ...(schema.url ? { url: schema.url } : {}),
+    ...(schema.creator ? { creator: { "@type": "Organization", name: schema.creator } } : {}),
+    ...(schema.dateModified ? { dateModified: schema.dateModified } : {}),
+    ...(schema.measurementTechnique ? { measurementTechnique: schema.measurementTechnique } : {}),
+    ...(schema.variableMeasured ? {
+      variableMeasured: schema.variableMeasured.map((v) => ({
+        "@type": "PropertyValue",
+        name: v,
+      })),
+    } : {}),
+    ...(schema.license ? { license: schema.license } : {}),
+  };
+}
+
+export function buildCitationsHtml(citations: Citation[]): string {
+  if (!citations.length) return "";
+  return `\n    <section class="references">
+      <h3>Kilder</h3>
+      <ol>${citations
+    .map(
+      (c, i) =>
+        `\n        <li id="ref-${i + 1}"><cite>${esc(c.name)}</cite>${c.publisher ? ` — ${esc(c.publisher)}` : ""}${c.dateAccessed ? ` (tilgået ${c.dateAccessed})` : ""}${c.url ? ` <a href="${c.url}" rel="nofollow noopener">[link]</a>` : ""}</li>`
+    )
+    .join("")}\n      </ol>
+    </section>`;
+}
+
+export function buildAnswerBoxHtml(box: AnswerBox): string {
+  const cls = box.className || "answer-box";
+  return `<div class="${cls}" role="region" aria-label="Kort svar"><p><strong>${esc(box.answer)}</strong></p></div>`;
 }
 
 export function createMiddleware(cfg: MiddlewareConfig) {
@@ -345,6 +464,10 @@ export function createArticleFetcher(opts: ArticleFetcherOptions) {
           ...(keyword ? { keywords: keyword } : {}),
           inLanguage: "da",
           isAccessibleForFree: true,
+          speakable: {
+            "@type": "SpeakableSpecification",
+            cssSelector: [".answer-box", "h2", ".faq-answer"],
+          },
         },
       };
     } catch (err) {

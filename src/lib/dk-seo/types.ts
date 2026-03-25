@@ -139,3 +139,76 @@ export interface PageMetaOptions {
   noIndex?: boolean;
   jsonLd?: Record<string, unknown>;
 }
+
+// ─── Rich Schema Types (Upgrade 3) ─────────────────────────────────────────
+
+/** HowTo schema for step-by-step guides and calculators */
+export interface HowToStep {
+  name: string;
+  text: string;
+  url?: string;
+  image?: string;
+}
+
+export interface HowToSchema {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string; // ISO 8601 duration, e.g. "PT15M"
+  estimatedCost?: { currency: string; value: string };
+}
+
+/** FinancialProduct schema for savings accounts, investment products */
+export interface FinancialProductSchema {
+  name: string;
+  description: string;
+  provider?: string;
+  category?: string; // e.g. "SavingsAccount", "InvestmentFund"
+  interestRate?: { value: string; minValue?: string; maxValue?: string };
+  annualPercentageRate?: string;
+  feesAndCommissions?: string;
+  currency?: string;
+}
+
+/** DefinedTerm schema for glossary/term definitions */
+export interface DefinedTermSchema {
+  name: string;
+  description: string;
+  termCode?: string;
+  inDefinedTermSet?: string; // e.g. "Dansk Finansordbog"
+  url?: string;
+}
+
+/** SpeakableSpecification for voice/AI assistants */
+export interface SpeakableSpec {
+  /** CSS selectors for speakable content, e.g. [".answer-box", "h2", ".faq-answer"] */
+  cssSelector: string[];
+}
+
+/** Dataset schema for pages using live statistics */
+export interface DatasetSchema {
+  name: string;
+  description: string;
+  url?: string;
+  creator?: string; // e.g. "Danmarks Statistik"
+  dateModified?: string;
+  measurementTechnique?: string;
+  variableMeasured?: string[];
+  license?: string;
+}
+
+/** Citation for references section */
+export interface Citation {
+  name: string;
+  url: string;
+  dateAccessed?: string;
+  publisher?: string;
+}
+
+/** Answer box configuration for AI Overview optimization */
+export interface AnswerBox {
+  /** Direct answer text (max 50 words) */
+  answer: string;
+  /** CSS class for the answer box element */
+  className?: string;
+}

@@ -180,6 +180,23 @@ serve(async (req) => {
       }
     } catch { /* ignore */ }
 
+    // Fetch cluster relationships for topical authority linking
+    let clusterContext = "";
+    try {
+      const { data: clusterLinks } = await supabase
+        .from("topic_clusters")
+        .select("pillar_slug, cluster_slug, anchor_text, reverse_anchor_text")
+        .or(`pillar_slug.eq.${topic.slug},cluster_slug.eq.${topic.slug}`);
+      if (clusterLinks?.length) {
+        clusterContext = clusterLinks.map((c) => {
+          const isCluster = c.cluster_slug === topic.slug;
+          return isCluster
+            ? `- LINK OP TIL PILLAR: "${c.anchor_text}" → /guides/${c.pillar_slug}`
+            : `- LINK NED TIL CLUSTER: "${c.reverse_anchor_text}" → /guides/${c.cluster_slug}`;
+        }).join("\n");
+      }
+    } catch { /* ignore */ }
+
     // ─── Build Google E-E-A-T optimised prompt ────────────────────────────
     const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
 
@@ -192,24 +209,61 @@ PRIMÆRE SØGEORD: ${topic.keywords.join(", ")}
 
 ${liveData}
 
-─── GOOGLES RANKING-SIGNALER DU SKAL FØLGE I 2026 ───────────────────────────
+─── AI OVERVIEW & FEATURED SNIPPET OPTIMERING ─────────────────────────────
+
+**Answer Box (KRITISK — dette fanger Google AI Overviews):**
+- Start ALTID artiklen med en <div class="answer-box"> der indeholder et direkte, faktuelt svar i MAX 50 ord
+- Format: <div class="answer-box"><p><strong>[Direkte svar med konkret tal]</strong></p></div>
+- Eksempel: <div class="answer-box"><p><strong>Et godt rådighedsbeløb for en single er 5.000-7.000 kr./md. efter faste udgifter. For en familie med to børn bør det ligge på 10.000-14.000 kr./md.</strong></p></div>
+
+**Speakable Content:**
+- Alle H2-overskrifter og FAQ-svar skal være selvstændigt forståelige
+- Google Assistent læser dem højt — brug klare, deklarative sætninger
+
+─── ENTITY-FIRST WRITING (Googles NLP) ────────────────────────────────────
+
+- Skriv i subjekt-prædikat-objekt mønstre: "Personfradraget i 2026 er 49.700 kr." — IKKE "I 2026 er der et fradrag man kan bruge"
+- NÆVN konkrete entities: Danmarks Statistik, Skattestyrelsen, Nationalbanken, Finanstilsynet
+- Brug DefinedTerm-mønster: "<dfn>Rådighedsbeløb</dfn> er det beløb du har til rådighed efter faste udgifter er betalt"
+
+─── GOOGLES RANKING-SIGNALER I 2026 ───────────────────────────────────────
 
 **E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness):**
-- Skriv som en der HAR erfaring med emnet — brug "da vi kiggede på tallene", "i vores beregninger", "det overraskede os"
-- Angiv altid konkrete tal med kilde: "(kilde: Danmarks Statistik, 2024)" eller "(Nationalbanken, marts 2026)"
+- Skriv som en der HAR erfaring — brug "da vi kiggede på tallene", "i vores beregninger", "det overraskede os"
+- Angiv altid konkrete tal med kilde: "(kilde: Danmarks Statistik, 2024)" eller "(Nationalbanken, 2026)"
 - Vær villig til at have en holdning: "Vi mener at...", "Det er faktisk en dårlig idé fordi..."
 
-**Søgeintention og featured snippets:**
-- Start artiklen med en direkte, kort svarblok der besvarer søgeintentionen på 2-3 linjer (dette fanger featured snippet)
-- Brug H2/H3 overskrifter som spørgsmål folk faktisk søger på
-
-**People Also Ask (PAA) sektion:**
-- Afslut med 3-4 FAQ spørgsmål og korte svar (disse rangerer i "Folk spørger også"-boksen)
+**People Also Ask (PAA):**
+- Afslut med 4-5 FAQ spørgsmål og korte svar
+- Wrap hvert svar i <div class="faq-answer">
 
 **Helpful Content Update:**
-- Gå DYBERE end hvad folk finder alle andre steder — giv det unikke perspektiv
-- Inkludér en konkret beregning eller tabel med tal
-- Nævn en common mistake folk begår (giver troværdighed)
+- Gå DYBERE end hvad folk finder alle andre steder
+- Inkluder MINDST én konkret beregning i en HTML <table>
+- Nævn en common mistake folk begår
+
+─── TABEL & BEREGNING (VIGTIGT for rich results) ─────────────────────────
+
+- Inkluder MINDST én HTML <table> med relevante beregninger
+- Brug de LIVE FINANSDATA ovenfor i tabellen hvor relevant
+- Eksempel:
+  <table>
+    <thead><tr><th>Post</th><th>Beløb/md.</th><th>Andel</th></tr></thead>
+    <tbody>
+      <tr><td>Faste udgifter</td><td>15.000 kr.</td><td>50%</td></tr>
+      <tr><td>Ønsker</td><td>9.000 kr.</td><td>30%</td></tr>
+      <tr><td>Opsparing</td><td>6.000 kr.</td><td>20%</td></tr>
+    </tbody>
+  </table>
+
+─── KILDER & CITATIONS (KRITISK for AI Overview citation) ────────────────
+
+- ALTID inkluder en "Kilder" sektion som NÆSTSIDSTE element (før CTA):
+  <section class="references"><h3>Kilder</h3><ol>
+    <li><cite>Danmarks Statistik</cite> — dst.dk (2024)</li>
+    <li><cite>Nationalbanken</cite> — nationalbanken.dk (2026)</li>
+  </ol></section>
+- Referer til kilder i teksten: "...(kilde: Danmarks Statistik) [1]"
 
 ─── SKRIVESTIL ───────────────────────────────────────────────────────────────
 
@@ -219,39 +273,40 @@ ${liveData}
 - Brug gerne "faktisk", "overraskende nok", "det fleste glemmer", "her er hvad vi fandt"
 - Skriv "vi" og "dig" — ikke "man" og "borgeren"
 
-─── STRUKTUR (følg denne nøjagtigt) ─────────────────────────────────────────
+─── STRUKTUR (følg denne NØJAGTIGT) ─────────────────────────────────────────
 
-## [Direkte svar på søgeintentionen — 2-3 linjer som featured snippet]
+<div class="answer-box"><p><strong>[Direkte svar — max 50 ord med konkret tal]</strong></p></div>
 
-## [H2 der besvarer det primære spørgsmål]
-[300-400 ord med konkrete tal og en tabel eller bullet-liste]
+## [H2 med entity-statement der besvarer primært spørgsmål]
+[300-400 ord med <dfn>-tags, konkrete tal, og kildeangivelser]
 
-## [H2 der uddyber eller giver et alternativt perspektiv]
-[250-300 ord]
+<table>[Beregning med live data hvor muligt]</table>
 
-## [H2 med den "common mistake" folk begår — praktisk og konkret]
+## [H2 der uddyber med alternativt perspektiv]
+[250-350 ord]
+
+## [H2 med common mistake — praktisk og konkret]
 [200-250 ord]
 
 ## Ofte stillede spørgsmål
-**[Spørgsmål 1 folk søger på]**
-[Kort, direkte svar — 2-4 linjer]
-
-**[Spørgsmål 2]**
-[Svar]
-
-**[Spørgsmål 3]**
-[Svar]
+<div class="faq-item"><h3>[Spørgsmål 1]</h3><div class="faq-answer">[Svar]</div></div>
+<div class="faq-item"><h3>[Spørgsmål 2]</h3><div class="faq-answer">[Svar]</div></div>
+<div class="faq-item"><h3>[Spørgsmål 3]</h3><div class="faq-answer">[Svar]</div></div>
+<div class="faq-item"><h3>[Spørgsmål 4]</h3><div class="faq-answer">[Svar]</div></div>
 
 ─── INTERN LINKING ───────────────────────────────────────────────────────────
-- Inkluder 2-3 kontekstuelle links til relaterede guides på NemtBudget (brug <a href="/guides/slug">titel</a>)
-- Afslut med en "Læs også"-sektion med 2-3 relaterede artikellinks
-- Hvor relevant, inkluder cross-link til søstersites: <a href="https://www.parfinans.dk">ParFinans</a> (parøkonomi for par) eller <a href="https://xn--brneskat-54a.dk">Børneskat.dk</a> (børneopsparing)
+- 2-3 kontekstuelle links til relaterede guides: <a href="/guides/slug">titel</a>
+- "Læs også"-sektion med 2-3 relaterede artikellinks
+- Cross-link til: <a href="https://www.parfinans.dk">ParFinans</a> eller <a href="https://xn--brneskat-54a.dk">Børneskat.dk</a>
+${clusterContext ? `\nTOPICAL AUTHORITY CLUSTER-LINKS (DU SKAL inkludere disse):\n${clusterContext}` : ""}
 ${internalLinks ? `\nEksisterende guides du kan linke til:\n${internalLinks}` : ""}
 
-─── SLUTNING ─────────────────────────────────────────────────────────────────
-Afslut naturligt med en overgang til at beregne i NemtBudget — ikke som en reklame, men som et logisk næste skridt for læseren.
+<section class="references"><h3>Kilder</h3><ol>[Nummererede kilder med cite-tags]</ol></section>
 
-Samlet længde: 900-1200 ord. Start direkte med ## — ingen titel øverst.`;
+─── SLUTNING ─────────────────────────────────────────────────────────────────
+Afslut naturligt med en overgang til at beregne i NemtBudget — ikke som reklame, men som logisk næste skridt.
+
+Samlet længde: 1.100-1.400 ord. Start direkte med <div class="answer-box"> — ingen titel øverst.`;
 
     // ─── Call Claude Opus ─────────────────────────────────────────────────
     const res = await fetch("https://api.anthropic.com/v1/messages", {
