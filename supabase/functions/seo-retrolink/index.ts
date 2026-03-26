@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
     // 1. Get all published articles
     const { data: articles, error: artErr } = await supabase
       .from(BLOG_TABLE)
-      .select("slug, title, keyword, content_html")
+      .select("slug, title, keywords, content")
       .eq("status", "published");
 
     if (artErr || !articles) {
@@ -224,7 +224,7 @@ Deno.serve(async (req) => {
     // 4. For each link-starved target
     for (const target of targets) {
       try {
-        const targetWords = getKeywordWords(target.keyword || "");
+        const targetWords = getKeywordWords(target.keywords?.join(" ") || "");
 
         // a) Find cluster relationships
         const relatedFromClusters: {
@@ -256,7 +256,7 @@ Deno.serve(async (req) => {
             ...a,
             overlap: computeOverlap(
               targetWords,
-              getKeywordWords(a.keyword || ""),
+              getKeywordWords(a.keywords?.join(" ") || ""),
             ),
           }))
           .filter((a) => a.overlap > 0)
@@ -290,13 +290,13 @@ Deno.serve(async (req) => {
           }
 
           const sourceArt = articles.find((a) => a.slug === source.slug);
-          if (!sourceArt || !sourceArt.content_html) {
+          if (!sourceArt || !sourceArt.content) {
             skipped++;
             continue;
           }
 
           const point = findInsertionPoint(
-            sourceArt.content_html,
+            sourceArt.content,
             targetWords,
           );
           if (!point) {
@@ -305,7 +305,7 @@ Deno.serve(async (req) => {
           }
 
           const updatedHtml = injectLink(
-            sourceArt.content_html,
+            sourceArt.content,
             point,
             target.slug,
             source.anchor,
@@ -313,7 +313,7 @@ Deno.serve(async (req) => {
 
           const { error: updateErr } = await supabase
             .from(BLOG_TABLE)
-            .update({ content_html: updatedHtml })
+            .update({ content: updatedHtml })
             .eq("slug", source.slug);
 
           if (updateErr) {
@@ -325,7 +325,7 @@ Deno.serve(async (req) => {
             continue;
           }
 
-          sourceArt.content_html = updatedHtml;
+          sourceArt.content = updatedHtml;
 
           const { error: insertErr } = await supabase
             .from(LINKS_TABLE)
@@ -370,25 +370,25 @@ Deno.serve(async (req) => {
 
         // Check cluster -> pillar
         if (
-          clusterArt?.content_html &&
-          !clusterArt.content_html.includes(`/${c.pillar_slug}`)
+          clusterArt?.content &&
+          !clusterArt.content.includes(`/${c.pillar_slug}`)
         ) {
           const point = findInsertionPoint(
-            clusterArt.content_html,
-            getKeywordWords(pillarArt?.keyword || c.pillar_slug),
+            clusterArt.content,
+            getKeywordWords(pillarArt?.keywords?.join(" ") || c.pillar_slug),
           );
           if (point) {
             const updatedHtml = injectLink(
-              clusterArt.content_html,
+              clusterArt.content,
               point,
               c.pillar_slug,
               c.anchor_text || pillarArt?.title || c.pillar_slug,
             );
             await supabase
               .from(BLOG_TABLE)
-              .update({ content_html: updatedHtml })
+              .update({ content: updatedHtml })
               .eq("slug", c.cluster_slug);
-            clusterArt.content_html = updatedHtml;
+            clusterArt.content = updatedHtml;
 
             const { count: ex } = await supabase
               .from(LINKS_TABLE)
@@ -420,25 +420,25 @@ Deno.serve(async (req) => {
 
         // Check pillar -> cluster
         if (
-          pillarArt?.content_html &&
-          !pillarArt.content_html.includes(`/${c.cluster_slug}`)
+          pillarArt?.content &&
+          !pillarArt.content.includes(`/${c.cluster_slug}`)
         ) {
           const point = findInsertionPoint(
-            pillarArt.content_html,
-            getKeywordWords(clusterArt?.keyword || c.cluster_slug),
+            pillarArt.content,
+            getKeywordWords(clusterArt?.keywords?.join(" ") || c.cluster_slug),
           );
           if (point) {
             const updatedHtml = injectLink(
-              pillarArt.content_html,
+              pillarArt.content,
               point,
               c.cluster_slug,
               c.reverse_anchor_text || clusterArt?.title || c.cluster_slug,
             );
             await supabase
               .from(BLOG_TABLE)
-              .update({ content_html: updatedHtml })
+              .update({ content: updatedHtml })
               .eq("slug", c.pillar_slug);
-            pillarArt.content_html = updatedHtml;
+            pillarArt.content = updatedHtml;
 
             const { count: ex } = await supabase
               .from(LINKS_TABLE)

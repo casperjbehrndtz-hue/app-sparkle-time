@@ -157,11 +157,88 @@ serve(async (req) => {
       ...(published ?? []).map((a: { slug: string }) => a.slug),
     ]);
 
-    const topic = TOPICS.find(t => !used.has(t.slug));
+    let topic = TOPICS.find(t => !used.has(t.slug));
+
+    // ─── Auto-generate new topic when seed list is exhausted ──────────
     if (!topic) {
-      return new Response(JSON.stringify({ message: "All topics used" }), {
-        headers: { ...cors, "Content-Type": "application/json" },
+      // 1. Check discovered keywords from GSC
+      const { data: discovered } = await supabase
+        .from("seo_discovered_keywords")
+        .select("keyword, impressions")
+        .eq("status", "new")
+        .order("impressions", { ascending: false })
+        .limit(5);
+
+      // 2. Get existing article titles for context
+      const { data: existing } = await supabase
+        .from("articles")
+        .select("title, slug, category")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(20);
+
+      const existingTitles = (existing ?? []).map(a => `- ${a.title} (${a.category})`).join("\n");
+      const discoveredKws = (discovered ?? []).map(d => d.keyword).join(", ");
+
+      const topicPrompt = `Du er SEO-strateg for NemtBudget.nu — et dansk privatøkonomi-site.
+
+Eksisterende artikler:
+${existingTitles}
+
+${discoveredKws ? `Google Search Console har fundet disse nye søgeord med trafik: ${discoveredKws}` : ""}
+
+Generer ÉT nyt artikelemne om dansk privatøkonomi der:
+- IKKE overlapper med eksisterende artikler
+- Har høj søgeintention (folk vil have et konkret svar)
+- Er relevant for danske forbrugere i 2026
+${discoveredKws ? "- Prioriter emner der matcher de opdagede søgeord" : ""}
+
+Returner KUN valid JSON:
+{"slug": "url-venlig-slug", "title": "Artikeltitel", "category": "Kategori", "keywords": ["kw1", "kw2", "kw3"], "intent": "Hvad søgeren vil have"}`;
+
+      const topicRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "anthropic-version": "2023-06-01",
+          "x-api-key": anthropicKey,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 500,
+          messages: [{ role: "user", content: topicPrompt }],
+        }),
       });
+
+      if (!topicRes.ok) throw new Error(`Topic generation failed: ${await topicRes.text()}`);
+
+      const topicData = await topicRes.json();
+      const topicRaw = topicData.content[0].text as string;
+      const jsonMatch = topicRaw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("Could not parse topic JSON from AI");
+
+      const generated = JSON.parse(jsonMatch[0]) as {
+        slug: string; title: string; category: string; keywords: string[]; intent: string;
+      };
+
+      // Ensure slug is unique
+      if (used.has(generated.slug)) {
+        generated.slug = generated.slug + "-" + Date.now().toString(36).slice(-4);
+      }
+
+      topic = generated;
+
+      // Mark discovered keywords as queued
+      if (discovered?.length) {
+        for (const d of discovered) {
+          await supabase
+            .from("seo_discovered_keywords")
+            .update({ status: "queued" })
+            .eq("keyword", d.keyword);
+        }
+      }
+
+      console.log(`✓ Auto-generated topic: "${topic.title}" (slug: ${topic.slug})`);
     }
 
     // ─── Fetch live data and related articles ──────────────────────────────
@@ -335,8 +412,9 @@ Samlet længde: 1.100-1.400 ord. Start direkte med <div class="answer-box"> — 
       ?.replace(/\*\*/g, "")
       .slice(0, 160) ?? topic.title;
 
-    const { data: draft, error } = await supabase
-      .from("article_drafts")
+    // ─── Publish directly (skip draft review) ─────────────────────────
+    const { data: article, error } = await supabase
+      .from("articles")
       .insert({
         slug: topic.slug,
         title: topic.title,
@@ -345,24 +423,37 @@ Samlet længde: 1.100-1.400 ord. Start direkte med <div class="answer-box"> — 
         read_time: estimateReadTime(content),
         content,
         keywords: topic.keywords,
-        status: "pending",
+        status: "published",
+        published_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error) throw error;
 
-    console.log(`✓ Draft created: "${topic.title}" (id: ${draft.id})`);
+    console.log(`✓ Published: "${topic.title}" (id: ${article.id})`);
+
+    // Trigger Vercel redeploy so the article gets pre-rendered and added to sitemap
+    const deployHook = Deno.env.get("VERCEL_DEPLOY_HOOK");
+    if (deployHook) {
+      fetch(deployHook, { method: "POST" }).catch(() => {});
+    }
+
+    // Ping IndexNow for fast indexing
+    try {
+      await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(`https://nemtbudget.nu/guides/${topic.slug}`)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+    } catch { /* non-critical */ }
 
     return new Response(
-      JSON.stringify({ success: true, draft_id: draft.id, title: topic.title }),
+      JSON.stringify({ success: true, article_id: article.id, title: topic.title, slug: topic.slug }),
       { headers: { ...cors, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
-    console.error("generate-article error:", err);
+    const errMsg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error("generate-article error:", errMsg);
     return new Response(
-      JSON.stringify({ error: String(err) }),
+      JSON.stringify({ error: errMsg }),
       { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }

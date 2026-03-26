@@ -144,16 +144,16 @@ Deno.serve(async (req) => {
           if (reason === "low_ctr_high_position") {
             const { data: post } = await supabase
               .from("articles")
-              .select("id, title, meta_title, meta_description")
+              .select("id, title, excerpt")
               .eq("slug", slug)
               .single();
 
             if (!post) { results.push({ slug, reason, action_taken: "skipped: article not found" }); continue; }
 
-            const queries = (perf.top_queries || []).join(", ");
+            const queries = (perf.top_queries || []).map((q: { query?: string }) => q.query || q).join(", ");
             const prompt = `Du er en CTR-optimeringsekspert. En artikel ranker på Google position ${perf.avg_position || "?"} for disse queries: ${queries}.
-Nuværende titel: "${post.meta_title || post.title}"
-Nuværende meta-beskrivelse: "${post.meta_description || ""}"
+Nuværende titel: "${post.title}"
+Nuværende excerpt/beskrivelse: "${post.excerpt || ""}"
 
 Generer 5 alternative titler og 3 alternative meta-beskrivelser der øger klikraten.
 
@@ -174,8 +174,8 @@ Returner JSON: {"titles": ["...", ...], "descriptions": ["...", ...]}`;
               await supabase
                 .from("articles")
                 .update({
-                  ...(newTitle ? { meta_title: newTitle } : {}),
-                  ...(newDesc ? { meta_description: newDesc } : {}),
+                  ...(newTitle ? { title: newTitle } : {}),
+                  ...(newDesc ? { excerpt: newDesc } : {}),
                 })
                 .eq("id", post.id);
             }
@@ -187,13 +187,13 @@ Returner JSON: {"titles": ["...", ...], "descriptions": ["...", ...]}`;
           else if (reason === "declining_position") {
             const { data: post } = await supabase
               .from("articles")
-              .select("id, content, keyword")
+              .select("id, content, keywords")
               .eq("slug", slug)
               .single();
 
             if (!post) { results.push({ slug, reason, action_taken: "skipped: article not found" }); continue; }
 
-            const queries = (perf.top_queries || []).join(", ");
+            const queries = (perf.top_queries || []).map((q: { query?: string }) => q.query || q).join(", ");
 
             const { data: related } = await supabase
               .from("articles")
@@ -203,7 +203,7 @@ Returner JSON: {"titles": ["...", ...], "descriptions": ["...", ...]}`;
               .limit(5);
             const relatedLinks = (related || []).map((r: { slug: string; title: string }) => `<a href="/guides/${r.slug}">${r.title}</a>`).join(", ");
 
-            const prompt = `Du er SEO-indholdsekspert. En artikel om "${post.keyword || slug}" er begyndt at falde i ranking.
+            const prompt = `Du er SEO-indholdsekspert. En artikel om "${post.keywords?.join(", ") || slug}" er begyndt at falde i ranking.
 Top queries der driver trafik: ${queries}
 
 Nuværende indhold mangler dækning af disse emner. Skriv en ny sektion (300 ord, H2 + paragraphs) der:

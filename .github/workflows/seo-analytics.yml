@@ -1,22 +1,22 @@
-name: SEO Content Generator
+name: SEO Analytics (GSC Sync)
 
 on:
-  # Run every 2 days at 08:00 UTC (10:00 dansk tid)
+  # Run every Sunday at 07:00 UTC (09:00 dansk tid)
   schedule:
-    - cron: "0 8 */2 * *"
-  # Allow manual trigger from GitHub Actions UI
+    - cron: "0 7 * * 0"
   workflow_dispatch:
 
 jobs:
-  generate-article:
+  sync-gsc:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate SEO article
+      - name: Sync Google Search Console data
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/generate-article")
+            -d '{"action":"full_sync"}' \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-analytics")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
@@ -29,5 +29,4 @@ jobs:
             exit 1
           fi
 
-          echo "Article draft created successfully"
-          echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Title: {d.get(\"title\", \"N/A\")}')" || true
+          echo "GSC sync completed"

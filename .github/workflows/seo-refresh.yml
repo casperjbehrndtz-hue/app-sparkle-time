@@ -1,22 +1,22 @@
-name: SEO Content Generator
+name: SEO Content Refresh
 
 on:
-  # Run every 2 days at 08:00 UTC (10:00 dansk tid)
+  # Run every Monday at 08:00 UTC (10:00 dansk tid), after analytics sync
   schedule:
-    - cron: "0 8 */2 * *"
-  # Allow manual trigger from GitHub Actions UI
+    - cron: "0 8 * * 1"
   workflow_dispatch:
 
 jobs:
-  generate-article:
+  refresh-content:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate SEO article
+      - name: Auto-refresh underperforming articles
         run: |
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json" \
-            "${{ secrets.SUPABASE_URL }}/functions/v1/generate-article")
+            -d '{"action":"auto_refresh"}' \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/seo-refresh")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | head -n-1)
@@ -29,5 +29,4 @@ jobs:
             exit 1
           fi
 
-          echo "Article draft created successfully"
-          echo "$BODY" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'Title: {d.get(\"title\", \"N/A\")}')" || true
+          echo "Content refresh completed"
