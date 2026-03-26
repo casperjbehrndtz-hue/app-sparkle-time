@@ -41,6 +41,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://nemtbudget.nu/jobskifte</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://nemtbudget.nu/guides/noedbuffer-hvad-er-det</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>monthly</changefreq>
