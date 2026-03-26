@@ -40,6 +40,25 @@ const TOPICS = [
   { slug: "bilopsparing-vs-billaan-2026", title: "Bil kontant vs. billån i 2026: Hvornår kan det betale sig?", category: "Transport", keywords: ["billån vs kontant", "finansiering bil", "billån rente 2026"], intent: "Skal købe bil og vil vide om de skal låne eller betale kontant" },
 ];
 
+// English topic seeds for expat/international audience
+const ENGLISH_TOPICS = [
+  { slug: "denmark-tax-system-expat-guide", title: "Danish Tax System Explained: A Complete Guide for Expats", category: "Tax", keywords: ["denmark tax system", "danish tax expat", "skat denmark"], intent: "Expat who just moved to Denmark and needs to understand the tax system" },
+  { slug: "cost-of-living-denmark-2026", title: "Cost of Living in Denmark 2026: Real Numbers, No Sugarcoating", category: "Getting Started", keywords: ["cost of living denmark", "denmark expenses", "living costs copenhagen"], intent: "Considering moving to Denmark or just arrived and wants real cost breakdown" },
+  { slug: "cpr-nemid-mitid-banking-setup", title: "CPR, MitID & Danish Banking: Your First 30 Days in Denmark", category: "Getting Started", keywords: ["cpr number denmark", "mitid setup", "danish bank account expat"], intent: "Just arrived in Denmark and needs to set up essential financial infrastructure" },
+  { slug: "danish-pension-system-explained", title: "Danish Pension System: ATP, Company Pension & What You Actually Get", category: "Pension", keywords: ["danish pension system", "ATP pension denmark", "pension expat denmark"], intent: "Wants to understand how Danish pensions work and what they'll receive" },
+  { slug: "buying-property-denmark-foreigner", title: "Buying Property in Denmark as a Foreigner: Rules, Costs & Process", category: "Housing", keywords: ["buy property denmark foreigner", "danish housing market", "andelsbolig vs ejerbolig english"], intent: "Foreign resident wanting to buy property in Denmark" },
+  { slug: "danish-healthcare-system-costs", title: "Danish Healthcare: What's Free, What's Not & How to Save", category: "Savings", keywords: ["denmark healthcare cost", "danish health insurance", "sundhedsforsikring english"], intent: "Wants to understand what healthcare costs exist despite the 'free' system" },
+  { slug: "salary-negotiation-denmark", title: "Salary Negotiation in Denmark: What to Expect After Tax", category: "Career", keywords: ["denmark salary after tax", "danish salary negotiation", "net salary denmark"], intent: "Job offer in Denmark and wants to understand real take-home pay" },
+  { slug: "investing-denmark-beginner-guide", title: "Investing in Denmark: Aktiesparekonto, ETFs & Tax Rules for Beginners", category: "Investing", keywords: ["investing denmark", "aktiesparekonto english", "ETF denmark tax"], intent: "Wants to start investing in Denmark but doesn't understand the tax-advantaged accounts" },
+  { slug: "a-kasse-dagpenge-unemployment", title: "A-kasse & Dagpenge: How Danish Unemployment Insurance Actually Works", category: "Safety Net", keywords: ["a-kasse denmark", "dagpenge english", "unemployment denmark expat"], intent: "Wants to understand whether to join an A-kasse and how unemployment benefits work" },
+  { slug: "child-benefits-denmark-boernepenge", title: "Child Benefits in Denmark: Børnepenge, Childcare Costs & Family Budget", category: "Family", keywords: ["child benefits denmark", "børnepenge english", "childcare costs denmark"], intent: "Parent or expecting parent wanting to understand Danish family financial support" },
+  { slug: "su-student-finance-denmark", title: "SU: Getting Paid to Study in Denmark — How It Works", category: "Education", keywords: ["SU denmark", "student finance denmark", "study grant denmark"], intent: "Student wanting to understand SU eligibility and amounts" },
+  { slug: "denmark-vs-other-countries-finances", title: "Denmark's High Taxes, High Quality: Is It Actually Worth It Financially?", category: "Getting Started", keywords: ["denmark high taxes worth it", "denmark vs usa finances", "nordic model explained"], intent: "Comparing Denmark financially to their home country" },
+  { slug: "skat-annual-tax-return-guide", title: "Your Danish Tax Return (Årsopgørelse): A Step-by-Step English Guide", category: "Tax", keywords: ["danish tax return english", "årsopgørelse guide", "skat tax return"], intent: "Needs to file or check their Danish tax return but doesn't read Danish well" },
+  { slug: "forskerskat-researcher-tax-scheme", title: "Forskerskat: Denmark's 27% Flat Tax for Expat Workers Explained", category: "Tax", keywords: ["forskerskat denmark", "researcher tax scheme", "expat tax denmark 27%"], intent: "Eligible for or curious about the special expat tax scheme" },
+  { slug: "budgeting-in-dkk-expat-tips", title: "Budgeting in DKK: Practical Tips for Managing Money in Denmark", category: "Getting Started", keywords: ["budgeting denmark", "manage money denmark", "dkk budget tips"], intent: "Expat who wants practical budgeting advice adapted to Danish context" },
+];
+
 // ─── Fetch live Danish financial data ────────────────────────────────────────
 async function fetchLiveData(category: string): Promise<string> {
   const dataPoints: string[] = [];
@@ -90,7 +109,7 @@ async function fetchLiveData(category: string): Promise<string> {
   } catch { /* non-fatal */ }
 
   // Category-specific data
-  if (category === "Boligøkonomi" || category === "Investering") {
+  if (category === "Boligøkonomi" || category === "Investering" || category === "Housing" || category === "Investing") {
     try {
       const rateRes = await fetch(
         "https://api.statbank.dk/v1/data/MPKRENTA/CSV?lang=da&RENTTYPE=LAAN30&Tid=2024M10,2024M11,2024M12,2025M01,2025M02",
@@ -107,10 +126,10 @@ async function fetchLiveData(category: string): Promise<string> {
   }
 
   if (dataPoints.length === 0) {
-    return "Bemærk: Brug de senest kendte tal fra Danmarks Statistik, Finanstilsynet og Nationalbanken. Angiv altid kilden.";
+    return "Note: Use the latest known figures from Danmarks Statistik, Finanstilsynet, and Nationalbanken. Always cite the source.";
   }
 
-  return `LIVE DANSKE FINANSDATA (hentet lige nu fra offentlige API'er — brug disse tal i artiklen):\n${dataPoints.join("\n")}`;
+  return `LIVE DANISH FINANCIAL DATA (fetched now from public APIs — use these figures in the article):\n${dataPoints.join("\n")}`;
 }
 
 function estimateReadTime(content: string): string {
@@ -118,166 +137,12 @@ function estimateReadTime(content: string): string {
   return `${Math.max(3, Math.round(words / 200))} min`;
 }
 
-serve(async (req) => {
-  const cors = getCorsHeaders(req);
-  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+// ─── Prompt builders ─────────────────────────────────────────────────────────
 
-  // ─── Auth ─────────────────────────────────────────────────────────────────
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  const authHeader = req.headers.get("Authorization") ?? "";
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
-  }
+function buildDanishPrompt(topic: { title: string; category: string; keywords: string[]; intent: string }, liveData: string, internalLinks: string, clusterContext: string): string {
+  const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
-
-  const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!anthropicKey) {
-    return new Response(JSON.stringify({ error: "No Anthropic key" }), {
-      status: 500,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
-  }
-
-  try {
-    // ─── Pick next unused topic ───────────────────────────────────────────
-    const [{ data: usedDrafts }, { data: published }] = await Promise.all([
-      supabase.from("article_drafts").select("slug"),
-      supabase.from("articles").select("slug"),
-    ]);
-
-    const used = new Set([
-      ...(usedDrafts ?? []).map((d: { slug: string }) => d.slug),
-      ...(published ?? []).map((a: { slug: string }) => a.slug),
-    ]);
-
-    let topic = TOPICS.find(t => !used.has(t.slug));
-
-    // ─── Auto-generate new topic when seed list is exhausted ──────────
-    if (!topic) {
-      // 1. Check discovered keywords from GSC
-      const { data: discovered } = await supabase
-        .from("seo_discovered_keywords")
-        .select("keyword, impressions")
-        .eq("status", "new")
-        .order("impressions", { ascending: false })
-        .limit(5);
-
-      // 2. Get existing article titles for context
-      const { data: existing } = await supabase
-        .from("articles")
-        .select("title, slug, category")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(20);
-
-      const existingTitles = (existing ?? []).map(a => `- ${a.title} (${a.category})`).join("\n");
-      const discoveredKws = (discovered ?? []).map(d => d.keyword).join(", ");
-
-      const topicPrompt = `Du er SEO-strateg for NemtBudget.nu — et dansk privatøkonomi-site.
-
-Eksisterende artikler:
-${existingTitles}
-
-${discoveredKws ? `Google Search Console har fundet disse nye søgeord med trafik: ${discoveredKws}` : ""}
-
-Generer ÉT nyt artikelemne om dansk privatøkonomi der:
-- IKKE overlapper med eksisterende artikler
-- Har høj søgeintention (folk vil have et konkret svar)
-- Er relevant for danske forbrugere i 2026
-${discoveredKws ? "- Prioriter emner der matcher de opdagede søgeord" : ""}
-
-Returner KUN valid JSON:
-{"slug": "url-venlig-slug", "title": "Artikeltitel", "category": "Kategori", "keywords": ["kw1", "kw2", "kw3"], "intent": "Hvad søgeren vil have"}`;
-
-      const topicRes = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "anthropic-version": "2023-06-01",
-          "x-api-key": anthropicKey,
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 500,
-          messages: [{ role: "user", content: topicPrompt }],
-        }),
-      });
-
-      if (!topicRes.ok) throw new Error(`Topic generation failed: ${await topicRes.text()}`);
-
-      const topicData = await topicRes.json();
-      const topicRaw = topicData.content[0].text as string;
-      const jsonMatch = topicRaw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("Could not parse topic JSON from AI");
-
-      const generated = JSON.parse(jsonMatch[0]) as {
-        slug: string; title: string; category: string; keywords: string[]; intent: string;
-      };
-
-      // Ensure slug is unique
-      if (used.has(generated.slug)) {
-        generated.slug = generated.slug + "-" + Date.now().toString(36).slice(-4);
-      }
-
-      topic = generated;
-
-      // Mark discovered keywords as queued
-      if (discovered?.length) {
-        for (const d of discovered) {
-          await supabase
-            .from("seo_discovered_keywords")
-            .update({ status: "queued" })
-            .eq("keyword", d.keyword);
-        }
-      }
-
-      console.log(`✓ Auto-generated topic: "${topic.title}" (slug: ${topic.slug})`);
-    }
-
-    // ─── Fetch live data and related articles ──────────────────────────────
-    const liveData = await fetchLiveData(topic.category);
-
-    let internalLinks = "";
-    try {
-      const { data: related } = await supabase
-        .from("articles")
-        .select("title, slug")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(10);
-      if (related?.length) {
-        internalLinks = related.map((r: { title: string; slug: string }) => `- "${r.title}" → /guides/${r.slug}`).join("\n");
-      }
-    } catch { /* ignore */ }
-
-    // Fetch cluster relationships for topical authority linking
-    let clusterContext = "";
-    try {
-      const { data: clusterLinks } = await supabase
-        .from("topic_clusters")
-        .select("pillar_slug, cluster_slug, anchor_text, reverse_anchor_text")
-        .or(`pillar_slug.eq.${topic.slug},cluster_slug.eq.${topic.slug}`);
-      if (clusterLinks?.length) {
-        clusterContext = clusterLinks.map((c) => {
-          const isCluster = c.cluster_slug === topic.slug;
-          return isCluster
-            ? `- LINK OP TIL PILLAR: "${c.anchor_text}" → /guides/${c.pillar_slug}`
-            : `- LINK NED TIL CLUSTER: "${c.reverse_anchor_text}" → /guides/${c.cluster_slug}`;
-        }).join("\n");
-      }
-    } catch { /* ignore */ }
-
-    // ─── Build Google E-E-A-T optimised prompt ────────────────────────────
-    const today = new Date().toLocaleDateString("da-DK", { year: "numeric", month: "long" });
-
-    const prompt = `Du er chefredaktør på NemtBudget — Danmarks skarpeste privatøkonomiske medie. Du skriver i dag (${today}) en artikel til vores guides-sektion.
+  return `Du er chefredaktør på NemtBudget — Danmarks skarpeste privatøkonomiske medie. Du skriver i dag (${today}) en artikel til vores guides-sektion.
 
 EMNE: ${topic.title}
 KATEGORI: ${topic.category}
@@ -384,68 +249,268 @@ ${internalLinks ? `\nEksisterende guides du kan linke til:\n${internalLinks}` : 
 Afslut naturligt med en overgang til at beregne i NemtBudget — ikke som reklame, men som logisk næste skridt.
 
 Samlet længde: 1.100-1.400 ord. Start direkte med <div class="answer-box"> — ingen titel øverst.`;
+}
 
-    // ─── Call Claude Opus ─────────────────────────────────────────────────
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "anthropic-version": "2023-06-01",
-        "x-api-key": anthropicKey,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 2500,
-        messages: [{ role: "user", content: prompt }],
-      }),
+function buildEnglishPrompt(topic: { title: string; category: string; keywords: string[]; intent: string }, liveData: string, internalLinks: string): string {
+  const today = new Date().toLocaleDateString("en-GB", { year: "numeric", month: "long" });
+
+  return `You are the editor-in-chief of NemtBudget — Denmark's sharpest personal finance publication. Today (${today}) you are writing a guide for our English-language section, targeting expats, international workers, and English-speaking residents in Denmark.
+
+TOPIC: ${topic.title}
+CATEGORY: ${topic.category}
+SEARCH INTENT: ${topic.intent}
+PRIMARY KEYWORDS: ${topic.keywords.join(", ")}
+
+${liveData}
+
+─── AI OVERVIEW & FEATURED SNIPPET OPTIMIZATION ─────────────────────────────
+
+**Answer Box (CRITICAL — this captures Google AI Overviews):**
+- ALWAYS start the article with a <div class="answer-box"> containing a direct, factual answer in MAX 50 words
+- Format: <div class="answer-box"><p><strong>[Direct answer with specific numbers]</strong></p></div>
+
+**Speakable Content:**
+- All H2 headings and FAQ answers must be independently understandable
+- Use clear, declarative sentences
+
+─── BILINGUAL FINANCIAL TERMS ───────────────────────────────────────────────
+
+CRITICAL: Always include the Danish term alongside the English explanation using this pattern:
+- "<dfn>Aktiesparekonto</dfn> (stock savings account)" on first mention
+- "Your <dfn>årsopgørelse</dfn> (annual tax statement) from SKAT..."
+- "The <dfn>personfradrag</dfn> (personal tax allowance) in 2026 is 49,700 DKK (~€6,660/~$7,250)"
+- ALWAYS show amounts in DKK first, then approximate EUR and USD in parentheses
+
+This helps expats recognize the Danish terms they'll encounter on official Danish websites and documents.
+
+─── ENTITY-FIRST WRITING (Google's NLP) ────────────────────────────────────
+
+- Write in subject-predicate-object patterns: "The personal tax allowance in 2026 is 49,700 DKK" — NOT "In 2026 there is an allowance one can use"
+- NAME specific entities: Danmarks Statistik, Skattestyrelsen (Danish Tax Agency), Nationalbanken (Danish Central Bank), Finanstilsynet (Financial Supervisory Authority)
+- Always parenthesize the English translation of Danish institutions on first mention
+
+─── GOOGLE RANKING SIGNALS 2026 ───────────────────────────────────────────
+
+**E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness):**
+- Write from experience — use "when we looked at the numbers", "in our calculations", "what surprised us"
+- Always cite specific figures with source: "(source: Danmarks Statistik, 2024)"
+- Have opinions: "We think that...", "This is actually a bad idea because..."
+
+**People Also Ask (PAA):**
+- End with 4-5 FAQ questions and short answers
+- Wrap each answer in <div class="faq-answer">
+
+**Helpful Content Update:**
+- Go DEEPER than what people find elsewhere
+- Include AT LEAST one concrete calculation in an HTML <table>
+- Mention a common mistake people make
+
+─── TABLE & CALCULATIONS ─────────────────────────────────────────────────
+
+- Include AT LEAST one HTML <table> with relevant calculations
+- Show DKK amounts with EUR/USD equivalents
+- Use the LIVE FINANCIAL DATA above where relevant
+
+─── SOURCES & CITATIONS ────────────────────────────────────────────────────
+
+- ALWAYS include a "Sources" section as second-to-last element (before CTA):
+  <section class="references"><h3>Sources</h3><ol>
+    <li><cite>Danmarks Statistik</cite> — dst.dk (2024)</li>
+    <li><cite>Nationalbanken</cite> — nationalbanken.dk (2026)</li>
+  </ol></section>
+
+─── WRITING STYLE ───────────────────────────────────────────────────────────
+
+- English, direct, slightly personal — like a knowledgeable friend who works in finance and lives in Denmark
+- Mix short sentences with longer ones. Avoid monotonous rhythm.
+- NEVER: "It is important to...", "One should consider...", "In a world where...", "In this article we will..."
+- Use "actually", "surprisingly", "most people forget", "here's what we found"
+- Write "we" and "you" — not "one" and "the citizen"
+- Acknowledge the expat perspective: "If you're coming from [US/UK/EU], this might seem..."
+
+─── STRUCTURE (follow EXACTLY) ─────────────────────────────────────────────
+
+<div class="answer-box"><p><strong>[Direct answer — max 50 words with specific numbers]</strong></p></div>
+
+## [H2 with entity-statement answering the primary question]
+[300-400 words with <dfn>-tags for Danish terms, specific numbers, and source citations]
+
+<table>[Calculation with live data where possible, DKK + EUR/USD]</table>
+
+## [H2 expanding with alternative perspective]
+[250-350 words]
+
+## [H2 with common mistake — practical and specific]
+[200-250 words]
+
+## Frequently Asked Questions
+<div class="faq-item"><h3>[Question 1]</h3><div class="faq-answer">[Answer]</div></div>
+<div class="faq-item"><h3>[Question 2]</h3><div class="faq-answer">[Answer]</div></div>
+<div class="faq-item"><h3>[Question 3]</h3><div class="faq-answer">[Answer]</div></div>
+<div class="faq-item"><h3>[Question 4]</h3><div class="faq-answer">[Answer]</div></div>
+
+─── INTERNAL LINKING ────────────────────────────────────────────────────────
+- 2-3 contextual links to related guides: <a href="/guides/slug">title</a>
+- "Read also" section with 2-3 related article links
+- Cross-link to: <a href="https://www.parfinans.dk">ParFinans</a> or <a href="https://xn--brneskat-54a.dk">Børneskat.dk</a>
+${internalLinks ? `\nExisting guides you can link to:\n${internalLinks}` : ""}
+
+<section class="references"><h3>Sources</h3><ol>[Numbered sources with cite-tags]</ol></section>
+
+─── ENDING ─────────────────────────────────────────────────────────────────
+End naturally with a transition to calculating in NemtBudget — not as advertising, but as a logical next step.
+
+Total length: 1,100-1,400 words. Start directly with <div class="answer-box"> — no title at the top.`;
+}
+
+// ─── Main handler ────────────────────────────────────────────────────────────
+
+serve(async (req) => {
+  const cors = getCorsHeaders(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+
+  // ─── Auth ─────────────────────────────────────────────────────────────────
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...cors, "Content-Type": "application/json" },
     });
+  }
 
-    if (!res.ok) throw new Error(`Anthropic: ${await res.text()}`);
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
 
-    const data = await res.json();
-    const content = data.content[0].text as string;
+  const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+  if (!anthropicKey) {
+    return new Response(JSON.stringify({ error: "No Anthropic key" }), {
+      status: 500,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
 
-    // Extract excerpt from first real paragraph
-    const excerpt = content
-      .split("\n")
-      .find(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith("|") && l.length > 60)
-      ?.replace(/\*\*/g, "")
-      .slice(0, 160) ?? topic.title;
+  try {
+    const results: { locale: string; title: string; slug: string; id: string }[] = [];
 
-    // ─── Publish directly (skip draft review) ─────────────────────────
-    const { data: article, error } = await supabase
-      .from("articles")
-      .insert({
-        slug: topic.slug,
-        title: topic.title,
-        excerpt,
-        category: topic.category,
-        read_time: estimateReadTime(content),
-        content,
-        keywords: topic.keywords,
-        status: "published",
-        published_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    // ─── Generate for both locales ──────────────────────────────────────
+    for (const locale of ["da", "en"] as const) {
+      const topicResult = await pickTopic(locale, supabase, anthropicKey);
+      if (!topicResult) {
+        console.log(`⏭ Skipping ${locale}: no topic available`);
+        continue;
+      }
 
-    if (error) throw error;
+      const topic = topicResult;
 
-    console.log(`✓ Published: "${topic.title}" (id: ${article.id})`);
+      // Fetch live data and related articles
+      const liveData = await fetchLiveData(topic.category);
 
-    // Trigger Vercel redeploy so the article gets pre-rendered and added to sitemap
+      let internalLinks = "";
+      try {
+        const { data: related } = await supabase
+          .from("articles")
+          .select("title, slug, locale")
+          .eq("status", "published")
+          .eq("locale", locale)
+          .order("published_at", { ascending: false })
+          .limit(10);
+        if (related?.length) {
+          internalLinks = related.map((r: { title: string; slug: string }) => `- "${r.title}" → /guides/${r.slug}`).join("\n");
+        }
+      } catch { /* ignore */ }
+
+      // Fetch cluster relationships (only for Danish)
+      let clusterContext = "";
+      if (locale === "da") {
+        try {
+          const { data: clusterLinks } = await supabase
+            .from("topic_clusters")
+            .select("pillar_slug, cluster_slug, anchor_text, reverse_anchor_text")
+            .or(`pillar_slug.eq.${topic.slug},cluster_slug.eq.${topic.slug}`);
+          if (clusterLinks?.length) {
+            clusterContext = clusterLinks.map((c) => {
+              const isCluster = c.cluster_slug === topic.slug;
+              return isCluster
+                ? `- LINK OP TIL PILLAR: "${c.anchor_text}" → /guides/${c.pillar_slug}`
+                : `- LINK NED TIL CLUSTER: "${c.reverse_anchor_text}" → /guides/${c.cluster_slug}`;
+            }).join("\n");
+          }
+        } catch { /* ignore */ }
+      }
+
+      // Build prompt based on locale
+      const prompt = locale === "da"
+        ? buildDanishPrompt(topic, liveData, internalLinks, clusterContext)
+        : buildEnglishPrompt(topic, liveData, internalLinks);
+
+      // Call Claude
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "anthropic-version": "2023-06-01",
+          "x-api-key": anthropicKey,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 2500,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Anthropic (${locale}): ${await res.text()}`);
+
+      const data = await res.json();
+      const content = data.content[0].text as string;
+
+      // Extract excerpt
+      const excerpt = content
+        .split("\n")
+        .find(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith("|") && l.length > 60)
+        ?.replace(/\*\*/g, "")
+        .slice(0, 160) ?? topic.title;
+
+      // Publish
+      const { data: article, error } = await supabase
+        .from("articles")
+        .insert({
+          slug: topic.slug,
+          title: topic.title,
+          excerpt,
+          category: topic.category,
+          read_time: estimateReadTime(content),
+          content,
+          keywords: topic.keywords,
+          locale,
+          status: "published",
+          published_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log(`✓ Published (${locale}): "${topic.title}" (id: ${article.id})`);
+      results.push({ locale, title: topic.title, slug: topic.slug, id: article.id });
+
+      // Ping IndexNow
+      try {
+        const path = locale === "en" ? `/en/guides/${topic.slug}` : `/guides/${topic.slug}`;
+        await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(`https://nemtbudget.nu${path}`)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+      } catch { /* non-critical */ }
+    }
+
+    // Single Vercel redeploy after both articles
     const deployHook = Deno.env.get("VERCEL_DEPLOY_HOOK");
-    if (deployHook) {
+    if (deployHook && results.length > 0) {
       fetch(deployHook, { method: "POST" }).catch(() => {});
     }
 
-    // Ping IndexNow for fast indexing
-    try {
-      await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(`https://nemtbudget.nu/guides/${topic.slug}`)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
-    } catch { /* non-critical */ }
-
     return new Response(
-      JSON.stringify({ success: true, article_id: article.id, title: topic.title, slug: topic.slug }),
+      JSON.stringify({ success: true, articles: results }),
       { headers: { ...cors, "Content-Type": "application/json" } }
     );
 
@@ -458,3 +523,124 @@ Samlet længde: 1.100-1.400 ord. Start direkte med <div class="answer-box"> — 
     );
   }
 });
+
+// ─── Topic picker ────────────────────────────────────────────────────────────
+
+async function pickTopic(
+  locale: "da" | "en",
+  supabase: ReturnType<typeof createClient>,
+  anthropicKey: string
+): Promise<{ slug: string; title: string; category: string; keywords: string[]; intent: string } | null> {
+
+  // Get all used slugs for this locale
+  const [{ data: usedDrafts }, { data: published }] = await Promise.all([
+    supabase.from("article_drafts").select("slug"),
+    supabase.from("articles").select("slug").eq("locale", locale),
+  ]);
+
+  const used = new Set([
+    ...(usedDrafts ?? []).map((d: { slug: string }) => d.slug),
+    ...(published ?? []).map((a: { slug: string }) => a.slug),
+  ]);
+
+  const seedTopics = locale === "da" ? TOPICS : ENGLISH_TOPICS;
+  let topic = seedTopics.find(t => !used.has(t.slug));
+
+  // Auto-generate new topic when seed list is exhausted
+  if (!topic) {
+    const { data: discovered } = await supabase
+      .from("seo_discovered_keywords")
+      .select("keyword, impressions")
+      .eq("status", "new")
+      .order("impressions", { ascending: false })
+      .limit(5);
+
+    const { data: existing } = await supabase
+      .from("articles")
+      .select("title, slug, category")
+      .eq("status", "published")
+      .eq("locale", locale)
+      .order("published_at", { ascending: false })
+      .limit(20);
+
+    const existingTitles = (existing ?? []).map(a => `- ${a.title} (${a.category})`).join("\n");
+    const discoveredKws = (discovered ?? []).map(d => d.keyword).join(", ");
+
+    const topicPrompt = locale === "da"
+      ? `Du er SEO-strateg for NemtBudget.nu — et dansk privatøkonomi-site.
+
+Eksisterende artikler:
+${existingTitles}
+
+${discoveredKws ? `Google Search Console har fundet disse nye søgeord med trafik: ${discoveredKws}` : ""}
+
+Generer ÉT nyt artikelemne om dansk privatøkonomi der:
+- IKKE overlapper med eksisterende artikler
+- Har høj søgeintention (folk vil have et konkret svar)
+- Er relevant for danske forbrugere i 2026
+${discoveredKws ? "- Prioriter emner der matcher de opdagede søgeord" : ""}
+
+Returner KUN valid JSON:
+{"slug": "url-venlig-slug", "title": "Artikeltitel", "category": "Kategori", "keywords": ["kw1", "kw2", "kw3"], "intent": "Hvad søgeren vil have"}`
+      : `You are an SEO strategist for NemtBudget.nu — a Danish personal finance site with an English section for expats and international residents.
+
+Existing English articles:
+${existingTitles}
+
+${discoveredKws ? `Google Search Console discovered these keywords with traffic: ${discoveredKws}` : ""}
+
+Generate ONE new article topic about personal finance in Denmark for English speakers that:
+- Does NOT overlap with existing articles
+- Has high search intent (people want a specific answer)
+- Is relevant for expats, international workers, or English-speaking residents in Denmark in 2026
+- Focuses on topics where the Danish system differs from other countries
+${discoveredKws ? "- Prioritize topics matching the discovered keywords" : ""}
+
+Return ONLY valid JSON:
+{"slug": "url-friendly-slug", "title": "Article Title", "category": "Category", "keywords": ["kw1", "kw2", "kw3"], "intent": "What the searcher wants"}`;
+
+    const topicRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "anthropic-version": "2023-06-01",
+        "x-api-key": anthropicKey,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 500,
+        messages: [{ role: "user", content: topicPrompt }],
+      }),
+    });
+
+    if (!topicRes.ok) throw new Error(`Topic generation failed (${locale}): ${await topicRes.text()}`);
+
+    const topicData = await topicRes.json();
+    const topicRaw = topicData.content[0].text as string;
+    const jsonMatch = topicRaw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error(`Could not parse topic JSON from AI (${locale})`);
+
+    const generated = JSON.parse(jsonMatch[0]) as {
+      slug: string; title: string; category: string; keywords: string[]; intent: string;
+    };
+
+    if (used.has(generated.slug)) {
+      generated.slug = generated.slug + "-" + Date.now().toString(36).slice(-4);
+    }
+
+    topic = generated;
+
+    if (discovered?.length) {
+      for (const d of discovered) {
+        await supabase
+          .from("seo_discovered_keywords")
+          .update({ status: "queued" })
+          .eq("keyword", d.keyword);
+      }
+    }
+
+    console.log(`✓ Auto-generated topic (${locale}): "${topic.title}" (slug: ${topic.slug})`);
+  }
+
+  return topic;
+}
