@@ -28,7 +28,7 @@ import { ProfileEditSheet } from "./ProfileEditSheet";
 import { BudgetReport } from "./BudgetReport";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
-
+import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
@@ -216,6 +216,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   return (
     <div id="main-content" className="min-h-screen bg-background flex flex-col pb-safe">
       <h1 className="sr-only">{t("dash.title")}</h1>
+      {!isEmbed && <SuiteNav />}
 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
