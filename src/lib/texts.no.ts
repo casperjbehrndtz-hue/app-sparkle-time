@@ -9,6 +9,7 @@ export const NO: Record<string, string> = {
   "nav.coupleFinance": "Parøkonomi",
   "nav.childTax": "Barneskatteplanlegging",
   "nav.jobChange": "Jobbskifte",
+  "nav.guides": "Guider",
   "nav.cockpit": "Cockpit",
   "nav.overview": "Oversikt",
   "nav.action": "Handling",

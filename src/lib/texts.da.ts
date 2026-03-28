@@ -8,6 +8,7 @@ export const DA: Record<string, string> = {
   "nav.coupleFinance": "Parøkonomi",
   "nav.childTax": "Børneskat",
   "nav.jobChange": "Jobskifte",
+  "nav.guides": "Guides",
   "nav.cockpit": "Cockpit",
   "nav.overview": "Overblik",
   "nav.action": "Handling",
