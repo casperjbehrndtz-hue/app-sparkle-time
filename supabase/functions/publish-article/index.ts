@@ -61,6 +61,7 @@ serve(async (req) => {
       category: draft.category,
       read_time: draft.read_time,
       content: draft.content,
+      locale: draft.locale ?? "da",
       status: "published",
       published_at: new Date().toISOString(),
     });

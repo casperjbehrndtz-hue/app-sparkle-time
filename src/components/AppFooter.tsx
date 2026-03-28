@@ -29,6 +29,7 @@ export function AppFooter() {
               <li><Link to="/guides" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("footer.guides")}</Link></li>
               <li><a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.coupleFinance")}</a></li>
               <li><a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("nav.childTax")}</a></li>
+              <li><a href="https://institutionsguide.dk" target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Institutionsguide</a></li>
             </ul>
           </div>
 
