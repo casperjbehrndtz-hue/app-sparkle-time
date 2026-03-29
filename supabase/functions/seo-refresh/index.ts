@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 const SITE_URL = "https://nemtbudget.nu";
-const INDEXNOW_KEY = "a563611ec50b9a5e31fdadcde3e13e1c";
+const INDEXNOW_KEY = Deno.env.get("INDEXNOW_KEY") || "";
 const MAX_ARTICLES_PER_RUN = 3;
 const DELAY_BETWEEN_AI_CALLS_MS = 2000;
 

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders } from "../_shared/cors.ts";
+import { checkRateLimit } from "../_shared/rateLimit.ts";
 
 // ─── Topic seed list ──────────────────────────────────────────────────────────
 const TOPICS = [
@@ -369,6 +370,16 @@ serve(async (req) => {
   const cors = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
 
+  // ─── Rate limit ───────────────────────────────────────────────────────────
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const allowed = await checkRateLimit("generate-article", clientIp, 10);
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429,
+      headers: { ...cors, "Content-Type": "application/json" },
+    });
+  }
+
   // ─── Auth ─────────────────────────────────────────────────────────────────
   const cronSecret = Deno.env.get("CRON_SECRET");
   const authHeader = req.headers.get("Authorization") ?? "";
@@ -499,7 +510,7 @@ serve(async (req) => {
       // Ping IndexNow
       try {
         const path = locale === "en" ? `/en/guides/${topic.slug}` : `/guides/${topic.slug}`;
-        await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(`https://nemtbudget.nu${path}`)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+        await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(`https://nemtbudget.nu${path}`)}&key=${Deno.env.get("INDEXNOW_KEY") || ""}`);
       } catch { /* non-critical */ }
     }
 

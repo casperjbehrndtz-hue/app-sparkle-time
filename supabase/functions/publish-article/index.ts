@@ -87,7 +87,7 @@ serve(async (req) => {
   // Ping IndexNow for fast indexing
   const articleUrl = `https://nemtbudget.nu/guides/${draft.slug}`;
   try {
-    await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=a563611ec50b9a5e31fdadcde3e13e1c`);
+    await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(articleUrl)}&key=${Deno.env.get("INDEXNOW_KEY") || ""}`);
   } catch { /* non-critical */ }
 
   return new Response(JSON.stringify({ success: true, action: "approved", slug: draft.slug }), {
