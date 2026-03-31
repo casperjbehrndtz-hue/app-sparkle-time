@@ -112,7 +112,7 @@ VIGTIGE REGLER:
 4. Foreslå REALISTISKE reduktioner, ikke eliminering. Fx reducer restaurant fra 800 til 500 (ikke 0). Reducer mad med max 15-20%. Folk skal stadig leve.
 5. Foreslå ALDRIG ændringer til: forsikring, fagforening, bil, opsparing, bolig, lån — disse er enten nødvendige eller kræver ekspertrådgivning.
 6. Alle beløb SKAL stemme overens med profilen ovenfor. Rådighedsbeløb = indkomst minus udgifter (brug det tal der står ovenfor, opfind ikke andre).
-7. Hold en konsistent, venlig tone hele vejen. Vær direkte men aldrig panikagtig eller dømmende. Du er en klog ven — ikke en streng revisor.
+7. Hold en konsistent, professionel tone hele vejen. Vær direkte men aldrig panikagtig eller dømmende. Skriv som en økonomisk rådgiver — ikke en chatbot.
 
 SVAR-FORMAT (KUN valid JSON, ingen markdown/kodeblok):
 {

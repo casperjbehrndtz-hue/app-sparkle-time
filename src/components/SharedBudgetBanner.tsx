@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { X, Sparkles, User, Briefcase, MapPin, MessageCircle } from "lucide-react";
+import { X, TrendingUp, User, Briefcase, MapPin, MessageCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -50,7 +50,7 @@ export function SharedBudgetBanner({ profile, budget, meta }: Props) {
               href="/"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white text-blue-700 text-xs font-semibold rounded-md hover:bg-blue-50 transition-colors"
             >
-              <Sparkles className="h-3 w-3" />
+              <TrendingUp className="h-3 w-3" />
               {t("shared.bannerCta")}
             </a>
             <button

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Lightbulb, ArrowRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -130,7 +130,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
             >
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Sparkles className={`w-3.5 h-3.5 text-primary ${aiStream.isStreaming ? "animate-pulse" : ""}`} />
+                  <Lightbulb className={`w-3.5 h-3.5 text-primary ${aiStream.isStreaming ? "animate-pulse" : ""}`} />
                 </div>
                 <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("ai.insightLabel")}</span>
               </div>

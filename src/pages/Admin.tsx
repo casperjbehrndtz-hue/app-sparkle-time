@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle, XCircle, Loader2, Eye, EyeOff, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Loader2, Eye, EyeOff, Clock, Newspaper } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { useI18n } from "@/lib/i18n";
@@ -133,7 +133,7 @@ export default function Admin() {
             <ArrowLeft className="w-4 h-4" /> NemtBudget
           </Link>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-primary" />
+            <Newspaper className="w-4 h-4 text-primary" />
             <h1 className="font-display font-bold text-base">{t("admin.title")}</h1>
           </div>
           <span className="text-xs text-muted-foreground">{user?.email}</span>

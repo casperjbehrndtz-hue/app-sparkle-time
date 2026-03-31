@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Check, SkipForward, Sparkles, Target, Undo2 } from "lucide-react";
+import { X, ArrowRight, Check, SkipForward, Lightbulb, Target, Undo2 } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
@@ -159,7 +159,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Lightbulb className="w-4 h-4 text-primary" />
           <span className="font-display font-bold text-sm">{t("guided.title")}</span>
         </div>
         <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
@@ -245,7 +245,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                   {msg.type === "ai" && (
                     <div className="flex gap-2.5 items-start">
                       <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <Lightbulb className="w-3.5 h-3.5 text-primary" />
                       </div>
                       <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3 text-sm text-foreground max-w-[85%]">
                         {msg.text}
@@ -276,7 +276,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             {phase === "loading" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2.5 items-start">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <Lightbulb className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3 flex gap-1 items-center">
                   {[0, 1, 2].map(i => (

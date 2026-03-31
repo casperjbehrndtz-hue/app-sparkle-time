@@ -172,9 +172,9 @@ ${liveData}
 ─── GOOGLES RANKING-SIGNALER I 2026 ───────────────────────────────────────
 
 **E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness):**
-- Skriv som en der HAR erfaring — brug "da vi kiggede på tallene", "i vores beregninger", "det overraskede os"
+- Skriv fra et ekspertperspektiv med konkrete data og beregninger
 - Angiv altid konkrete tal med kilde: "(kilde: Danmarks Statistik, 2024)" eller "(Nationalbanken, 2026)"
-- Vær villig til at have en holdning: "Vi mener at...", "Det er faktisk en dårlig idé fordi..."
+- Hav en klar vinkel — undgå at sidde på hegnet, men begrund altid med data
 
 **People Also Ask (PAA):**
 - Afslut med 4-5 FAQ spørgsmål og korte svar
@@ -210,11 +210,12 @@ ${liveData}
 
 ─── SKRIVESTIL ───────────────────────────────────────────────────────────────
 
-- Dansk, direkte, lidt personlig — som en klog ven der arbejder med økonomi
+- Dansk, direkte, faglig — som en finansjournalist der dækker privatøkonomi
 - Bland korte sætninger med lidt længere. Undgå monoton rytme.
 - ALDRIG: "Det er vigtigt at...", "Man bør overveje...", "I en verden hvor...", "I denne artikel vil vi..."
-- Brug gerne "faktisk", "overraskende nok", "det fleste glemmer", "her er hvad vi fandt"
-- Skriv "vi" og "dig" — ikke "man" og "borgeren"
+- FORBUDT (disse afslører AI-genereret tekst): "faktisk" (max 1 gang i hele artiklen), "overraskende nok", "de fleste glemmer", "her er hvad vi fandt", "da vi kiggede på tallene", "det overraskede os", "vi mener at", "interessant nok", "det viser sig at", "ca." foran tal (brug præcise tal)
+- Tone: Faglig, neutral, præcis. Som Berlingske eller Politiken. Ingen blogger-stemme.
+- Skriv "du" og "din" — ikke "man" og "borgeren"
 
 ─── STRUKTUR (følg denne NØJAGTIGT) ─────────────────────────────────────────
 
@@ -293,9 +294,9 @@ This helps expats recognize the Danish terms they'll encounter on official Danis
 ─── GOOGLE RANKING SIGNALS 2026 ───────────────────────────────────────────
 
 **E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness):**
-- Write from experience — use "when we looked at the numbers", "in our calculations", "what surprised us"
+- Write from an expert perspective with concrete data and calculations
 - Always cite specific figures with source: "(source: Danmarks Statistik, 2024)"
-- Have opinions: "We think that...", "This is actually a bad idea because..."
+- Take a clear angle — avoid fence-sitting, but always back it up with data
 
 **People Also Ask (PAA):**
 - End with 4-5 FAQ questions and short answers
@@ -322,11 +323,12 @@ This helps expats recognize the Danish terms they'll encounter on official Danis
 
 ─── WRITING STYLE ───────────────────────────────────────────────────────────
 
-- English, direct, slightly personal — like a knowledgeable friend who works in finance and lives in Denmark
+- English, direct, expert — like a financial journalist covering Danish personal finance
 - Mix short sentences with longer ones. Avoid monotonous rhythm.
 - NEVER: "It is important to...", "One should consider...", "In a world where...", "In this article we will..."
-- Use "actually", "surprisingly", "most people forget", "here's what we found"
-- Write "we" and "you" — not "one" and "the citizen"
+- FORBIDDEN (AI tells): "actually" (max once), "surprisingly", "most people forget", "here's what we found", "when we looked at", "what surprised us", "we think that", "interestingly"
+- Tone: Authoritative, neutral, precise. Like the Financial Times or The Economist.
+- Write "you" and "your" — not "one" and "the citizen"
 - Acknowledge the expat perspective: "If you're coming from [US/UK/EU], this might seem..."
 
 ─── STRUCTURE (follow EXACTLY) ─────────────────────────────────────────────

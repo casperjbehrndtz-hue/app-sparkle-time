@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import type { BudgetProfile, OnboardingStep } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 
@@ -82,7 +82,7 @@ export function AILiveComment({ profile, step }: Props) {
         >
           <div className="flex gap-2.5 rounded-xl bg-gradient-to-r from-primary/[0.06] to-primary/[0.02] border border-primary/10 px-4 py-3">
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Sparkles className={`w-3 h-3 text-primary ${isLoading ? "animate-pulse" : ""}`} />
+              <Lightbulb className={`w-3 h-3 text-primary ${isLoading ? "animate-pulse" : ""}`} />
             </div>
             <div className="flex-1 min-w-0">
               {isLoading && !comment ? (

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Send, X, Loader2, Bell, Lock } from "lucide-react";
+import { MessageSquare, Send, X, Loader2, Bell, Lock } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 import { useWhiteLabel } from "@/lib/whiteLabel";
@@ -217,7 +217,7 @@ export function AIChatPanel({ profile, budget }: Props) {
           className="fixed bottom-6 right-6 z-50 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center hover:brightness-110 transition-all px-5 gap-2"
           title={t("ai.askAbout")}
         >
-          <Sparkles className="w-5 h-5" />
+          <MessageSquare className="w-5 h-5" />
           <span className="text-sm font-semibold hidden sm:inline">{t("ai.askShort")}</span>
           {hasProactiveNudge && !hasInitialAnalysis && (
             <motion.div
@@ -246,7 +246,7 @@ export function AIChatPanel({ profile, budget }: Props) {
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                  <MessageSquare className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <p className="font-display font-bold text-sm">{config.brandName} AI</p>
@@ -261,7 +261,7 @@ export function AIChatPanel({ profile, budget }: Props) {
             <div ref={scrollRef} aria-live="polite" className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {messages.length === 0 && !isLoading && (
                 <div className="text-center py-8">
-                  <Sparkles className="w-8 h-8 text-primary/30 mx-auto mb-3" />
+                  <MessageSquare className="w-8 h-8 text-primary/30 mx-auto mb-3" />
                   <p className="text-sm text-muted-foreground">{t("ai.analyzing")}</p>
                 </div>
               )}

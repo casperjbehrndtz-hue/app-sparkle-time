@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronDown, Plus, X, Info, Sparkles, Upload, Loader2, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, Plus, X, Info, Lightbulb, Upload, Loader2, CheckCircle2 } from "lucide-react";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
 import { payslipToProfile } from "@/lib/payslipTypes";
@@ -640,7 +640,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             )}
             {sourceNote && (
               <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
-                <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">{sourceNote}{postalName ? ` (${postalName})` : ""}. {t("onboarding.adjustAmount")}</p>
               </motion.div>
             )}
@@ -663,7 +663,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
 
             {/* Smart defaults info banner */}
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
-              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">{t("step.everyday.smartDefaults")}</p>
             </motion.div>
 
@@ -732,7 +732,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
 
             {/* Smart defaults info banner */}
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
-              <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+              <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">{t("step.fixed.smartDefaults")}</p>
             </motion.div>
 

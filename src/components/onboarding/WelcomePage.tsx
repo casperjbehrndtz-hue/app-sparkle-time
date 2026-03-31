@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Shield, Clock, Sparkles, Download, Search, Brain, Zap, BarChart3, FileText, PiggyBank, Upload } from "lucide-react";
+import { ArrowRight, Shield, Clock, Lock, Download, Search, Brain, Zap, BarChart3, FileText, PiggyBank, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
@@ -107,7 +107,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
           {[
             { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: t("trust.danish") },
             { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: t("trust.time") },
-            { icon: <Sparkles className="w-4 h-4 text-muted-foreground" />, text: t("trust.private") },
+            { icon: <Lock className="w-4 h-4 text-muted-foreground" />, text: t("trust.private") },
           ].map((b) => (
             <div key={b.text} className="flex items-center gap-2 text-sm text-muted-foreground">{b.icon}<span>{b.text}</span></div>
           ))}
@@ -143,7 +143,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               { icon: <PiggyBank className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-100", title: t("feature.savings"), desc: t("feature.savingsDesc") },
             ].map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-                className="rounded-2xl bg-background border border-border/60 p-6 shadow-sm hover:shadow-md hover:border-primary/20 transition-all">
+                className="rounded-xl bg-background border border-border/60 p-6 hover:border-border transition-colors">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${f.bg}`}>{f.icon}</div>
                 <h3 className="font-semibold text-sm mt-3 mb-1.5 text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -161,16 +161,9 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
               {config.testimonials.map((testimonial) => (
                 <motion.div key={testimonial.name} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  className="rounded-2xl border border-border/60 p-6 bg-background shadow-sm">
-                  <div className="flex gap-0.5 mb-3">{[1,2,3,4,5].map(s => <span key={s} className="text-nemt-gold text-sm">★</span>)}</div>
-                  <p className="text-sm text-foreground leading-relaxed mb-4">"{testimonial.quote}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">{testimonial.name.charAt(0)}</div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.location}</p>
-                    </div>
-                  </div>
+                  className="rounded-xl border-l-2 border-l-primary/30 border border-border/40 pl-5 pr-5 py-5 bg-background">
+                  <p className="text-sm text-foreground leading-relaxed mb-3 italic">"{testimonial.quote}"</p>
+                  <p className="text-xs text-muted-foreground">— {testimonial.name}, {testimonial.location}</p>
                 </motion.div>
               ))}
             </div>
