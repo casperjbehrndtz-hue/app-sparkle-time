@@ -155,7 +155,7 @@ export default function Blog() {
           ))}
           {filtered.length === 0 && searchQuery.trim().length > 0 && (
             <div className="col-span-full text-center py-12">
-              <p className="text-sm text-muted-foreground">Ingen artikler fundet</p>
+              <p className="text-sm text-muted-foreground">{t("blog.noResults")}</p>
             </div>
           )}
         </div>

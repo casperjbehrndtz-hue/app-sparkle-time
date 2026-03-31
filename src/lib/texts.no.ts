@@ -934,6 +934,7 @@ export const NO: Record<string, string> = {
   "blog.ctaTitle": "Prøv {brand} gratis",
   "blog.ctaSubtitle": "Beregn disponibelt beløp på 3 minutter",
   "blog.ctaButton": "Kom i gang →",
+  "blog.noResults": "Ingen artikler funnet.",
 
   // Article page
   "article.guides": "Guider",

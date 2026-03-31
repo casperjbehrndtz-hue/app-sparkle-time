@@ -27,7 +27,7 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
 
 export default function Partner() {
   const { t } = useI18n();
-  usePageMeta("Partner Dashboard — NemtBudget", "");
+  usePageMeta({ title: "Partner Dashboard — NemtBudget", description: "", noIndex: true });
   const [params] = useSearchParams();
   const token = params.get("token");
   const [brandKey, setBrandKey] = useState<string | null>(null);
@@ -88,7 +88,7 @@ export default function Partner() {
   }
 
   const embedCode = brandKey ? `<iframe
-  src="https://app-sparkle-time.vercel.app/?brand=${brandKey}&embed=true"
+  src="https://nemtbudget.nu/?brand=${brandKey}&embed=true"
   width="100%"
   height="720"
   frameborder="0"

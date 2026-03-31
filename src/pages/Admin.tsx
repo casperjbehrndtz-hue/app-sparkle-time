@@ -41,7 +41,7 @@ function renderMarkdown(content: string) {
 
 export default function Admin() {
   const { t } = useI18n();
-  usePageMeta("Admin — NemtBudget", "");
+  usePageMeta({ title: "Admin — NemtBudget", description: "NemtBudget admin panel.", noIndex: true });
 
   const [user, setUser] = useState<{ email?: string } | null | undefined>(undefined);
   const [drafts, setDrafts] = useState<Draft[]>([]);

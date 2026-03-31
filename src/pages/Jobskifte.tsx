@@ -110,8 +110,8 @@ export default function Jobskifte() {
     const offerTax = calculateAnnualTax(jobToTaxInput(newOffer));
 
     // Benefits value (monthly, non-taxable)
-    const currentBenefits = (currentJob.frokost ? BENEFIT_VALUES.frokost : 0);
-    const offerBenefits = (newOffer.frokost ? BENEFIT_VALUES.frokost : 0);
+    const currentBenefits = (currentJob.frokost ? BENEFIT_VALUES.frokost : 0) + (currentJob.friTelefon ? BENEFIT_VALUES.friTelefon : 0) + (currentJob.sundhedsforsikring ? BENEFIT_VALUES.sundhedsforsikring : 0);
+    const offerBenefits = (newOffer.frokost ? BENEFIT_VALUES.frokost : 0) + (newOffer.friTelefon ? BENEFIT_VALUES.friTelefon : 0) + (newOffer.sundhedsforsikring ? BENEFIT_VALUES.sundhedsforsikring : 0);
 
     const currentTotal = currentTax.annualNet + currentTax.annualPensionTotal + currentBenefits * 12;
     const offerTotal = offerTax.annualNet + offerTax.annualPensionTotal + offerBenefits * 12;

@@ -128,7 +128,9 @@ export default function Auth() {
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
+              id="email"
               type="email"
+              autoComplete="email"
               placeholder={t("auth.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -139,7 +141,9 @@ export default function Auth() {
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
+              id="password"
               type={showPw ? "text" : "password"}
+              autoComplete={isLogin ? "current-password" : "new-password"}
               placeholder={t("auth.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}

@@ -46,6 +46,16 @@ function getLocale() {
   return DK_LOCALE;
 }
 
+/** Skip-to-content link rendered inside I18nProvider so it can use translations. */
+function SkipLink() {
+  const { t } = useI18n();
+  return (
+    <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+      {t("a11y.skipToContent")}
+    </a>
+  );
+}
+
 /** Listens for session expiry and shows a non-intrusive toast. */
 function SessionExpiryListener() {
   const { t } = useI18n();
@@ -86,9 +96,7 @@ const App = () => {
           <WhiteLabelProvider config={config}>
             <MarketDataProvider>
               <TooltipProvider>
-                <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
-                  Spring til indhold
-                </a>
+                <SkipLink />
                 <Toaster />
                 <Sonner />
                 <MotionConfig reducedMotion="user">

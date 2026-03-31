@@ -933,6 +933,7 @@ export const DA: Record<string, string> = {
   "blog.ctaTitle": "Prøv {brand} gratis",
   "blog.ctaSubtitle": "Beregn dit rådighedsbeløb på 3 minutter",
   "blog.ctaButton": "Kom i gang →",
+  "blog.noResults": "Ingen artikler fundet.",
 
   // Article page
   "article.guides": "Guides",
