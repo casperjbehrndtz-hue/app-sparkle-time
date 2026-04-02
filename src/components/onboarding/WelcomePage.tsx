@@ -87,11 +87,18 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
                 </button>
               )}
             </div>
-            <a href="/lonseddel"
-              className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
-              <Upload className="w-3 h-3" />
-              {t("payslip.welcomeCta")}
-            </a>
+            <div className="flex flex-wrap items-center gap-2 mt-4">
+              <a href="/lonseddel"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                <Upload className="w-3 h-3" />
+                {t("payslip.welcomeCta")}
+              </a>
+              <a href="/lonudvikling"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                <BarChart3 className="w-3 h-3" />
+                {t("timeline.title")}
+              </a>
+            </div>
             <p className="text-white/40 text-xs mt-3">
               {t("hero.socialProof")}
             </p>

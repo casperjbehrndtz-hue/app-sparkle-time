@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard, Smartphone, Bot, Trash2, ArrowRight } from "lucide-react";
+import { Upload, FileText, Shield, Loader2, RotateCcw, ArrowLeft, Clipboard, Smartphone, Bot, Trash2, ArrowRight, TrendingUp } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipOCR } from "@/hooks/usePayslipOCR";
@@ -130,6 +130,10 @@ export default function Lonseddel() {
           <a href="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" />
             nemtbudget.nu
+          </a>
+          <a href="/lonudvikling" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <TrendingUp className="w-3 h-3" />
+            {t("timeline.title")}
           </a>
         </div>
       </nav>
