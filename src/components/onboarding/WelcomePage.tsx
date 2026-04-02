@@ -7,6 +7,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { HeroSankey } from "./HeroSankey";
 import { openCookieBanner } from "@/components/CookieBanner";
+import Logo from "@/components/shared/Logo";
 
 interface Props {
   onStart: () => void;
@@ -39,7 +40,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       {/* Nav */}
       <nav className="bg-hero-navy px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between max-w-6xl mx-auto w-full">
-          <span className="font-display font-black text-lg sm:text-xl text-white">{config.brandName}</span>
+          <Logo size="sm" variant="white" />
           <div className="flex items-center gap-3 sm:gap-6">
             <button onClick={() => document.getElementById('produkter')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.products")}</button>
             <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.howItWorks")}</button>

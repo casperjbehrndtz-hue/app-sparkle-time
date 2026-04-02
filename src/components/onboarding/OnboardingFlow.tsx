@@ -28,6 +28,7 @@ import {
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 import { CategoryIcon } from "@/components/shared/CategoryIcon";
+import Logo from "@/components/shared/Logo";
 
 // CelebrationBurst removed — replaced with subtle step transition
 
@@ -972,7 +973,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </button>
           ) : <div />}
           <StepIndicator step={step} />
-          <span className="font-display font-black text-sm text-primary">{config.brandName}</span>
+          <Logo size="sm" />
         </div>
       </header>
       <div ref={contentRef} className="flex-1 min-h-0 px-5 py-8 overflow-y-auto overflow-x-hidden overscroll-contain" style={{ paddingBottom: liveBudget ? "10rem" : "3rem" }}>

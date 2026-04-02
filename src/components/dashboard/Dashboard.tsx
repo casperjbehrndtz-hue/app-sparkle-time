@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw, Gauge, BarChart3, Zap, TrendingUp, Microscope, ArrowUp } from "lucide-react";
+import Logo from "@/components/shared/Logo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -221,7 +222,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
         <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between">
-          <button onClick={onHome} className="font-display font-black text-lg text-primary hover:text-primary/70 transition-colors bg-transparent border-none cursor-pointer p-0">{config.brandName}</button>
+          <button onClick={onHome} className="hover:opacity-80 transition-opacity bg-transparent border-none cursor-pointer p-0"><Logo size="sm" /></button>
           <div className="flex items-center gap-0.5 sm:gap-1">
             <LanguageToggle />
             <DarkModeToggle />

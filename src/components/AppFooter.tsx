@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Download } from "lucide-react";
 import { useWhiteLabel } from "@/lib/whiteLabel";
 import { useI18n } from "@/lib/i18n";
+import Logo from "@/components/shared/Logo";
 
 export function AppFooter() {
   const config = useWhiteLabel();
@@ -13,7 +14,7 @@ export function AppFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-3">
-            <span className="font-display font-black text-xl text-primary">{config.brandName}</span>
+            <Logo size="md" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               {config.brandTagline || t("footer.tagline")}
             </p>

@@ -149,6 +149,24 @@
     letter-spacing: -0.02em;
     line-height: 1.2;
   }
+
+  /* Smooth input focus transitions */
+  input, textarea, select {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  /* Placeholder fades on focus */
+  input:focus::placeholder,
+  textarea:focus::placeholder {
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+  }
+
+  /* Global focus-visible ring */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.5);
+  }
 }
 
 .font-display {
@@ -286,8 +304,8 @@ input[type="range"] {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 .premium-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px -2px hsl(var(--primary) / 0.08);
 }
 .premium-card:active {
   transform: translateY(0) scale(0.99);
