@@ -76,12 +76,12 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
             <div className="flex flex-wrap items-center gap-3">
               <button onClick={onStart}
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
                 {t("hero.cta")} <ArrowRight className="w-4 h-4" />
               </button>
               {hasExistingProfile && onGoToApp && (
                 <button onClick={onGoToApp}
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
+                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
                   {t("action.goToDashboard")} <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -177,7 +177,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
           <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">{t("bottomCta.title")}</h2>
           <p className="text-white/60 text-sm mb-8">{t("bottomCta.subtitle")}</p>
           <button onClick={onStart}
-            className="px-10 py-4 rounded-xl bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
+            className="px-10 py-4 rounded-full bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
             {t("hero.cta")} <ArrowRight className="w-4 h-4 inline ml-1.5" />
           </button>
           <p className="text-white/40 text-xs mt-5">{t("bottomCta.noLogin")}</p>

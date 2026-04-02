@@ -370,7 +370,7 @@ export function ContinueButton({ onClick, disabled, label }: { onClick: () => vo
       whileTap={{ scale: 0.98 }}
       onClick={() => { haptic("medium"); onClick(); }}
       disabled={disabled}
-      className="w-full mt-10 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className="w-full mt-10 py-4 rounded-full bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {resolvedLabel}
       <ArrowRight className="w-4 h-4" />

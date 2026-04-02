@@ -211,7 +211,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
             </div>
             <button
               onClick={() => document.getElementById("handling")?.scrollIntoView({ behavior: "smooth" })}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-sm"
+              className="px-5 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all shadow-sm"
             >
               {t("cockpit.seePlan")}
             </button>

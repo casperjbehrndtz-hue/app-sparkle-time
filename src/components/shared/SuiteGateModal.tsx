@@ -216,7 +216,7 @@ export function SuiteGateModal({
           <button
             type="submit"
             disabled={loading || !email.trim()}
-            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
