@@ -46,15 +46,17 @@ export function EditableAmount({
   }, [editing, value]);
 
   // Close on click outside
+  const handleCancelRef = useRef(handleCancel);
+  handleCancelRef.current = handleCancel;
   useEffect(() => {
     if (!editing) return;
-    const handler = (e: MouseEvent) => {
+    const handler = (e: PointerEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        handleCancel();
+        handleCancelRef.current();
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
   }, [editing]);
 
   const handleConfirm = () => {
@@ -111,7 +113,7 @@ export function EditableAmount({
             title={t("edit.clickToEdit")}
           >
             <span>{formatKr(value, localeCode)} {suffix}</span>
-            <Pencil className="w-2.5 h-2.5 text-muted-foreground/0 group-hover:text-primary/60 transition-colors" />
+            <Pencil className="w-2.5 h-2.5 text-muted-foreground/40 group-hover:text-primary/60 transition-colors" />
           </motion.button>
         ) : (
           <motion.div
@@ -137,7 +139,7 @@ export function EditableAmount({
             </div>
 
             {/* Slider */}
-            <div style={{ touchAction: "none" }}>
+            <div>
               <Slider
                 min={min}
                 max={max}

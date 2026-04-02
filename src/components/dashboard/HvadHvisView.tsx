@@ -87,7 +87,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
             {activeScenarios[s.id] && s.id === "bolig" && (
               <div className="pl-12 space-y-2">
                 <label className="text-xs text-muted-foreground">{t("scenario.mortgagePayment")}</label>
-                <div style={{ touchAction: "none" }}>
+                <div>
                   <Slider
                     value={[mortgageInput]}
                     onValueChange={([v]) => setMortgageInput(v)}
@@ -103,7 +103,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
             {activeScenarios[s.id] && s.id === "job" && (
               <div className="pl-12 space-y-2">
                 <label className="text-xs text-muted-foreground">{t("scenario.salaryChange")}</label>
-                <div style={{ touchAction: "none" }}>
+                <div>
                   <Slider
                     value={[salaryDelta]}
                     onValueChange={([v]) => setSalaryDelta(v)}

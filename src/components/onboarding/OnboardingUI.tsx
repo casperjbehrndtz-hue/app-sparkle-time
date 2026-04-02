@@ -38,7 +38,21 @@ export function getStepIndex(step: OnboardingStep) { return STEPS.indexOf(step);
 export function LiveBudgetBar({ income, expenses, step, onNext }: { income: number; expenses: number; step: OnboardingStep; onNext?: () => void }) {
   const { t } = useI18n();
   const idx = getStepIndex(step);
-  if (idx < 1) return null;
+
+  // Hide bar when mobile keyboard is open (input focused)
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const onFocus = () => {
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") setKeyboardOpen(true);
+    };
+    const onBlur = () => setKeyboardOpen(false);
+    document.addEventListener("focusin", onFocus);
+    document.addEventListener("focusout", onBlur);
+    return () => { document.removeEventListener("focusin", onFocus); document.removeEventListener("focusout", onBlur); };
+  }, []);
+
+  if (idx < 2 || keyboardOpen) return null;
 
   const remaining = income - expenses;
   const pct = income > 0 ? Math.max(0, Math.min(100, (remaining / income) * 100)) : 0;
@@ -249,7 +263,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
         >+</motion.button>
       </div>
       {/* Slider */}
-      <div className="px-1">
+      <div className="px-1 py-2">
         <input
           type="range" min={min} max={max} step={step}
           value={value}
@@ -335,10 +349,10 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="px-4 pb-3 overflow-hidden"
           >
-            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2.5">
               <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
                 aria-label={label}
-                className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24" />
+                className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24 min-h-[44px]" />
               <span className="text-xs text-muted-foreground">{t("unit.krMonth")}</span>
             </div>
           </motion.div>

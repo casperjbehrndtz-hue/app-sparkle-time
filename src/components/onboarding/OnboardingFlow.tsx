@@ -268,7 +268,9 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
     setProfile((p) => ({ ...p, ...partial }));
   }, []);
 
-  const liveBudget = getStepIndex(step) >= 1 ? computeBudget(profile, null, locale) : null;
+  // Only show live budget bar after income step is completed (housing→everyday, not on review)
+  const stepIdx = getStepIndex(step);
+  const liveBudget = stepIdx >= 2 && stepIdx < STEPS.length - 1 ? computeBudget(profile, null, locale) : null;
 
   const goNext = () => {
     setDirection(1);
@@ -283,6 +285,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
     setDirection(-1);
     const idx = getStepIndex(step);
     if (idx > 0) setStep(STEPS[idx - 1]);
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   };
   // ─── STEP CONTENT RENDERER ───────────────
   const renderStepContent = () => {

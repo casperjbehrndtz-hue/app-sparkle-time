@@ -51,7 +51,7 @@
     --flow-restaurant: 25 95% 53%;
     --flow-children: 271 81% 56%;
     --flow-pets: 292 84% 61%;
-    --flow-savings: 160 96% 21%;;
+    --flow-savings: 160 96% 21%;
 
     /* Hero navy — matched to ParFinans blue */
     --hero-navy: 216 56% 18%;
@@ -177,13 +177,13 @@ input[type="range"]::-webkit-slider-runnable-track {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: hsl(var(--primary));
   border: 3px solid white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  margin-top: -8px;
+  margin-top: -10px;
   transition: transform 0.15s ease;
 }
 
@@ -197,8 +197,8 @@ input[type="range"]::-moz-range-track {
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: hsl(var(--primary));
   border: 3px solid white;
@@ -236,9 +236,9 @@ input[type="range"]::-moz-range-thumb:active {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Allow vertical scroll over sliders, capture only horizontal drags */
+/* Allow slider thumb dragging on mobile while permitting vertical scroll */
 input[type="range"] {
-  touch-action: pan-y;
+  touch-action: manipulation;
 }
 
 /* Safe areas for notched devices */
