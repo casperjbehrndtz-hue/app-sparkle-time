@@ -1536,7 +1536,7 @@ export const NO: Record<string, string> = {
   "timeline.headline": "Se lønnsutviklingen din",
   "timeline.subheadline": "Last opp lønnsslipper fra forskjellige år — vi bygger karrieregrafen din automatisk. Samme sikkerhet som lønnsslipp-skanneren.",
   "timeline.dropzone": "Dra lønnsslipper hit — eller klikk for å velge",
-  "timeline.dropzoneHint": "Velg flere filer fra forskjellige år (maks 12)",
+  "timeline.dropzoneHint": "Velg flere filer fra forskjellige år (maks 10)",
   "timeline.acceptedFormats": "JPEG, PNG, WebP eller PDF — maks 5 MB per fil",
   "timeline.filesSelected": "filer valgt",
   "timeline.startProcessing": "Start analyse (med personnummer-beskyttelse)",

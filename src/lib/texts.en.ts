@@ -1550,7 +1550,7 @@ export const EN: Record<string, string> = {
   "timeline.headline": "See your salary development",
   "timeline.subheadline": "Upload payslips from different years — we'll automatically build your career graph. Same security as the payslip scanner.",
   "timeline.dropzone": "Drop payslips here — or click to select",
-  "timeline.dropzoneHint": "Select multiple files from different years (max 12)",
+  "timeline.dropzoneHint": "Select multiple files from different years (max 10)",
   "timeline.acceptedFormats": "JPEG, PNG, WebP or PDF — max 5 MB per file",
   "timeline.filesSelected": "files selected",
   "timeline.startProcessing": "Start analysis (with CPR protection)",

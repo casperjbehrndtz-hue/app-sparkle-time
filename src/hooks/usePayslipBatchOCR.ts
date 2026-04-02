@@ -17,16 +17,16 @@ import { compressImage } from "@/lib/imageUtils";
 import { pdfToImage } from "@/lib/pdfToImage";
 import {
   redactSensitiveData,
-  flattenRedaction,
   terminateRedactWorker,
   type RedactionResult,
-  type RedactionRect,
 } from "@/lib/cprRedact";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const VALID_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
+/** OCR endpoint allows 10 requests/hour/IP — cap batch to avoid rate limits */
+const MAX_BATCH_SIZE = 10;
 
 export interface BatchPayslipResult {
   fileName: string;
@@ -54,11 +54,8 @@ export function usePayslipBatchOCR() {
   const [consentAccountCount, setConsentAccountCount] = useState(0);
   const [consentIsPdf, setConsentIsPdf] = useState(false);
 
-  // Internal state for the current file being consented
-  const pendingRedaction = useRef<RedactionResult | null>(null);
-  const pendingFile = useRef<File | null>(null);
+  // Internal resolver for consent flow
   const consentResolver = useRef<((accepted: boolean) => void) | null>(null);
-  const fileQueue = useRef<File[]>([]);
 
   /** Wait for user to accept/decline consent modal */
   const waitForConsent = useCallback((): Promise<boolean> => {
@@ -133,8 +130,6 @@ export function usePayslipBatchOCR() {
 
     // Phase 2: Show consent modal for this file
     setProgress({ total, current: index + 1, currentFileName: fileName, phase: "consent" });
-    pendingRedaction.current = redaction;
-    pendingFile.current = file;
     setConsentPreview(redaction?.base64 ?? fallbackBase64);
     setConsentCprCount(redaction?.cprCount ?? 0);
     setConsentAccountCount(redaction?.accountCount ?? 0);
@@ -203,21 +198,19 @@ export function usePayslipBatchOCR() {
 
   /** Start batch processing */
   const processBatch = useCallback(async (files: File[]) => {
+    const capped = files.slice(0, MAX_BATCH_SIZE);
     setResults([]);
-    fileQueue.current = files;
-    const total = files.length;
+    const total = capped.length;
 
     const allResults: BatchPayslipResult[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const result = await processOneFile(files[i], i, total);
+    for (let i = 0; i < capped.length; i++) {
+      const result = await processOneFile(capped[i], i, total);
       allResults.push(result);
       setResults([...allResults]);
     }
 
     setProgress({ total, current: total, currentFileName: "", phase: "done" });
-    pendingRedaction.current = null;
-    pendingFile.current = null;
   }, [processOneFile]);
 
   const reset = useCallback(() => {
@@ -225,9 +218,6 @@ export function usePayslipBatchOCR() {
     setProgress({ total: 0, current: 0, currentFileName: "", phase: "idle" });
     setShowConsent(false);
     setConsentPreview(null);
-    pendingRedaction.current = null;
-    pendingFile.current = null;
-    fileQueue.current = [];
   }, []);
 
   return {

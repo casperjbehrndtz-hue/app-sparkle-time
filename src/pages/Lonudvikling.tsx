@@ -7,28 +7,21 @@
  *
  * Also pulls in any previously archived payslips from localStorage.
  */
-import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Upload,
-  ArrowLeft,
   Loader2,
   Shield,
   FileText,
   CheckCircle2,
   XCircle,
-  Clock,
-  Smartphone,
-  Bot,
-  Trash2,
-  ArrowRight,
-  TrendingUp,
   RotateCcw,
   Info,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
-import { usePayslipBatchOCR, type BatchPayslipResult } from "@/hooks/usePayslipBatchOCR";
+import { usePayslipBatchOCR } from "@/hooks/usePayslipBatchOCR";
 import OcrConsentModal from "@/components/OcrConsentModal";
 import { SalaryTimeline } from "@/components/payslip/SalaryTimeline";
 import { archivePayslip, getArchive, type ArchivedPayslip } from "@/lib/payslipArchive";
@@ -54,6 +47,7 @@ export default function Lonudvikling() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [archived, setArchived] = useState<ArchivedPayslip[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const archivedCount = useRef(0);
 
   usePageMeta(
     t("timeline.meta.title"),
@@ -65,26 +59,21 @@ export default function Lonudvikling() {
     setArchived(getArchive());
   }, []);
 
-  // Archive successful results as they come in
+  // Archive only NEW successful results (skip already-archived ones)
   useEffect(() => {
-    const newResults = results.filter((r) => r.payslip);
-    if (newResults.length === 0) return;
+    const successful = results.filter((r) => r.payslip);
+    if (successful.length <= archivedCount.current) return;
 
-    for (const r of newResults) {
-      if (r.payslip) {
-        archivePayslip(r.payslip);
-      }
+    const newOnes = successful.slice(archivedCount.current);
+    for (const r of newOnes) {
+      if (r.payslip) archivePayslip(r.payslip);
     }
+    archivedCount.current = successful.length;
     setArchived(getArchive());
   }, [results]);
 
-  // All payslips for timeline: archived + newly parsed
-  const allPayslips = useMemo(() => {
-    return archived;
-  }, [archived]);
-
   const handleFiles = useCallback((files: FileList | File[]) => {
-    const arr = Array.from(files).slice(0, 12); // Max 12 at once
+    const arr = Array.from(files).slice(0, 10); // Max 10 (OCR rate limit)
     setSelectedFiles(arr);
   }, []);
 
@@ -111,7 +100,7 @@ export default function Lonudvikling() {
   const handleReset = useCallback(() => {
     batchReset();
     setSelectedFiles([]);
-    // Re-read archive
+    archivedCount.current = 0;
     setArchived(getArchive());
   }, [batchReset]);
 
@@ -228,13 +217,13 @@ export default function Lonudvikling() {
             </div>
 
             {/* Show existing timeline if we have archived data */}
-            {allPayslips.length >= 2 && (
+            {archived.length >= 2 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Info className="w-3.5 h-3.5 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">{t("timeline.existingData")}</p>
                 </div>
-                <SalaryTimeline payslips={allPayslips} />
+                <SalaryTimeline payslips={archived} />
               </div>
             )}
           </>
@@ -324,7 +313,7 @@ export default function Lonudvikling() {
             </div>
 
             {/* Timeline chart */}
-            {allPayslips.length >= 2 && <SalaryTimeline payslips={allPayslips} />}
+            {archived.length >= 2 && <SalaryTimeline payslips={archived} />}
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3">

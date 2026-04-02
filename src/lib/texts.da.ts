@@ -1552,7 +1552,7 @@ export const DA: Record<string, string> = {
   "timeline.headline": "Se din lønudvikling",
   "timeline.subheadline": "Upload lønsedler fra forskellige år — vi bygger automatisk din karrieregraf. Samme sikkerhed som lønseddel-scanneren.",
   "timeline.dropzone": "Træk lønsedler hertil — eller klik for at vælge",
-  "timeline.dropzoneHint": "Vælg flere filer fra forskellige år (max 12)",
+  "timeline.dropzoneHint": "Vælg flere filer fra forskellige år (max 10)",
   "timeline.acceptedFormats": "JPEG, PNG, WebP eller PDF — max 5 MB pr. fil",
   "timeline.filesSelected": "filer valgt",
   "timeline.startProcessing": "Start analyse (med CPR-beskyttelse)",

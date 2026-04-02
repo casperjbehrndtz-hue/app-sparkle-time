@@ -8,11 +8,10 @@
  * - Pension line overlay
  * - Canvas export for sharing on Reddit / social media
  */
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   AreaChart,
   Area,
-  LineChart,
   Line,
   XAxis,
   YAxis,
@@ -25,9 +24,7 @@ import {
   TrendingUp,
   TrendingDown,
   Briefcase,
-  Download,
   Share2,
-  Clipboard,
   Check,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -149,7 +146,6 @@ function exportTimelineImage(
   data: YearData[],
   stats: ReturnType<typeof computeStats>,
   lang: string,
-  lc: string,
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
@@ -352,7 +348,7 @@ export function SalaryTimeline({ payslips }: Props) {
   const handleExport = useCallback(async () => {
     setExporting(true);
     try {
-      const blob = await exportTimelineImage(data, stats, lang, lc);
+      const blob = await exportTimelineImage(data, stats, lang);
 
       // Try clipboard first
       if (typeof ClipboardItem !== "undefined" && navigator.clipboard?.write) {
@@ -373,7 +369,7 @@ export function SalaryTimeline({ payslips }: Props) {
     } finally {
       setExporting(false);
     }
-  }, [data, stats, lang, lc]);
+  }, [data, stats, lang]);
 
   if (data.length < 2) {
     return (
@@ -391,12 +387,12 @@ export function SalaryTimeline({ payslips }: Props) {
           <StatCard
             label={t("timeline.totalGrowth")}
             value={`${stats.totalChangePct > 0 ? "+" : ""}${stats.totalChangePct}%`}
-            positive={stats.totalChangePct > 0}
+            positive={stats.totalChangePct > 0 ? true : stats.totalChangePct < 0 ? false : undefined}
           />
           <StatCard
             label={t("timeline.avgAnnual")}
             value={`${stats.avgAnnualPct > 0 ? "+" : ""}${stats.avgAnnualPct}%`}
-            positive={stats.avgAnnualPct > 0}
+            positive={stats.avgAnnualPct > 0 ? true : stats.avgAnnualPct < 0 ? false : undefined}
           />
           <StatCard
             label={t("timeline.currentBrutto")}
