@@ -259,7 +259,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
     switch (step) {
       case "household":
         return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
+          <div className="space-y-8 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl text-foreground">{t("step.household.title")}</h1>
               <p className="text-muted-foreground text-sm sm:text-base">{t("step.household.subtitle")}</p>
@@ -365,7 +365,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
         const removeIncomeSource = (idx: number) => update({ additionalIncome: profile.additionalIncome.filter((_, i) => i !== idx) });
 
         return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
+          <div className="space-y-8 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 className="text-xs font-medium text-primary">{t("onboarding.encourage.income")}</motion.p>
@@ -552,7 +552,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
           }
         };
         return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
+          <div className="space-y-8 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 className="text-xs font-medium text-primary">{t("onboarding.encourage.housing")}</motion.p>
@@ -623,7 +623,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
       case "everyday": {
         const unit = t("unit.krMonth");
         return (
-          <div className="space-y-8 max-w-md mx-auto w-full">
+          <div className="space-y-8 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 className="text-xs font-medium text-primary">{t("onboarding.encourage.everyday")}</motion.p>
@@ -692,7 +692,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
         const unit = t("unit.krMonth");
 
         return (
-          <div className="space-y-6 max-w-md mx-auto w-full">
+          <div className="space-y-6 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-2">
               <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 className="text-xs font-medium text-primary">{t("onboarding.encourage.fixed")}</motion.p>
@@ -838,7 +838,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
         const isHealthy = budget.disposableIncome > 8000;
         const isWarning = budget.disposableIncome > 3000;
         return (
-          <div className="space-y-6 max-w-md mx-auto w-full">
+          <div className="space-y-6 max-w-lg mx-auto w-full">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-1">
               <motion.p initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
                 className="text-xs font-medium text-primary">{t("onboarding.encourage.review")}</motion.p>
@@ -961,7 +961,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
   return (
     <div id="main-content" className="h-dvh bg-background flex flex-col overflow-x-hidden">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3 safe-area-top">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+        <div className="max-w-xl mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
             <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}

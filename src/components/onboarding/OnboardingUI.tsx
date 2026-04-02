@@ -66,7 +66,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border px-5 py-3 safe-area-bottom"
     >
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-xl mx-auto">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("onboarding.leftOver")}</span>
@@ -75,7 +75,7 @@ export function LiveBudgetBar({ income, expenses, step, onNext }: { income: numb
               initial={{ opacity: 0, scale: 0.9, y: 5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className={`font-display font-black text-lg ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-nemt-gold" : "text-destructive"}`}
+              className={`font-display font-black text-xl ${remaining > 5000 ? "text-primary" : remaining > 0 ? "text-nemt-gold" : "text-destructive"}`}
             >
               {formatKr(remaining)} {t("currency")}
             </motion.span>
@@ -232,7 +232,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
 
   return (
     <div className="space-y-4">
-      <label className="text-sm font-medium text-muted-foreground">{label}</label>
+      <label className="text-base font-medium text-muted-foreground">{label}</label>
       <div className="flex items-center justify-center gap-4">
         <motion.button
           type="button"
@@ -262,7 +262,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
         >+</motion.button>
       </div>
       {/* Slider */}
-      <div className="px-1 py-2">
+      <div className="px-1 py-3">
         <input
           type="range" min={min} max={max} step={step}
           value={value}
@@ -284,7 +284,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
             type="button"
             whileTap={{ scale: 0.92 }}
             onClick={() => { haptic(); onChange(p); }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all tap-bounce ${value === p
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all tap-bounce ${value === p
               ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
               : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40 hover:border-primary/20"
             }`}
@@ -313,7 +313,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
           className="text-xl flex items-center justify-center w-6 h-6"
         ><CategoryIcon name={icon} className="w-5 h-5 text-muted-foreground" /></motion.span>
         <div className="flex-1 min-w-0">
-          <span className="font-medium text-[14px] block">{label}</span>
+          <span className="font-medium text-base block">{label}</span>
           {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}
         </div>
         <motion.div
@@ -370,7 +370,7 @@ export function ContinueButton({ onClick, disabled, label }: { onClick: () => vo
       whileTap={{ scale: 0.98 }}
       onClick={() => { haptic("medium"); onClick(); }}
       disabled={disabled}
-      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      className="w-full mt-10 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {resolvedLabel}
       <ArrowRight className="w-4 h-4" />

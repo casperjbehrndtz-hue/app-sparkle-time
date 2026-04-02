@@ -77,7 +77,7 @@ function StorySection({ id, title, subtitle, children, delay = 0 }: {
       className="scroll-mt-20"
     >
       <div className="mb-5">
-        <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">{title}</h2>
+        <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground">{title}</h2>
         {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
       {children}
@@ -94,7 +94,7 @@ function SectionNav({ sections, activeSection, ariaLabel }: { sections: { id: st
         <div className="pointer-events-none absolute left-0 inset-y-0 w-6 bg-gradient-to-r from-background/80 to-transparent z-10" />
         <div className="pointer-events-none absolute right-0 inset-y-0 w-6 bg-gradient-to-l from-background/80 to-transparent z-10" />
         <div
-          className="max-w-2xl mx-auto px-5 py-2 flex gap-1 overflow-x-auto scrollbar-hide"
+          className="max-w-3xl mx-auto px-5 py-2 flex gap-1 overflow-x-auto scrollbar-hide"
           role="navigation"
           aria-label={ariaLabel}
         >
@@ -220,7 +220,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border">
-        <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between">
           <button onClick={onHome} className="font-display font-black text-lg text-primary hover:text-primary/70 transition-colors bg-transparent border-none cursor-pointer p-0">{config.brandName}</button>
           <div className="flex items-center gap-0.5 sm:gap-1">
             <LanguageToggle />
@@ -257,7 +257,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       <SectionNav sections={sections} activeSection={activeSection} ariaLabel={t("dash.sectionTabs")} />
 
       {/* Financial disclaimer */}
-      <div className="max-w-2xl mx-auto px-5 pt-3">
+      <div className="max-w-3xl mx-auto px-5 pt-3">
         <p className="text-[10px] text-muted-foreground/60 text-center">
           {t("dash.disclaimer")}{" "}
           <Link to="/vilkaar" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">{t("dash.termsLink")}</Link>
@@ -266,7 +266,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
       {/* Login CTA for unauthenticated users */}
       {!user && (
-        <div className="max-w-2xl mx-auto px-5 pt-4">
+        <div className="max-w-3xl mx-auto px-5 pt-4">
           <Link to="/login"
             className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-primary hover:bg-primary/10 transition-colors">
             <Cloud className="w-3.5 h-3.5" />
@@ -275,7 +275,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         </div>
       )}
 
-      <main className="max-w-2xl mx-auto px-5 py-6 space-y-12 flex-1 w-full">
+      <main className="max-w-3xl mx-auto px-5 py-8 space-y-16 flex-1 w-full">
 
         {/* ━━━ Section 1: COCKPIT — everything at a glance ━━━ */}
         <StorySection id="cockpit" title={t("section.cockpit")} subtitle={t("section.cockpitSub")}>
@@ -327,7 +327,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         {/* ━━━ Section 5: DYBDEGÅENDE — collapsible advanced ━━━ */}
         <section id="dybde" className="scroll-mt-20">
           <div className="mb-4">
-            <h2 className="font-display font-black text-xl sm:text-2xl text-foreground">{t("section.advanced")}</h2>
+            <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground">{t("section.advanced")}</h2>
             <p className="text-sm text-muted-foreground mt-1">{t("section.advancedSub")}</p>
           </div>
 

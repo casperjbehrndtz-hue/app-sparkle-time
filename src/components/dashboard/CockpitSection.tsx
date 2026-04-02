@@ -30,7 +30,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
   const { data: marketData } = useMarketData();
   const { score, label, color, truths } = health;
 
-  const radius = 36;
+  const radius = 43;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
   const ringColor = score >= 75 ? "hsl(var(--primary))" : score >= 55 ? "hsl(var(--nemt-gold))" : "hsl(var(--destructive))";
@@ -61,21 +61,21 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
       <div className="rounded-2xl border border-border p-4 sm:p-5">
         <div className="flex items-start gap-4">
           <div className="relative flex-shrink-0">
-            <svg width="80" height="80" viewBox="0 0 80 80" className="drop-shadow-sm" role="img" aria-label={`${score}/100 — ${label}`}>
-              <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
+            <svg width="96" height="96" viewBox="0 0 96 96" className="drop-shadow-sm" role="img" aria-label={`${score}/100 — ${label}`}>
+              <circle cx="48" cy="48" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
               <motion.circle
-                cx="40" cy="40" r={radius}
+                cx="48" cy="48" r={radius}
                 fill="none" stroke={ringColor} strokeWidth="5"
                 strokeLinecap="round"
                 strokeDasharray={circumference}
                 initial={{ strokeDashoffset: circumference }}
                 animate={{ strokeDashoffset: offset }}
                 transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-                transform="rotate(-90 40 40)"
+                transform="rotate(-90 48 48)"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`font-display font-black text-xl ${color}`}>{score}</span>
+              <span className={`font-display font-black text-2xl ${color}`}>{score}</span>
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</span>
             </div>
           </div>
@@ -90,9 +90,9 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         {/* Income → Expenses → Free — EDITABLE */}
         <div className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
-            <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/15">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.income")}</p>
-              <div className="font-display font-bold text-base text-primary">
+              <div className="font-display font-bold text-lg text-primary">
                 <EditableAmount
                   value={profile.income}
                   onChange={(v) => updateField("income", v)}
@@ -100,7 +100,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
                   max={INCOME_MAPPINGS.income.max}
                   step={INCOME_MAPPINGS.income.step}
                   localeCode={locale.currencyLocale}
-                  className="font-display font-bold text-base text-primary"
+                  className="font-display font-bold text-lg text-primary"
                 />
               </div>
               {isPar && (
@@ -120,11 +120,11 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
               <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{t("cockpit.total")}: {formatKr(budget.totalIncome, locale.currencyLocale)} {t("currency")}</p>
             </div>
             <div className="flex flex-col gap-2">
-              <div className="flex-1 p-3 rounded-xl bg-muted/50 border border-border/50">
+              <div className="flex-1 p-4 rounded-xl bg-muted/50 border border-border/50">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.expenses")}</p>
-                <p className="font-display font-bold text-base text-foreground">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</p>
+                <p className="font-display font-bold text-lg text-foreground">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</p>
               </div>
-              <div className={`flex-1 p-3 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
+              <div className={`flex-1 p-4 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.disposable")}</p>
                 <p className={`font-display font-bold text-lg ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
                   {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome, locale.currencyLocale)} {t("currency")}
@@ -145,7 +145,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.06 }}
-              className={`rounded-xl p-3 flex items-center gap-2.5 border-l-4 border text-xs ${
+              className={`rounded-xl p-4 flex items-center gap-2.5 border-l-4 border text-xs ${
                 alert.level === "critical"
                   ? "bg-destructive/10 border-l-destructive border-destructive/30 text-destructive font-semibold"
                   : alert.level === "warning"
