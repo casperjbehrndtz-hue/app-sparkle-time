@@ -301,26 +301,7 @@ input[type="range"] {
   animation: shimmer 2s ease-in-out infinite;
 }
 
-/* Continue button ready-state glow */
-@keyframes btn-ready-pulse {
-  0%, 100% { box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.25); }
-  50% { box-shadow: 0 4px 30px -2px hsl(var(--primary) / 0.45); }
-}
-.btn-ready-pulse:not(:disabled) {
-  animation: btn-ready-pulse 2s ease-in-out infinite;
-}
-
-/* Celebration confetti burst */
-@keyframes confetti-pop {
-  0% { transform: scale(0) rotate(0deg); opacity: 1; }
-  50% { opacity: 1; }
-  100% { transform: scale(1) rotate(180deg); opacity: 0; }
-}
-
-@keyframes confetti-rise {
-  0% { transform: translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
-}
+/* Removed: btn-ready-pulse, confetti-pop, confetti-rise — keep it professional */
 
 /* Slider thumb hover glow */
 input[type="range"]::-webkit-slider-thumb:hover {

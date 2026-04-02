@@ -2,7 +2,11 @@ import {
   Tv, Music, Clapperboard, Play, Package, Sparkles, Car, Wifi, Zap, Flame,
   Smartphone, Radio, ShoppingCart, Home, Shield, Banknote, CreditCard, Fuel,
   Utensils, Ticket, Shirt, HeartPulse, Dumbbell, PawPrint, Bus, Stethoscope,
-  Building, Receipt, type LucideProps,
+  Building, Receipt, User, Users, Baby, Hand, House, Wrench, Clipboard, Gift,
+  Plane, Tag, Cake, Pin, AlertCircle, AlertTriangle, TrendingUp, Trophy,
+  MonitorPlay, Landmark, PenLine, PiggyBank, Backpack, PartyPopper,
+  Wallet, RefreshCw, Gamepad2, Handshake, Pill,
+  type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -21,6 +25,7 @@ const ICON_MAP: Record<string, ComponentType<LucideProps>> = {
   radio: Radio,
   "shopping-cart": ShoppingCart,
   home: Home,
+  house: House,
   shield: Shield,
   banknote: Banknote,
   "credit-card": CreditCard,
@@ -35,12 +40,37 @@ const ICON_MAP: Record<string, ComponentType<LucideProps>> = {
   stethoscope: Stethoscope,
   building: Building,
   receipt: Receipt,
+  user: User,
+  users: Users,
+  baby: Baby,
+  hand: Hand,
+  wrench: Wrench,
+  clipboard: Clipboard,
+  gift: Gift,
+  plane: Plane,
+  tag: Tag,
+  cake: Cake,
+  pin: Pin,
+  "alert-circle": AlertCircle,
+  "alert-triangle": AlertTriangle,
+  "trending-up": TrendingUp,
+  trophy: Trophy,
+  "monitor-play": MonitorPlay,
+  landmark: Landmark,
+  "pen-line": PenLine,
+  "piggy-bank": PiggyBank,
+  backpack: Backpack,
+  "party-popper": PartyPopper,
+  wallet: Wallet,
+  "refresh-cw": RefreshCw,
+  "gamepad-2": Gamepad2,
+  handshake: Handshake,
+  pill: Pill,
 };
 
-/** Renders a Lucide icon by name, or falls back to raw text (for emojis in BigChoice). */
+/** Renders a Lucide icon by name, or falls back to raw text. */
 export function CategoryIcon({ name, className = "w-4 h-4" }: { name: string; className?: string }) {
   const Icon = ICON_MAP[name];
   if (Icon) return <Icon className={className} />;
-  // Fallback: render as text (emoji or unknown string)
   return <span>{name}</span>;
 }

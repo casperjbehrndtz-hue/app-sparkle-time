@@ -155,8 +155,8 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
 }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.03, y: -3 }}
-      whileTap={{ scale: 0.96 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
       onClick={() => { haptic(); onClick(); }}
       role="radio"
       aria-checked={active}
@@ -168,11 +168,11 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
       }`}
     >
       <motion.div
-        animate={{ scale: active ? 1.15 : 1, rotate: active ? [0, -6, 6, 0] : 0 }}
-        transition={{ type: "spring", stiffness: 400, damping: 15 }}
-        className="text-5xl sm:text-6xl mb-3"
+        animate={{ scale: active ? 1.1 : 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        className="mb-3 flex items-center justify-center"
       >
-        {icon}
+        <CategoryIcon name={icon} className={`w-10 h-10 sm:w-12 sm:h-12 ${active ? "text-primary" : "text-muted-foreground"} transition-colors`} />
       </motion.div>
       <div className="font-display font-bold text-base sm:text-lg leading-tight break-words hyphens-auto">{label}</div>
       {sub && <div className="text-sm text-muted-foreground mt-1">{sub}</div>}
@@ -367,19 +367,13 @@ export function ContinueButton({ onClick, disabled, label }: { onClick: () => vo
   const resolvedLabel = label ?? tFn("continue");
   return (
     <motion.button
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.97 }}
+      whileTap={{ scale: 0.98 }}
       onClick={() => { haptic("medium"); onClick(); }}
       disabled={disabled}
-      className={`w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 tap-bounce ${disabled ? "" : "btn-ready-pulse"}`}
+      className="w-full mt-8 py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/90 transition-all flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
       {resolvedLabel}
-      <motion.span
-        animate={{ x: [0, 4, 0] }}
-        transition={{ repeat: 3, duration: 1.5, ease: "easeInOut" }}
-      >
-        <ArrowRight className="w-4 h-4" />
-      </motion.span>
+      <ArrowRight className="w-4 h-4" />
     </motion.button>
   );
 }

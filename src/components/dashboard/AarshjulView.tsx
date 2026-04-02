@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/locale";
 import { formatKr, calcEjendomsvaerdiskat } from "@/lib/budgetCalculator";
 import { getPropertyValueEstimate } from "@/data/priceDatabase";
 import { noCalcPropertyTax, noGetPropertyValueEstimate } from "@/data/priceDatabase.no";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 import type { BudgetProfile, ComputedBudget } from "@/lib/types";
 
 interface Props {
@@ -203,7 +204,7 @@ export function AarshjulView({ profile, budget }: Props) {
           {upcoming.map((ev, i) => (
             <motion.div key={i} custom={i} variants={fadeUp} initial="hidden" animate="visible"
               className="flex items-center gap-3 bg-background/50 rounded-xl p-3">
-              <span className="text-lg">{ev.icon}</span>
+              <CategoryIcon name={ev.icon} className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{ev.label}</p>
                 <p className="text-[10px] text-muted-foreground">{monthNames[ev.month]}</p>
@@ -240,7 +241,7 @@ export function AarshjulView({ profile, budget }: Props) {
               <div className="space-y-1">
                 {monthEvents.map((ev, j) => (
                   <div key={j} className="flex items-center gap-2 text-xs">
-                    <span>{ev.icon}</span>
+                    <CategoryIcon name={ev.icon} className="w-3.5 h-3.5 text-muted-foreground" />
                     <span className="flex-1 truncate text-muted-foreground">{ev.label}</span>
                     {ev.amount > 0 && <span className="font-medium">{formatKr(ev.amount, locale.currencyLocale)} {t("currency")}</span>}
                   </div>

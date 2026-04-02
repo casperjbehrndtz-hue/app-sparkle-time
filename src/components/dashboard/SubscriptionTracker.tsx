@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, Trash2, CreditCard, AlertTriangle } from "lucide-react";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -123,7 +124,7 @@ export function SubscriptionTracker({ profile }: Props) {
           <motion.div key={sub.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
             className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
             <div className="flex items-center gap-3">
-              <span className="text-lg">{sub.category === "streaming" ? "tv" : sub.category === "fitness" ? "dumbbell" : sub.category === "insurance" ? "shield" : "clipboard"}</span>
+              <CategoryIcon name={sub.category === "streaming" ? "tv" : sub.category === "fitness" ? "dumbbell" : sub.category === "insurance" ? "shield" : "clipboard"} className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm font-medium">{sub.name}</span>
             </div>
             <span className="text-sm font-bold text-foreground">{formatKr(sub.amount, lc)} {t("unit.currency")}</span>

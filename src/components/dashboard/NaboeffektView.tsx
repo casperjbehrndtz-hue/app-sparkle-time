@@ -7,6 +7,7 @@ import { useLocale } from "@/lib/locale";
 import { useI18n } from "@/lib/i18n";
 import { useMarketData } from "@/hooks/useMarketData";
 import { getLiveIncome } from "@/lib/marketData";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 
 interface Props {
   profile: BudgetProfile;
@@ -238,7 +239,7 @@ export function NaboeffektView({ profile, budget }: Props) {
             <motion.div key={card.label} variants={fadeUp(0.1 + i * 0.06)} initial="hidden" animate="visible"
               className={`rounded-2xl border p-4 ${styles.bg}`}>
               <div className="flex items-center gap-3">
-                <span className="text-xl w-8 text-center">{card.icon}</span>
+                <span className="w-8 flex items-center justify-center"><CategoryIcon name={card.icon} className="w-5 h-5 text-muted-foreground" /></span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-semibold text-foreground truncate">{card.label}</span>

@@ -29,39 +29,7 @@ import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } fr
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
 import { CategoryIcon } from "@/components/shared/CategoryIcon";
 
-// ─── Celebration particles on step complete ──────────────
-function CelebrationBurst({ trigger }: { trigger: number }) {
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; color: string; delay: number }[]>([]);
-  useEffect(() => {
-    if (trigger === 0) return;
-    const colors = ["hsl(var(--primary))", "hsl(var(--nemt-gold))", "hsl(152 69% 42%)", "hsl(213 80% 60%)"];
-    const newParticles = Array.from({ length: 12 }, (_, i) => ({
-      id: Date.now() + i,
-      x: 50 + (Math.random() - 0.5) * 60,
-      y: 40 + (Math.random() - 0.5) * 30,
-      color: colors[i % colors.length],
-      delay: Math.random() * 0.15,
-    }));
-    setParticles(newParticles);
-    const timer = setTimeout(() => setParticles([]), 800);
-    return () => clearTimeout(timer);
-  }, [trigger]);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ opacity: 1, scale: 0, x: `${p.x}%`, y: `${p.y}%` }}
-          animate={{ opacity: 0, scale: 1, y: `${p.y - 15}%` }}
-          transition={{ duration: 0.7, delay: p.delay, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute w-2 h-2 rounded-full"
-          style={{ backgroundColor: p.color }}
-        />
-      ))}
-    </div>
-  );
-}
+// CelebrationBurst removed — replaced with subtle step transition
 
 // ─── Animated count-up number ───────────────────────────
 function CountUpNumber({ value, className }: { value: number; className?: string }) {
@@ -247,7 +215,6 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
   const payslipOCR = usePayslipOCR();
   const payslipInputRef = useRef<HTMLInputElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [celebrationTrigger, setCelebrationTrigger] = useState(0);
 
   // Persist onboarding state to localStorage on changes
   useEffect(() => {
@@ -277,7 +244,6 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
     setDirection(1);
     const idx = getStepIndex(step);
     if (idx < STEPS.length - 1) {
-      setCelebrationTrigger((n) => n + 1);
       setStep(STEPS[idx + 1]);
     }
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -994,7 +960,6 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
 
   return (
     <div id="main-content" className="h-dvh bg-background flex flex-col overflow-x-hidden">
-      <CelebrationBurst trigger={celebrationTrigger} />
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3 safe-area-top">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
