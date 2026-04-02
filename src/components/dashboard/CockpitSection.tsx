@@ -76,7 +76,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className={`font-display font-black text-xl ${color}`}>{score}</span>
-              <span className="text-[8px] text-muted-foreground uppercase tracking-wider">{label}</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</span>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         <div className="mt-4 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
-              <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.income")}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.income")}</p>
               <div className="font-display font-bold text-base text-primary">
                 <EditableAmount
                   value={profile.income}
@@ -105,7 +105,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
               </div>
               {isPar && (
                 <div className="mt-1.5 pt-1.5 border-t border-primary/10">
-                  <p className="text-[8px] text-muted-foreground mb-0.5">{t("cockpit.partner")}</p>
+                  <p className="text-[10px] text-muted-foreground mb-0.5">{t("cockpit.partner")}</p>
                   <EditableAmount
                     value={profile.partnerIncome}
                     onChange={(v) => updateField("partnerIncome", v)}
@@ -117,15 +117,15 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
                   />
                 </div>
               )}
-              <p className="text-[9px] text-muted-foreground mt-1 tabular-nums">{t("cockpit.total")}: {formatKr(budget.totalIncome, locale.currencyLocale)} {t("currency")}</p>
+              <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{t("cockpit.total")}: {formatKr(budget.totalIncome, locale.currencyLocale)} {t("currency")}</p>
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex-1 p-3 rounded-xl bg-muted/50 border border-border/50">
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.expenses")}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.expenses")}</p>
                 <p className="font-display font-bold text-base text-foreground">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</p>
               </div>
               <div className={`flex-1 p-3 rounded-xl border ${budget.disposableIncome >= 0 ? "bg-primary/5 border-primary/15" : "bg-destructive/5 border-destructive/15"}`}>
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.disposable")}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t("cockpit.disposable")}</p>
                 <p className={`font-display font-bold text-lg ${budget.disposableIncome >= 0 ? "text-primary" : "text-destructive"}`}>
                   {budget.disposableIncome >= 0 ? "+" : ""}{formatKr(budget.disposableIncome, locale.currencyLocale)} {t("currency")}
                 </p>
@@ -184,9 +184,9 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           >
             <Radio className="w-3 h-3 text-primary animate-pulse flex-shrink-0" />
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-              <span className="text-[9px] font-semibold text-primary uppercase tracking-wider">Live data</span>
+              <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Live data</span>
               {liveItems.map((item, i) => (
-                <span key={i} className="text-[9px] text-muted-foreground">{item}</span>
+                <span key={i} className="text-[10px] text-muted-foreground">{item}</span>
               ))}
             </div>
           </motion.div>
@@ -199,8 +199,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-2xl p-4 border border-primary/20"
-          style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--primary) / 0.02))" }}
+          className="rounded-2xl p-4 border border-primary/20 bg-primary/[0.04]"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -230,7 +229,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
       {/* ── Payslip CTA ── */}
       <a
         href="/lonseddel"
-        className="group flex items-center gap-3 rounded-2xl p-4 border border-border bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 hover:border-primary/30 transition-all"
+        className="group flex items-center gap-3 rounded-2xl p-4 border border-border bg-muted/30 hover:border-primary/30 transition-all"
       >
         <div className="shrink-0 w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
           <FileText className="w-5 h-5 text-primary" />

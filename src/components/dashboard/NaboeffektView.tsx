@@ -123,7 +123,7 @@ export function NaboeffektView({ profile, budget }: Props) {
     const b = isPar ? "par" : "solo";
     return [
       {
-        icon: "🛒",
+        icon: "shopping-cart",
         label: t("neighbor.food"),
         yours: profile.foodAmount,
         avg: BENCHMARKS.food[b],
@@ -131,7 +131,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         unit: t("unit.krMonth"),
       },
       {
-        icon: "🍽️",
+        icon: "utensils",
         label: t("neighbor.restaurant"),
         yours: profile.restaurantAmount,
         avg: BENCHMARKS.restaurant[b],
@@ -139,7 +139,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         unit: t("unit.krMonth"),
       },
       {
-        icon: "🚗",
+        icon: "car",
         label: profile.hasCar ? t("neighbor.transportCar") : t("neighbor.transport"),
         yours: profile.hasCar ? transportCost : 0,
         avg: profile.hasCar ? BENCHMARKS.transport[b] : 0,
@@ -148,7 +148,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         skip: !profile.hasCar,
       },
       {
-        icon: "📺",
+        icon: "tv",
         label: t("neighbor.streaming"),
         yours: streamingCost,
         avg: BENCHMARKS.streaming[b],
@@ -156,7 +156,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         unit: t("unit.krMonth"),
       },
       {
-        icon: "🎉",
+        icon: "party-popper",
         label: t("neighbor.leisure"),
         yours: profile.leisureAmount,
         avg: BENCHMARKS.leisure[b],
@@ -191,7 +191,7 @@ export function NaboeffektView({ profile, budget }: Props) {
         {isAboveAvg ? (
           <div>
             <p className="font-display font-bold text-xl text-primary">
-              {isPar ? t("neighbor.aheadOfAvgPar") : t("neighbor.aheadOfAvgSolo")} 🎉
+              {isPar ? t("neighbor.aheadOfAvgPar") : t("neighbor.aheadOfAvgSolo")}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               {isPar ? t("neighbor.moreLeftPar") : t("neighbor.moreLeftSolo")} <strong className="text-foreground">{formatKr(overallDiff)} {t("neighbor.moreLeftSuffix")}</strong>
@@ -215,7 +215,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       {housingPct > BENCHMARKS.housing_pct && (
         <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible"
           className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
-          <span className="text-xl">🏠</span>
+          <span className="text-xl"></span>
           <div className="flex-1">
             <p className="text-sm font-semibold">{t("neighbor.housingCost")} {housingPct}% {t("neighbor.ofIncome")}</p>
             <p className="text-xs text-muted-foreground">{t("neighbor.expertsRecommend")} {isPar ? t("neighbor.youUsePar") : t("neighbor.youUseSolo")} {housingPct - BENCHMARKS.housing_pct} {t("neighbor.percentPointMore")}</p>

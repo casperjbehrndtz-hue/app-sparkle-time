@@ -26,7 +26,7 @@ export function DemoBanner({ brandName }: DemoBannerProps) {
   };
 
   return (
-    <div className="sticky top-0 z-[100] bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-amber-950 shadow-md">
+    <div className="sticky top-0 z-[100] bg-amber-500 text-amber-950 shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <Target className="h-4 w-4 shrink-0" />

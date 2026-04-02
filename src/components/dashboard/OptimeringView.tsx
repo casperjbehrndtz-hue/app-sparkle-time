@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, ExternalLink, CheckCircle2 } from "lucide-react";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 import { formatKr } from "@/lib/budgetCalculator";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 import { useLocale } from "@/lib/locale";
 import { useI18n } from "@/lib/i18n";
 
@@ -12,8 +13,8 @@ interface Props {
   optimizations: OptimizingAction[];
 }
 
-const categoryEmoji: Record<string, string> = {
-  Forsyning: "📱", Abonnementer: "📺", Mad: "🛒", Bolig: "🏡", Forsikring: "🛡️", Transport: "🚗",
+const categoryIcon: Record<string, string> = {
+  Forsyning: "smartphone", Abonnementer: "tv", Mad: "shopping-cart", Bolig: "home", Forsikring: "shield", Transport: "car",
 };
 
 const fadeUp = (i: number) => ({
@@ -32,8 +33,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
     <div className="space-y-4">
       {/* Hero */}
       <motion.div variants={fadeUp(0)} initial="hidden" animate="visible"
-        className="rounded-2xl p-6 border border-primary/20"
-        style={{ background: "linear-gradient(135deg, hsl(150 100% 65% / 0.08), hsl(213 100% 65% / 0.05))" }}
+        className="rounded-2xl p-6 border border-primary/20 bg-primary/[0.04]"
       >
         <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">{t("optimize.totalPotential")}</p>
         <div className="flex items-end gap-2">
@@ -68,7 +68,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs text-muted-foreground">{categoryEmoji[opt.category] || "💡"} {opt.category}</span>
+                  <span className="text-xs text-muted-foreground inline-flex items-center gap-1"><CategoryIcon name={categoryIcon[opt.category] || "banknote"} className="w-3 h-3" />{opt.category}</span>
                   <span className="font-display font-bold text-primary text-sm">+{formatKr(opt.besparelse_kr, lc)} {t("unit.currency")}</span>
                 </div>
                 <p className="font-semibold text-sm">{opt.handling}</p>
@@ -81,7 +81,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
                 <a href={opt.cta_url} target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 transition-all shadow-sm"
                 >
-                  🚀 {t("optimize.doItNow")}{opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
+                  {t("optimize.doItNow")}{opt.cta_tekst} <ExternalLink className="w-3.5 h-3.5" />
                 </a>
                 <p className="text-xs text-muted-foreground/60 mt-2">{t("optimize.opensExternal")} · {t("optimize.savePerMonth").replace("{amount}", formatKr(opt.besparelse_kr, lc))}</p>
               </motion.div>

@@ -88,7 +88,7 @@ export function generateSmartSteps(
 
   if (budget.disposableIncome < 0) {
     steps.push({
-      icon: "🚨",
+      icon: "alert-circle",
       text: `Du bruger ${formatKr(Math.abs(budget.disposableIncome))} kr. mere end du tjener. Skær i de variable udgifter eller øg indkomsten.`,
       priority: "high",
     });
@@ -96,7 +96,7 @@ export function generateSmartSteps(
 
   if (health.bufferMonths < 3) {
     steps.push({
-      icon: "🛡️",
+      icon: "shield",
       text: `Din buffer dækker ca. ${health.bufferMonths} måned${health.bufferMonths !== 1 ? "er" : ""}. En udbredt tommelfingerregel er 3-6 måneders udgifter.`,
       priority: "high",
     });
@@ -104,7 +104,7 @@ export function generateSmartSteps(
 
   if (health.debtRatio > 35) {
     steps.push({
-      icon: "🏡",
+      icon: "home",
       text: `Boligudgifter udgør ${health.debtRatio}% af indkomsten. Over 35% anbefales det at refinansiere eller reducere.`,
       priority: "medium",
     });
@@ -112,7 +112,7 @@ export function generateSmartSteps(
 
   if (health.savingsRate < 10 && budget.disposableIncome > 0) {
     steps.push({
-      icon: "📈",
+      icon: "trending-up",
       text: `Din opsparingsrate er ${health.savingsRate}%. Selv 500 kr./md. ekstra bygger ${formatKr(500 * 12)} kr./år i formue.`,
       priority: "medium",
     });
@@ -123,7 +123,7 @@ export function generateSmartSteps(
   if (varPct > 15) {
     const grundlon = profile.grundlon ?? 0;
     steps.push({
-      icon: "⚠️",
+      icon: "alert-triangle",
       text: `${varPct}% af din løn er variabel (bonus, overtid). Budgettér ud fra grundlønnen${grundlon > 0 ? ` (${formatKr(grundlon)} kr.)` : ""} — så klarer du dig også uden tillæg.`,
       priority: varPct > 30 ? "high" : "medium",
     });
@@ -132,7 +132,7 @@ export function generateSmartSteps(
   // Employer health insurance overlap
   if (profile.sundhedsforsikring && profile.sundhedsforsikring > 0 && profile.hasInsurance && profile.insuranceAmount > 0) {
     steps.push({
-      icon: "🏥",
+      icon: "heart-pulse",
       text: `Du har sundhedsforsikring via arbejdsgiver OG privat forsikring (${formatKr(profile.insuranceAmount)} kr./md). Tjek for overlap — du kan muligvis spare.`,
       priority: "medium",
     });
@@ -141,7 +141,7 @@ export function generateSmartSteps(
   const streamingCount = [profile.hasNetflix, profile.hasHBO, profile.hasViaplay, profile.hasAppleTV, profile.hasDisney, profile.hasAmazonPrime].filter(Boolean).length;
   if (streamingCount >= 3) {
     steps.push({
-      icon: "📺",
+      icon: "tv",
       text: `${streamingCount} streamingtjenester — skær 1-2 og spar 150-300 kr./md.`,
       priority: "low",
     });
@@ -149,7 +149,7 @@ export function generateSmartSteps(
 
   if (profile.hasInsurance && profile.insuranceAmount > 800) {
     steps.push({
-      icon: "🛡️",
+      icon: "shield",
       text: `Forsikring koster ${formatKr(profile.insuranceAmount)} kr./md. Sammenlign hvert 2. år — gennemsnitlig besparelse: 200 kr./md.`,
       priority: "low",
     });

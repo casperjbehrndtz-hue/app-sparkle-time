@@ -154,7 +154,7 @@ export function ParSplitView({ profile, budget }: Props) {
 
       {model === "equal" && myShare !== 0.5 && (
         <p className="text-xs text-muted-foreground text-center italic">
-          {"💡 "}{t("couple.tip")}
+          {t("couple.tip")}
         </p>
       )}
     </div>

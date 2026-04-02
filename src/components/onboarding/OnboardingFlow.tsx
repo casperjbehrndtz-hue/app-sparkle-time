@@ -27,6 +27,7 @@ import {
 } from "@/data/priceDatabase.no";
 import type { BudgetProfile, OnboardingStep, PaymentFrequency, IncomeSource } from "@/lib/types";
 import { frequencyToMonthly, frequencyLabel } from "@/lib/types";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 
 // ─── Celebration particles on step complete ──────────────
 function CelebrationBurst({ trigger }: { trigger: number }) {
@@ -96,7 +97,7 @@ function AccordionCategory({ icon, label, total, unit, defaultOpen, children }: 
       <button type="button" onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 transition-colors">
         <div className="flex items-center gap-2.5">
-          <span className="text-base">{icon}</span>
+          <CategoryIcon name={icon} className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm font-semibold">{label}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -139,7 +140,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
     <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-base">{icon}</span>
+          <CategoryIcon name={icon} className="w-4 h-4 text-muted-foreground" />
           <span className="text-sm font-medium">{label}</span>
         </div>
         <div className="flex items-center gap-1">
@@ -299,8 +300,8 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
             <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full" role="radiogroup" aria-label={t("step.household.title")}>
               {[
-                { type: "solo" as const, emoji: "🧍", label: t("step.household.solo"), sub: t("step.household.soloSub") },
-                { type: "par" as const, emoji: "👫", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
+                { type: "solo" as const, emoji: "user", label: t("step.household.solo"), sub: t("step.household.soloSub") },
+                { type: "par" as const, emoji: "users", label: t("step.household.couple"), sub: t("step.household.coupleSub") },
               ].map((opt) => (
                 <BigChoice
                   key={opt.type}
@@ -334,8 +335,8 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             {/* Children — integrated into household */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4" role="radiogroup" aria-label={t("step.children.title")}>
-                <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false }); setChildAgeInputs([]); }} icon="✌️" label={t("step.children.no")} />
-                <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="👶" label={t("step.children.yes")} />
+                <BigChoice active={!profile.hasChildren} onClick={() => { update({ hasChildren: false }); setChildAgeInputs([]); }} icon="hand" label={t("step.children.no")} />
+                <BigChoice active={profile.hasChildren} onClick={() => { update({ hasChildren: true }); if (childAgeInputs.length === 0) setChildAgeInputs([3]); }} icon="baby" label={t("step.children.yes")} />
               </div>
               {profile.hasChildren && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
@@ -406,7 +407,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 {isPar ? t("step.income.titleCouple") : t("step.income.titleSolo")}
               </h1>
             <p className="text-muted-foreground text-sm">{t("step.income.subtitle")}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">💡 {t("step.income.netTip")}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">{t("step.income.netTip")}</p>
             </motion.div>
             {/* ── Payslip upload ── */}
             <div className="space-y-4">
@@ -594,9 +595,9 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" role="radiogroup" aria-label={t("step.housing.title")}>
               {[
-                { type: "lejer" as const, emoji: "🏢", label: locale.housingTypeLabels.lejer },
-                { type: "andel" as const, emoji: "🏘️", label: locale.housingTypeLabels.andel },
-                { type: "ejer" as const, emoji: "🏡", label: locale.housingTypeLabels.ejer },
+                { type: "lejer" as const, emoji: "building", label: locale.housingTypeLabels.lejer },
+                { type: "andel" as const, emoji: "home", label: locale.housingTypeLabels.andel },
+                { type: "ejer" as const, emoji: "house", label: locale.housingTypeLabels.ejer },
               ].map((opt) => (
                 <BigChoice key={opt.type} active={profile.housingType === opt.type} onClick={() => handleHousingType(opt.type)} icon={opt.emoji} label={opt.label} />
               ))}
@@ -609,7 +610,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 className="w-full bg-background border-2 border-border rounded-2xl px-5 py-4 text-lg font-display font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30" />
               {profile.postalCode.length === 4 && (
                 postalName
-                  ? <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-medium mt-2 text-center">📍 {postalName}</motion.p>
+                  ? <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-medium mt-2 text-center">{postalName}</motion.p>
                   : <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground mt-2 text-center">{t("step.housing.unknownPostal")}</motion.p>
               )}
             </div>
@@ -671,11 +672,11 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
 
             <div className="space-y-2">
-              <CompactSlider icon="🛒" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={isPar ? 4000 : 2500} max={isPar ? 10000 : 6000} step={100} unit={unit} />
-              <CompactSlider icon="🍕" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
-              <CompactSlider icon="🎭" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
-              <CompactSlider icon="👕" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
-              <CompactSlider icon="🏥" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} unit={unit} />
+              <CompactSlider icon="shopping-cart" label={t("step.review.food")} value={profile.foodAmount} onChange={(v) => update({ foodAmount: v })} min={isPar ? 4000 : 2500} max={isPar ? 10000 : 6000} step={100} unit={unit} />
+              <CompactSlider icon="utensils" label={t("step.review.restaurant")} value={profile.restaurantAmount} onChange={(v) => update({ restaurantAmount: v })} min={0} max={5000} step={100} unit={unit} />
+              <CompactSlider icon="ticket" label={t("step.review.leisure")} value={profile.leisureAmount} onChange={(v) => update({ leisureAmount: v })} min={0} max={8000} step={100} unit={unit} />
+              <CompactSlider icon="shirt" label={t("step.review.clothing")} value={profile.clothingAmount} onChange={(v) => update({ clothingAmount: v })} min={0} max={3000} step={100} unit={unit} />
+              <CompactSlider icon="heart-pulse" label={t("step.review.health")} value={profile.healthAmount} onChange={(v) => update({ healthAmount: v })} min={0} max={2000} step={50} unit={unit} />
             </div>
 
             <AILiveComment profile={profile} step="everyday" />
@@ -741,16 +742,16 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
 
             <div className="space-y-3">
               {/* ── Streaming ── */}
-              <AccordionCategory icon="🎬" label={t("step.expenses.streaming")} total={streamingTotal} unit={unit}>
+              <AccordionCategory icon="tv" label={t("step.expenses.streaming")} total={streamingTotal} unit={unit}>
                 <div className="space-y-1.5">
                   {[
-                    { key: "hasNetflix" as const, icon: "🎬", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} ${t("perMonth")}` },
-                    { key: "hasSpotify" as const, icon: "🎵", label: "Spotify", sub: `${isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo} ${t("perMonth")}` },
-                    { key: "hasHBO" as const, icon: "🎭", label: "HBO Max", sub: `${SUBSCRIPTIONS.hbo.price} ${t("perMonth")}` },
-                    { key: "hasViaplay" as const, icon: "⚽", label: "Viaplay", sub: `${SUBSCRIPTIONS.viaplay.price} ${t("perMonth")}` },
-                    { key: "hasDisney" as const, icon: "✨", label: "Disney+", sub: `${SUBSCRIPTIONS.disney.price} ${t("perMonth")}` },
-                    { key: "hasAppleTV" as const, icon: "🍎", label: "Apple TV+", sub: `${SUBSCRIPTIONS.appleTV.price} ${t("perMonth")}` },
-                    { key: "hasAmazonPrime" as const, icon: "📦", label: "Amazon Prime", sub: `${SUBSCRIPTIONS.amazonPrime.price} ${t("perMonth")}` },
+                    { key: "hasNetflix" as const, icon: "tv", label: "Netflix", sub: `${SUBSCRIPTIONS.netflix.price} ${t("perMonth")}` },
+                    { key: "hasSpotify" as const, icon: "music", label: "Spotify", sub: `${isPar ? SUBSCRIPTIONS.spotify.price_par : SUBSCRIPTIONS.spotify.price_solo} ${t("perMonth")}` },
+                    { key: "hasHBO" as const, icon: "ticket", label: "HBO Max", sub: `${SUBSCRIPTIONS.hbo.price} ${t("perMonth")}` },
+                    { key: "hasViaplay" as const, icon: "trophy", label: "Viaplay", sub: `${SUBSCRIPTIONS.viaplay.price} ${t("perMonth")}` },
+                    { key: "hasDisney" as const, icon: "sparkles", label: "Disney+", sub: `${SUBSCRIPTIONS.disney.price} ${t("perMonth")}` },
+                    { key: "hasAppleTV" as const, icon: "monitor-play", label: "Apple TV+", sub: `${SUBSCRIPTIONS.appleTV.price} ${t("perMonth")}` },
+                    { key: "hasAmazonPrime" as const, icon: "package", label: "Amazon Prime", sub: `${SUBSCRIPTIONS.amazonPrime.price} ${t("perMonth")}` },
                   ].map((s) => (
                     <ToggleRow key={s.key} active={!!profile[s.key]} onClick={() => update({ [s.key]: !profile[s.key] } as any)}
                       icon={s.icon} label={s.label} sublabel={s.sub} />
@@ -759,74 +760,74 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               </AccordionCategory>
 
               {/* ── Transport ── */}
-              <AccordionCategory icon="🚗" label={t("step.expenses.transport")} total={carMonthly} unit={unit}>
+              <AccordionCategory icon="car" label={t("step.expenses.transport")} total={carMonthly} unit={unit}>
                 <ToggleRow active={profile.hasCar} onClick={() => update({ hasCar: !profile.hasCar })}
-                  icon="🚗" label={t("step.expenses.car")}
+                  icon="car" label={t("step.expenses.car")}
                   sublabel={profile.hasCar ? `≈ ${formatKr(carMonthly)} ${t("perMonth")}` : undefined} />
                 {profile.hasCar && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-2">
-                    <CompactSlider icon="💳" label={t("step.expenses.carLoan")} value={profile.carLoan} onChange={(v) => update({ carLoan: v })} min={0} max={10000} step={100} unit={t("unit.krMonth")} />
-                    <CompactSlider icon="⛽" label={t("step.expenses.fuel")} value={profile.carFuel} onChange={(v) => update({ carFuel: v })} min={0} max={5000} step={100} unit={t("unit.krMonth")} />
-                    <CompactSlider icon="🛡️" label={t("step.expenses.carInsurance")} value={profile.carInsurance} onChange={(v) => update({ carInsurance: v })} min={0} max={12000} step={100} unit={t("unit.krYear")} />
-                    <CompactSlider icon="📋" label={t("step.expenses.carTax")} value={profile.carTax} onChange={(v) => update({ carTax: v })} min={0} max={8000} step={100} unit={t("unit.krYear")} />
-                    <CompactSlider icon="🔧" label={t("step.expenses.carService")} value={profile.carService} onChange={(v) => update({ carService: v })} min={0} max={5000} step={100} unit={t("unit.krHalfYear")} />
+                    <CompactSlider icon="credit-card" label={t("step.expenses.carLoan")} value={profile.carLoan} onChange={(v) => update({ carLoan: v })} min={0} max={10000} step={100} unit={t("unit.krMonth")} />
+                    <CompactSlider icon="fuel" label={t("step.expenses.fuel")} value={profile.carFuel} onChange={(v) => update({ carFuel: v })} min={0} max={5000} step={100} unit={t("unit.krMonth")} />
+                    <CompactSlider icon="shield" label={t("step.expenses.carInsurance")} value={profile.carInsurance} onChange={(v) => update({ carInsurance: v })} min={0} max={12000} step={100} unit={t("unit.krYear")} />
+                    <CompactSlider icon="clipboard" label={t("step.expenses.carTax")} value={profile.carTax} onChange={(v) => update({ carTax: v })} min={0} max={8000} step={100} unit={t("unit.krYear")} />
+                    <CompactSlider icon="wrench" label={t("step.expenses.carService")} value={profile.carService} onChange={(v) => update({ carService: v })} min={0} max={5000} step={100} unit={t("unit.krHalfYear")} />
                   </motion.div>
                 )}
               </AccordionCategory>
 
               {/* ── Forsyninger (open by default — has pre-filled values) ── */}
-              <AccordionCategory icon="📡" label={t("step.expenses.utilities")} total={utilitiesTotal} unit={unit} defaultOpen>
-                <CompactSlider icon="📡" label={isNO ? "Internett" : t("step.expenses.internet")}
+              <AccordionCategory icon="wifi" label={t("step.expenses.utilities")} total={utilitiesTotal} unit={unit} defaultOpen>
+                <CompactSlider icon="wifi" label={isNO ? "Internett" : t("step.expenses.internet")}
                   value={profile.internetAmount ?? (isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price)}
                   onChange={(v) => update({ internetAmount: v })} min={0} max={600} step={10} unit={t("unit.krMonth")} />
-                <CompactSlider icon="📱" label={isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo")}
+                <CompactSlider icon="smartphone" label={isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo")}
                   value={profile.mobileAmount ?? (isNO ? NO_UTILITIES : UTILITIES).mobile.price_per_person * (isPar ? 2 : 1)}
                   onChange={(v) => update({ mobileAmount: v })} min={0} max={isPar ? 800 : 400} step={10} unit={t("unit.krMonth")} />
-                <CompactSlider icon="⚡" label={isNO ? "Strøm" : t("step.expenses.electricity")}
+                <CompactSlider icon="zap" label={isNO ? "Strøm" : t("step.expenses.electricity")}
                   value={profile.electricityAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).electricity.price_par : (isNO ? NO_UTILITIES : UTILITIES).electricity.price_solo)}
                   onChange={(v) => update({ electricityAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
-                <CompactSlider icon="🔥" label={isNO ? "Oppvarming/vann" : t("step.expenses.heating")}
+                <CompactSlider icon="flame" label={isNO ? "Oppvarming/vann" : t("step.expenses.heating")}
                   value={profile.heatingAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).heating.price_par : (isNO ? NO_UTILITIES : UTILITIES).heating.price_solo)}
                   onChange={(v) => update({ heatingAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
                 {!isNO && (
-                  <CompactSlider icon="📺" label={t("step.expenses.drLicens")}
+                  <CompactSlider icon="radio" label={t("step.expenses.drLicens")}
                     value={profile.drAmount ?? UTILITIES.dr_licens.price}
                     onChange={(v) => update({ drAmount: v })} min={0} max={300} step={5} unit={t("unit.krMonth")} />
                 )}
               </AccordionCategory>
 
               {/* ── Forsikring & fagforening ── */}
-              <AccordionCategory icon="🛡️" label={t("step.expenses.insuranceUnion")} total={insuranceTotal} unit={unit}>
+              <AccordionCategory icon="shield" label={t("step.expenses.insuranceUnion")} total={insuranceTotal} unit={unit}>
                 <div className="space-y-1.5">
                   <ToggleRow active={profile.hasInsurance} onClick={() => update({ hasInsurance: !profile.hasInsurance })}
-                    icon="🛡️" label={t("step.expenses.insurance")} sublabel={t("step.expenses.insuranceSub")}
+                    icon="shield" label={t("step.expenses.insurance")} sublabel={t("step.expenses.insuranceSub")}
                     amount={profile.insuranceAmount} onAmountChange={(v) => update({ insuranceAmount: v })} />
                   <ToggleRow active={profile.hasUnion} onClick={() => update({ hasUnion: !profile.hasUnion })}
-                    icon="🏛️" label={t("step.expenses.union")}
+                    icon="landmark" label={t("step.expenses.union")}
                     amount={profile.unionAmount} onAmountChange={(v) => update({ unionAmount: v })} />
                   <ToggleRow active={profile.hasFitness} onClick={() => update({ hasFitness: !profile.hasFitness })}
-                    icon="💪" label={t("step.expenses.fitness")}
+                    icon="dumbbell" label={t("step.expenses.fitness")}
                     amount={profile.fitnessAmount} onAmountChange={(v) => update({ fitnessAmount: v })} />
                 </div>
               </AccordionCategory>
 
               {/* ── Opsparing & lån ── */}
-              <AccordionCategory icon="💰" label={t("step.expenses.petsLoans")} total={savingsTotal} unit={unit}>
+              <AccordionCategory icon="banknote" label={t("step.expenses.petsLoans")} total={savingsTotal} unit={unit}>
                 <div className="space-y-1.5">
                   <ToggleRow active={profile.hasPet} onClick={() => update({ hasPet: !profile.hasPet })}
-                    icon="🐕" label={t("step.expenses.pet")} sublabel={t("step.expenses.petSub")}
+                    icon="paw-print" label={t("step.expenses.pet")} sublabel={t("step.expenses.petSub")}
                     amount={profile.petAmount} onAmountChange={(v) => update({ petAmount: v })} />
                   <ToggleRow active={profile.hasLoan} onClick={() => update({ hasLoan: !profile.hasLoan })}
-                    icon="💰" label={t("step.expenses.loan")} sublabel={t("step.expenses.loanSub")}
+                    icon="banknote" label={t("step.expenses.loan")} sublabel={t("step.expenses.loanSub")}
                     amount={profile.loanAmount} onAmountChange={(v) => update({ loanAmount: v })} />
                   <ToggleRow active={profile.hasSavings} onClick={() => update({ hasSavings: !profile.hasSavings })}
-                    icon="🏦" label={t("step.expenses.savings")} sublabel={t("step.expenses.savingsSub")}
+                    icon="piggy-bank" label={t("step.expenses.savings")} sublabel={t("step.expenses.savingsSub")}
                     amount={profile.savingsAmount} onAmountChange={(v) => update({ savingsAmount: v })} />
                 </div>
               </AccordionCategory>
 
               {/* ── Egne udgifter ── */}
-              <AccordionCategory icon="📝" label={t("step.expenses.custom")} total={customTotal} unit={unit}>
+              <AccordionCategory icon="pen-line" label={t("step.expenses.custom")} total={customTotal} unit={unit}>
                 {profile.customExpenses.map((ce, i) => (
                   <div key={i} className="flex items-center justify-between rounded-2xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5 mb-1.5">
                     <div>
@@ -914,7 +915,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                   transition={{ delay: 0.8 }}
                   className="text-sm text-muted-foreground mt-3"
                 >
-                  {isHealthy ? `✅ ${t("step.review.good")}` : isWarning ? `⚠️ ${t("step.review.tight")}` : `🚨 ${t("step.review.warning")}`}
+                  {isHealthy ? t("step.review.good") : isWarning ? t("step.review.tight") : t("step.review.warning")}
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0 }}

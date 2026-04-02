@@ -38,7 +38,7 @@ export function SharedBudgetBanner({ profile, budget, meta }: Props) {
   const ringColor = health.score >= 75 ? "#93c5fd" : health.score >= 55 ? "#fbbf24" : "#fca5a5";
 
   return (
-    <div className="sticky top-0 z-[100] bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-500 text-white shadow-lg">
+    <div className="sticky top-0 z-[100] bg-primary text-primary-foreground shadow-lg">
       <div className="max-w-2xl mx-auto px-4 py-3 space-y-2.5">
         {/* Top: label + CTA */}
         <div className="flex items-center justify-between gap-3">

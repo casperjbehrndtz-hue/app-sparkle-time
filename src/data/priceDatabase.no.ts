@@ -3,35 +3,35 @@
 
 // Strømmetjenester – Norge 2026
 export const NO_SUBSCRIPTIONS = {
-  netflix:      { label: "Netflix",        price: 179, icon: "🎬", category: "Streaming" }, // Standard
-  spotify:      { label: "Spotify",        price_solo: 129, price_par: 159, icon: "🎵", category: "Musikk" },
-  hbo:          { label: "Max",            price: 109, icon: "🎭", category: "Streaming" },
-  viaplay:      { label: "Viaplay",        price: 249, icon: "⚽", category: "Streaming" }, // Total
-  appleTV:      { label: "Apple TV+",      price: 99,  icon: "🍎", category: "Streaming" },
-  amazonPrime:  { label: "Amazon Prime",   price: 119, icon: "📦", category: "Streaming" },
-  disney:       { label: "Disney+",        price: 99,  icon: "✨", category: "Streaming" },
+  netflix:      { label: "Netflix",        price: 179, icon: "tv", category: "Streaming" }, // Standard
+  spotify:      { label: "Spotify",        price_solo: 129, price_par: 159, icon: "music", category: "Musikk" },
+  hbo:          { label: "Max",            price: 109, icon: "clapperboard", category: "Streaming" },
+  viaplay:      { label: "Viaplay",        price: 249, icon: "play", category: "Streaming" }, // Total
+  appleTV:      { label: "Apple TV+",      price: 99,  icon: "tv", category: "Streaming" },
+  amazonPrime:  { label: "Amazon Prime",   price: 119, icon: "package", category: "Streaming" },
+  disney:       { label: "Disney+",        price: 99,  icon: "sparkles", category: "Streaming" },
 };
 
 export const NO_UTILITIES = {
-  internet: { label: "Internett",     price: 399, icon: "📡", category: "Forsyning" }, // Altibox/Telenor snitt
+  internet: { label: "Internett",     price: 399, icon: "wifi", category: "Forsyning" }, // Altibox/Telenor snitt
   electricity: {
     label: "Strøm",
     price_solo: 1000,
     price_par: 1500,
-    icon: "⚡",
+    icon: "zap",
     category: "Forsyning",
   },
   heating: {
     label: "Oppvarming/vann",
     price_solo: 400,
     price_par: 650,
-    icon: "🔥",
+    icon: "flame",
     category: "Forsyning",
   },
   mobile: {
     label: "Mobil",
     price_per_person: 299, // Telenor/Telia middelpris
-    icon: "📱",
+    icon: "smartphone",
     category: "Forsyning",
   },
   // NB: Ingen NRK-lisens — avskaffet 1. januar 2020

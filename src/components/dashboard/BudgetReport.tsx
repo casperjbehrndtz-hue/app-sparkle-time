@@ -82,7 +82,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className={`font-display font-black text-xl ${scoreColor}`}>{health.score}</span>
-              <span className="text-[8px] text-muted-foreground uppercase tracking-wider">{health.label}</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{health.label}</span>
             </div>
           </div>
           <div className="flex-1 space-y-3">

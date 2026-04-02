@@ -293,7 +293,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               onClick={() => setShowGuidedSession(true)}
               className="w-full mt-2 py-3.5 rounded-2xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-center gap-2.5 group"
             >
-              <span className="text-lg">✨</span>
+              <Zap className="w-5 h-5 text-primary" />
               <div className="text-left">
                 <p className="text-sm font-bold text-primary">{t("dash.aiTitle")}</p>
                 <p className="text-xs text-muted-foreground">{t("dash.aiSubtitle")}</p>
@@ -332,44 +332,44 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           </div>
 
           <div className="rounded-2xl border border-border divide-y divide-border overflow-hidden">
-            <AdvancedSection id="hvadvis-inner" title={t("tab.whatIf") + "?"} emoji="🔮">
+            <AdvancedSection id="hvadvis-inner" title={t("tab.whatIf") + "?"} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <HvadHvisView profile={profile} budget={budget} health={health} />
               </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="stresstest-inner" title={t("tab.stressTest")} emoji="🔬">
+            <AdvancedSection id="stresstest-inner" title={t("tab.stressTest")} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <StressTestView profile={profile} budget={budget} />
               </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="aarshjul-inner" title={t("tab.calendar")} emoji="📅">
+            <AdvancedSection id="aarshjul-inner" title={t("tab.calendar")} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <AarshjulView profile={profile} budget={budget} />
               </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="abonnementer-inner" title={t("dash.subscriptions")} emoji="💳">
+            <AdvancedSection id="abonnementer-inner" title={t("dash.subscriptions")} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <SubscriptionTracker profile={profile} />
               </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="naboeffekt-inner" title={t("tab.compare")} emoji="👥">
+            <AdvancedSection id="naboeffekt-inner" title={t("tab.compare")} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <NaboeffektView profile={profile} budget={budget} />
               </Suspense>
             </AdvancedSection>
 
-            <AdvancedSection id="historik-inner" title={t("tab.history")} emoji="📊">
+            <AdvancedSection id="historik-inner" title={t("tab.history")} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <HistorikView />
               </Suspense>
             </AdvancedSection>
 
             {profile.householdType === "par" && (
-              <AdvancedSection id="parsplit-inner" title={t("tab.coupleSplit")} emoji="💑">
+              <AdvancedSection id="parsplit-inner" title={t("tab.coupleSplit")} emoji="">
                 <Suspense fallback={<LazyFallback />}>
                   <ParSplitView profile={profile} budget={budget} />
                 </Suspense>

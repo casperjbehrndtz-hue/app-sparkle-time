@@ -4,6 +4,7 @@ import { Check, ArrowRight } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import type { OnboardingStep } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+import { CategoryIcon } from "@/components/shared/CategoryIcon";
 
 // Haptic feedback helper (mobile only, silent fail)
 function haptic(style: "light" | "medium" = "light") {
@@ -309,8 +310,8 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
         <motion.span
           animate={{ scale: active ? 1.15 : 1 }}
           transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          className="text-xl"
-        >{icon}</motion.span>
+          className="text-xl flex items-center justify-center w-6 h-6"
+        ><CategoryIcon name={icon} className="w-5 h-5 text-muted-foreground" /></motion.span>
         <div className="flex-1 min-w-0">
           <span className="font-medium text-[14px] block">{label}</span>
           {sublabel && <span className="text-xs text-muted-foreground">{sublabel}</span>}

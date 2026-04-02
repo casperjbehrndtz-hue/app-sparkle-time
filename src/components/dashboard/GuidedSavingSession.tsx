@@ -131,7 +131,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
     }]);
 
     if (newFound >= goalAmount) {
-      setDoneMessage(`${t("guided.goalReached")} 🎉 ${t("guided.goalReachedDesc").replace("{amount}", formatKr(newFound, lc))}`);
+      setDoneMessage(`${t("guided.goalReached")} ${t("guided.goalReachedDesc").replace("{amount}", formatKr(newFound, lc))}`);
       setPhase("complete");
       return;
     }
@@ -357,7 +357,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
 
             <div>
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🎉</span>
+                <Check className="w-8 h-8 text-primary" />
               </div>
               <h2 className="font-display font-black text-2xl text-foreground mb-2">
                 {totalFound >= goalAmount ? t("guided.goalReachedTitle") : t("guided.sessionDone")}

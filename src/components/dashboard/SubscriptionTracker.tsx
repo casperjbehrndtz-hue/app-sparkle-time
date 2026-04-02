@@ -123,7 +123,7 @@ export function SubscriptionTracker({ profile }: Props) {
           <motion.div key={sub.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
             className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
             <div className="flex items-center gap-3">
-              <span className="text-lg">{sub.category === "streaming" ? "📺" : sub.category === "fitness" ? "💪" : sub.category === "insurance" ? "🛡️" : "📋"}</span>
+              <span className="text-lg">{sub.category === "streaming" ? "tv" : sub.category === "fitness" ? "dumbbell" : sub.category === "insurance" ? "shield" : "clipboard"}</span>
               <span className="text-sm font-medium">{sub.name}</span>
             </div>
             <span className="text-sm font-bold text-foreground">{formatKr(sub.amount, lc)} {t("unit.currency")}</span>
@@ -138,7 +138,7 @@ export function SubscriptionTracker({ profile }: Props) {
           {customSubs.map((sub) => (
             <div key={sub.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
               <div className="flex items-center gap-3">
-                <span className="text-lg">📌</span>
+                <span className="text-lg">pin</span>
                 <span className="text-sm font-medium">{sub.name}</span>
               </div>
               <div className="flex items-center gap-2">

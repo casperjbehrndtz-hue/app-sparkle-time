@@ -153,7 +153,7 @@ export function AIChatPanel({ profile, budget }: Props) {
       },
       onError: (err) => {
         setIsLoading(false);
-        setMessages((prev) => [...prev, { role: "assistant", content: `❌ ${err}` }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: `${err}` }]);
       },
     });
   }, [hasInitialAnalysis, isLoading, profile, budget, aiStream]);
@@ -186,7 +186,7 @@ export function AIChatPanel({ profile, budget }: Props) {
       onDone: () => setIsLoading(false),
       onError: (err) => {
         setIsLoading(false);
-        setMessages((prev) => [...prev, { role: "assistant", content: `❌ ${err}` }]);
+        setMessages((prev) => [...prev, { role: "assistant", content: `${err}` }]);
       },
     });
   }, [isLoading, messages, profile, budget, aiStream]);

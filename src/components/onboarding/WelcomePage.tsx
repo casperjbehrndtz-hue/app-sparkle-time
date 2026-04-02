@@ -135,12 +135,12 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5">
             {[
-              { icon: <Search className="w-5 h-5 text-blue-600" />, bg: "bg-blue-100", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
-              { icon: <Brain className="w-5 h-5 text-purple-600" />, bg: "bg-purple-100", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
-              { icon: <Zap className="w-5 h-5 text-amber-600" />, bg: "bg-amber-100", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
-              { icon: <BarChart3 className="w-5 h-5 text-green-600" />, bg: "bg-green-100", title: t("feature.compare"), desc: t("feature.compareDesc") },
-              { icon: <FileText className="w-5 h-5 text-slate-600" />, bg: "bg-slate-100", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
-              { icon: <PiggyBank className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-100", title: t("feature.savings"), desc: t("feature.savingsDesc") },
+              { icon: <Search className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
+              { icon: <Brain className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
+              { icon: <Zap className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
+              { icon: <BarChart3 className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.compare"), desc: t("feature.compareDesc") },
+              { icon: <FileText className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
+              { icon: <PiggyBank className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.savings"), desc: t("feature.savingsDesc") },
             ].map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
                 className="rounded-xl bg-background border border-border/60 p-6 hover:border-border transition-colors">

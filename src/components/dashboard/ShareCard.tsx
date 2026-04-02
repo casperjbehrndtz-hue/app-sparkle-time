@@ -23,8 +23,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md mx-auto rounded-2xl border border-border overflow-hidden"
-      style={{ background: "linear-gradient(145deg, hsl(150 20% 98%), hsl(152 30% 96%))" }}
+      className="w-full max-w-md mx-auto rounded-2xl border border-border overflow-hidden bg-card"
     >
       <div className="p-6 space-y-4">
         {/* Header */}
@@ -49,7 +48,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="font-display font-black text-xl" style={{ color: scoreColor }}>{health.score}</span>
-              <span className="text-[8px] text-muted-foreground uppercase">{health.label}</span>
+              <span className="text-[10px] text-muted-foreground uppercase">{health.label}</span>
             </div>
           </div>
           <div className="flex-1 space-y-2">

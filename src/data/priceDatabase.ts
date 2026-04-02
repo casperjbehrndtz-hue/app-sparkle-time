@@ -3,56 +3,56 @@
 
 // Streaming priser – opdateret marts 2026 (officielle dk-priser)
 export const SUBSCRIPTIONS = {
-  netflix: { label: "Netflix", price: 139, icon: "🎬", category: "Streaming" },      // Standard (HD)
+  netflix: { label: "Netflix", price: 139, icon: "tv", category: "Streaming" },      // Standard (HD)
   spotify: {
     label: "Spotify",
     price_solo: 109,   // Premium Individual
     price_par: 149,    // Premium Duo
-    icon: "🎵",
+    icon: "music",
     category: "Musik",
   },
-  hbo: { label: "HBO Max", price: 99, icon: "🎭", category: "Streaming" },            // Standard
-  viaplay: { label: "Viaplay", price: 179, icon: "⚽", category: "Streaming" },       // Total
-  appleTV: { label: "Apple TV+", price: 69, icon: "🍎", category: "Streaming" },
-  amazonPrime: { label: "Amazon Prime", price: 109, icon: "📦", category: "Streaming" }, // Prime Monthly
-  disney: { label: "Disney+", price: 89, icon: "✨", category: "Streaming" },          // Standard
+  hbo: { label: "HBO Max", price: 99, icon: "clapperboard", category: "Streaming" },            // Standard
+  viaplay: { label: "Viaplay", price: 179, icon: "play", category: "Streaming" },       // Total
+  appleTV: { label: "Apple TV+", price: 69, icon: "tv", category: "Streaming" },
+  amazonPrime: { label: "Amazon Prime", price: 109, icon: "package", category: "Streaming" }, // Prime Monthly
+  disney: { label: "Disney+", price: 89, icon: "sparkles", category: "Streaming" },          // Standard
 };
 
 export const TRANSPORT = {
   car: {
     label: "Bil (gennemsnit inkl. benzin, forsikring, afgift)",
     price: 3800,
-    icon: "🚗",
+    icon: "car",
     category: "Transport",
   },
 };
 
 export const UTILITIES = {
-  internet: { label: "Internet", price: 299, icon: "📡", category: "Forsyning" },
+  internet: { label: "Internet", price: 299, icon: "wifi", category: "Forsyning" },
   electricity: {
     label: "El",
     price_solo: 800,
     price_par: 1100,
-    icon: "⚡",
+    icon: "zap",
     category: "Forsyning",
   },
   heating: {
     label: "Varme/vand",
     price_solo: 600,
     price_par: 900,
-    icon: "🔥",
+    icon: "flame",
     category: "Forsyning",
   },
   mobile: {
     label: "Mobil",
     price_per_person: 199,
-    icon: "📱",
+    icon: "smartphone",
     category: "Forsyning",
   },
   dr_licens: {
     label: "DR (medielicens)",
     price: 181,
-    icon: "📺",
+    icon: "radio",
     category: "Forsyning",
   },
 };

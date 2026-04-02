@@ -36,19 +36,19 @@ export function AarshjulView({ profile, budget }: Props) {
 
     // Car insurance (typically January)
     if (profile.hasCar && profile.carInsurance > 0) {
-      ev.push({ month: 0, label: t("wheel.carInsurance"), amount: profile.carInsurance, category: "Transport", icon: "🚗", recurring: true });
+      ev.push({ month: 0, label: t("wheel.carInsurance"), amount: profile.carInsurance, category: "Transport", icon: "car", recurring: true });
     }
 
     // Car tax (typically March & September — split)
     if (profile.hasCar && profile.carTax > 0) {
-      ev.push({ month: 2, label: t("wheel.carTax") + " (1/2)", amount: Math.round(profile.carTax / 2), category: "Transport", icon: "🏷️", recurring: true });
-      ev.push({ month: 8, label: t("wheel.carTax") + " (2/2)", amount: Math.round(profile.carTax / 2), category: "Transport", icon: "🏷️", recurring: true });
+      ev.push({ month: 2, label: t("wheel.carTax") + " (1/2)", amount: Math.round(profile.carTax / 2), category: "Transport", icon: "tag", recurring: true });
+      ev.push({ month: 8, label: t("wheel.carTax") + " (2/2)", amount: Math.round(profile.carTax / 2), category: "Transport", icon: "tag", recurring: true });
     }
 
     // Car service (biannual — April & October)
     if (profile.hasCar && profile.carService > 0) {
-      ev.push({ month: 3, label: t("wheel.carService") + " (1/2)", amount: profile.carService, category: "Transport", icon: "🔧", recurring: true });
-      ev.push({ month: 9, label: t("wheel.carService") + " (2/2)", amount: profile.carService, category: "Transport", icon: "🔧", recurring: true });
+      ev.push({ month: 3, label: t("wheel.carService") + " (1/2)", amount: profile.carService, category: "Transport", icon: "wrench", recurring: true });
+      ev.push({ month: 9, label: t("wheel.carService") + " (2/2)", amount: profile.carService, category: "Transport", icon: "wrench", recurring: true });
     }
 
     // Property tax (DK: ejendomsværdiskat halvårligt / NO: eiendomsskatt where applicable)
@@ -62,47 +62,47 @@ export function AarshjulView({ profile, budget }: Props) {
         : calcEjendomsvaerdiskat(propValue) * 12;
       if (annualTax > 0) {
         const halfYearlyTax = Math.round(annualTax / 2);
-        ev.push({ month: 5, label: t("wheel.propertyTax") + " (1/2)", amount: halfYearlyTax, category: "Bolig", icon: "🏠", recurring: true });
-        ev.push({ month: 11, label: t("wheel.propertyTax") + " (2/2)", amount: halfYearlyTax, category: "Bolig", icon: "🏠", recurring: true });
+        ev.push({ month: 5, label: t("wheel.propertyTax") + " (1/2)", amount: halfYearlyTax, category: "Bolig", icon: "home", recurring: true });
+        ev.push({ month: 11, label: t("wheel.propertyTax") + " (2/2)", amount: halfYearlyTax, category: "Bolig", icon: "home", recurring: true });
       }
     }
 
     // Insurance renewal (typically April)
     if (profile.hasInsurance) {
-      ev.push({ month: 3, label: t("wheel.insuranceRenewal"), amount: profile.insuranceAmount * 12, category: "Forsikring", icon: "🛡️", recurring: true });
+      ev.push({ month: 3, label: t("wheel.insuranceRenewal"), amount: profile.insuranceAmount * 12, category: "Forsikring", icon: "shield", recurring: true });
     }
 
     // Christmas (December)
     const christmasBudget = profile.householdType === "par" ? 8000 : 4000;
-    ev.push({ month: 11, label: t("wheel.christmas"), amount: christmasBudget, category: "Ferie", icon: "🎄", recurring: true });
+    ev.push({ month: 11, label: t("wheel.christmas"), amount: christmasBudget, category: "Ferie", icon: "gift", recurring: true });
 
     // Summer vacation (July)
     const vacationBudget = profile.householdType === "par"
       ? (profile.hasChildren ? 25000 : 15000)
       : 8000;
-    ev.push({ month: 6, label: t("wheel.summerVacation"), amount: vacationBudget, category: "Ferie", icon: "✈️", recurring: true });
+    ev.push({ month: 6, label: t("wheel.summerVacation"), amount: vacationBudget, category: "Ferie", icon: "plane", recurring: true });
 
     // B-skat / restskat (November)
-    ev.push({ month: 10, label: t("wheel.taxSettlement"), amount: 0, category: "Skat", icon: "📋", recurring: true });
+    ev.push({ month: 10, label: t("wheel.taxSettlement"), amount: 0, category: "Skat", icon: "clipboard", recurring: true });
 
     // Children: school start (August)
     if (profile.hasChildren) {
-      ev.push({ month: 7, label: t("wheel.backToSchool"), amount: 3000 * profile.childrenAges.length, category: "Børn", icon: "🎒", recurring: true });
+      ev.push({ month: 7, label: t("wheel.backToSchool"), amount: 3000 * profile.childrenAges.length, category: "Børn", icon: "backpack", recurring: true });
       // Birthday gifts (spread)
-      ev.push({ month: 4, label: t("wheel.birthdays"), amount: 2000 * profile.childrenAges.length, category: "Børn", icon: "🎂", recurring: true });
+      ev.push({ month: 4, label: t("wheel.birthdays"), amount: 2000 * profile.childrenAges.length, category: "Børn", icon: "cake", recurring: true });
     }
 
     // Custom quarterly/biannual/annual expenses
     (profile.customExpenses || []).forEach((ce) => {
       if (ce.frequency === "annual") {
-        ev.push({ month: 0, label: ce.label, amount: ce.amount, category: "Andet", icon: "📌", recurring: true });
+        ev.push({ month: 0, label: ce.label, amount: ce.amount, category: "Andet", icon: "pin", recurring: true });
       } else if (ce.frequency === "quarterly") {
         [0, 3, 6, 9].forEach((m) => {
-          ev.push({ month: m, label: ce.label, amount: ce.amount, category: "Andet", icon: "📌", recurring: true });
+          ev.push({ month: m, label: ce.label, amount: ce.amount, category: "Andet", icon: "pin", recurring: true });
         });
       } else if (ce.frequency === "biannual") {
         [0, 6].forEach((m) => {
-          ev.push({ month: m, label: ce.label, amount: ce.amount, category: "Andet", icon: "📌", recurring: true });
+          ev.push({ month: m, label: ce.label, amount: ce.amount, category: "Andet", icon: "pin", recurring: true });
         });
       }
     });

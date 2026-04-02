@@ -171,7 +171,7 @@ export function FremadView({ profile, budget, health }: Props) {
 
         <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
           <p className="text-xs text-muted-foreground">
-            <>💡 {formatKr(monthlySavings, lc)} {t("unit.krMonth")} {t("forward.projectionPrefix")} <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionMid")} <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionSuffix")}</>
+            <>{formatKr(monthlySavings, lc)} {t("unit.krMonth")} {t("forward.projectionPrefix")} <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionMid")} <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionSuffix")}</>
           </p>
         </div>
       </motion.div>
@@ -202,7 +202,7 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-3">
-            💡 {t("forward.interestLabel")} {profile.interestRate.toFixed(1)}% · {t("forward.propertyEstimate")}
+            {t("forward.interestLabel")} {profile.interestRate.toFixed(1)}% · {t("forward.propertyEstimate")}
           </p>
         </motion.div>
       )}
@@ -256,7 +256,7 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
               {health.savingsRate >= 20
-                ? `✅ ${t("forward.exceedsRecommendation")}`
+                ? t("forward.exceedsRecommendation")
                 : t("forward.increaseToReach20").replace("{amount}", `${formatKr((0.20 - health.savingsRate / 100) * budget.totalIncome, lc)} ${t("unit.krMonth")}`)}
             </p>
           </div>
@@ -284,7 +284,7 @@ export function FremadView({ profile, budget, health }: Props) {
           </div>
           {simulatedDisposable < 3000 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">
-              <p className="text-sm text-destructive font-semibold mb-1">⚠️ {t("forward.vulnerableEconomy")}</p>
+              <p className="text-sm text-destructive font-semibold mb-1">{t("forward.vulnerableEconomy")}</p>
               <p className="text-xs text-muted-foreground mb-2">{t("forward.refinanceAdvice")}</p>
               <a href={config.ctaLinks.mortgage?.url || "https://parfinans.dk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
                 {config.ctaLinks.mortgage?.label || t("forward.seeRefinance")}
