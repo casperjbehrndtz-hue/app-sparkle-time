@@ -241,17 +241,15 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           className="w-12 h-12 rounded-xl bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
         >−</motion.button>
         <div className="flex items-baseline gap-2">
-          <motion.div key={value} initial={{ scale: 0.95 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400, damping: 20 }}>
-            <input
-              type="number"
-              inputMode="numeric"
-              value={localValue}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
-              className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
-            />
-          </motion.div>
+          <input
+            type="number"
+            inputMode="numeric"
+            value={localValue}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            style={{ width: `${Math.max(3, String(localValue).length + 1)}ch` }}
+            className="bg-transparent font-display font-black text-4xl sm:text-5xl text-center focus:outline-none no-spin text-foreground"
+          />
           <span className="text-lg text-muted-foreground font-display">{resolvedSuffix}</span>
         </div>
         <motion.button
