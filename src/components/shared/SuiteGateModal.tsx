@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dialog";
 import { Check, Lock, Mail, Shield, Loader2 } from "lucide-react";
 import { z } from "zod";
-import { toast } from "sonner";
 
 const emailSchema = z.string().email("Indtast en gyldig email");
 
@@ -72,8 +71,7 @@ export function SuiteGateModal({
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [consentMarketing, setConsentMarketing] = useState(false);
-  const [consentCrossSell, setConsentCrossSell] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +93,8 @@ export function SuiteGateModal({
           email: email.trim().toLowerCase(),
           source,
           gate,
-          consent_marketing: consentMarketing,
-          consent_cross_sell: consentCrossSell,
+          consent_marketing: consent,
+          consent_cross_sell: consent,
           metadata: metadata || {},
         }),
       });
@@ -153,7 +151,7 @@ export function SuiteGateModal({
           {/* Free column */}
           <div className="p-4 space-y-2 border-r border-border">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Du har allerede fået
+              Det har du fået
             </p>
             <ul className="space-y-1.5">
               {freeItems.map((item, i) => (
@@ -168,7 +166,7 @@ export function SuiteGateModal({
           {/* Gated column */}
           <div className="p-4 space-y-2 bg-primary/[0.03]">
             <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
-              Email låser op
+              Lås op gratis
             </p>
             <ul className="space-y-1.5">
               {gatedItems.map((item, i) => (
@@ -202,31 +200,18 @@ export function SuiteGateModal({
             <p className="text-xs text-destructive font-medium">{error}</p>
           )}
 
-          {/* Consent checkboxes */}
-          <div className="space-y-2">
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={consentMarketing}
-                onChange={(e) => setConsentMarketing(e.target.checked)}
-                className="mt-0.5 rounded border-border"
-              />
-              <span className="text-[11px] text-muted-foreground leading-tight">
-                Send mig tips og opdateringer (du kan altid afmelde)
-              </span>
-            </label>
-            <label className="flex items-start gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={consentCrossSell}
-                onChange={(e) => setConsentCrossSell(e.target.checked)}
-                className="mt-0.5 rounded border-border"
-              />
-              <span className="text-[11px] text-muted-foreground leading-tight">
-                Hold mig opdateret om relaterede værktøjer til familieøkonomi
-              </span>
-            </label>
-          </div>
+          {/* Consent */}
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-0.5 rounded border-border"
+            />
+            <span className="text-[11px] text-muted-foreground leading-tight">
+              Send mig relevante tips om privatøkonomi
+            </span>
+          </label>
 
           <button
             type="submit"
@@ -236,17 +221,13 @@ export function SuiteGateModal({
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <>
-                {cta}
-                <Mail className="w-4 h-4" />
-              </>
+              <>{cta}</>
             )}
           </button>
 
-          <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
-            <Shield className="w-3 h-3" />
-            <span>Vi deler aldrig din email. GDPR-compliant.</span>
-          </div>
+          <p className="text-center text-[10px] text-muted-foreground/60">
+            Vi deler aldrig din email · afmeld når som helst
+          </p>
         </form>
       </DialogContent>
     </Dialog>
