@@ -19,6 +19,8 @@ import { demoProfile } from "@/lib/demoData";
 import { decodeProfile, resolveShortLink, type ShareMeta } from "@/lib/budgetShare";
 import { SharedBudgetBanner } from "@/components/SharedBudgetBanner";
 import { useI18n } from "@/lib/i18n";
+import { SuiteGateModal, isGateUnlocked } from "@/components/shared/SuiteGateModal";
+import { toast } from "sonner";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
 const STORAGE_KEY = "nb_profile_v2";
@@ -52,6 +54,7 @@ const Index = () => {
   const [showWelcome, setShowWelcome] = useState(false);
   const [pendingProfile, setPendingProfile] = useState<BudgetProfile | null>(null);
   const [editingProfile, setEditingProfile] = useState<BudgetProfile | null>(null);
+  const [showEmailGate, setShowEmailGate] = useState(false);
   const [sharedProfile, setSharedProfile] = useState<BudgetProfile | null>(null);
   const [sharedMeta, setSharedMeta] = useState<ShareMeta>({});
 
@@ -222,7 +225,7 @@ const Index = () => {
     setShowWelcome(true);
   };
 
-  const handleWelcomeContinue = () => {
+  const finalizeBudget = () => {
     if (!pendingProfile || !pendingBudget) return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile));
     setProfile(pendingProfile);
@@ -233,6 +236,17 @@ const Index = () => {
     submitPriceObservations(pendingProfile);
     if (user) saveToCloud(pendingProfile);
     setPendingProfile(null);
+  };
+
+  const handleWelcomeContinue = () => {
+    if (!pendingProfile || !pendingBudget) return;
+    // Show email gate if user hasn't already unlocked it and isn't authenticated
+    if (!user && !isGateUnlocked("nemtbudget", "budget_save")) {
+      setShowWelcome(false);
+      setShowEmailGate(true);
+      return;
+    }
+    finalizeBudget();
   };
 
   const handleProfileChange = (updated: BudgetProfile) => {
@@ -313,6 +327,44 @@ const Index = () => {
           onContinue={handleWelcomeContinue}
         />
       </Suspense>
+    );
+  }
+
+  if (showEmailGate && pendingProfile && pendingBudget) {
+    const health = calculateHealth(pendingProfile, pendingBudget);
+    return (
+      <SuiteGateModal
+        open={showEmailGate}
+        onOpenChange={setShowEmailGate}
+        source="nemtbudget"
+        gate="budget_save"
+        headline="Dit budget er klar — gem det gratis"
+        subline="Du har brugt tid på at indtaste alt. Gem det, så du kan vende tilbage."
+        freeItems={[
+          "Komplet budget med sundhedsscore",
+          "Sankey pengestrøm",
+          "Handlingsforslag og besparelser",
+        ]}
+        gatedItems={[
+          "Tilgå dit budget fra alle enheder",
+          "Månedlig påmindelse om opdatering",
+          "Stresstest og nabosammenligning",
+          "Historik over tid",
+        ]}
+        cta="Gem mit budget"
+        metadata={{
+          health_score: health.score,
+          disposable_income: pendingBudget.disposableIncome,
+          total_income: pendingBudget.totalIncome,
+        }}
+        onSuccess={() => {
+          toast.success("Dit budget er gemt!");
+          finalizeBudget();
+        }}
+        onDismiss={() => {
+          finalizeBudget();
+        }}
+      />
     );
   }
 
