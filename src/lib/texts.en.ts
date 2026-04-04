@@ -200,6 +200,7 @@ export const EN: Record<string, string> = {
   "step.review.clothing": "Clothing & personal care",
   "step.review.health": "Health (doctor, dentist)",
   "step.review.fixedExpenses": "Fixed expenses",
+  "step.review.variableExpenses": "Variable expenses (groceries etc.)",
   "step.review.seeDashboard": "See full dashboard",
   "step.review.zeroIncomeWarning": "Your income is set to 0. Is that correct?",
 

@@ -60,7 +60,7 @@ function CountUpNumber({ value, className }: { value: number; className?: string
 function AccordionCategory({ icon, label, total, unit, defaultOpen, children }: {
   icon: string; label: string; total: number; unit: string; defaultOpen?: boolean; children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(!!defaultOpen);
+  const [open, setOpen] = useState(defaultOpen !== false);
   return (
     <div className="rounded-2xl border border-border/60 overflow-hidden">
       <button type="button" onClick={() => setOpen(!open)}
@@ -931,21 +931,37 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               ))}
             </div>
 
-            {/* ── Udgiftsoversigt (read-only, sammenfoldelig) ── */}
-            <details className="group">
-              <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
-                <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
-                <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
-              </summary>
-              <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
-                {budget.fixedExpenses.map((e, i) => (
-                  <div key={i} className="px-4 py-2 flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{e.label}</span>
-                    <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("unit.currency")}</span>
-                  </div>
-                ))}
-              </div>
-            </details>
+            {/* ── Udgiftsoversigt ── */}
+            <div className="space-y-2">
+              <details className="group" open>
+                <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
+                  <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
+                  <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
+                </summary>
+                <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                  {budget.fixedExpenses.map((e, i) => (
+                    <div key={i} className="px-4 py-2 flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{e.label}</span>
+                      <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("unit.currency")}</span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+              <details className="group" open>
+                <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
+                  <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.variableExpenses")}</span>
+                  <span className="text-xs tabular-nums">{formatKr(budget.variableExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
+                </summary>
+                <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                  {budget.variableExpenses.map((e, i) => (
+                    <div key={i} className="px-4 py-2 flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{e.label}</span>
+                      <span className="text-xs font-medium tabular-nums">{formatKr(e.amount)} {t("unit.currency")}</span>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </div>
 
             {/* ── Email opt-in (GDPR-compliant, unchecked by default) ── */}
             <label className="flex items-start gap-3 cursor-pointer group">

@@ -200,6 +200,7 @@ export const DA: Record<string, string> = {
   "step.review.clothing": "Tøj & personlig pleje",
   "step.review.health": "Sundhed (læge, tandlæge)",
   "step.review.fixedExpenses": "Faste udgifter",
+  "step.review.variableExpenses": "Variable udgifter (dagligvarer m.m.)",
   "step.review.seeDashboard": "Se fuldt dashboard",
   "step.review.zeroIncomeWarning": "Din indkomst er sat til 0 kr. Er det korrekt?",
 
