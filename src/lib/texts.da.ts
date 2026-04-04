@@ -1010,8 +1010,8 @@ export const DA: Record<string, string> = {
   "step.income.minWarning": "Indtast mindst 1.000 kr. i samlet indkomst for at fortsætte.",
   "onboarding.encourage.income": "Super! Nu ved vi hvem du er 🎯",
   "onboarding.encourage.housing": "Godt klaret — nu tager vi boligen 🏠",
-  "onboarding.encourage.everyday": "Halvvejs! Boligen er på plads ✅",
-  "onboarding.encourage.fixed": "Næsten færdig — bare de faste udgifter 📋",
+  "onboarding.encourage.everyday": "Halvvejs! Nu til dagligvarerne 🛒",
+  "onboarding.encourage.fixed": "Næsten færdig — sidste detaljer 📋",
   "onboarding.encourage.review": "Sidste trin — du er næsten i mål! 🏁",
 
   // Error boundary

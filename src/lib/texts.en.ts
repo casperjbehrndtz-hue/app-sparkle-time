@@ -1010,8 +1010,8 @@ export const EN: Record<string, string> = {
   "step.income.minWarning": "Enter at least 1,000 kr. combined income to continue.",
   "onboarding.encourage.income": "Great! Now we know who you are 🎯",
   "onboarding.encourage.housing": "Nice — let's sort out housing 🏠",
-  "onboarding.encourage.everyday": "Halfway there! Housing is locked in ✅",
-  "onboarding.encourage.fixed": "Almost done — just the fixed expenses 📋",
+  "onboarding.encourage.everyday": "Halfway there! Now for groceries 🛒",
+  "onboarding.encourage.fixed": "Almost done — last details 📋",
   "onboarding.encourage.review": "Last step — you're almost done! 🏁",
 
   // Error boundary

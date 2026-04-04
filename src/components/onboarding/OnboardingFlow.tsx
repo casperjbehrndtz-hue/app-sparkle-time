@@ -60,7 +60,14 @@ function CountUpNumber({ value, className }: { value: number; className?: string
 function AccordionCategory({ icon, label, total, unit, defaultOpen, children }: {
   icon: string; label: string; total: number; unit: string; defaultOpen?: boolean; children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen !== false);
+  // Open by default if: explicitly requested, or section has a non-zero total
+  const [open, setOpen] = useState(defaultOpen ?? total > 0);
+  // Auto-open when user activates something in this section
+  const prevTotal = useRef(total);
+  useEffect(() => {
+    if (prevTotal.current === 0 && total > 0) setOpen(true);
+    prevTotal.current = total;
+  }, [total]);
   return (
     <div className="rounded-2xl border border-border/60 overflow-hidden">
       <button type="button" onClick={() => setOpen(!open)}
@@ -846,7 +853,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </div>
 
             <AILiveComment profile={profile} step="fixed" />
-            <ContinueButton onClick={goNext} label={t("continue")} />
+            {/* ContinueButton omitted — LiveBudgetBar has "Se overblik" CTA on this last step */}
           </div>
         );
       }
@@ -931,9 +938,54 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               ))}
             </div>
 
+            {/* ── Visuel fordeling ── */}
+            {(() => {
+              const allExp = [...budget.fixedExpenses, ...budget.variableExpenses].filter(e => e.amount > 0);
+              // Group by category
+              const cats = new Map<string, number>();
+              for (const e of allExp) {
+                cats.set(e.category, (cats.get(e.category) || 0) + e.amount);
+              }
+              const sorted = [...cats.entries()].sort((a, b) => b[1] - a[1]);
+              const catColors: Record<string, string> = {
+                "Bolig": "bg-blue-500", "Boliglån": "bg-blue-500",
+                "Mad & dagligvarer": "bg-emerald-500", "Mat & dagligvarer": "bg-emerald-500",
+                "Transport": "bg-amber-500",
+                "Streaming & medier": "bg-purple-500", "Streaming": "bg-purple-500",
+                "Forsyning": "bg-cyan-500", "Forsyninger": "bg-cyan-500",
+                "Forsikring": "bg-rose-500",
+                "Fritid": "bg-orange-500",
+                "Restaurant": "bg-pink-500",
+                "Opsparing": "bg-green-600",
+              };
+              return (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+                  className="rounded-2xl border border-border p-4 space-y-3">
+                  {/* Stacked bar */}
+                  <div className="h-4 rounded-full overflow-hidden flex">
+                    {sorted.map(([cat, amt]) => (
+                      <div key={cat} className={`h-full ${catColors[cat] || "bg-muted-foreground/40"}`}
+                        style={{ width: `${(amt / budget.totalExpenses) * 100}%` }}
+                        title={`${cat}: ${formatKr(amt)} ${t("unit.currency")}`} />
+                    ))}
+                  </div>
+                  {/* Legend */}
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {sorted.slice(0, 6).map(([cat, amt]) => (
+                      <div key={cat} className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full ${catColors[cat] || "bg-muted-foreground/40"}`} />
+                        <span className="text-[10px] text-muted-foreground">{cat}</span>
+                        <span className="text-[10px] font-medium tabular-nums">{Math.round((amt / budget.totalExpenses) * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })()}
+
             {/* ── Udgiftsoversigt ── */}
             <div className="space-y-2">
-              <details className="group" open>
+              <details className="group">
                 <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                   <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
                   <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
@@ -947,7 +999,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                   ))}
                 </div>
               </details>
-              <details className="group" open>
+              <details className="group">
                 <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                   <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.variableExpenses")}</span>
                   <span className="text-xs tabular-nums">{formatKr(budget.variableExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
@@ -1017,7 +1069,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
           </motion.div>
         </AnimatePresence>
       </div>
-      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "everyday" ? goNext : undefined} />}
+      {liveBudget && <LiveBudgetBar income={liveBudget.totalIncome} expenses={liveBudget.totalExpenses} step={step} onNext={step === "fixed" ? goNext : undefined} />}
       <OcrConsentModal
         open={payslipOCR.showConsent}
         type="payslip"
