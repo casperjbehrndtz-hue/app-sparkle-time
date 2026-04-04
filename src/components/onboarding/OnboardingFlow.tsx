@@ -97,9 +97,11 @@ function AccordionCategory({ icon, label, total, unit, defaultOpen, children }: 
   );
 }
 
-function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
+function CompactSlider({ label, value, onChange, min, max, step, icon, unit, monthlyEquiv }: {
   label: string; value: number; onChange: (v: number) => void;
   min: number; max: number; step: number; icon: string; unit: string;
+  /** If the unit isn't monthly, show "= X kr./md." hint */
+  monthlyEquiv?: number;
 }) {
   const [localValue, setLocalValue] = useState<string>(String(value));
   const focused = useRef(false);
@@ -130,6 +132,9 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit }: {
         style={{ background: `linear-gradient(to right, hsl(var(--primary)) ${pct}%, hsl(var(--secondary)) ${pct}%)` }}
         aria-label={label}
       />
+      {monthlyEquiv !== undefined && value > 0 && (
+        <p className="text-[10px] text-muted-foreground/60 text-right mt-1">= {formatKr(monthlyEquiv)} kr./md.</p>
+      )}
     </div>
   );
 }
@@ -215,6 +220,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
   const [customFreq, setCustomFreq] = useState<PaymentFrequency>("monthly");
   const payslipOCR = usePayslipOCR();
   const payslipInputRef = useRef<HTMLInputElement>(null);
+  const [payslipDragOver, setPayslipDragOver] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Persist onboarding state to localStorage on changes
@@ -382,8 +388,20 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-2xl border-2 border-dashed border-border/60 hover:border-primary/30 transition-colors p-5 text-center cursor-pointer"
+                  className={`rounded-2xl border-2 border-dashed transition-colors p-5 text-center cursor-pointer ${
+                    payslipDragOver
+                      ? "border-primary bg-primary/5 scale-[1.02]"
+                      : "border-border/60 hover:border-primary/30"
+                  }`}
                   onClick={() => payslipInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setPayslipDragOver(true); }}
+                  onDragLeave={() => setPayslipDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setPayslipDragOver(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) payslipOCR.processPayslip(file);
+                  }}
                 >
                   <input
                     ref={payslipInputRef}
@@ -735,9 +753,9 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} className="mt-2 space-y-2">
                     <CompactSlider icon="credit-card" label={t("step.expenses.carLoan")} value={profile.carLoan} onChange={(v) => update({ carLoan: v })} min={0} max={10000} step={100} unit={t("unit.krMonth")} />
                     <CompactSlider icon="fuel" label={t("step.expenses.fuel")} value={profile.carFuel} onChange={(v) => update({ carFuel: v })} min={0} max={5000} step={100} unit={t("unit.krMonth")} />
-                    <CompactSlider icon="shield" label={t("step.expenses.carInsurance")} value={profile.carInsurance} onChange={(v) => update({ carInsurance: v })} min={0} max={12000} step={100} unit={t("unit.krYear")} />
-                    <CompactSlider icon="clipboard" label={t("step.expenses.carTax")} value={profile.carTax} onChange={(v) => update({ carTax: v })} min={0} max={8000} step={100} unit={t("unit.krYear")} />
-                    <CompactSlider icon="wrench" label={t("step.expenses.carService")} value={profile.carService} onChange={(v) => update({ carService: v })} min={0} max={5000} step={100} unit={t("unit.krHalfYear")} />
+                    <CompactSlider icon="shield" label={t("step.expenses.carInsurance")} value={profile.carInsurance} onChange={(v) => update({ carInsurance: v })} min={0} max={12000} step={100} unit={t("unit.krYear")} monthlyEquiv={Math.round(profile.carInsurance / 12)} />
+                    <CompactSlider icon="clipboard" label={t("step.expenses.carTax")} value={profile.carTax} onChange={(v) => update({ carTax: v })} min={0} max={8000} step={100} unit={t("unit.krYear")} monthlyEquiv={Math.round(profile.carTax / 12)} />
+                    <CompactSlider icon="wrench" label={t("step.expenses.carService")} value={profile.carService} onChange={(v) => update({ carService: v })} min={0} max={5000} step={100} unit={t("unit.krHalfYear")} monthlyEquiv={Math.round(profile.carService / 6)} />
                   </motion.div>
                 )}
               </AccordionCategory>
