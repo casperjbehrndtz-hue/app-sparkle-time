@@ -1540,7 +1540,7 @@ export const NO: Record<string, string> = {
   "timeline.acceptedFormats": "JPEG, PNG, WebP eller PDF — maks 5 MB per fil",
   "timeline.filesSelected": "filer valgt",
   "timeline.startProcessing": "Start analyse (med personnummer-beskyttelse)",
-  "timeline.privacy": "Hver lønnsslipp går gjennom samme personnummer-redaksjon og samtykke-flyt som den vanlige skanneren. Ingenting lagres på serveren — bare anonyme tall i nettleseren din.",
+  "timeline.privacy": "Alle lønnsslipper sløres automatisk for personnummer, navn og kontonumre — du godkjenner samlet før sending. Ingenting lagres på serveren — bare anonyme tall i nettleseren din.",
   "timeline.existingData": "Du har allerede lagrede lønnsslipper — de inkluderes automatisk i grafen.",
   "timeline.processing": "Analyserer lønnsslipper",
   "timeline.phaseRedacting": "Fjerner personnumre",
@@ -1562,6 +1562,7 @@ export const NO: Record<string, string> = {
   "timeline.totalGrowth": "Total økning",
   "timeline.avgAnnual": "Snitt årlig",
   "timeline.currentBrutto": "Nåv. brutto",
+  "timeline.currentNetto": "Nåv. netto",
   "timeline.period": "Periode",
   "timeline.needMore": "Last opp minst 2 lønnsslipper fra forskjellige perioder for å se lønnsutviklingen din.",
 };

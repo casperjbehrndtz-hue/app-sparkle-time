@@ -22,7 +22,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { usePayslipBatchOCR } from "@/hooks/usePayslipBatchOCR";
-import OcrConsentModal from "@/components/OcrConsentModal";
+import BatchConsentGallery from "@/components/BatchConsentGallery";
 import { SalaryTimeline } from "@/components/payslip/SalaryTimeline";
 import { archivePayslip, getArchive, type ArchivedPayslip } from "@/lib/payslipArchive";
 import Logo from "@/components/shared/Logo";
@@ -34,13 +34,11 @@ export default function Lonudvikling() {
     progress,
     processBatch,
     reset: batchReset,
-    showConsent,
-    consentPreview,
-    consentCprCount,
-    consentAccountCount,
-    consentIsPdf,
-    onConsentAccept,
-    onConsentDecline,
+    showBatchConsent,
+    redactedFiles,
+    toggleFileExclusion,
+    onBatchAccept,
+    onBatchDecline,
   } = usePayslipBatchOCR();
 
   const [dragOver, setDragOver] = useState(false);
@@ -241,7 +239,7 @@ export default function Lonudvikling() {
                 <p className="text-[10px] text-muted-foreground mt-1">
                   {progress.currentFileName}
                   {progress.phase === "redacting" && ` — ${t("timeline.phaseRedacting")}`}
-                  {progress.phase === "consent" && ` — ${t("timeline.phaseConsent")}`}
+                  {progress.phase === "reviewing" && ` — ${t("timeline.phaseConsent")}`}
                   {progress.phase === "scanning" && ` — ${t("timeline.phaseScanning")}`}
                 </p>
               </div>
@@ -289,10 +287,18 @@ export default function Lonudvikling() {
               )}
             </div>
 
-            {/* Results list */}
+            {/* Results list — sorted chronologically */}
             <div className="rounded-xl border border-border bg-card p-4 space-y-2">
               <p className="text-xs font-semibold mb-2">{t("timeline.resultList")}</p>
-              {results.map((r, i) => (
+              {[...results]
+                .sort((a, b) => {
+                  // Successful payslips sorted by period, errors last
+                  if (a.payslip && b.payslip) return (a.payslip.payPeriod ?? "").localeCompare(b.payslip.payPeriod ?? "");
+                  if (a.payslip) return -1;
+                  if (b.payslip) return 1;
+                  return 0;
+                })
+                .map((r, i) => (
                 <div key={i} className="flex items-center gap-2 text-xs">
                   {r.payslip ? (
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
@@ -336,16 +342,13 @@ export default function Lonudvikling() {
         )}
       </div>
 
-      {/* Consent modal — reused from single payslip flow */}
-      <OcrConsentModal
-        open={showConsent}
-        type="payslip"
-        redactedPreview={consentPreview ?? undefined}
-        cprCount={consentCprCount}
-        accountCount={consentAccountCount}
-        isPdf={consentIsPdf}
-        onAccept={onConsentAccept}
-        onDecline={onConsentDecline}
+      {/* Batch consent gallery — shows all redacted images for single approval */}
+      <BatchConsentGallery
+        open={showBatchConsent}
+        files={redactedFiles}
+        onToggleFile={toggleFileExclusion}
+        onAccept={onBatchAccept}
+        onDecline={onBatchDecline}
       />
     </main>
   );

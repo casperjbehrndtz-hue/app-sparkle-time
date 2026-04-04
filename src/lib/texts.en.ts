@@ -1554,7 +1554,7 @@ export const EN: Record<string, string> = {
   "timeline.acceptedFormats": "JPEG, PNG, WebP or PDF — max 5 MB per file",
   "timeline.filesSelected": "files selected",
   "timeline.startProcessing": "Start analysis (with CPR protection)",
-  "timeline.privacy": "Each payslip goes through the same CPR redaction and consent flow as the normal scanner. Nothing is stored on the server — only anonymous numbers in your browser.",
+  "timeline.privacy": "All payslips are auto-redacted for CPR, names and account numbers — you approve them together before sending. Nothing is stored on the server — only anonymous numbers in your browser.",
   "timeline.existingData": "You already have saved payslips — they are automatically included in the graph.",
   "timeline.processing": "Analysing payslips",
   "timeline.phaseRedacting": "Removing CPR numbers",
@@ -1576,6 +1576,7 @@ export const EN: Record<string, string> = {
   "timeline.totalGrowth": "Total growth",
   "timeline.avgAnnual": "Avg. annual",
   "timeline.currentBrutto": "Current gross",
+  "timeline.currentNetto": "Current net",
   "timeline.period": "Period",
   "timeline.needMore": "Upload at least 2 payslips from different periods to see your salary development.",
 };

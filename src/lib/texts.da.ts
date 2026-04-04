@@ -1556,7 +1556,7 @@ export const DA: Record<string, string> = {
   "timeline.acceptedFormats": "JPEG, PNG, WebP eller PDF — max 5 MB pr. fil",
   "timeline.filesSelected": "filer valgt",
   "timeline.startProcessing": "Start analyse (med CPR-beskyttelse)",
-  "timeline.privacy": "Hver lønseddel gennemgår samme CPR-redaktion og samtykke-flow som den normale scanner. Intet gemmes på serveren — kun anonyme tal i din browser.",
+  "timeline.privacy": "Alle lønsedler sløres automatisk for CPR, navn og kontonr. — du godkender samlet inden afsendelse. Intet gemmes på serveren — kun anonyme tal i din browser.",
   "timeline.existingData": "Du har allerede gemte lønsedler — de indgår automatisk i grafen.",
   "timeline.processing": "Analyserer lønsedler",
   "timeline.phaseRedacting": "Fjerner CPR-numre",
@@ -1578,6 +1578,7 @@ export const DA: Record<string, string> = {
   "timeline.totalGrowth": "Total stigning",
   "timeline.avgAnnual": "Gns. årlig",
   "timeline.currentBrutto": "Nuv. brutto",
+  "timeline.currentNetto": "Nuv. netto",
   "timeline.period": "Periode",
   "timeline.needMore": "Upload mindst 2 lønsedler fra forskellige perioder for at se din lønudvikling.",
 };

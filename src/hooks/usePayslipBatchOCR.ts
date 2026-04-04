@@ -1,14 +1,11 @@
 /**
- * Batch payslip OCR — processes multiple files sequentially
- * through the same CPR redaction → consent → AI pipeline.
+ * Batch payslip OCR — processes multiple files through:
+ *   Phase 1: Redact ALL files (CPR/account removal)
+ *   Phase 2: Show all redacted previews for batch review
+ *   Phase 3: Send approved files to Claude Vision
  *
- * Each file goes through the full security flow individually:
- * 1. CPR/account redaction (Tesseract or pdf.js)
- * 2. User reviews redaction in OcrConsentModal
- * 3. Send redacted image to Claude Vision
- * 4. Client-side reconciliation
- *
- * Returns parsed payslips as they complete.
+ * This replaces the old per-file consent flow with a single
+ * batch approval step after all redactions are done.
  */
 import { useState, useCallback, useRef } from "react";
 import { parsePayslipResponse, type ExtractedPayslip } from "@/lib/payslipTypes";
@@ -34,66 +31,66 @@ export interface BatchPayslipResult {
   error?: string;
 }
 
+export interface RedactedFile {
+  fileName: string;
+  base64: string;
+  mimeType: string;
+  cprCount: number;
+  accountCount: number;
+  /** Whether the user has excluded this file from the batch */
+  excluded: boolean;
+  error?: string;
+}
+
 export interface BatchProgress {
   total: number;
   current: number;
   currentFileName: string;
-  phase: "idle" | "redacting" | "consent" | "scanning" | "done" | "error";
+  phase: "idle" | "redacting" | "reviewing" | "scanning" | "done" | "error";
 }
 
 export function usePayslipBatchOCR() {
   const [results, setResults] = useState<BatchPayslipResult[]>([]);
+  const [redactedFiles, setRedactedFiles] = useState<RedactedFile[]>([]);
   const [progress, setProgress] = useState<BatchProgress>({
     total: 0, current: 0, currentFileName: "", phase: "idle",
   });
 
-  // Consent modal state — one file at a time
-  const [showConsent, setShowConsent] = useState(false);
-  const [consentPreview, setConsentPreview] = useState<string | null>(null);
-  const [consentCprCount, setConsentCprCount] = useState(0);
-  const [consentAccountCount, setConsentAccountCount] = useState(0);
-  const [consentIsPdf, setConsentIsPdf] = useState(false);
-
-  // Internal resolver for consent flow
+  // Batch consent state
+  const [showBatchConsent, setShowBatchConsent] = useState(false);
   const consentResolver = useRef<((accepted: boolean) => void) | null>(null);
 
-  /** Wait for user to accept/decline consent modal */
-  const waitForConsent = useCallback((): Promise<boolean> => {
-    return new Promise((resolve) => {
-      consentResolver.current = resolve;
-    });
+  /** Toggle a single file's excluded state in the review grid */
+  const toggleFileExclusion = useCallback((index: number) => {
+    setRedactedFiles((prev) =>
+      prev.map((f, i) => i === index ? { ...f, excluded: !f.excluded } : f),
+    );
   }, []);
 
-  const onConsentAccept = useCallback(async () => {
-    setShowConsent(false);
+  /** User accepts batch consent — process all non-excluded files */
+  const onBatchAccept = useCallback(() => {
+    setShowBatchConsent(false);
     consentResolver.current?.(true);
     consentResolver.current = null;
   }, []);
 
-  const onConsentDecline = useCallback(() => {
-    setShowConsent(false);
+  /** User declines batch consent — cancel everything */
+  const onBatchDecline = useCallback(() => {
+    setShowBatchConsent(false);
     consentResolver.current?.(false);
     consentResolver.current = null;
   }, []);
 
-  /** Process a single file through redaction → consent → OCR */
-  const processOneFile = useCallback(async (
-    file: File,
-    index: number,
-    total: number,
-  ): Promise<BatchPayslipResult> => {
+  /** Redact a single file (no consent needed yet) */
+  const redactOneFile = useCallback(async (file: File): Promise<RedactedFile> => {
     const fileName = file.name;
 
-    // Validate
     if (!VALID_TYPES.includes(file.type)) {
-      return { fileName, payslip: null, error: "Ugyldig filtype" };
+      return { fileName, base64: "", mimeType: "", cprCount: 0, accountCount: 0, excluded: true, error: "Ugyldig filtype" };
     }
     if (file.size > MAX_FILE_SIZE) {
-      return { fileName, payslip: null, error: "Fil for stor (max 5 MB)" };
+      return { fileName, base64: "", mimeType: "", cprCount: 0, accountCount: 0, excluded: true, error: "Fil for stor (max 5 MB)" };
     }
-
-    // Phase 1: Redaction
-    setProgress({ total, current: index + 1, currentFileName: fileName, phase: "redacting" });
 
     let redaction: RedactionResult | null = null;
     let fallbackBase64: string | null = null;
@@ -124,40 +121,26 @@ export function usePayslipBatchOCR() {
         const compressed = await compressImage(file);
         fallbackBase64 = compressed.base64;
       } catch {
-        return { fileName, payslip: null, error: "Kunne ikke læse filen" };
+        return { fileName, base64: "", mimeType: "", cprCount: 0, accountCount: 0, excluded: true, error: "Kunne ikke læse filen" };
       }
     }
 
-    // Phase 2: Show consent modal for this file
-    setProgress({ total, current: index + 1, currentFileName: fileName, phase: "consent" });
-    setConsentPreview(redaction?.base64 ?? fallbackBase64);
-    setConsentCprCount(redaction?.cprCount ?? 0);
-    setConsentAccountCount(redaction?.accountCount ?? 0);
-    setConsentIsPdf(file.type === "application/pdf" && !redaction);
-    setShowConsent(true);
+    return {
+      fileName,
+      base64: redaction?.base64 ?? fallbackBase64 ?? "",
+      mimeType: redaction?.mimeType ?? "image/jpeg",
+      cprCount: redaction?.cprCount ?? 0,
+      accountCount: redaction?.accountCount ?? 0,
+      excluded: false,
+    };
+  }, []);
 
-    const accepted = await waitForConsent();
-    if (!accepted) {
-      return { fileName, payslip: null, error: "Sprunget over" };
+  /** Send a single redacted file to Claude Vision */
+  const scanOneFile = useCallback(async (rf: RedactedFile): Promise<BatchPayslipResult> => {
+    if (!rf.base64) {
+      return { fileName: rf.fileName, payslip: null, error: rf.error || "Ingen billeddata" };
     }
 
-    // Phase 3: Send to AI
-    setProgress({ total, current: index + 1, currentFileName: fileName, phase: "scanning" });
-
-    let base64: string;
-    let mimeType: string;
-
-    if (redaction) {
-      base64 = redaction.base64;
-      mimeType = redaction.mimeType;
-    } else if (fallbackBase64) {
-      base64 = fallbackBase64;
-      mimeType = "image/jpeg";
-    } else {
-      return { fileName, payslip: null, error: "Ingen billeddata" };
-    }
-
-    // OCR call with retry
     let lastError = "";
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
@@ -167,14 +150,14 @@ export function usePayslipBatchOCR() {
             Authorization: `Bearer ${SUPABASE_KEY}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ image: base64, mimeType }),
+          body: JSON.stringify({ image: rf.base64, mimeType: rf.mimeType }),
         });
 
         if (!res.ok) {
           const body = await res.json().catch(() => ({}));
           lastError = body.detail || body.error || `HTTP ${res.status}`;
           if (res.status >= 400 && res.status < 500 && res.status !== 422) {
-            return { fileName, payslip: null, error: lastError };
+            return { fileName: rf.fileName, payslip: null, error: lastError };
           }
           continue;
         }
@@ -187,37 +170,84 @@ export function usePayslipBatchOCR() {
         }
 
         const reconciled = reconcilePayslip(parsed);
-        return { fileName, payslip: reconciled.payslip };
+        return { fileName: rf.fileName, payslip: reconciled.payslip };
       } catch (err) {
         lastError = err instanceof Error ? err.message : "Ukendt fejl";
       }
     }
 
-    return { fileName, payslip: null, error: lastError || "OCR fejlede" };
-  }, [waitForConsent]);
+    return { fileName: rf.fileName, payslip: null, error: lastError || "OCR fejlede" };
+  }, []);
 
-  /** Start batch processing */
+  /** Start batch processing — 3 phases */
   const processBatch = useCallback(async (files: File[]) => {
     const capped = files.slice(0, MAX_BATCH_SIZE);
     setResults([]);
+    setRedactedFiles([]);
     const total = capped.length;
 
-    const allResults: BatchPayslipResult[] = [];
-
+    // ── Phase 1: Redact all files ──
+    const redacted: RedactedFile[] = [];
     for (let i = 0; i < capped.length; i++) {
-      const result = await processOneFile(capped[i], i, total);
+      setProgress({ total, current: i + 1, currentFileName: capped[i].name, phase: "redacting" });
+      const rf = await redactOneFile(capped[i]);
+      redacted.push(rf);
+      setRedactedFiles([...redacted]);
+    }
+
+    // If no valid files, skip consent
+    const validFiles = redacted.filter((f) => !f.error);
+    if (validFiles.length === 0) {
+      // All files had errors — mark results and finish
+      setResults(redacted.map((f) => ({ fileName: f.fileName, payslip: null, error: f.error || "Fejl" })));
+      setProgress({ total, current: total, currentFileName: "", phase: "done" });
+      return;
+    }
+
+    // ── Phase 2: Show batch consent review ──
+    setProgress({ total, current: total, currentFileName: "", phase: "reviewing" });
+    setShowBatchConsent(true);
+
+    const accepted = await new Promise<boolean>((resolve) => {
+      consentResolver.current = resolve;
+    });
+
+    if (!accepted) {
+      setResults(redacted.map((f) => ({ fileName: f.fileName, payslip: null, error: "Annulleret" })));
+      setProgress({ total, current: total, currentFileName: "", phase: "done" });
+      return;
+    }
+
+    // ── Phase 3: Scan approved files ──
+    // Get the latest redactedFiles state (user may have toggled exclusions)
+    let latestRedacted: RedactedFile[] = [];
+    setRedactedFiles((prev) => { latestRedacted = prev; return prev; });
+
+    const allResults: BatchPayslipResult[] = [];
+    const toScan = latestRedacted.filter((f) => !f.excluded && !f.error);
+    const skipped = latestRedacted.filter((f) => f.excluded || f.error);
+
+    // Add skipped files to results immediately
+    for (const f of skipped) {
+      allResults.push({ fileName: f.fileName, payslip: null, error: f.error || "Sprunget over" });
+    }
+    setResults([...allResults]);
+
+    for (let i = 0; i < toScan.length; i++) {
+      setProgress({ total: toScan.length, current: i + 1, currentFileName: toScan[i].fileName, phase: "scanning" });
+      const result = await scanOneFile(toScan[i]);
       allResults.push(result);
       setResults([...allResults]);
     }
 
     setProgress({ total, current: total, currentFileName: "", phase: "done" });
-  }, [processOneFile]);
+  }, [redactOneFile, scanOneFile]);
 
   const reset = useCallback(() => {
     setResults([]);
+    setRedactedFiles([]);
     setProgress({ total: 0, current: 0, currentFileName: "", phase: "idle" });
-    setShowConsent(false);
-    setConsentPreview(null);
+    setShowBatchConsent(false);
   }, []);
 
   return {
@@ -225,13 +255,11 @@ export function usePayslipBatchOCR() {
     progress,
     processBatch,
     reset,
-    // Consent modal props
-    showConsent,
-    consentPreview,
-    consentCprCount,
-    consentAccountCount,
-    consentIsPdf,
-    onConsentAccept,
-    onConsentDecline,
+    // Batch consent props
+    showBatchConsent,
+    redactedFiles,
+    toggleFileExclusion,
+    onBatchAccept,
+    onBatchDecline,
   };
 }

@@ -1,16 +1,15 @@
 /**
  * SalaryTimeline — career progression chart built from archived payslips.
  *
- * Shows annual salary development with:
- * - Area chart for brutto/netto over time
+ * Shows monthly salary development with:
+ * - Area chart for brutto + line overlays for netto/pension
  * - Automatic detection of job changes (industry/title changes)
  * - Percentage increase labels at salary jumps
- * - Pension line overlay
  * - Canvas export for sharing on Reddit / social media
  */
 import { useMemo, useState, useCallback } from "react";
 import {
-  AreaChart,
+  ComposedChart,
   Area,
   Line,
   XAxis,
@@ -26,6 +25,7 @@ import {
   Briefcase,
   Share2,
   Check,
+  Download,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
@@ -34,14 +34,15 @@ import type { ArchivedPayslip } from "@/lib/payslipArchive";
 
 // ─── Types ──────────────────────────────────────────────
 
-interface YearData {
-  year: string;
+interface MonthData {
+  /** "YYYY-MM" for sorting / keying */
+  key: string;
+  /** Display label: "jan 25", "feb 25" */
+  label: string;
   brutto: number;
   netto: number;
   pension: number;
-  /** Number of months aggregated */
-  months: number;
-  /** Percentage change from previous year */
+  /** Percentage change from previous month */
   changePct?: number;
   /** Job/industry change detected */
   jobChange?: string;
@@ -54,57 +55,64 @@ interface Props {
 
 // ─── Helpers ────────────────────────────────────────────
 
-/** Group payslips by year and compute annual averages */
-function buildYearData(payslips: ArchivedPayslip[]): YearData[] {
+const SHORT_MONTHS_DA = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const SHORT_MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const SHORT_MONTHS_NO = ["jan", "feb", "mar", "apr", "mai", "jun", "jul", "aug", "sep", "okt", "nov", "des"];
+
+function monthLabel(period: string, lang: string): string {
+  const [yearStr, monthStr] = period.split("-");
+  const monthIdx = parseInt(monthStr, 10) - 1;
+  const shortYear = yearStr.slice(2);
+  const months = lang === "nb" ? SHORT_MONTHS_NO : lang === "da" ? SHORT_MONTHS_DA : SHORT_MONTHS_EN;
+  return `${months[monthIdx]} ${shortYear}`;
+}
+
+/** Build monthly data points from archived payslips (one point per period) */
+function buildMonthData(payslips: ArchivedPayslip[], lang: string): MonthData[] {
   const sorted = [...payslips].sort((a, b) => a.period.localeCompare(b.period));
 
-  // Group by year
-  const byYear = new Map<string, ArchivedPayslip[]>();
+  // Deduplicate by period (keep latest savedAt)
+  const byPeriod = new Map<string, ArchivedPayslip>();
   for (const p of sorted) {
-    const year = p.period.slice(0, 4);
-    const arr = byYear.get(year) ?? [];
-    arr.push(p);
-    byYear.set(year, arr);
+    const existing = byPeriod.get(p.period);
+    if (!existing || p.savedAt > existing.savedAt) {
+      byPeriod.set(p.period, p);
+    }
   }
 
-  const years: YearData[] = [];
+  const months: MonthData[] = [];
   let prevBrutto = 0;
   let prevJob = "";
 
-  for (const [year, entries] of byYear) {
-    const avgBrutto = Math.round(entries.reduce((s, e) => s + e.bruttolon, 0) / entries.length);
-    const avgNetto = Math.round(entries.reduce((s, e) => s + e.nettolon, 0) / entries.length);
-    const avgPension = Math.round(
-      entries.reduce((s, e) => s + e.pensionEmployee + e.pensionEmployer, 0) / entries.length,
-    );
+  for (const [period, entry] of byPeriod) {
+    const pension = entry.pensionEmployee + entry.pensionEmployer;
 
-    // Detect job change: industry or title changed
-    const latestEntry = entries[entries.length - 1];
-    const currentJob = [latestEntry.anonJobTitle, latestEntry.anonIndustry].filter(Boolean).join(", ");
+    // Detect job change
+    const currentJob = [entry.anonJobTitle, entry.anonIndustry].filter(Boolean).join(", ");
     const jobChange = prevJob && currentJob && currentJob !== prevJob ? currentJob : undefined;
     prevJob = currentJob || prevJob;
 
     const changePct = prevBrutto > 0
-      ? Math.round(((avgBrutto - prevBrutto) / prevBrutto) * 1000) / 10
+      ? Math.round(((entry.bruttolon - prevBrutto) / prevBrutto) * 1000) / 10
       : undefined;
-    prevBrutto = avgBrutto;
+    prevBrutto = entry.bruttolon;
 
-    years.push({
-      year,
-      brutto: avgBrutto,
-      netto: avgNetto,
-      pension: avgPension,
-      months: entries.length,
+    months.push({
+      key: period,
+      label: monthLabel(period, lang),
+      brutto: entry.bruttolon,
+      netto: entry.nettolon,
+      pension,
       changePct,
       jobChange,
     });
   }
 
-  return years;
+  return months;
 }
 
 /** Compute career summary stats */
-function computeStats(data: YearData[]) {
+function computeStats(data: MonthData[]) {
   if (data.length < 2) return null;
 
   const first = data[0];
@@ -112,15 +120,26 @@ function computeStats(data: YearData[]) {
   const totalChangePct = first.brutto > 0
     ? Math.round(((last.brutto - first.brutto) / first.brutto) * 1000) / 10
     : 0;
-  const yearSpan = parseInt(last.year) - parseInt(first.year);
-  const avgAnnualPct = yearSpan > 0 ? Math.round((totalChangePct / yearSpan) * 10) / 10 : 0;
+
+  // Year span from YYYY-MM periods
+  const firstYear = parseInt(first.key.slice(0, 4));
+  const firstMonth = parseInt(first.key.slice(5, 7));
+  const lastYear = parseInt(last.key.slice(0, 4));
+  const lastMonth = parseInt(last.key.slice(5, 7));
+  const yearSpan = (lastYear - firstYear) + (lastMonth - firstMonth) / 12;
+
+  // CAGR for avg annual growth (more accurate than linear division)
+  let avgAnnualPct = 0;
+  if (yearSpan >= 1 && first.brutto > 0 && last.brutto > 0) {
+    avgAnnualPct = Math.round((Math.pow(last.brutto / first.brutto, 1 / yearSpan) - 1) * 1000) / 10;
+  }
 
   const biggestJump = data.reduce((best, d) => {
     if (d.changePct && Math.abs(d.changePct) > Math.abs(best.pct)) {
-      return { pct: d.changePct, year: d.year };
+      return { pct: d.changePct, key: d.key };
     }
     return best;
-  }, { pct: 0, year: "" });
+  }, { pct: 0, key: "" });
 
   const jobChanges = data.filter((d) => d.jobChange).length;
 
@@ -128,10 +147,14 @@ function computeStats(data: YearData[]) {
     totalChangePct,
     avgAnnualPct,
     yearSpan,
+    /** Show avg annual only when span >= 2 years (otherwise it equals total) */
+    showAvgAnnual: yearSpan >= 2,
     biggestJump,
     jobChanges,
-    firstYear: first.year,
-    lastYear: last.year,
+    firstYear: first.key.slice(0, 4),
+    lastYear: last.key.slice(0, 4),
+    firstLabel: first.label,
+    lastLabel: last.label,
     currentBrutto: last.brutto,
     currentNetto: last.netto,
   };
@@ -143,7 +166,7 @@ const EXPORT_W = 1200;
 const EXPORT_H = 630;
 
 function exportTimelineImage(
-  data: YearData[],
+  data: MonthData[],
   stats: ReturnType<typeof computeStats>,
   lang: string,
 ): Promise<Blob> {
@@ -170,7 +193,7 @@ function exportTimelineImage(
     if (stats) {
       ctx.fillStyle = "#9a9da5";
       ctx.font = "16px 'Inter', system-ui, sans-serif";
-      ctx.fillText(`${stats.firstYear}–${stats.lastYear}`, 40, 78);
+      ctx.fillText(`${stats.firstLabel} – ${stats.lastLabel}`, 40, 78);
     }
 
     // Chart area
@@ -254,7 +277,7 @@ function exportTimelineImage(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Dots + year labels + change labels
+    // Dots + month labels + change labels
     for (let i = 0; i < data.length; i++) {
       const p = points[i];
       const d = data[i];
@@ -268,18 +291,22 @@ function exportTimelineImage(
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Year label
-      ctx.fillStyle = "#9a9da5";
-      ctx.font = "13px 'Inter', system-ui, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText(d.year, p.x, chartBottom + 20);
+      // Month label (show every label if ≤12, otherwise every other)
+      const showLabel = data.length <= 12 || i % 2 === 0 || i === data.length - 1;
+      if (showLabel) {
+        ctx.fillStyle = "#9a9da5";
+        ctx.font = "11px 'Inter', system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(d.label, p.x, chartBottom + 18);
+      }
 
-      // Change percentage
-      if (d.changePct && i > 0) {
+      // Change percentage (only show significant changes ≥ 1%)
+      if (d.changePct && Math.abs(d.changePct) >= 1 && i > 0) {
         const color = d.changePct > 0 ? "#10b981" : "#ef4444";
         const sign = d.changePct > 0 ? "+" : "";
         ctx.fillStyle = color;
-        ctx.font = "bold 12px 'Inter', system-ui, sans-serif";
+        ctx.font = "bold 11px 'Inter', system-ui, sans-serif";
+        ctx.textAlign = "center";
         ctx.fillText(`${sign}${d.changePct}%`, p.x, p.yBrutto - 14);
       }
 
@@ -316,8 +343,12 @@ function exportTimelineImage(
       ctx.textAlign = "right";
       const lines = [
         `${lang === "da" ? "Total stigning" : lang === "nb" ? "Total økning" : "Total increase"}: ${stats.totalChangePct > 0 ? "+" : ""}${stats.totalChangePct}%`,
-        `${lang === "da" ? "Gns. årlig" : lang === "nb" ? "Snitt årlig" : "Avg. annual"}: ${stats.avgAnnualPct > 0 ? "+" : ""}${stats.avgAnnualPct}%`,
       ];
+      if (stats.showAvgAnnual) {
+        lines.push(
+          `${lang === "da" ? "Gns. årlig" : lang === "nb" ? "Snitt årlig" : "Avg. annual"}: ${stats.avgAnnualPct > 0 ? "+" : ""}${stats.avgAnnualPct}%`,
+        );
+      }
       lines.forEach((l, i) => ctx.fillText(l, chartRight, legendY + i * 18));
     }
 
@@ -342,7 +373,7 @@ export function SalaryTimeline({ payslips }: Props) {
   const [exporting, setExporting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const data = useMemo(() => buildYearData(payslips), [payslips]);
+  const data = useMemo(() => buildMonthData(payslips, lang), [payslips, lang]);
   const stats = useMemo(() => computeStats(data), [data]);
 
   const handleExport = useCallback(async () => {
@@ -389,18 +420,27 @@ export function SalaryTimeline({ payslips }: Props) {
             value={`${stats.totalChangePct > 0 ? "+" : ""}${stats.totalChangePct}%`}
             positive={stats.totalChangePct > 0 ? true : stats.totalChangePct < 0 ? false : undefined}
           />
-          <StatCard
-            label={t("timeline.avgAnnual")}
-            value={`${stats.avgAnnualPct > 0 ? "+" : ""}${stats.avgAnnualPct}%`}
-            positive={stats.avgAnnualPct > 0 ? true : stats.avgAnnualPct < 0 ? false : undefined}
-          />
+          {stats.showAvgAnnual ? (
+            <StatCard
+              label={t("timeline.avgAnnual")}
+              value={`${stats.avgAnnualPct > 0 ? "+" : ""}${stats.avgAnnualPct}%`}
+              positive={stats.avgAnnualPct > 0 ? true : stats.avgAnnualPct < 0 ? false : undefined}
+            />
+          ) : (
+            <StatCard
+              label={t("timeline.currentNetto")}
+              value={`${formatKr(stats.currentNetto, lc)} kr`}
+            />
+          )}
           <StatCard
             label={t("timeline.currentBrutto")}
-            value={formatKr(stats.currentBrutto, lc)}
+            value={`${formatKr(stats.currentBrutto, lc)} kr`}
           />
           <StatCard
             label={t("timeline.period")}
-            value={`${stats.firstYear}–${stats.lastYear}`}
+            value={stats.firstYear === stats.lastYear
+              ? `${stats.firstLabel} – ${stats.lastLabel}`
+              : `${stats.firstYear}–${stats.lastYear}`}
           />
         </div>
       )}
@@ -415,12 +455,12 @@ export function SalaryTimeline({ payslips }: Props) {
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground bg-muted/50 border border-border hover:bg-muted transition-colors"
           >
             {copied ? (
               <><Check className="w-3 h-3 text-emerald-500" /> {t("timeline.copied")}</>
             ) : (
-              <><Share2 className="w-3 h-3" /> {t("timeline.share")}</>
+              <><Download className="w-3 h-3" /> {t("timeline.share")}</>
             )}
           </button>
         </div>
@@ -428,7 +468,7 @@ export function SalaryTimeline({ payslips }: Props) {
         <div className="p-4">
           <div className="h-56 sm:h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="bruttoGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.25} />
@@ -437,10 +477,14 @@ export function SalaryTimeline({ payslips }: Props) {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis
-                  dataKey="year"
+                  dataKey="label"
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
+                  interval={data.length <= 12 ? 0 : "preserveStartEnd"}
+                  angle={data.length > 8 ? -30 : 0}
+                  textAnchor={data.length > 8 ? "end" : "middle"}
+                  height={data.length > 8 ? 50 : 30}
                 />
                 <YAxis
                   tick={{ fontSize: 11 }}
@@ -451,7 +495,7 @@ export function SalaryTimeline({ payslips }: Props) {
                 />
                 <Tooltip
                   formatter={(value: number, name: string) => [
-                    formatKr(value as number, lc),
+                    `${formatKr(value as number, lc)} kr`,
                     name === "brutto"
                       ? t("timeline.gross")
                       : name === "netto"
@@ -471,13 +515,13 @@ export function SalaryTimeline({ payslips }: Props) {
                   .filter((d) => d.jobChange)
                   .map((d) => (
                     <ReferenceLine
-                      key={d.year}
-                      x={d.year}
+                      key={d.key}
+                      x={d.label}
                       stroke="#f59e0b"
                       strokeDasharray="4 4"
                       strokeWidth={1}
                       label={{
-                        value: d.jobChange!.length > 20 ? d.jobChange!.slice(0, 18) + "…" : d.jobChange!,
+                        value: d.jobChange!.length > 30 ? d.jobChange!.slice(0, 28) + "…" : d.jobChange!,
                         position: "insideTopRight",
                         fill: "#f59e0b",
                         fontSize: 10,
@@ -508,7 +552,7 @@ export function SalaryTimeline({ payslips }: Props) {
                   strokeDasharray="4 2"
                   dot={{ r: 2 }}
                 />
-              </AreaChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
 
@@ -528,20 +572,20 @@ export function SalaryTimeline({ payslips }: Props) {
       </div>
 
       {/* Change log */}
-      {data.some((d) => d.changePct) && (
+      {data.some((d) => d.changePct && Math.abs(d.changePct) >= 1) && (
         <div className="rounded-xl border border-border bg-card p-4 space-y-2">
           <p className="text-xs font-semibold text-foreground">{t("timeline.changes")}</p>
           {data
-            .filter((d) => d.changePct)
+            .filter((d) => d.changePct && Math.abs(d.changePct) >= 1)
             .map((d) => (
-              <div key={d.year} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div key={d.key} className="flex items-center gap-2 text-xs text-muted-foreground">
                 {d.changePct! > 0 ? (
                   <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
                 ) : (
                   <TrendingDown className="w-3 h-3 text-red-500 shrink-0" />
                 )}
                 <span>
-                  <strong>{d.year}:</strong>{" "}
+                  <strong>{d.label}:</strong>{" "}
                   {d.changePct! > 0 ? "+" : ""}
                   {d.changePct}%
                   {d.jobChange && (
