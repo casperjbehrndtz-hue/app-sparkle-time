@@ -352,7 +352,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               </a>
             )}
             {profile.hasChildren && profile.childrenAges.some(age => age <= 6) && (
-              <a href="https://institutionsguide.dk" target="_blank" rel="noopener noreferrer"
+              <a href="https://institutionsguiden.dk" target="_blank" rel="noopener noreferrer"
                 className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
                 <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.institutionsguide.title")}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.institutionsguide.desc")}</p>

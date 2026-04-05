@@ -4,7 +4,7 @@ const SUITE_LINKS = [
   { label: "NemtBudget", href: "/", current: true, external: false },
   { label: "ParFinans", href: "https://parfinans.dk", current: false, external: true },
   { label: "Børneskat", href: "https://xn--brneskat-54a.dk", current: false, external: true },
-  { label: "Institutionsguide", href: "https://institutionsguide.dk", current: false, external: true },
+  { label: "Institutionsguide", href: "https://institutionsguiden.dk", current: false, external: true },
 ];
 
 export function SuiteNav() {
