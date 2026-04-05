@@ -2,7 +2,7 @@
 
 <!-- Generated 2026-04-05 by planning pass. Updated by build iterations. -->
 
-## Status: Active — i18n and code quality items in progress
+## Status: Code-complete — only manual/external items remain
 
 ---
 
@@ -40,6 +40,12 @@
 
 ### ~~24. Unused Radix UI package cleanup~~ ✅
 - Removed `@radix-ui/react-menubar`, `@radix-ui/react-context-menu`, `@radix-ui/react-hover-card` and their shadcn wrappers
+
+### ~~25. TypeScript strict mode~~ ✅
+- Enabled `strict: true` in tsconfig.app.json and tsconfig.json — zero errors
+
+### ~~26. Bundle size ROADMAP update~~ ✅
+- Index-chunk already at 157 kB (ROADMAP said 383 kB — stale). Updated ROADMAP.
 
 ---
 

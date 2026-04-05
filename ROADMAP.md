@@ -13,7 +13,7 @@
 | Core features | 13 | 1 |
 | UX & design | 15 | 0 |
 | Indhold & i18n | 8 | 0 |
-| Teknisk fundament | 12 | 3 |
+| Teknisk fundament | 12 | 1 |
 | Vækst & lancering | 3 | 4 |
 
 ---
@@ -69,8 +69,8 @@
 - [x] **Short links for deling** — `shared_budgets` tabel + edge function → `nemtbudget.nu/s/abc12345`
 - [x] **Dead code cleanup** — fjernet ubrugt payslip-share kobling (`payslipToShareMeta`, `calculatePayslip`, unused i18n keys)
 - [x] **i18n dashboard** — hardcodede danske strenge erstattet med `t()` i HistorikView, ParSplitView, NaboeffektView, SubscriptionTracker, HeroSankey
-- [ ] **Bundle size** — Index-chunk er 383 kB. Allerede lazy-loadet, men kan optimeres yderligere
-- [ ] **TypeScript strict mode** — `strict: false` i tsconfig, stram gradvist
+- [x] **Bundle size** — Index-chunk nu 157 kB (var 383 kB). Allerede godt optimeret med manualChunks
+- [x] **TypeScript strict mode** — `strict: true` aktiveret, nul fejl
 - [ ] **Error tracking** — Sentry eller lignende (kræver API-nøgle)
 
 ---
