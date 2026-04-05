@@ -325,6 +325,36 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           </SectionErrorBoundary>
         </StorySection>
 
+        {/* ━━━ Cross-sell nudges — contextual sister product links ━━━ */}
+        {(profile.householdType === "par" || profile.hasChildren) && (
+          <div className="grid sm:grid-cols-2 gap-3">
+            {profile.householdType === "par" && (
+              <a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer"
+                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.parfinans.title")}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.parfinans.desc")}</p>
+                <span className="text-xs font-semibold text-primary">{t("crossSell.parfinans.cta")} →</span>
+              </a>
+            )}
+            {profile.hasChildren && profile.childrenAges.length > 0 && (
+              <a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer"
+                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.boerneskat.title")}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.boerneskat.desc")}</p>
+                <span className="text-xs font-semibold text-primary">{t("crossSell.boerneskat.cta")} →</span>
+              </a>
+            )}
+            {profile.hasChildren && profile.childrenAges.some(age => age <= 6) && (
+              <a href="https://institutionsguide.dk" target="_blank" rel="noopener noreferrer"
+                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.institutionsguide.title")}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.institutionsguide.desc")}</p>
+                <span className="text-xs font-semibold text-primary">{t("crossSell.institutionsguide.cta")} →</span>
+              </a>
+            )}
+          </div>
+        )}
+
         {/* ━━━ Section 5: DYBDEGÅENDE — collapsible advanced ━━━ */}
         <section id="dybde" className="scroll-mt-20">
           <div className="mb-4">

@@ -317,6 +317,17 @@ export const EN: Record<string, string> = {
   "nudge.housingHigh": "Your housing cost is {pct}% of income — experts recommend max 33%",
   "nudge.healthTop": "Your health score is in the top 25 — you're better off than most",
 
+  // Cross-sell nudges
+  "crossSell.parfinans.title": "Manage your couple finances better",
+  "crossSell.parfinans.desc": "You're two about the finances — ParFinans helps you split expenses, save up and plan together.",
+  "crossSell.parfinans.cta": "Try ParFinans.dk",
+  "crossSell.boerneskat.title": "Save tax-free for your children",
+  "crossSell.boerneskat.desc": "With a children's savings account you can set money aside tax-free. See how much you can save.",
+  "crossSell.boerneskat.cta": "See Børneskat.dk",
+  "crossSell.institutionsguide.title": "Find the best daycare",
+  "crossSell.institutionsguide.desc": "Compare daycare institutions in your area — staffing ratios, prices and inspection reports in one place.",
+  "crossSell.institutionsguide.cta": "See Institutionsguide.dk",
+
   // Scenarios
   "scenario.buyHome.title": "Buy home",
   "scenario.buyHome.desc": "What happens if you switch from renting to owning?",

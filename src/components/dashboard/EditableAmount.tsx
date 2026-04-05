@@ -45,6 +45,17 @@ export function EditableAmount({
     }
   }, [editing, value]);
 
+  const handleConfirm = () => {
+    const clamped = Math.max(min, Math.min(max, tempValue));
+    onChange(clamped);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setTempValue(value);
+    setEditing(false);
+  };
+
   // Close on click outside
   const handleCancelRef = useRef(handleCancel);
   handleCancelRef.current = handleCancel;
@@ -58,17 +69,6 @@ export function EditableAmount({
     document.addEventListener("pointerdown", handler);
     return () => document.removeEventListener("pointerdown", handler);
   }, [editing]);
-
-  const handleConfirm = () => {
-    const clamped = Math.max(min, Math.min(max, tempValue));
-    onChange(clamped);
-    setEditing(false);
-  };
-
-  const handleCancel = () => {
-    setTempValue(value);
-    setEditing(false);
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;

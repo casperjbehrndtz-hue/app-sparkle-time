@@ -317,6 +317,17 @@ export const DA: Record<string, string> = {
   "nudge.housingHigh": "Din boligudgift udgør {pct}% af indkomsten — eksperter anbefaler maks 33%",
   "nudge.healthTop": "Din sundhedsscore er i top-25 — du er bedre stillet end de fleste",
 
+  // Cross-sell nudges
+  "crossSell.parfinans.title": "Styr parøkonomien bedre",
+  "crossSell.parfinans.desc": "I er to om økonomien — ParFinans hjælper jer med at fordele udgifter, spare op og planlægge sammen.",
+  "crossSell.parfinans.cta": "Prøv ParFinans.dk",
+  "crossSell.boerneskat.title": "Spar op skattefrit til børnene",
+  "crossSell.boerneskat.desc": "Med en børneopsparing kan du sætte penge til side skattefrit. Se hvor meget du kan spare.",
+  "crossSell.boerneskat.cta": "Se Børneskat.dk",
+  "crossSell.institutionsguide.title": "Find den bedste institution",
+  "crossSell.institutionsguide.desc": "Sammenlign daginstitutioner i dit område — normering, priser og tilsynsrapporter samlet ét sted.",
+  "crossSell.institutionsguide.cta": "Se Institutionsguide.dk",
+
   // Scenarios
   "scenario.buyHome.title": "Køb bolig",
   "scenario.buyHome.desc": "Hvad sker der, hvis du skifter fra leje til ejerbolig?",

@@ -48,13 +48,10 @@
 
 ---
 
-### 7. Cross-sell nudges: contextual links to sister products
-- **What**: Spec requires contextual cross-sell nudges to ParFinans.dk (for couples), Børneskat.dk (when children indicated), and Institutionsguide.dk (for parents with young children). These should appear on the results/dashboard page, not during input.
-- **Why**: Cross-selling is a core business model pillar. Without nudges, sister products get zero traffic from NemtBudget.
-- **Files**: Dashboard section components (after results are shown)
-- **Fix**: Add subtle, contextual cards/banners in the dashboard that link to sister products based on the user's budget profile (household type, children, etc.). Only show relevant ones.
-- **Verify**: Create budget with couple + children → see ParFinans + Børneskat nudges. Solo no children → no nudges.
-- **Impact**: Business model, traffic to sister products
+### ~~P1 #7: Cross-sell nudges~~ ✅
+- Added contextual cross-sell cards in Dashboard between FREMAD and DYBDE sections.
+- ParFinans.dk shown when `householdType === "par"`, Børneskat.dk when `hasChildren`, Institutionsguide.dk when children age ≤ 6.
+- i18n strings added in DA, NO, and EN.
 
 ---
 
@@ -135,6 +132,6 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
-| **P1** | 5 | 5 | 1 (cross-sell nudges) |
+| **P1** | 5 | 5 | 0 |
 | **P2** | 5 | 0 | 5 |
 | **P3** | 4 | 0 | 4 |
