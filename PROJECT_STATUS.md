@@ -1,6 +1,6 @@
 # PROJECT_STATUS.md
 
-> Last updated: 2026-03-14
+> Last updated: 2026-04-05
 > Keep this file updated whenever major changes are made.
 
 ---
@@ -66,10 +66,20 @@ Browser
 | Route | File | Description |
 |---|---|---|
 | `/` | `pages/Index.tsx` | App entry. Shows onboarding → welcome insight → dashboard in sequence |
-| `/login` | `pages/Auth.tsx` | Email/password sign in + sign up. Redirects to `/` on success |
-| `/guides` | `pages/Blog.tsx` | Static article listing (4 stub articles, no detail pages yet) |
-| `/install` | `pages/Install.tsx` | PWA install prompt; handles iOS "Add to Home Screen" instructions |
-| `/privatliv` | `pages/Privatliv.tsx` | Privacy policy page |
+| `/s/:shareId` | `pages/Index.tsx` | Shared budget link resolver |
+| `/login` | `pages/Auth.tsx` | Email/password sign in + sign up |
+| `/guides` | `pages/Blog.tsx` | Article listing (14 articles) |
+| `/guides/:slug` | `pages/Article.tsx` | Individual article page |
+| `/lonseddel` | `pages/Lonseddel.tsx` | Payslip OCR analysis |
+| `/pengetjek` | `pages/Pengetjek.tsx` | Bank statement analysis |
+| `/jobskifte` | `pages/Jobskifte.tsx` | Job change salary calculator |
+| `/lonudvikling` | `pages/Lonudvikling.tsx` | Salary development tracker |
+| `/b2b` | `pages/B2BPage.tsx` | White-label B2B landing page |
+| `/install` | `pages/Install.tsx` | PWA install prompt |
+| `/privatliv` | `pages/Privatliv.tsx` | Privacy policy |
+| `/vilkaar` | `pages/Vilkaar.tsx` | Terms of service |
+| `/admin` | `pages/Admin.tsx` | Admin panel |
+| `/partner` | `pages/Partner.tsx` | Partner dashboard |
 | `*` | `pages/NotFound.tsx` | 404 fallback |
 
 ### Dashboard sections (all within `/`)
@@ -188,8 +198,8 @@ Columns: `category`, `postal_code`, `household_type`, `avg_amount`, `median_amou
 
 ### 🟢 Minor
 
-- `tsconfig.json` has `strict: false` and several null-check options off — inherited from Lovable defaults. Not a runtime issue but worth tightening eventually.
-- Unused Radix UI packages in `package.json` (e.g. `react-menubar`, `react-context-menu`, `react-hover-card`) — add ~30 KB to the bundle. Can be pruned.
+- ~~`tsconfig.json` has `strict: false`~~ — **Resolved.** `strict: true` enabled, zero errors.
+- ~~Unused Radix UI packages~~ — **Resolved.** `react-menubar`, `react-context-menu`, `react-hover-card` removed.
 
 ---
 
