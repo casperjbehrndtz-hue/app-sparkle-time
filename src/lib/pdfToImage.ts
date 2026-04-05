@@ -6,15 +6,21 @@
  * SE-numbers — everything that isn't salary/deduction amounts.
  */
 
-import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
-import type { DocumentInitParameters } from "pdfjs-dist/types/src/display/api";
 import type { RedactionRect } from "./cprRedact";
 import { CPR_RE, ACCOUNT_RE, POSTAL_RE, SENSITIVE_LABELS, SAFE_LABELS } from "./sensitivePatterns";
 
-GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
+let pdfjsLoaded = false;
+async function loadPdfjs() {
+  const pdfjs = await import("pdfjs-dist");
+  if (!pdfjsLoaded) {
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      "pdfjs-dist/build/pdf.worker.min.mjs",
+      import.meta.url,
+    ).toString();
+    pdfjsLoaded = true;
+  }
+  return pdfjs;
+}
 
 interface PdfRedactionResult {
   base64: string;
@@ -41,9 +47,10 @@ export async function pdfToImage(
   scale = 3,
   quality = 0.85,
 ): Promise<PdfRedactionResult> {
+  const pdfjs = await loadPdfjs();
   const buffer = await pdfFile.arrayBuffer();
-  const params: DocumentInitParameters = { data: new Uint8Array(buffer) };
-  const pdf = await getDocument(params).promise;
+  const params = { data: new Uint8Array(buffer) };
+  const pdf = await pdfjs.getDocument(params).promise;
   const page = await pdf.getPage(1);
 
   const viewport = page.getViewport({ scale });

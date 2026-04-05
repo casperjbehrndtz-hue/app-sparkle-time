@@ -48,6 +48,8 @@ npx tsc --noEmit     # TypeScript check — must be clean
 
 ## Common Pitfalls
 
-- Build emits chunk size warning for index.js (754KB). Known issue — see IMPLEMENTATION_PLAN.md P0 #1.
-- Municipality fuzzy matching can false-match — test with exact names from KOMMUNE_SKAT record.
+- Municipality fuzzy matching can false-match — test with exact names from KOMMUNE_DATA record.
 - Post-build scripts (prerender-articles.mjs, prerender-pages.mjs) run automatically — don't break them.
+- `pdfjs-dist` is dynamically imported in `src/lib/pdfToImage.ts` — keep it lazy, don't add static imports.
+- English locale (texts.en) is lazy-loaded via dynamic import in i18n.tsx — don't statically import it elsewhere.
+- `manualChunks` in vite.config.ts controls vendor splitting — update it if adding large new dependencies.

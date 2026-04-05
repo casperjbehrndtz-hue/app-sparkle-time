@@ -17,6 +17,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt", "offline.html"],
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/~oauth/],
@@ -77,19 +80,53 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-charts": ["recharts"],
-          "vendor-motion": ["framer-motion"],
-          "vendor-radix": [
-            "@radix-ui/react-dialog", "@radix-ui/react-select", "@radix-ui/react-tabs",
-            "@radix-ui/react-accordion", "@radix-ui/react-tooltip", "@radix-ui/react-slider",
-            "@radix-ui/react-popover", "@radix-ui/react-dropdown-menu", "@radix-ui/react-radio-group",
-          ],
-          "vendor-d3": ["d3-sankey", "d3-shape"],
-          "vendor-supabase": ["@supabase/supabase-js"],
-          "vendor-tesseract": ["tesseract.js"],
-          "vendor-pdfjs": ["pdfjs-dist"],
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            // React core
+            if (id.includes("/react-dom/") || id.includes("/react/") || id.includes("/scheduler/")) {
+              return "vendor-react";
+            }
+            // Router
+            if (id.includes("/react-router") || id.includes("/@remix-run/")) {
+              return "vendor-router";
+            }
+            // Framer Motion
+            if (id.includes("/framer-motion/")) {
+              return "vendor-motion";
+            }
+            // Recharts (charting library, lazy-loaded with dashboard)
+            if (id.includes("/recharts/")) {
+              return "vendor-recharts";
+            }
+            // D3 (used by recharts + sankey)
+            if (id.includes("/d3-") || id.includes("/victory-vendor/")) {
+              return "vendor-d3";
+            }
+            // Radix UI primitives
+            if (id.includes("/@radix-ui/")) {
+              return "vendor-radix";
+            }
+            // Lucide icons
+            if (id.includes("/lucide-react/")) {
+              return "vendor-icons";
+            }
+            // PDF.js (lazy-loaded for payslip/pengetjek)
+            if (id.includes("/pdfjs-dist/")) {
+              return "vendor-pdfjs";
+            }
+            // Supabase
+            if (id.includes("/@supabase/")) {
+              return "vendor-supabase";
+            }
+            // Floating UI (tooltips, popovers)
+            if (id.includes("/@floating-ui/") || id.includes("/floating-ui/")) {
+              return "vendor-floating";
+            }
+            // Markdown rendering
+            if (id.includes("/react-markdown/") || id.includes("/remark-") || id.includes("/rehype-") || id.includes("/unified/") || id.includes("/mdast-") || id.includes("/hast-") || id.includes("/micromark")) {
+              return "vendor-markdown";
+            }
+          }
         },
       },
     },

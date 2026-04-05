@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { DA } from "./texts.da";
 import { NO } from "./texts.no";
-import { EN } from "./texts.en";
 
 // Build-time locale — set via VITE_LOCALE env var
 // VITE_LOCALE=da  →  nemtbudget.nu (Danish)
@@ -28,6 +27,8 @@ const I18nContext = createContext<I18nContextType>({
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  const enTextsRef = useRef<Record<string, string> | null>(null);
+
   const [lang, setLangState] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -36,6 +37,17 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return DEFAULT_LANG;
   });
 
+  // Lazy-load English texts only when needed
+  useEffect(() => {
+    if (lang === "en" && !enTextsRef.current) {
+      import("./texts.en").then((mod) => {
+        enTextsRef.current = mod.EN;
+        // Force re-render so t() picks up the loaded texts
+        setLangState("en");
+      });
+    }
+  }, [lang]);
+
   const setLang = useCallback((l: Language) => {
     setLangState(l);
     try { localStorage.setItem(STORAGE_KEY, l); } catch {}
@@ -43,7 +55,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const t = useCallback((key: string): string => {
-    if (lang === "en") return EN[key] ?? primaryTexts[key] ?? key;
+    if (lang === "en" && enTextsRef.current) return enTextsRef.current[key] ?? primaryTexts[key] ?? key;
     return primaryTexts[key] ?? key;
   }, [lang]);
 
