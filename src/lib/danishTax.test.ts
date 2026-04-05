@@ -272,3 +272,102 @@ describe("taxInputFromPayslip", () => {
     expect(taxInput.personfradragOverride).toBeUndefined();
   });
 });
+
+describe("edge cases", () => {
+  it("handles zero income without crashing", () => {
+    const input: TaxInput = {
+      monthlyGross: 0,
+      pensionEmployee: 0,
+      pensionEmployer: 0,
+      atp: 0,
+      churchTax: false,
+    };
+    const result = calculateAnnualTax(input);
+    expect(result.annualGross).toBe(0);
+    expect(result.amBidrag).toBe(0);
+    expect(result.monthlyNet).toBe(0);
+    expect(result.bundskat).toBe(0);
+    expect(result.kommuneskat).toBe(0);
+  });
+
+  it("applies top-topskat for very high income (> 2,592,700 kr/year)", () => {
+    // 250,000/month → ~2.76M A-indkomst, above top-topskat threshold
+    const input: TaxInput = {
+      monthlyGross: 250000,
+      pensionEmployee: 0,
+      pensionEmployer: 0,
+      atp: 0,
+      churchTax: false,
+    };
+    const result = calculateAnnualTax(input);
+    expect(result.aIndkomst).toBeGreaterThan(TAX_RATES.TOPTOPSKAT_GRENSE);
+    expect(result.mellemskat).toBeGreaterThan(0);
+    expect(result.topskat).toBeGreaterThan(0);
+    expect(result.toptopskat).toBeGreaterThan(0);
+
+    // Verify top-topskat is 5% of (A-indkomst - grænse)
+    const expectedBase = result.aIndkomst - TAX_RATES.TOPTOPSKAT_GRENSE;
+    expect(result.toptopskat).toBe(Math.round(expectedBase * 0.05));
+  });
+
+  it("applies church tax when enabled", () => {
+    const input: TaxInput = {
+      monthlyGross: 35000,
+      pensionEmployee: 1400,
+      pensionEmployer: 2800,
+      atp: 99,
+      municipality: "København",
+      churchTax: true,
+    };
+    const result = calculateAnnualTax(input);
+    expect(result.kirkeskat).toBeGreaterThan(0);
+    // Church tax for København is 0.80%, verify it's applied
+    const expectedKirke = getKirkeSkat("København");
+    expect(expectedKirke).toBe(0.0080);
+    // Church tax reduces net income
+    const noChurch = calculateAnnualTax({ ...input, churchTax: false });
+    expect(result.monthlyNet).toBeLessThan(noChurch.monthlyNet);
+  });
+
+  it("handles high pension reducing taxable income", () => {
+    const highPension: TaxInput = {
+      monthlyGross: 50000,
+      pensionEmployee: 10000, // 20% employee pension
+      pensionEmployer: 5000,
+      atp: 99,
+      churchTax: false,
+    };
+    const noPension: TaxInput = {
+      monthlyGross: 50000,
+      pensionEmployee: 0,
+      pensionEmployer: 0,
+      atp: 99,
+      churchTax: false,
+    };
+    const withPension = calculateAnnualTax(highPension);
+    const without = calculateAnnualTax(noPension);
+    // High pension should reduce AM-grundlag and thus AM-bidrag
+    expect(withPension.amBidrag).toBeLessThan(without.amBidrag);
+    // And reduce total tax
+    expect(withPension.totalSkat).toBeLessThan(without.totalSkat);
+  });
+
+  it("calculates correctly for multiple municipalities", () => {
+    const municipalities = ["Aarhus", "Odense", "Aalborg", "Frederiksberg", "Gentofte"];
+    for (const muni of municipalities) {
+      const input: TaxInput = {
+        monthlyGross: 40000,
+        pensionEmployee: 0,
+        pensionEmployer: 0,
+        atp: 99,
+        municipality: muni,
+        churchTax: false,
+      };
+      const result = calculateAnnualTax(input);
+      expect(result.monthlyNet).toBeGreaterThan(20000);
+      expect(result.monthlyNet).toBeLessThan(35000);
+      expect(result.kommuneskatRate).toBeGreaterThan(20);
+      expect(result.kommuneskatRate).toBeLessThan(28);
+    }
+  });
+});
