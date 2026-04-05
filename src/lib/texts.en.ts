@@ -328,6 +328,11 @@ export const EN: Record<string, string> = {
   "crossSell.institutionsguide.desc": "Compare daycare institutions in your area — staffing ratios, prices and inspection reports in one place.",
   "crossSell.institutionsguide.cta": "See Institutionsguide.dk",
 
+  // Return-visit CTA
+  "returnVisit.title": "Check your budget again next month",
+  "returnVisit.desc": "Your finances change — prices rise, subscriptions shift. Come back and see if your disposable income still holds up.",
+  "returnVisit.cta": "Set a reminder",
+
   // Scenarios
   "scenario.buyHome.title": "Buy home",
   "scenario.buyHome.desc": "What happens if you switch from renting to owning?",

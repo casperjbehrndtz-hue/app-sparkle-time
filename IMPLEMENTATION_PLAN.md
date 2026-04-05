@@ -57,13 +57,10 @@
 
 ## P2 — Medium Impact
 
-### 8. Return-visit CTA: "Tjek dit budget næste måned"
-- **What**: Spec calls for a return-visit hook encouraging users to come back monthly.
-- **Why**: Retention is critical for a free tool. Monthly return visits build habit and increase sign-up chance.
-- **Files**: Dashboard (bottom section or after BudgetReport)
-- **Fix**: Add a CTA card after results.
-- **Verify**: Complete onboarding → see return-visit CTA in dashboard.
-- **Impact**: Retention, sign-ups
+### ~~P2 #8: Return-visit CTA~~ ✅
+- Added "Tjek dit budget igen næste måned" card at bottom of dashboard (after DYBDE section).
+- CTA opens Google Calendar with a pre-filled reminder event one month out.
+- i18n strings in DA, NO, EN.
 
 ### 9. Guides: stub content needs real articles
 - **What**: 4 seed articles exist. Content quality directly impacts SEO authority.
@@ -133,5 +130,5 @@
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
 | **P1** | 5 | 5 | 0 |
-| **P2** | 5 | 0 | 5 |
+| **P2** | 5 | 1 | 4 |
 | **P3** | 4 | 0 | 4 |

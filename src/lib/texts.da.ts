@@ -328,6 +328,11 @@ export const DA: Record<string, string> = {
   "crossSell.institutionsguide.desc": "Sammenlign daginstitutioner i dit område — normering, priser og tilsynsrapporter samlet ét sted.",
   "crossSell.institutionsguide.cta": "Se Institutionsguide.dk",
 
+  // Return-visit CTA
+  "returnVisit.title": "Tjek dit budget igen næste måned",
+  "returnVisit.desc": "Din økonomi ændrer sig — priser stiger, abonnementer skifter. Kom tilbage og se om dit rådighedsbeløb stadig holder.",
+  "returnVisit.cta": "Sæt en påmindelse",
+
   // Scenarios
   "scenario.buyHome.title": "Køb bolig",
   "scenario.buyHome.desc": "Hvad sker der, hvis du skifter fra leje til ejerbolig?",

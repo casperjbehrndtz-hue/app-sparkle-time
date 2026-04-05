@@ -329,6 +329,11 @@ export const NO: Record<string, string> = {
   "crossSell.institutionsguide.desc": "Sammenlign barnehager i ditt område — bemanning, priser og tilsynsrapporter samlet på ett sted.",
   "crossSell.institutionsguide.cta": "Se Institutionsguide.dk",
 
+  // Return-visit CTA
+  "returnVisit.title": "Sjekk budsjettet ditt igjen neste måned",
+  "returnVisit.desc": "Økonomien din endrer seg — priser stiger, abonnementer skifter. Kom tilbake og se om rådighedsbeløpet ditt fortsatt holder.",
+  "returnVisit.cta": "Sett en påminnelse",
+
   // Scenarios
   "scenario.buyHome.title": "Kjøp bolig",
   "scenario.buyHome.desc": "Hva skjer hvis du skifter fra leie til selveier?",

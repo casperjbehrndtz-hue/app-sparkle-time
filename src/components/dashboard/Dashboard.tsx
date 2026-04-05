@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw, Gauge, BarChart3, Zap, TrendingUp, Microscope, ArrowUp } from "lucide-react";
+import { Pencil, FileText, LogIn, LogOut, ChevronDown, Cloud, RotateCcw, Gauge, BarChart3, Zap, TrendingUp, Microscope, ArrowUp, CalendarDays } from "lucide-react";
 import Logo from "@/components/shared/Logo";
 import {
   AlertDialog,
@@ -408,6 +408,32 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             )}
           </div>
         </section>
+
+        {/* ━━━ Return-visit CTA ━━━ */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center"
+        >
+          <CalendarDays className="w-6 h-6 text-primary mx-auto mb-3" />
+          <h3 className="font-display font-bold text-base text-foreground mb-1">{t("returnVisit.title")}</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed max-w-md mx-auto mb-4">{t("returnVisit.desc")}</p>
+          <button
+            onClick={() => {
+              const next = new Date();
+              next.setMonth(next.getMonth() + 1);
+              const iso = next.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+              const end = new Date(next.getTime() + 15 * 60000).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+              window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Tjek dit budget — NemtBudget")}&dates=${iso}/${end}&details=${encodeURIComponent("Tid til at tjekke dit budget igen! https://nemtbudget.nu")}`, "_blank");
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <CalendarDays className="w-4 h-4" />
+            {t("returnVisit.cta")}
+          </button>
+        </motion.div>
       </main>
 
       {!isEmbed && <AppFooter />}
