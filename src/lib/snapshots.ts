@@ -27,7 +27,9 @@ export function saveSnapshot(budget: ComputedBudget, score: number): void {
 
   // Keep only last MAX_SNAPSHOTS
   const trimmed = filtered.slice(-MAX_SNAPSHOTS);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+  } catch { /* quota exceeded — silently skip snapshot */ }
 }
 
 export function getSnapshots(): BudgetSnapshot[] {

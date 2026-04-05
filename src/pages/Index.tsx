@@ -227,7 +227,7 @@ const Index = () => {
 
   const finalizeBudget = () => {
     if (!pendingProfile || !pendingBudget) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(pendingProfile)); } catch { /* quota */ }
     setProfile(pendingProfile);
     setShowWelcome(false);
     setEditingProfile(null);
@@ -251,7 +251,7 @@ const Index = () => {
 
   const handleProfileChange = (updated: BudgetProfile) => {
     setProfile(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch { /* quota */ }
     if (user) saveToCloud(updated);
   };
 

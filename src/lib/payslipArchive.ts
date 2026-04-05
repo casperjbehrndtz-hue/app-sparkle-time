@@ -78,8 +78,10 @@ export function archivePayslip(p: ExtractedPayslip): ArchivedPayslip {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
   } catch {
     // localStorage full — remove oldest and retry
-    const reduced = trimmed.slice(0, MAX_ENTRIES - 4);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reduced));
+    try {
+      const reduced = trimmed.slice(0, MAX_ENTRIES - 4);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(reduced));
+    } catch { /* quota still exceeded — silently give up */ }
   }
 
   return entry;
@@ -101,7 +103,9 @@ export function getArchive(): ArchivedPayslip[] {
 
 export function deleteFromArchive(id: string): void {
   const archive = getArchive().filter(a => a.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(archive));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(archive));
+  } catch { /* quota exceeded — silently fail */ }
 }
 
 export function clearArchive(): void {

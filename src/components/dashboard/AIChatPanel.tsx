@@ -60,7 +60,7 @@ function incrementUsage(): number {
   const month = `${now.getFullYear()}-${now.getMonth()}`;
   const prev = getUsage();
   const count = prev.month === month ? prev.count + 1 : 1;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ count, month }));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ count, month })); } catch { /* quota */ }
   return count;
 }
 
