@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   calculateAnnualTax,
   getKommuneSkat,
+  getKirkeSkat,
+  getAllKommuner,
   estimateRestskat,
   taxInputFromPayslip,
   TAX_RATES,
@@ -61,14 +63,25 @@ describe("calculateAnnualTax", () => {
     expect(result.aIndkomst).toBe(amGrundlag - amBidrag);
   });
 
-  it("does not apply topskat for 35,000 kr/month income", () => {
-    // A-indkomst should be well below 588,900
-    expect(result.aIndkomst).toBeLessThan(TAX_RATES.TOPSKAT_GRENSE);
-    expect(result.topskat).toBe(0);
+  it("calculates beskæftigelsesfradrag correctly", () => {
+    const amGrundlag = (35000 - 1400 - 99) * 12;
+    const expected = Math.min(
+      Math.round(amGrundlag * TAX_RATES.BESKAEFTIGELSESFRADRAG_RATE),
+      TAX_RATES.BESKAEFTIGELSESFRADRAG_MAX,
+    );
+    expect(result.beskaeftigelsesfradrag).toBe(expected);
   });
 
-  it("uses København kommune rate", () => {
-    expect(result.kommuneskatRate).toBe(23.56);
+  it("does not apply mellemskat or topskat for 35,000 kr/month income", () => {
+    // A-indkomst ~370k should be well below 641,200 (mellemskat) and 777,900 (topskat)
+    expect(result.aIndkomst).toBeLessThan(TAX_RATES.MELLEMSKAT_GRENSE);
+    expect(result.mellemskat).toBe(0);
+    expect(result.topskat).toBe(0);
+    expect(result.toptopskat).toBe(0);
+  });
+
+  it("uses København kommune rate (23.39%)", () => {
+    expect(result.kommuneskatRate).toBe(23.39);
   });
 
   it("has no church tax", () => {
@@ -89,47 +102,67 @@ describe("calculateAnnualTax", () => {
   });
 });
 
-describe("topskat threshold", () => {
-  it("applies topskat when A-indkomst exceeds 588,900", () => {
-    // High income: 70,000/month, no pension, no ATP → A-indkomst should exceed threshold
-    const highInput: TaxInput = {
-      monthlyGross: 70000,
+describe("mellemskat and topskat thresholds (2026 reform)", () => {
+  it("applies mellemskat but not topskat for income between thresholds", () => {
+    // 60,000/month, no pension → A-indkomst ~662k, above mellemskat (641,200) but below topskat (777,900)
+    const input: TaxInput = {
+      monthlyGross: 60000,
       pensionEmployee: 0,
       pensionEmployer: 0,
       atp: 0,
       churchTax: false,
     };
-    const result = calculateAnnualTax(highInput);
-    // A-indkomst = 70000*12 - 8% AM = 840000 - 67200 = 772800 → above 588,900
-    expect(result.aIndkomst).toBeGreaterThan(TAX_RATES.TOPSKAT_GRENSE);
-    expect(result.topskat).toBeGreaterThan(0);
-
-    // Verify topskat is 15% of (A-indkomst - grænse)
-    const expectedTopBase = result.aIndkomst - TAX_RATES.TOPSKAT_GRENSE;
-    expect(result.topskat).toBe(Math.round(expectedTopBase * 0.15));
+    const result = calculateAnnualTax(input);
+    expect(result.aIndkomst).toBeGreaterThan(TAX_RATES.MELLEMSKAT_GRENSE);
+    expect(result.aIndkomst).toBeLessThan(TAX_RATES.TOPSKAT_GRENSE);
+    expect(result.mellemskat).toBeGreaterThan(0);
+    expect(result.topskat).toBe(0);
+    expect(result.toptopskat).toBe(0);
   });
 
-  it("does not apply topskat when A-indkomst is below threshold", () => {
-    const lowInput: TaxInput = {
+  it("applies mellemskat and topskat for high income", () => {
+    // 80,000/month, no pension → A-indkomst ~883k, above topskat (777,900)
+    const input: TaxInput = {
+      monthlyGross: 80000,
+      pensionEmployee: 0,
+      pensionEmployer: 0,
+      atp: 0,
+      churchTax: false,
+    };
+    const result = calculateAnnualTax(input);
+    expect(result.aIndkomst).toBeGreaterThan(TAX_RATES.TOPSKAT_GRENSE);
+    expect(result.mellemskat).toBeGreaterThan(0);
+    expect(result.topskat).toBeGreaterThan(0);
+    expect(result.toptopskat).toBe(0);
+
+    // Verify topskat is 7.5% of (A-indkomst - grænse)
+    const expectedTopBase = result.aIndkomst - TAX_RATES.TOPSKAT_GRENSE;
+    expect(result.topskat).toBe(Math.round(expectedTopBase * 0.075));
+  });
+
+  it("does not apply any bracket taxes for low income", () => {
+    const input: TaxInput = {
       monthlyGross: 30000,
       pensionEmployee: 0,
       pensionEmployer: 0,
       atp: 99,
       churchTax: false,
     };
-    const result = calculateAnnualTax(lowInput);
-    expect(result.aIndkomst).toBeLessThan(TAX_RATES.TOPSKAT_GRENSE);
+    const result = calculateAnnualTax(input);
+    expect(result.aIndkomst).toBeLessThan(TAX_RATES.MELLEMSKAT_GRENSE);
+    expect(result.mellemskat).toBe(0);
     expect(result.topskat).toBe(0);
+    expect(result.toptopskat).toBe(0);
   });
 });
 
 describe("getKommuneSkat", () => {
   it("returns correct rate for København", () => {
-    expect(getKommuneSkat("København")).toBe(0.2356);
+    expect(getKommuneSkat("København")).toBe(0.2339);
   });
 
-  it("returns correct rate for partial match (case-insensitive)", () => {
-    expect(getKommuneSkat("københavn")).toBe(0.2356);
+  it("returns correct rate for case-insensitive match", () => {
+    expect(getKommuneSkat("københavn")).toBe(0.2339);
   });
 
   it("falls back to average when municipality is unknown", () => {
@@ -141,9 +174,40 @@ describe("getKommuneSkat", () => {
   });
 });
 
+describe("getKirkeSkat", () => {
+  it("returns correct rate for København (0.80%)", () => {
+    expect(getKirkeSkat("København")).toBe(0.0080);
+  });
+
+  it("returns correct rate for Læsø (highest: 1.30%)", () => {
+    expect(getKirkeSkat("Læsø")).toBe(0.0130);
+  });
+
+  it("returns correct rate for Gentofte (lowest: 0.38%)", () => {
+    expect(getKirkeSkat("Gentofte")).toBe(0.0038);
+  });
+
+  it("falls back to average when municipality is unknown", () => {
+    expect(getKirkeSkat("Ukendt By")).toBe(TAX_RATES.KIRKESKAT_GNS);
+  });
+});
+
+describe("getAllKommuner", () => {
+  it("returns all 98 municipalities", () => {
+    expect(getAllKommuner()).toHaveLength(98);
+  });
+
+  it("includes expected municipalities", () => {
+    const kommuner = getAllKommuner();
+    expect(kommuner).toContain("København");
+    expect(kommuner).toContain("Aarhus");
+    expect(kommuner).toContain("Læsø");
+    expect(kommuner).toContain("Ærø");
+  });
+});
+
 describe("estimateRestskat", () => {
   it("returns 'ok' when trækprocent closely matches calculated rate", () => {
-    // Build a payslip where the trækprocent matches what we'd calculate
     const input: TaxInput = {
       monthlyGross: 35000,
       pensionEmployee: 1400,
@@ -154,7 +218,6 @@ describe("estimateRestskat", () => {
     const calc = calculateAnnualTax(input);
 
     // Compute what the trækprocent should be
-    // trækprocent covers bundskat + kommuneskat + kirkeskat on skattepligtig indkomst
     const personfradragAnnual = TAX_RATES.PERSONFRADRAG;
     const skattepligtig = Math.max(0, calc.aIndkomst - personfradragAnnual);
     const incomeTax = calc.bundskat + calc.kommuneskat + calc.kirkeskat;
