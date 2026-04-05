@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { TrendingDown, Repeat, BarChart3, ArrowRight, AlertTriangle, Scale, Check, Copy } from "lucide-react";
+import { TrendingDown, Repeat, BarChart3, ArrowRight, AlertTriangle, Scale, Check, Copy, HelpCircle } from "lucide-react";
 import { formatKr } from "@/lib/budgetCalculator";
 import { useLocale } from "@/lib/locale";
 import { useI18n } from "@/lib/i18n";
@@ -164,34 +164,76 @@ export function PengetjekResult({ analysis, transactions, truncated, onCreateBud
       )}
 
       {/* ── Section 3: Abonnementer fundet ── */}
-      {analysis.abonnementer.length > 0 && (
-        <motion.div {...fadeUp(0.2)} className="rounded-2xl border border-border bg-card overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
-            <Repeat className="w-4 h-4 text-primary" />
-            <div>
-              <h3 className="text-sm font-semibold">{t("pengetjek.result.subscriptions.title")}</h3>
-              <p className="text-[10px] text-muted-foreground">
-                {t("pengetjek.result.subscriptions.total").replace("{amount}", formatKr(
-                  analysis.abonnementer.reduce((s, a) => s + a.amount, 0), lc
-                ))}
-              </p>
-            </div>
-          </div>
-          <div className="p-4 space-y-1">
-            {analysis.abonnementer.map((sub, i) => (
-              <div key={`${sub.name}-${i}`} className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-muted/20 transition-colors">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">{sub.emoji}</span>
-                  <span className="text-xs">{sub.name}</span>
+      {analysis.abonnementer.length > 0 && (() => {
+        const activeSubs = analysis.abonnementer.filter(s => s.occurrences >= 2);
+        const forgottenSubs = analysis.abonnementer.filter(s => s.occurrences === 1);
+        return (
+          <>
+            {activeSubs.length > 0 && (
+              <motion.div {...fadeUp(0.2)} className="rounded-2xl border border-border bg-card overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+                  <Repeat className="w-4 h-4 text-primary" />
+                  <div>
+                    <h3 className="text-sm font-semibold">{t("pengetjek.result.subscriptions.title")}</h3>
+                    <p className="text-[10px] text-muted-foreground">
+                      {t("pengetjek.result.subscriptions.total").replace("{amount}", formatKr(
+                        activeSubs.reduce((s, a) => s + a.amount, 0), lc
+                      ))}
+                    </p>
+                  </div>
                 </div>
-                <span className="text-xs font-mono tabular-nums text-red-600 dark:text-red-400">
-                  -{formatKr(sub.amount, lc)} {t("pengetjek.currency")}/{t("pengetjek.perMonth")}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
+                <div className="p-4 space-y-1">
+                  {activeSubs.map((sub, i) => (
+                    <div key={`${sub.name}-${i}`} className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-muted/20 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{sub.emoji}</span>
+                        <span className="text-xs">{sub.name}</span>
+                      </div>
+                      <span className="text-xs font-mono tabular-nums text-red-600 dark:text-red-400">
+                        -{formatKr(sub.amount, lc)} {t("pengetjek.currency")}/{t("pengetjek.perMonth")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {forgottenSubs.length > 0 && (
+              <motion.div {...fadeUp(0.25)} className="rounded-2xl border border-amber-500/30 bg-amber-500/5 overflow-hidden">
+                <div className="px-4 py-3 border-b border-amber-500/20 bg-amber-500/10 flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-amber-600" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">{t("pengetjek.result.forgotten.title")}</h3>
+                    <p className="text-[10px] text-amber-600/70 dark:text-amber-400/70">
+                      {t("pengetjek.result.forgotten.subtitle")}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 space-y-1">
+                  {forgottenSubs.map((sub, i) => (
+                    <div key={`forgotten-${sub.name}-${i}`} className="flex items-center justify-between py-2 px-2 rounded-md hover:bg-amber-500/10 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{sub.emoji}</span>
+                        <span className="text-xs">{sub.name}</span>
+                      </div>
+                      <span className="text-xs font-mono tabular-nums text-amber-600 dark:text-amber-400">
+                        -{formatKr(sub.amount, lc)} {t("pengetjek.currency")}/{t("pengetjek.perMonth")}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="pt-2 mt-2 border-t border-amber-500/20">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                      {t("pengetjek.result.forgotten.savings").replace("{amount}", formatKr(
+                        forgottenSubs.reduce((s, a) => s + a.amount, 0), lc
+                      ))}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </>
+        );
+      })()}
 
       {/* ── Section 4: Kategori-breakdown ── */}
       {analysis.categories.length > 0 && (

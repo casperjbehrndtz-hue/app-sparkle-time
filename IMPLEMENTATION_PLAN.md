@@ -28,12 +28,8 @@
 
 ## Active — Code-implementable
 
-### 18. Payslip salary benchmarks (P2)
-- **What**: Spec requires "Er din løn normal?" comparison against industry/role benchmarks in PayslipResult
-- **Why**: Adds value and differentiation to payslip analysis feature
-- **Files**: `src/components/payslip/PayslipResult.tsx`
-- **Verify**: Upload payslip → see salary comparison section
-- **Impact**: User value, engagement
+### ~~#18: Payslip salary benchmarks~~ ✅ (already implemented)
+- Verified: PayslipResult.tsx already has full percentile comparison with DST industry data, visual slider, and median comparison.
 
 ### 19. Onboarding input validation (P2)
 - **What**: Spec requires inline validation on all inputs — show error as user types
@@ -42,12 +38,10 @@
 - **Verify**: Enter invalid income (negative, text) → see inline Danish error message
 - **Impact**: UX quality, data quality
 
-### 20. Pengetjek "Glemte abonnementer" section (P2)
-- **What**: Spec requires separate section identifying potentially forgotten/unused subscriptions
-- **Why**: Key differentiator — helps users find money they're wasting
-- **Files**: `src/components/pengetjek/PengetjekResult.tsx`, `src/lib/statementAnalyzer.ts`
-- **Verify**: Upload bank statement with subscriptions → see "Glemte abonnementer" section
-- **Impact**: User value, conversion
+### ~~#20: Pengetjek "Glemte abonnementer"~~ ✅
+- Split subscription section: active (2+ occurrences) vs forgotten (1 occurrence, AI-flagged).
+- Forgotten subscriptions shown in amber-highlighted card with potential savings total.
+- i18n in DA, NO, EN.
 
 ---
 
