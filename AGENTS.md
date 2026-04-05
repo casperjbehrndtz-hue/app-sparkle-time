@@ -30,7 +30,7 @@ npx tsc --noEmit     # TypeScript check — must be clean
 - **Stack**: React 18 + Vite 5 + TypeScript, Tailwind + shadcn/ui, Supabase (auth + DB + edge functions), Vercel deploy
 - **Language**: All user-facing text is Danish (i18n via texts.da.ts / texts.no.ts / texts.en.ts). Code comments in English.
 - **Data privacy**: ALL calculations happen client-side. NEVER store user data server-side. Core product promise.
-- **Tax logic**: `src/lib/danishTax.ts` — 2026 rates, currently 30 of 98 municipalities. Most critical code.
+- **Tax logic**: `src/lib/danishTax.ts` — 2026 rates, all 98 municipalities. Most critical code.
 - **Deployment**: Push to main → Vercel auto-builds. Currently at app-sparkle-time.vercel.app.
 - **AI**: Claude Haiku via Supabase edge functions (budget-ai, onboarding-ai). Requires ANTHROPIC_API_KEY in Supabase secrets.
 - **PWA**: vite-plugin-pwa generates sw.js + manifest.webmanifest in dist/

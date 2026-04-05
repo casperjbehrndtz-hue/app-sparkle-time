@@ -521,6 +521,15 @@ export const EN: Record<string, string> = {
   "dash.useDefaults": "Use defaults and see my result →",
   "dash.hideDetails": "Hide details",
   "dash.showCarDetails": "Break down car expenses",
+  "dash.skipToContent": "Skip to content",
+  "dash.backToTop": "Back to top",
+  "dash.cancel": "Cancel",
+  "dash.confirm": "Confirm",
+  "dash.liveData": "Live data",
+  "dash.aiAdvisor": "AI budget advisor",
+  "dash.calendarTitle": "Check your budget — NemtBudget",
+  "dash.calendarDesc": "Time to check your budget again! https://nemtbudget.nu",
+  "dash.monthlyEquiv": "= {amount} kr/mo.",
 
   // Neighbor comparison
   "neighbor.comparedWith": "Compared with your income group",

@@ -185,7 +185,7 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
           >
             <Radio className="w-3 h-3 text-primary animate-pulse flex-shrink-0" />
             <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">Live data</span>
+              <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">{t("dash.liveData")}</span>
               {liveItems.map((item, i) => (
                 <span key={i} className="text-[10px] text-muted-foreground">{item}</span>
               ))}

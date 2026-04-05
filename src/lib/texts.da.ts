@@ -521,6 +521,15 @@ export const DA: Record<string, string> = {
   "dash.useDefaults": "Brug standardtal og se mit resultat →",
   "dash.hideDetails": "Skjul detaljer",
   "dash.showCarDetails": "Fordel udgifter på bil",
+  "dash.skipToContent": "Spring til indhold",
+  "dash.backToTop": "Tilbage til toppen",
+  "dash.cancel": "Annullér",
+  "dash.confirm": "Bekræft",
+  "dash.liveData": "Live data",
+  "dash.aiAdvisor": "AI budget-rådgiver",
+  "dash.calendarTitle": "Tjek dit budget — NemtBudget",
+  "dash.calendarDesc": "Tid til at tjekke dit budget igen! https://nemtbudget.nu",
+  "dash.monthlyEquiv": "= {amount} kr./md.",
 
   // Neighbor comparison
   "neighbor.comparedWith": "Sammenlignet med din indkomstgruppe",

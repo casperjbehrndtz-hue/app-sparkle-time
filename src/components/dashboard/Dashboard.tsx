@@ -217,7 +217,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
   return (
     <div id="main-content" className="min-h-screen bg-background flex flex-col pb-safe">
       <a href="#cockpit" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
-        Spring til indhold
+        {t("dash.skipToContent")}
       </a>
       <h1 className="sr-only">{t("dash.title")}</h1>
       {!isEmbed && <SuiteNav />}
@@ -287,7 +287,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
         {/* ━━━ Section 1: COCKPIT — everything at a glance ━━━ */}
         <StorySection id="cockpit" title={t("section.cockpit")} subtitle={t("section.cockpitSub")}>
-          <SectionErrorBoundary fallbackTitle="Cockpit">
+          <SectionErrorBoundary fallbackTitle={t("section.cockpit")}>
             <CockpitSection
               profile={profile}
               budget={budget}
@@ -313,21 +313,21 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
         {/* ━━━ Section 2: OVERBLIK — visual deep-dive ━━━ */}
         <StorySection id="overblik" title={t("section.overview")} subtitle={t("section.overviewSub")}>
-          <SectionErrorBoundary fallbackTitle="Overblik">
+          <SectionErrorBoundary fallbackTitle={t("section.overview")}>
             <InlineChartsSection profile={profile} budget={budget} />
           </SectionErrorBoundary>
         </StorySection>
 
         {/* ━━━ Section 3: HANDLING — what to do ━━━ */}
         <StorySection id="handling" title={t("section.action")} subtitle={t("section.actionSub")}>
-          <SectionErrorBoundary fallbackTitle="Handling">
+          <SectionErrorBoundary fallbackTitle={t("section.action")}>
             <OptimeringView profile={profile} budget={budget} optimizations={optimizations} />
           </SectionErrorBoundary>
         </StorySection>
 
         {/* ━━━ Section 4: FREMTID — projections ━━━ */}
         <StorySection id="fremad" title={t("section.future")} subtitle={t("section.futureSub")}>
-          <SectionErrorBoundary fallbackTitle="Fremtid">
+          <SectionErrorBoundary fallbackTitle={t("section.future")}>
             <FremadView profile={profile} budget={budget} health={health} />
           </SectionErrorBoundary>
         </StorySection>
@@ -433,7 +433,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               next.setMonth(next.getMonth() + 1);
               const iso = next.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
               const end = new Date(next.getTime() + 15 * 60000).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-              window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent("Tjek dit budget — NemtBudget")}&dates=${iso}/${end}&details=${encodeURIComponent("Tid til at tjekke dit budget igen! https://nemtbudget.nu")}`, "_blank");
+              window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t("dash.calendarTitle"))}&dates=${iso}/${end}&details=${encodeURIComponent(t("dash.calendarDesc"))}`, "_blank");
             }}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
@@ -470,8 +470,8 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <AlertDialogDescription>{confirmAction?.description}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setConfirmAction(null)}>Annullér</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { confirmAction?.onConfirm(); setConfirmAction(null); }}>Bekræft</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setConfirmAction(null)}>{t("dash.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { confirmAction?.onConfirm(); setConfirmAction(null); }}>{t("dash.confirm")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -486,7 +486,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="fixed bottom-6 left-6 z-50 p-2.5 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-colors shadow-md"
-            aria-label="Tilbage til toppen"
+            aria-label={t("dash.backToTop")}
           >
             <ArrowUp className="w-4 h-4" />
           </motion.button>

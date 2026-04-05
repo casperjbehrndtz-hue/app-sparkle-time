@@ -12,7 +12,7 @@
 | Kritiske bugs | 2 | 0 |
 | Core features | 13 | 1 |
 | UX & design | 15 | 0 |
-| Indhold & i18n | 4 | 4 |
+| Indhold & i18n | 7 | 1 |
 | Teknisk fundament | 12 | 3 |
 | Vækst & lancering | 3 | 4 |
 
@@ -54,9 +54,9 @@
 
 - [x] 4 guides-artikler med dansk finansviden
 - [x] SEO meta-tags på alle sider (usePageMeta hook)
-- [ ] **Dashboard-sektionstitler** — "Cockpit", "Overblik" m.fl. er hardcoded dansk, mangler i18n
-- [ ] **Onboarding hardcoded strings** — OnboardingFlow.tsx linje 141, 397, 417
-- [ ] **Expenses-step strings** — "Telefon, internet & forsyning" m.fl. mangler i18n
+- [x] **Dashboard-sektionstitler** — fallbackTitles, cancel/confirm, skip-to-content, back-to-top, calendar, live data, AI advisor — alle i18n'd
+- [x] **Onboarding hardcoded strings** — Norwegian label overrides fjernet (bruger nu t()), monthly equiv i18n'd
+- [x] **Expenses-step strings** — Utilities bruger nu t() direkte for alle locales
 - [ ] **EN-mode test** — gennemtest sprog-toggle og ret huller
 
 ---

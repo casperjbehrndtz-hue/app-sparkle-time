@@ -110,6 +110,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit, mon
   /** If the unit isn't monthly, show "= X kr./md." hint */
   monthlyEquiv?: number;
 }) {
+  const { t } = useI18n();
   const [localValue, setLocalValue] = useState<string>(String(value));
   const focused = useRef(false);
   useEffect(() => { if (!focused.current) setLocalValue(String(value)); }, [value]);
@@ -140,7 +141,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit, mon
         aria-label={label}
       />
       {monthlyEquiv !== undefined && value > 0 && (
-        <p className="text-[10px] text-muted-foreground/60 text-right mt-1">= {formatKr(monthlyEquiv)} kr./md.</p>
+        <p className="text-[10px] text-muted-foreground/60 text-right mt-1">{t("dash.monthlyEquiv").replace("{amount}", formatKr(monthlyEquiv))}</p>
       )}
     </div>
   );
@@ -769,16 +770,16 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
 
               {/* ── Forsyninger (open by default — has pre-filled values) ── */}
               <AccordionCategory icon="wifi" label={t("step.expenses.utilities")} total={utilitiesTotal} unit={unit} defaultOpen>
-                <CompactSlider icon="wifi" label={isNO ? "Internett" : t("step.expenses.internet")}
+                <CompactSlider icon="wifi" label={t("step.expenses.internet")}
                   value={profile.internetAmount ?? (isNO ? NO_UTILITIES.internet.price : UTILITIES.internet.price)}
                   onChange={(v) => update({ internetAmount: v })} min={0} max={600} step={10} unit={t("unit.krMonth")} />
                 <CompactSlider icon="smartphone" label={isPar ? t("step.expenses.mobilePar") : t("step.expenses.mobileSolo")}
                   value={profile.mobileAmount ?? (isNO ? NO_UTILITIES : UTILITIES).mobile.price_per_person * (isPar ? 2 : 1)}
                   onChange={(v) => update({ mobileAmount: v })} min={0} max={isPar ? 800 : 400} step={10} unit={t("unit.krMonth")} />
-                <CompactSlider icon="zap" label={isNO ? "Strøm" : t("step.expenses.electricity")}
+                <CompactSlider icon="zap" label={t("step.expenses.electricity")}
                   value={profile.electricityAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).electricity.price_par : (isNO ? NO_UTILITIES : UTILITIES).electricity.price_solo)}
                   onChange={(v) => update({ electricityAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
-                <CompactSlider icon="flame" label={isNO ? "Oppvarming/vann" : t("step.expenses.heating")}
+                <CompactSlider icon="flame" label={t("step.expenses.heating")}
                   value={profile.heatingAmount ?? (isPar ? (isNO ? NO_UTILITIES : UTILITIES).heating.price_par : (isNO ? NO_UTILITIES : UTILITIES).heating.price_solo)}
                   onChange={(v) => update({ heatingAmount: v })} min={0} max={2000} step={25} unit={t("unit.krMonth")} />
                 {!isNO && (

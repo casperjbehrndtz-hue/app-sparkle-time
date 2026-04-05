@@ -60,7 +60,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
   return (
     <div id="main-content" className="min-h-screen flex flex-col bg-background">
       <a href="#hero-cta" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
-        Spring til indhold
+        {t("dash.skipToContent")}
       </a>
       {/* Nav */}
       <nav className="bg-hero-navy px-4 sm:px-6 py-3 sm:py-4">

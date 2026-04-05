@@ -2,7 +2,7 @@
 
 <!-- Generated 2026-04-05 by planning pass. Updated by build iterations. -->
 
-## Status: Code-complete — only manual/external items remain
+## Status: Active — i18n and code quality items in progress
 
 ---
 
@@ -27,6 +27,19 @@
 - **#19: Input validation** ✅ — Handled by slider-based UI design
 - **#20: Glemte abonnementer** ✅ — Split active vs forgotten subscriptions in Pengetjek
 - **#21: "Sådan beregner vi"** ✅ — Expandable tax breakdown in CockpitSection showing all 2026 rates
+- **#22: i18n hardcoded strings** ✅ — Dashboard (fallbackTitles, cancel/confirm, skip-to-content, back-to-top, calendar event, live data, AI advisor) + OnboardingFlow (Norwegian label overrides removed, monthly equiv) + WelcomePage (skip-to-content). 10 new keys in da/en/no.
+
+---
+
+## Remaining — Code items (from ROADMAP.md)
+
+### 23. EN-mode comprehensive test
+- **What**: Test English language toggle end-to-end, fix any missing/broken translations
+- **Acceptance**: All pages render correctly in English without Danish fallback strings
+
+### 24. Unused Radix UI package cleanup
+- **What**: Remove unused `react-menubar`, `react-context-menu`, `react-hover-card` (~30KB savings)
+- **Acceptance**: `npm run build` passes, bundle size reduced
 
 ---
 
@@ -51,4 +64,5 @@
 | **P1** | 7 | 7 | 0 |
 | **P2** | 8 | 8 | 0 (Sentry needs account) |
 | **P3** | 4 | 2 | 2 (manual) |
-| **New** | 4 | 4 | 0 |
+| **New** | 6 | 5 | 1 (EN-mode test) |
+| **Cleanup** | 1 | 0 | 1 (unused Radix deps) |

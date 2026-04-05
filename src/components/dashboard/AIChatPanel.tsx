@@ -239,7 +239,7 @@ export function AIChatPanel({ profile, budget }: Props) {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             role="dialog"
-            aria-label="AI budget-rådgiver"
+            aria-label={t("dash.aiAdvisor")}
             onKeyDown={(e) => { if (e.key === "Escape") setIsOpen(false); }}
             className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-4rem)] rounded-2xl border border-border bg-background shadow-2xl shadow-black/10 flex flex-col overflow-hidden"
           >
