@@ -142,6 +142,7 @@ export default function Blog() {
           <div className="relative max-w-sm mx-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
+              aria-label={t("blog.searchPlaceholder")}
               placeholder={t("blog.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -177,7 +178,7 @@ export default function Blog() {
             </motion.div>
           ))}
           {filtered.length === 0 && searchQuery.trim().length > 0 && (
-            <div className="col-span-full text-center py-12">
+            <div className="col-span-full text-center py-12" role="status" aria-live="polite">
               <p className="text-sm text-muted-foreground">{t("blog.noResults")}</p>
             </div>
           )}

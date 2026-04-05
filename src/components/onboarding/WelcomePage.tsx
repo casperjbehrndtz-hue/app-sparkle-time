@@ -59,6 +59,9 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
 
   return (
     <div id="main-content" className="min-h-screen flex flex-col bg-background">
+      <a href="#hero-cta" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+        Spring til indhold
+      </a>
       {/* Nav */}
       <nav className="bg-hero-navy px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between max-w-6xl mx-auto w-full">
@@ -98,7 +101,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             </h1>
             <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
             <div className="flex flex-wrap items-center gap-3">
-              <button onClick={onStart}
+              <button id="hero-cta" onClick={onStart}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
                 {t("hero.cta")} <ArrowRight className="w-4 h-4" />
               </button>

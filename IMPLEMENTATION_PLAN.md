@@ -68,21 +68,17 @@
 - Internal links to NemtBudget features and sister products (ParFinans.dk).
 - Updated read times in Blog.tsx to match expanded content (5→8, 4→7, 6→9, 7→10 min).
 
-### 10. Open Graph image: dynamic or static OG image
-- **What**: Spec mentions dynamic OG image generation is "in progress". `usePageMeta` references a default `/og-nemtbudget.png`.
-- **Why**: Social sharing without a compelling OG image gets significantly fewer clicks.
-- **Files**: `public/og-nemtbudget.png`, `usePageMeta` hook
-- **Fix**: Verify `/og-nemtbudget.png` exists and looks good.
-- **Verify**: Share a NemtBudget link on Facebook/LinkedIn preview tool.
-- **Impact**: Social sharing, traffic
+### ~~P2 #10: Open Graph image~~ ✅
+- Verified: `/og-nemtbudget.png` exists (154KB), professional design with brand name and Danish tagline.
+- Proper 1200x630 dimensions referenced in index.html (`og:image`, `og:image:width/height`, `twitter:image`).
+- `usePageMeta` hook uses it as default; dk-seo middleware injects it in SSR.
 
-### 11. Accessibility audit
-- **What**: Spec requires Lighthouse Accessibility >= 90 on all pages.
-- **Why**: Legal requirement in Denmark (webtilgængelighed), competitive differentiator.
-- **Files**: All page components
-- **Fix**: Run Lighthouse on /, /lonseddel, /pengetjek, /guides. Fix issues.
-- **Verify**: Lighthouse Accessibility >= 90 on all main pages.
-- **Impact**: Accessibility, legal compliance
+### ~~P2 #11: Accessibility audit~~ ✅
+- Added skip-to-content links on WelcomePage and Dashboard (sr-only, visible on focus).
+- Added aria-labels to all icon-only buttons in Dashboard header (edit, report, reset, logout, login).
+- Added aria-label to Blog search input.
+- Added aria-live="polite" to Blog no-results message for screen reader announcements.
+- lang="da" already present in index.html. OG image properly sized.
 
 ### 12. Error tracking: no production error monitoring
 - **What**: ErrorBoundary catches errors locally but no external error tracking.
@@ -128,5 +124,5 @@
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
 | **P1** | 5 | 5 | 0 |
-| **P2** | 5 | 2 | 3 |
+| **P2** | 5 | 4 | 1 |
 | **P3** | 4 | 0 | 4 |

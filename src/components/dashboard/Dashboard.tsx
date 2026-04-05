@@ -216,6 +216,9 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
   return (
     <div id="main-content" className="min-h-screen bg-background flex flex-col pb-safe">
+      <a href="#cockpit" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+        Spring til indhold
+      </a>
       <h1 className="sr-only">{t("dash.title")}</h1>
       {!isEmbed && <SuiteNav />}
 
@@ -227,26 +230,30 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <LanguageToggle />
             <DarkModeToggle />
             <button onClick={() => setShowEditSheet(true)}
+              aria-label={t("dash.editInfo")}
               className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold min-w-[44px] min-h-[44px]">
               <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.editInfo")}</span>
             </button>
             <ShareBudgetDialog profile={profile} budget={budget} />
             <button onClick={() => setShowReport(true)}
+              aria-label={t("dash.report")}
               className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted min-w-[44px] min-h-[44px]">
               <FileText className="w-3 h-3" /> {t("dash.report")}
             </button>
             <button onClick={() => setConfirmAction({ title: t("confirm.resetBudget"), description: t("confirm.resetBudget"), onConfirm: onReset })}
-              title={t("dash.startOver")}
+              aria-label={t("dash.startOver")}
               className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-destructive/5 min-w-[44px] min-h-[44px]">
               <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.reset")}</span>
             </button>
             {user ? (
               <button onClick={signOut}
+                aria-label={t("dash.logOut")}
                 className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted min-w-[44px] min-h-[44px]">
                 <LogOut className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logOut")}</span>
               </button>
             ) : (
               <Link to="/login"
+                aria-label={t("dash.logIn")}
                 className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted font-semibold min-w-[44px] min-h-[44px]">
                 <LogIn className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logIn")}</span>
               </Link>
