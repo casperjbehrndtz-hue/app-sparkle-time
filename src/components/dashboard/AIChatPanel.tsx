@@ -253,7 +253,7 @@ export function AIChatPanel({ profile, budget }: Props) {
                   <p className="text-[10px] text-muted-foreground">{t("ai.personalAdvisor")}</p>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => setIsOpen(false)} aria-label={t("dash.close")} className="w-8 h-8 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>

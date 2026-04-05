@@ -47,6 +47,10 @@
 ### ~~26. Bundle size ROADMAP update~~ ✅
 - Index-chunk already at 157 kB (ROADMAP said 383 kB — stale). Updated ROADMAP.
 
+### ~~27. Accessibility + SEO fixes~~ ✅
+- AIChatPanel close button: added missing aria-label
+- NotFound page: added usePageMeta with noIndex for proper SEO
+
 ---
 
 ## Remaining — Manual/external setup

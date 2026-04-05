@@ -1,7 +1,9 @@
 import { useI18n } from "@/lib/i18n";
+import { usePageMeta } from "@/hooks/usePageMeta";
 
 const NotFound = () => {
   const { t } = useI18n();
+  usePageMeta({ title: "404 — " + t("notFound.message"), description: t("notFound.message"), noIndex: true });
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted">
