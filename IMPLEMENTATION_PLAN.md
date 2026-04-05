@@ -37,9 +37,8 @@
 - **What**: Test English language toggle end-to-end, fix any missing/broken translations
 - **Acceptance**: All pages render correctly in English without Danish fallback strings
 
-### 24. Unused Radix UI package cleanup
-- **What**: Remove unused `react-menubar`, `react-context-menu`, `react-hover-card` (~30KB savings)
-- **Acceptance**: `npm run build` passes, bundle size reduced
+### ~~24. Unused Radix UI package cleanup~~ ✅
+- Removed `@radix-ui/react-menubar`, `@radix-ui/react-context-menu`, `@radix-ui/react-hover-card` and their shadcn wrappers
 
 ---
 
@@ -65,4 +64,4 @@
 | **P2** | 8 | 8 | 0 (Sentry needs account) |
 | **P3** | 4 | 2 | 2 (manual) |
 | **New** | 6 | 5 | 1 (EN-mode test) |
-| **Cleanup** | 1 | 0 | 1 (unused Radix deps) |
+| **Cleanup** | 1 | 1 | 0 |
