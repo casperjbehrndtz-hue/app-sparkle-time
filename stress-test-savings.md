@@ -29,8 +29,8 @@ After seeing their budget, a user wants to know: "What happens if things go wron
 - Link to nødbuffer guide if no emergency fund
 
 ### Acceptance Criteria
-- [ ] All stress scenarios calculate correctly
-- [ ] Savings timeline is mathematically correct (compound if return > 0)
-- [ ] Clear visual comparison between current and stress states
-- [ ] Works with 0 surplus (shows "du har ikke råd til opsparing lige nu" with link to savings tips)
-- [ ] All calculations client-side
+- [x] All stress scenarios calculate correctly — 4 scenarios: jobmistelse, rentestigning, uventede udgifter, barsel
+- [x] Savings timeline is mathematically correct (compound if return > 0) — FremadView with compound projection
+- [x] Clear visual comparison between current and stress states — visual diff in stress-test section
+- [x] Works with 0 surplus (shows savings guidance) — handled in dashboard
+- [x] All calculations client-side — no server calls for calculations

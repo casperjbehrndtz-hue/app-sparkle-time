@@ -22,9 +22,9 @@ A user uploads their bank statement and wants to find forgotten subscriptions, s
 - Specific savings suggestions with estimated monthly/annual savings
 
 ### Acceptance Criteria
-- [ ] Raw bank data never leaves browser
-- [ ] Loading state during analysis
-- [ ] Error handling: wrong file format, empty file, unreadable CSV
-- [ ] Results show actual kr amounts, not just percentages
-- [ ] Mobile friendly file upload
-- [ ] Clear distinction between AI suggestions and factual data
+- [x] Raw bank data never leaves browser — client-side OCR/parsing only
+- [x] Loading state during analysis — progress indicator during processing
+- [x] Error handling: wrong file format, empty file, unreadable CSV — Danish error messages
+- [x] Results show actual kr amounts, not just percentages — formatKr throughout
+- [x] Mobile friendly file upload — responsive upload with camera support
+- [x] Clear distinction between AI suggestions and factual data — separate sections in results

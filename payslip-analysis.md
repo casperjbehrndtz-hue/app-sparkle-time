@@ -22,10 +22,10 @@ A user uploads their payslip and wants to understand every single deduction — 
 - Tooltips on every tax term explaining it simply
 
 ### Acceptance Criteria
-- [ ] OCR runs entirely client-side (Tesseract.js)
-- [ ] RedactionReview component shows extracted data before analysis
-- [ ] File never uploaded to any server
-- [ ] Loading state during OCR processing (can take 5-15 seconds)
-- [ ] Error handling: unreadable file, wrong file type, OCR failure
-- [ ] Explanations are in plain Danish — no jargon without tooltip
-- [ ] Works on mobile (camera upload)
+- [x] OCR runs entirely client-side (Tesseract.js) — lazy-loaded in Lonseddel page
+- [x] RedactionReview component shows extracted data before analysis — RedactionReview.tsx
+- [x] File never uploaded to any server — client-side only, pdfToImage.ts
+- [x] Loading state during OCR processing (can take 5-15 seconds) — progress indicator in PayslipUploader
+- [x] Error handling: unreadable file, wrong file type, OCR failure — handled with Danish messages
+- [x] Explanations are in plain Danish — no jargon without tooltip — PayslipResult with i18n
+- [x] Works on mobile (camera upload) — input accept="image/*,application/pdf" with capture
