@@ -129,6 +129,7 @@ export const NO: Record<string, string> = {
   "step.housing.interestRate": "Rente på lån",
 
   // Onboarding — children
+  "step.children.title": "Barn",
   "step.children.titleSolo": "Har du barn?",
   "step.children.titleCouple": "Har dere barn?",
   "step.children.subtitle": "Vi finner barnehagepriser automatisk.",
@@ -219,6 +220,9 @@ export const NO: Record<string, string> = {
   "dash.logIn": "Logg inn",
   "dash.cloudSync": "Logg inn for å lagre budsjettet ditt på tvers av enheter",
   "dash.subscriptions": "Abonnementer",
+
+  // Suite nav
+  "suite.partOf": "Del av",
 
   // Sections
   "section.cockpit": "Oversikt",
@@ -1617,4 +1621,21 @@ export const NO: Record<string, string> = {
   "timeline.currentNetto": "Nåv. netto",
   "timeline.period": "Periode",
   "timeline.needMore": "Last opp minst 2 lønnsslipper fra forskjellige perioder for å se lønnsutviklingen din.",
+
+  // Cookie
+  "cookie.settings": "Informasjonskapsel-innstillinger",
+  "cookie.changeAnytime": "Du kan når som helst endre ditt informasjonskapsel-valg via \"Informasjonskapsel-innstillinger\" i bunnteksten.",
+
+  // GDPR
+  "gdpr.section": "Personvern & data",
+  "gdpr.exportData": "Eksporter mine data",
+  "gdpr.exportDesc": "Last ned alle budsjettdataene dine som JSON-fil.",
+  "gdpr.deleteAccount": "Slett kontoen min",
+  "gdpr.deleteDesc": "Slett kontoen din og alle tilknyttede data permanent.",
+  "gdpr.confirmDelete": "Er du sikker? Skriv 'SLETT' for å bekrefte.",
+  "gdpr.exporting": "Eksporterer...",
+  "gdpr.deleting": "Sletter...",
+  "gdpr.exportSuccess": "Dataene dine er lastet ned.",
+  "gdpr.deleteSuccess": "Kontoen din er slettet.",
+  "gdpr.error": "Det oppstod en feil. Prøv igjen.",
 };

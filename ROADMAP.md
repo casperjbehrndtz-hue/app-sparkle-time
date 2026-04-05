@@ -12,7 +12,7 @@
 | Kritiske bugs | 2 | 0 |
 | Core features | 13 | 1 |
 | UX & design | 15 | 0 |
-| Indhold & i18n | 7 | 1 |
+| Indhold & i18n | 8 | 0 |
 | Teknisk fundament | 12 | 3 |
 | Vækst & lancering | 3 | 4 |
 
@@ -57,7 +57,7 @@
 - [x] **Dashboard-sektionstitler** — fallbackTitles, cancel/confirm, skip-to-content, back-to-top, calendar, live data, AI advisor — alle i18n'd
 - [x] **Onboarding hardcoded strings** — Norwegian label overrides fjernet (bruger nu t()), monthly equiv i18n'd
 - [x] **Expenses-step strings** — Utilities bruger nu t() direkte for alle locales
-- [ ] **EN-mode test** — gennemtest sprog-toggle og ret huller
+- [x] **EN-mode test** — key audit: 2 missing keys fixed (step.children.title, suite.partOf), 13 Norwegian GDPR/cookie keys added
 
 ---
 

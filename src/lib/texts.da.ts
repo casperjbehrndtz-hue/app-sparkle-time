@@ -128,6 +128,7 @@ export const DA: Record<string, string> = {
   "step.housing.interestRate": "Rente på lån",
 
   // Onboarding — children
+  "step.children.title": "Børn",
   "step.children.titleSolo": "Har du børn?",
   "step.children.titleCouple": "Har I børn?",
   "step.children.subtitle": "Vi finder institutionspriser automatisk.",
@@ -218,6 +219,9 @@ export const DA: Record<string, string> = {
   "dash.logIn": "Log ind",
   "dash.cloudSync": "Log ind for at gemme dit budget på tværs af enheder",
   "dash.subscriptions": "Abonnementer",
+
+  // Suite nav
+  "suite.partOf": "Del af",
 
   // Sections
   "section.cockpit": "Overblik",

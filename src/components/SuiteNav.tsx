@@ -14,7 +14,7 @@ export function SuiteNav() {
     <div className="bg-primary text-primary-foreground text-xs">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 h-8 flex items-center justify-end gap-4">
         <span className="text-primary-foreground/70 hidden sm:inline">
-          {t("suite.partOf") || "Del af"}
+          {t("suite.partOf")}
         </span>
         {SUITE_LINKS.map((link, i) => (
           <span key={link.label} className="inline-flex items-center gap-3">

@@ -128,6 +128,7 @@ export const EN: Record<string, string> = {
   "step.housing.interestRate": "Loan interest rate",
 
   // Onboarding — children
+  "step.children.title": "Children",
   "step.children.titleSolo": "Do you have children?",
   "step.children.titleCouple": "Do you have children?",
   "step.children.subtitle": "We find childcare prices automatically.",
@@ -218,6 +219,9 @@ export const EN: Record<string, string> = {
   "dash.logIn": "Log in",
   "dash.cloudSync": "Log in to save your budget across devices",
   "dash.subscriptions": "Subscriptions",
+
+  // Suite nav
+  "suite.partOf": "Part of",
 
   // Sections
   "section.cockpit": "Overview",

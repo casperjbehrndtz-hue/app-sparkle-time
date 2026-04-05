@@ -33,9 +33,10 @@
 
 ## Remaining — Code items (from ROADMAP.md)
 
-### 23. EN-mode comprehensive test
-- **What**: Test English language toggle end-to-end, fix any missing/broken translations
-- **Acceptance**: All pages render correctly in English without Danish fallback strings
+### ~~23. i18n key audit and fix~~ ✅
+- Added missing `step.children.title` key (da/en/no)
+- Added missing `suite.partOf` key (da/en/no), removed hardcoded fallback
+- Added 13 missing Norwegian keys (cookie.settings, cookie.changeAnytime, gdpr.*)
 
 ### ~~24. Unused Radix UI package cleanup~~ ✅
 - Removed `@radix-ui/react-menubar`, `@radix-ui/react-context-menu`, `@radix-ui/react-hover-card` and their shadcn wrappers
@@ -63,5 +64,5 @@
 | **P1** | 7 | 7 | 0 |
 | **P2** | 8 | 8 | 0 (Sentry needs account) |
 | **P3** | 4 | 2 | 2 (manual) |
-| **New** | 6 | 5 | 1 (EN-mode test) |
+| **New** | 6 | 6 | 0 |
 | **Cleanup** | 1 | 1 | 0 |
