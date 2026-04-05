@@ -62,13 +62,11 @@
 - CTA opens Google Calendar with a pre-filled reminder event one month out.
 - i18n strings in DA, NO, EN.
 
-### 9. Guides: stub content needs real articles
-- **What**: 4 seed articles exist. Content quality directly impacts SEO authority.
-- **Why**: Thin content hurts SEO ranking. Well-written guides with internal links create the content flywheel.
-- **Files**: `src/pages/Blog.tsx`, `src/pages/Article.tsx`, Supabase `articles` table
-- **Fix**: Verify article content quality. If stub/thin, expand with real 800-1500 word Danish content.
-- **Verify**: Read each article — is it genuinely helpful? Does it have internal links?
-- **Impact**: SEO, authority, organic traffic
+### ~~P2 #9: Guides content expansion~~ ✅
+- Expanded all 4 static articles from ~200-300 words to 800-1200 words each.
+- Added detailed Danish content: price tables, practical examples, step-by-step guides.
+- Internal links to NemtBudget features and sister products (ParFinans.dk).
+- Updated read times in Blog.tsx to match expanded content (5→8, 4→7, 6→9, 7→10 min).
 
 ### 10. Open Graph image: dynamic or static OG image
 - **What**: Spec mentions dynamic OG image generation is "in progress". `usePageMeta` references a default `/og-nemtbudget.png`.
@@ -130,5 +128,5 @@
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
 | **P1** | 5 | 5 | 0 |
-| **P2** | 5 | 1 | 4 |
+| **P2** | 5 | 2 | 3 |
 | **P3** | 4 | 0 | 4 |
