@@ -22,18 +22,40 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
   if (typeof document !== "undefined") {
     document.documentElement.lang = lang === "nb" ? "nb" : lang === "en" ? "en" : "da";
   }
-  usePageMeta(
-    lang === "nb"
-      ? "NemtBudget — Ta kontroll over privatøkonomien din"
-      : lang === "en"
-      ? "NemtBudget — Take control of your personal finances"
-      : "NemtBudget — Tag kontrol over din privatøkonomi",
-    lang === "nb"
-      ? "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden. Gratis, privat og på 3 minutter — ingen pålogging."
-      : lang === "en"
-      ? "Find hidden expenses, see what you really have left and be prepared for the future. Free, private and in 3 minutes — no login."
-      : "Find skjulte udgifter, se hvad du reelt har til overs og stå stærkt til fremtiden. Gratis, privat og på 3 minutter — ingen login."
-  );
+  const pageTitle = lang === "nb"
+    ? "NemtBudget — Ta kontroll over privatøkonomien din"
+    : lang === "en"
+    ? "NemtBudget — Take control of your personal finances"
+    : "NemtBudget — Tag kontrol over din privatøkonomi";
+  const pageDescription = lang === "nb"
+    ? "Finn skjulte utgifter, se hva du reelt har til overs og stå sterkt for fremtiden. Gratis, privat og på 3 minutter — ingen pålogging."
+    : lang === "en"
+    ? "Find hidden expenses, see what you really have left and be prepared for the future. Free, private and in 3 minutes — no login."
+    : "Find skjulte udgifter, se hvad du reelt har til overs og stå stærkt til fremtiden. Gratis, privat og på 3 minutter — ingen login.";
+  usePageMeta({
+    title: pageTitle,
+    description: pageDescription,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NemtBudget",
+      "url": "https://nemtbudget.nu",
+      "description": pageDescription,
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "DKK",
+      },
+      "inLanguage": lang === "nb" ? "nb" : lang === "en" ? "en" : "da",
+      "creator": {
+        "@type": "Organization",
+        "name": "NemtBudget",
+        "url": "https://nemtbudget.nu",
+      },
+    },
+  });
 
   return (
     <div id="main-content" className="min-h-screen flex flex-col bg-background">

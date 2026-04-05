@@ -55,10 +55,33 @@ type DBArticle = {
 export default function Blog() {
   const config = useWhiteLabel();
   const { t } = useI18n();
-  usePageMeta(
-    "Guides & tips — NemtBudget",
-    "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget."
-  );
+  usePageMeta({
+    title: "Guides & tips — NemtBudget",
+    description: "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi. Bliv klogere på dit budget.",
+    path: "/guides",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Guides & tips — NemtBudget",
+      "description": "Praktiske guides, sparetips og beregninger bygget til dansk privatøkonomi.",
+      "url": "https://nemtbudget.nu/guides",
+      "inLanguage": "da",
+      "publisher": {
+        "@type": "Organization",
+        "name": "NemtBudget",
+        "url": "https://nemtbudget.nu",
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": STATIC_ARTICLES.map((a, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "url": `https://nemtbudget.nu/guides/${a.slug}`,
+          "name": a.title,
+        })),
+      },
+    },
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [dbArticles, setDbArticles] = useState<DBArticle[]>([]);
 

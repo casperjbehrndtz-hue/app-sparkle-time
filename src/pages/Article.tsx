@@ -239,30 +239,11 @@ export default function Article() {
   const description = content ? content.slice(0, 155).replace(/[#\n*|]/g, "").trim() : "Læs guides om dansk privatøkonomi.";
   const canonicalUrl = `https://nemtbudget.nu/guides/${slug}`;
 
-  usePageMeta(
-    title ? `${title} — NemtBudget` : "Guide — NemtBudget",
-    description
-  );
-
-  // Canonical link + JSON-LD Article schema
-  useEffect(() => {
-    if (!title) return;
-
-    // Canonical
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    const createdCanonical = !canonical;
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = canonicalUrl;
-
-    // JSON-LD
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.id = "article-jsonld";
-    script.text = JSON.stringify({
+  usePageMeta({
+    title: title ? `${title} — NemtBudget` : "Guide — NemtBudget",
+    description,
+    path: `/guides/${slug}`,
+    jsonLd: title ? {
       "@context": "https://schema.org",
       "@type": "Article",
       "headline": title,
@@ -274,15 +255,8 @@ export default function Article() {
         "name": "NemtBudget",
         "url": "https://nemtbudget.nu",
       },
-    });
-    document.getElementById("article-jsonld")?.remove();
-    document.head.appendChild(script);
-
-    return () => {
-      if (createdCanonical) canonical?.remove();
-      document.getElementById("article-jsonld")?.remove();
-    };
-  }, [title, description, canonicalUrl]);
+    } : undefined,
+  });
 
   if (article === "loading") {
     return (

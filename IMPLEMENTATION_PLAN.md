@@ -40,17 +40,13 @@
   - Lazy-loaded vendor-recharts (343KB) and vendor-pdfjs (448KB) only load when needed
   - Vite chunk size warning eliminated
 
+### ~~P1 #6: SEO JSON-LD structured data~~ ✅
+- WelcomePage: Added `WebApplication` JSON-LD (name, url, applicationCategory: FinanceApplication, free offer)
+- Blog.tsx: Added `CollectionPage` JSON-LD with `ItemList` of all static guide articles
+- Article.tsx: Migrated manual JSON-LD script tag to `usePageMeta`'s built-in `jsonLd` parameter (Article schema)
+- All three pages now use the advanced `usePageMeta({ ... jsonLd })` format
+
 ---
-
-## P1 — High Impact
-
-### 6. SEO: missing JSON-LD WebApplication structured data on main page
-- **What**: The spec requires JSON-LD WebApplication schema on the main page and FAQPage on guides. `usePageMeta` supports JSON-LD but need to verify it's actually being passed on key pages.
-- **Why**: Structured data helps Google show rich snippets (rating stars, app info). Competitors without it lose visibility.
-- **Files**: `src/pages/Index.tsx`, `src/pages/Blog.tsx`, `src/pages/Article.tsx`
-- **Fix**: Verify JSON-LD is passed to `usePageMeta` on main page (WebApplication), guide listing (CollectionPage), and article pages (FAQPage/Article). Add if missing.
-- **Verify**: Use Google Rich Results Test on deployed pages. Inspect `<script type="application/ld+json">` in page source.
-- **Impact**: SEO, search appearance
 
 ### 7. Cross-sell nudges: contextual links to sister products
 - **What**: Spec requires contextual cross-sell nudges to ParFinans.dk (for couples), Børneskat.dk (when children indicated), and Institutionsguide.dk (for parents with young children). These should appear on the results/dashboard page, not during input.
@@ -139,6 +135,6 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
-| **P1** | 5 | 4 | 2 (SEO JSON-LD, cross-sell nudges) |
+| **P1** | 5 | 5 | 1 (cross-sell nudges) |
 | **P2** | 5 | 0 | 5 |
 | **P3** | 4 | 0 | 4 |
