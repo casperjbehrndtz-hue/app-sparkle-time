@@ -92,17 +92,15 @@
 
 ## P3 — Polish
 
-### 13. Performance: lazy-load Tesseract.js
-- **What**: Tesseract.js is ~3MB. Verify it's lazy-loaded only when /lonseddel or /pengetjek is visited.
-- **Files**: `src/hooks/usePayslipOCR.ts`, `src/hooks/useBankStatementOCR.ts`
-- **Verify**: Network tab on `/` — Tesseract worker should not load.
-- **Impact**: Initial load performance
+### ~~P3 #13: Tesseract.js lazy-loading~~ ✅
+- Verified: Tesseract imported in cprRedact.ts which is only used by OCR hooks.
+- All consuming pages (Lonseddel, Pengetjek, Lonudvikling) and OnboardingFlow are lazy-loaded via `React.lazy()`.
+- Build confirms: tesseract code lands in lazy chunks (Lonseddel 83KB, OnboardingFlow 56KB, Pengetjek 43KB) — not in initial bundle.
 
-### 14. Favicon: verify all sizes present
-- **What**: Spec requires favicon in multiple sizes + apple-touch-icon.
-- **Files**: `public/` directory, `index.html`
-- **Verify**: Check browser tab icon, iOS "Add to Home Screen" icon.
-- **Impact**: Polish, professionalism
+### ~~P3 #14: Favicon verification~~ ✅
+- Verified: favicon.ico (5KB), pwa-192x192.png, pwa-512x512.png all present.
+- index.html has `<link rel="apple-touch-icon" sizes="180x180" href="/pwa-192x192.png">` and `<link rel="icon" href="/pwa-192x192.png">`.
+- PWA manifest provides 192 and 512 sizes. Browser tab, iOS home screen, and Android all covered.
 
 ### 15. Vercel Analytics activation
 - **What**: Spec mentions Vercel Analytics should be activated.
@@ -124,5 +122,5 @@
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
 | **P1** | 5 | 5 | 0 |
-| **P2** | 5 | 4 | 1 |
-| **P3** | 4 | 0 | 4 |
+| **P2** | 5 | 4 | 1 (Sentry — needs account) |
+| **P3** | 4 | 2 | 2 (Vercel Analytics + custom domain — manual) |
