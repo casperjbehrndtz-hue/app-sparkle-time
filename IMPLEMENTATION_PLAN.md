@@ -2,42 +2,65 @@
 
 <!-- Generated 2026-04-05 by planning pass. Updated by build iterations. -->
 
-## Status: Nearly complete — 3 items remain (all require manual/external setup)
+## Status: In progress — new items found from spec audit
 
 ---
 
 ## Completed
 
-- **P0 #1: Bundle size** ✅ — App entry 754KB → 154KB (79% reduction), manualChunks, lazy-loaded pdfjs + EN locale
-- **P0 #2: Municipality coverage** ✅ — All 98 municipalities with official 2026 DST PSKAT rates + kirkeskat
-- **P1 #3: Bundskat rate** ✅ — Corrected to 12.01% (2026 post-reform)
-- **P1 #4: Kirkeskat per-municipality** ✅ — Done with P0 #2
-- **P1 #5: Beskæftigelsesfradrag** ✅ — 12.75% of AM-grundlag, max 63,300 kr/year
-- **P1: 2026 Tax Reform brackets** ✅ — Mellemskat 7.5%, topskat 7.5%, top-topskat 5%
-- **P1 #6: SEO JSON-LD** ✅ — WebApplication, CollectionPage, Article schemas
-- **P1 #7: Cross-sell nudges** ✅ — ParFinans (par), Børneskat (children), Institutionsguide (age ≤ 6)
-- **P2 #8: Return-visit CTA** ✅ — Google Calendar reminder, bottom of dashboard
-- **P2 #9: Guide content** ✅ — All 4 articles expanded to 800-1200 words
-- **P2 #10: OG image** ✅ — Verified: 1200x630, professional design, properly referenced
-- **P2 #11: Accessibility** ✅ — Skip links, aria-labels, aria-live, lang="da"
-- **P3 #13: Tesseract lazy-load** ✅ — Verified: only in lazy chunks, not initial bundle
-- **P3 #14: Favicons** ✅ — favicon.ico, pwa-192, pwa-512, apple-touch-icon all present
+- **P0 #1: Bundle size** ✅ — App entry 754KB → 154KB (79% reduction)
+- **P0 #2: Municipality coverage** ✅ — All 98 municipalities with 2026 DST PSKAT rates
+- **P1 #3: Bundskat rate** ✅ — Corrected to 12.01%
+- **P1 #4: Kirkeskat per-municipality** ✅
+- **P1 #5: Beskæftigelsesfradrag** ✅ — 12.75% of AM-grundlag, max 63,300 kr
+- **P1: 2026 Tax Reform brackets** ✅ — Mellemskat, topskat, top-topskat
+- **P1 #6: SEO JSON-LD** ✅ — WebApplication, CollectionPage, Article
+- **P1 #7: Cross-sell nudges** ✅ — ParFinans, Børneskat, Institutionsguide
+- **P2 #8: Return-visit CTA** ✅ — Google Calendar reminder
+- **P2 #9: Guide content** ✅ — 4 articles expanded to 800-1200 words
+- **P2 #10: OG image** ✅ — Verified 1200x630
+- **P2 #11: Accessibility** ✅ — Skip links, aria-labels, aria-live
+- **P3 #13: Tesseract lazy-load** ✅ — Verified in lazy chunks only
+- **P3 #14: Favicons** ✅ — All sizes present
+- **P1 #17: Stress-test missing scenarios** ✅ — Added "Uventede udgifter" and "Barsel" per spec
 
 ---
 
-## Remaining (all require manual/external setup)
+## Active — Code-implementable
+
+### 18. Payslip salary benchmarks (P2)
+- **What**: Spec requires "Er din løn normal?" comparison against industry/role benchmarks in PayslipResult
+- **Why**: Adds value and differentiation to payslip analysis feature
+- **Files**: `src/components/payslip/PayslipResult.tsx`
+- **Verify**: Upload payslip → see salary comparison section
+- **Impact**: User value, engagement
+
+### 19. Onboarding input validation (P2)
+- **What**: Spec requires inline validation on all inputs — show error as user types
+- **Why**: Reduces user frustration, prevents bad data entry
+- **Files**: `src/components/onboarding/OnboardingFlow.tsx`
+- **Verify**: Enter invalid income (negative, text) → see inline Danish error message
+- **Impact**: UX quality, data quality
+
+### 20. Pengetjek "Glemte abonnementer" section (P2)
+- **What**: Spec requires separate section identifying potentially forgotten/unused subscriptions
+- **Why**: Key differentiator — helps users find money they're wasting
+- **Files**: `src/components/pengetjek/PengetjekResult.tsx`, `src/lib/statementAnalyzer.ts`
+- **Verify**: Upload bank statement with subscriptions → see "Glemte abonnementer" section
+- **Impact**: User value, conversion
+
+---
+
+## Remaining — Manual/external setup
 
 ### 12. Error tracking (Sentry)
-- **Requires**: Create Sentry account → get DSN → add `@sentry/react` to App.tsx
-- **Impact**: Production bug visibility
+- **Requires**: Create Sentry account → get DSN → add `@sentry/react`
 
 ### 15. Vercel Analytics
-- **Requires**: Enable in Vercel dashboard → optionally add `@vercel/analytics` package
-- **Impact**: Usage data, data-driven decisions
+- **Requires**: Enable in Vercel dashboard
 
 ### 16. Custom domain nemtbudget.nu
-- **Requires**: Add domain in Vercel dashboard → configure DNS at Simply.com
-- **Impact**: Trust, SEO, branding
+- **Requires**: Add domain in Vercel → DNS at Simply.com
 
 ---
 
@@ -46,6 +69,6 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
-| **P1** | 5 | 5 | 0 |
-| **P2** | 5 | 4 | 1 (Sentry — needs account) |
-| **P3** | 4 | 2 | 2 (Vercel + domain — manual) |
+| **P1** | 6 | 6 | 0 |
+| **P2** | 8 | 4 | 4 (3 code + 1 Sentry) |
+| **P3** | 4 | 2 | 2 (manual) |

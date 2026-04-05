@@ -286,6 +286,17 @@ export const EN: Record<string, string> = {
   "stress.withSavings": "with current savings",
   "stress.worstCase": "Worst case: Everything at once",
   "stress.worstCaseDesc": "Inflation + rate hike + income drop. Your budget under maximum pressure.",
+  "stress.unexpectedExpense": "Unexpected expense",
+  "stress.unexpectedExpenseDesc": "What happens if you're hit by a large unexpected expense? Dentist, car repair, new appliance.",
+  "stress.expenseAmount": "Expense",
+  "stress.bufferAfter": "Buffer after",
+  "stress.recoveryTime": "Recovery time",
+  "stress.noBuffer": "No emergency fund — the expense creates debt",
+  "stress.barsel": "Parental leave",
+  "stress.barselDesc": "What happens to your finances during parental leave? Parental benefits are capped at 4,695 kr/week (2026).",
+  "stress.barselIncome": "Income during leave",
+  "stress.barselDisposable": "Disposable during leave",
+  "stress.barselNotRelevant": "Parental leave scenario only shown for households with children or couples",
   "stress.disclaimer": "The stress test is an estimate. Contact your bank for exact calculations.",
 
   // Årshjul

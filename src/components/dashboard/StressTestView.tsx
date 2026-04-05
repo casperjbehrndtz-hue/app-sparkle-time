@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, TrendingDown, Zap, Briefcase, ShieldAlert, Heart } from "lucide-react";
+import { AlertTriangle, TrendingDown, Zap, Briefcase, ShieldAlert, Heart, Wrench, Baby } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { formatKr } from "@/lib/budgetCalculator";
@@ -29,6 +29,7 @@ export function StressTestView({ profile, budget }: Props) {
   const [inflationRate, setInflationRate] = useState(5);
   const [rateHike, setRateHike] = useState(2);
   const [incomeDrop, setIncomeDrop] = useState(30);
+  const [unexpectedExpense, setUnexpectedExpense] = useState(25000);
 
   const scenarios = useMemo(() => {
     const isPar = profile.householdType === "par";
@@ -69,7 +70,31 @@ export function StressTestView({ profile, budget }: Props) {
       ? Math.max(0, Math.floor((profile.hasSavings ? profile.savingsAmount * 6 : 0) / Math.abs(jobLossDisposable)))
       : null;
 
-    // 4. Combined worst-case
+    // 4. Unexpected expense scenario
+    const savingsTotal = profile.hasSavings ? profile.savingsAmount * 12 : 0; // annual savings estimate
+    const bufferAfterExpense = savingsTotal - unexpectedExpense;
+    const recoveryMonths = budget.disposableIncome > 0
+      ? Math.ceil(unexpectedExpense / budget.disposableIncome)
+      : null; // can't recover if no surplus
+
+    // 5. Barsel (parental leave) scenario
+    // DK 2026: barselsdagpenge maks. 4.695 kr./uge = ~20.345 kr./md. (Beskæftigelsesministeriet)
+    // NO 2026: foreldrepenger 100% av inntekt opp til 6G (~711.720 kr/år = ~59.310 kr/md)
+    const MAX_BARSEL_DK = 20345; // maks barselsdagpenge/md
+    const MAX_BARSEL_NO = 59310; // 6G / 12
+    const showBarsel = profile.hasChildren || isPar;
+    const barselIncome = isNO
+      ? Math.min(MAX_BARSEL_NO, totalIncome) // NO: 100% up to 6G
+      : Math.min(MAX_BARSEL_DK, totalIncome); // DK: capped
+    const barselPartnerIncome = isPar ? Math.round(totalIncome * 0.5) : 0; // partner keeps working
+    const barselTotalIncome = barselIncome + (isPar ? barselPartnerIncome : 0);
+    // For par: one person on leave (barselsdagpenge), other keeps income
+    // For solo: full income replaced by barselsdagpenge
+    const barselDisposable = isPar
+      ? barselPartnerIncome + barselIncome - budget.totalExpenses
+      : barselIncome - budget.totalExpenses;
+
+    // 6. Combined worst-case
     const worstDisposable = (totalIncome - lostIncome) - (inflatedFixed + inflatedVariable) - mortgageIncrease;
     const worstMonths = worstDisposable < 0
       ? Math.max(0, Math.floor((profile.hasSavings ? profile.savingsAmount * 6 : 0) / Math.abs(worstDisposable)))
@@ -79,18 +104,23 @@ export function StressTestView({ profile, budget }: Props) {
       inflation: { delta: inflationDisposable - budget.disposableIncome, disposable: inflationDisposable, survivalMonths: inflationSurvivalMonths },
       rateHike: { delta: -mortgageIncrease, disposable: rateDisposable, increase: mortgageIncrease },
       jobLoss: { delta: jobLossDisposable - budget.disposableIncome, disposable: jobLossDisposable, withDagpenge, dagpenge: eligibleDagpenge, months: jobLossMonths, lostAmount: lostIncome },
+      unexpectedExpense: { bufferAfter: bufferAfterExpense, recoveryMonths, hasBuffer: savingsTotal > 0 },
+      barsel: { income: barselIncome, disposable: barselDisposable, show: showBarsel },
       combined: { disposable: worstDisposable, months: worstMonths },
     };
-  }, [profile, budget, inflationRate, rateHike, incomeDrop]);
+  }, [profile, budget, inflationRate, rateHike, incomeDrop, unexpectedExpense]);
 
   const resilienceScore = useMemo(() => {
     let score = 100;
-    if (scenarios.inflation.disposable < 0) score -= 30;
-    else if (scenarios.inflation.disposable < 2000) score -= 15;
-    if (scenarios.rateHike.disposable < 0) score -= 25;
-    else if (scenarios.rateHike.disposable < 2000) score -= 10;
-    if (scenarios.jobLoss.disposable < 0) score -= 25;
-    if (scenarios.combined.disposable < 0) score -= 20;
+    if (scenarios.inflation.disposable < 0) score -= 25;
+    else if (scenarios.inflation.disposable < 2000) score -= 12;
+    if (scenarios.rateHike.disposable < 0) score -= 20;
+    else if (scenarios.rateHike.disposable < 2000) score -= 8;
+    if (scenarios.jobLoss.disposable < 0) score -= 20;
+    if (scenarios.unexpectedExpense.bufferAfter < 0) score -= 15;
+    else if (!scenarios.unexpectedExpense.hasBuffer) score -= 10;
+    if (scenarios.barsel.show && scenarios.barsel.disposable < 0) score -= 10;
+    if (scenarios.combined.disposable < 0) score -= 10;
     return Math.max(0, Math.min(100, score));
   }, [scenarios]);
 
@@ -214,6 +244,81 @@ export function StressTestView({ profile, budget }: Props) {
           </div>
         )}
       </motion.div>
+
+      {/* Scenario 4: Unexpected expense */}
+      <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Wrench className="w-4 h-4 text-amber-600" />
+          <h3 className="text-sm font-bold">{t("stress.unexpectedExpense")}</h3>
+          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-medium">{t("stress.moderate")}</span>
+        </div>
+        <p className="text-xs text-muted-foreground">{t("stress.unexpectedExpenseDesc")}</p>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium w-16">{formatKr(unexpectedExpense, locale.currencyLocale)}</span>
+          <input type="range" min={5000} max={100000} step={5000} value={unexpectedExpense} onChange={(e) => setUnexpectedExpense(+e.target.value)}
+            className="flex-1 accent-amber-600 h-1.5" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-muted/50 rounded-xl p-3">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.bufferAfter")}</span>
+            <p className={`text-lg font-bold ${scenarios.unexpectedExpense.bufferAfter < 0 ? "text-red-500" : "text-foreground"}`}>
+              {formatKr(Math.max(0, scenarios.unexpectedExpense.bufferAfter), locale.currencyLocale)} {t("currency")}
+            </p>
+          </div>
+          <div className="bg-muted/50 rounded-xl p-3">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.recoveryTime")}</span>
+            <p className="text-lg font-bold text-foreground">
+              {scenarios.unexpectedExpense.recoveryMonths !== null
+                ? `${scenarios.unexpectedExpense.recoveryMonths} ${t("stress.monthsShort")}`
+                : "∞"}
+            </p>
+          </div>
+        </div>
+        {scenarios.unexpectedExpense.bufferAfter < 0 && (
+          <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
+            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+            <p className="text-xs text-red-600 dark:text-red-400">{t("stress.noBuffer")}</p>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Scenario 5: Barsel (parental leave) */}
+      {scenarios.barsel.show && (
+        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <Baby className="w-4 h-4 text-purple-500" />
+            <h3 className="text-sm font-bold">{t("stress.barsel")}</h3>
+            <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 font-medium">{t("stress.severe")}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{t("stress.barselDesc")}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-muted/50 rounded-xl p-3">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.barselIncome")}</span>
+              <p className="text-lg font-bold text-foreground">
+                {formatKr(scenarios.barsel.income, locale.currencyLocale)} {t("perMonth")}
+              </p>
+            </div>
+            <div className="bg-muted/50 rounded-xl p-3">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.barselDisposable")}</span>
+              <p className={`text-lg font-bold ${scenarios.barsel.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
+                {formatKr(scenarios.barsel.disposable, locale.currencyLocale)} {t("currency")}
+              </p>
+            </div>
+          </div>
+          {scenarios.barsel.disposable < 0 && (
+            <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
+              <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {t("stress.survivalTime")}: <strong>
+                  {profile.hasSavings && profile.savingsAmount > 0
+                    ? `${Math.max(0, Math.floor((profile.savingsAmount * 12) / Math.abs(scenarios.barsel.disposable)))} ${t("stress.months")}`
+                    : `0 ${t("stress.months")}`}
+                </strong> {t("stress.withSavings")}
+              </p>
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Combined worst-case */}
       <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible"

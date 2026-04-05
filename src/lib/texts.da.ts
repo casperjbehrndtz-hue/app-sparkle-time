@@ -286,6 +286,17 @@ export const DA: Record<string, string> = {
   "stress.withSavings": "med nuværende opsparing",
   "stress.worstCase": "Worst case: Alt på én gang",
   "stress.worstCaseDesc": "Inflation + rentestigning + indkomstfald. Dit budget under maksimalt pres.",
+  "stress.unexpectedExpense": "Uventet udgift",
+  "stress.unexpectedExpenseDesc": "Hvad sker der, hvis du bliver ramt af en stor uventet udgift? Tandlæge, bilreparation, ny vaskemaskine.",
+  "stress.expenseAmount": "Udgift",
+  "stress.bufferAfter": "Buffer bagefter",
+  "stress.recoveryTime": "Tid til genopbygning",
+  "stress.noBuffer": "Ingen nødbuffer — udgiften skaber gæld",
+  "stress.barsel": "Barsel",
+  "stress.barselDesc": "Hvad sker der med jeres økonomi under barsel? Barselsdagpenge er maks. 4.695 kr./uge (2026).",
+  "stress.barselIncome": "Indkomst under barsel",
+  "stress.barselDisposable": "Rådighedsbeløb under barsel",
+  "stress.barselNotRelevant": "Barsel-scenariet vises kun for husstande med børn eller par",
   "stress.disclaimer": "Stress-testen er et estimat. Kontakt din bank for præcis beregning.",
 
   // Årshjul

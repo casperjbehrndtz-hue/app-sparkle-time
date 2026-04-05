@@ -287,6 +287,17 @@ export const NO: Record<string, string> = {
   "stress.withSavings": "med nåværende sparing",
   "stress.worstCase": "Worst case: Alt på én gang",
   "stress.worstCaseDesc": "Inflasjon + renteøkning + inntektsfall. Budsjettet ditt under maksimalt press.",
+  "stress.unexpectedExpense": "Uventet utgift",
+  "stress.unexpectedExpenseDesc": "Hva skjer hvis du blir rammet av en stor uventet utgift? Tannlege, bilreparasjon, ny vaskemaskin.",
+  "stress.expenseAmount": "Utgift",
+  "stress.bufferAfter": "Buffer etterpå",
+  "stress.recoveryTime": "Tid til gjenoppbygging",
+  "stress.noBuffer": "Ingen nødbuffer — utgiften skaper gjeld",
+  "stress.barsel": "Foreldrepermisjon",
+  "stress.barselDesc": "Hva skjer med økonomien deres under foreldrepermisjon? Foreldrepenger er basert på inntekt, maks 6G.",
+  "stress.barselIncome": "Inntekt under permisjon",
+  "stress.barselDisposable": "Disponibelt under permisjon",
+  "stress.barselNotRelevant": "Permisjonsscenariet vises kun for husstander med barn eller par",
   "stress.disclaimer": "Stress-testen er et estimat. Kontakt banken din for nøyaktig beregning.",
 
   // Årshjul
