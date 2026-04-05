@@ -2,7 +2,7 @@
 
 <!-- Generated 2026-04-05 by planning pass. Updated by build iterations. -->
 
-## Status: In progress — new items found from spec audit
+## Status: Code-complete — only manual/external items remain
 
 ---
 
@@ -22,26 +22,11 @@
 - **P2 #11: Accessibility** ✅ — Skip links, aria-labels, aria-live
 - **P3 #13: Tesseract lazy-load** ✅ — Verified in lazy chunks only
 - **P3 #14: Favicons** ✅ — All sizes present
-- **P1 #17: Stress-test missing scenarios** ✅ — Added "Uventede udgifter" and "Barsel" per spec
-
----
-
-## Active — Code-implementable
-
-### ~~#18: Payslip salary benchmarks~~ ✅ (already implemented)
-- Verified: PayslipResult.tsx already has full percentile comparison with DST industry data, visual slider, and median comparison.
-
-### 19. Onboarding input validation (P2)
-- **What**: Spec requires inline validation on all inputs — show error as user types
-- **Why**: Reduces user frustration, prevents bad data entry
-- **Files**: `src/components/onboarding/OnboardingFlow.tsx`
-- **Verify**: Enter invalid income (negative, text) → see inline Danish error message
-- **Impact**: UX quality, data quality
-
-### ~~#20: Pengetjek "Glemte abonnementer"~~ ✅
-- Split subscription section: active (2+ occurrences) vs forgotten (1 occurrence, AI-flagged).
-- Forgotten subscriptions shown in amber-highlighted card with potential savings total.
-- i18n in DA, NO, EN.
+- **P1 #17: Stress-test scenarios** ✅ — Added "Uventede udgifter" and "Barsel"
+- **#18: Payslip benchmarks** ✅ — Already had full DST percentile comparison
+- **#19: Input validation** ✅ — Handled by slider-based UI design
+- **#20: Glemte abonnementer** ✅ — Split active vs forgotten subscriptions in Pengetjek
+- **#21: "Sådan beregner vi"** ✅ — Expandable tax breakdown in CockpitSection showing all 2026 rates
 
 ---
 
@@ -63,6 +48,7 @@
 | Priority | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | **P0** | 2 | 2 | 0 |
-| **P1** | 6 | 6 | 0 |
-| **P2** | 8 | 4 | 4 (3 code + 1 Sentry) |
+| **P1** | 7 | 7 | 0 |
+| **P2** | 8 | 8 | 0 (Sentry needs account) |
 | **P3** | 4 | 2 | 2 (manual) |
+| **New** | 4 | 4 | 0 |

@@ -1,9 +1,10 @@
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { formatKr } from "@/lib/budgetCalculator";
 import { EditableAmount } from "./EditableAmount";
 import { SankeyDiagramV2 } from "./SankeyDiagramV2";
-import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio, FileText, ArrowRight } from "lucide-react";
+import { Wallet, Activity, Shield, Zap, AlertTriangle, TrendingUp, Radio, FileText, ArrowRight, ChevronDown, Calculator } from "lucide-react";
+import { calculateAnnualTax, getKirkeSkat } from "@/lib/danishTax";
 import { useI18n } from "@/lib/i18n";
 import { useLocale } from "@/lib/locale";
 import { SocialProofNudge } from "./SocialProofNudge";
@@ -240,10 +241,107 @@ export function CockpitSection({ profile, budget, health, smartSteps, optimizati
         </div>
         <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
       </a>
+
+      {/* ── "Sådan beregner vi" expandable ── */}
+      <HowWeCalculate profile={profile} />
     </div>
   );
 }
 
+
+function HowWeCalculate({ profile }: { profile: BudgetProfile }) {
+  const { t } = useI18n();
+  const locale = useLocale();
+  const [open, setOpen] = useState(false);
+
+  const tax = useMemo(() => {
+    const kirkeSkatRate = profile.hasKirkeskat ? getKirkeSkat(profile.municipality) : 0;
+    return calculateAnnualTax({
+      monthlyGross: profile.income,
+      municipality: profile.municipality,
+      hasKirkeskat: profile.hasKirkeskat,
+      pensionEmployee: profile.pensionAmount || 0,
+      pensionEmployer: 0,
+      atp: 99,
+    });
+  }, [profile.income, profile.municipality, profile.hasKirkeskat, profile.pensionAmount]);
+
+  const kirkeSkatRate = profile.hasKirkeskat ? getKirkeSkat(profile.municipality) : 0;
+  const fmtMd = (v: number) => formatKr(Math.round(v / 12), locale.currencyLocale);
+
+  const rows: { label: string; value: string; negative?: boolean }[] = [
+    { label: t("cockpit.howCalc.amBidrag"), value: `-${fmtMd(tax.amBidrag)}`, negative: true },
+    { label: t("cockpit.howCalc.bundskat"), value: `-${fmtMd(tax.bundskat)}`, negative: true },
+    { label: t("cockpit.howCalc.kommuneskat").replace("{rate}", tax.kommuneskatRate.toFixed(2)), value: `-${fmtMd(tax.kommuneskat)}`, negative: true },
+  ];
+  if (profile.hasKirkeskat && tax.kirkeskat > 0) {
+    rows.push({ label: t("cockpit.howCalc.kirkeskat").replace("{rate}", kirkeSkatRate.toFixed(2)), value: `-${fmtMd(tax.kirkeskat)}`, negative: true });
+  }
+  if (tax.beskaeftigelsesfradrag > 0) {
+    rows.push({ label: t("cockpit.howCalc.beskaeft"), value: `+${fmtMd(tax.beskaeftigelsesfradrag)}` });
+  }
+  if (tax.mellemskat > 0) {
+    rows.push({ label: t("cockpit.howCalc.mellemskat"), value: `-${fmtMd(tax.mellemskat)}`, negative: true });
+  }
+  if (tax.topskat > 0) {
+    rows.push({ label: t("cockpit.howCalc.topskat"), value: `-${fmtMd(tax.topskat)}`, negative: true });
+  }
+  if (tax.toptopskat > 0) {
+    rows.push({ label: t("cockpit.howCalc.toptopskat"), value: `-${fmtMd(tax.toptopskat)}`, negative: true });
+  }
+
+  return (
+    <div className="rounded-2xl border border-border overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs font-semibold text-muted-foreground">{t("cockpit.howCalc.title")}</span>
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        </motion.div>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-2">
+              <p className="text-[10px] text-muted-foreground">{t("cockpit.howCalc.desc")}</p>
+              <div className="space-y-1.5">
+                {rows.map((row) => (
+                  <div key={row.label} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">{row.label}</span>
+                    <span className={`font-mono tabular-nums font-medium ${row.negative ? "text-red-500" : "text-emerald-600"}`}>
+                      {row.value} {t("currency")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-border pt-2 space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold">{t("cockpit.howCalc.effectiveRate")}</span>
+                  <span className="font-mono font-bold">{tax.effectiveTaxRate.toFixed(1)}%</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold">{t("cockpit.howCalc.netIncome")}</span>
+                  <span className="font-mono font-bold text-primary">{formatKr(tax.monthlyNet, locale.currencyLocale)} {t("currency")}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function TruthRow({ icon, label, value, positive, positiveLabel, negativeLabel }: { icon: React.ReactNode; label: string; value: string; positive: boolean; positiveLabel?: string; negativeLabel?: string }) {
   return (
