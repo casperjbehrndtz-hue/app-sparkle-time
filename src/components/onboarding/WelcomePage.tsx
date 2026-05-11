@@ -152,73 +152,78 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
         </div>
       </div>
 
-      {/* How it works */}
-      <section id="saadan-virker-det" className="bg-background py-10 sm:py-10 scroll-mt-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="font-display font-bold text-xl sm:text-2xl md:text-3xl text-foreground mb-3">{t("howItWorks.title")}</h2>
-          <p className="text-muted-foreground text-base mb-12 max-w-md mx-auto">{t("howItWorks.subtitle")}</p>
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto">
-            {config.hero.stats.map((stat) => (
-              <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
-                <div className="font-display font-bold text-4xl sm:text-5xl text-foreground">{stat.value}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground mt-1.5">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Feature cards */}
-      <section id="produkter" className="bg-muted/30 py-16 sm:py-12 scroll-mt-16">
+      {/* How it works — compact bank-statement style */}
+      <section id="saadan-virker-det" className="bg-background py-8 scroll-mt-16 border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
-            {[
-              { icon: <Search className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
-              { icon: <Brain className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
-              { icon: <Zap className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
-              { icon: <BarChart3 className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.compare"), desc: t("feature.compareDesc") },
-              { icon: <FileText className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
-              { icon: <PiggyBank className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.savings"), desc: t("feature.savingsDesc") },
-            ].map((f, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-                className="rounded-none bg-background border border-border/60 p-6 sm:p-5 hover:border-border transition-colors">
-                <div className={`w-10 h-10 rounded-none flex items-center justify-center ${f.bg}`}>{f.icon}</div>
-                <h3 className="font-semibold text-base mt-3 mb-1.5 text-foreground">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-              </motion.div>
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">{t("howItWorks.title")}</h2>
+            <p className="text-xs text-muted-foreground hidden sm:block">{t("howItWorks.subtitle")}</p>
+          </div>
+          <div className="grid grid-cols-3 gap-4 border border-border divide-x divide-border">
+            {config.hero.stats.map((stat) => (
+              <div key={stat.label} className="px-4 py-3">
+                <p className="text-xl sm:text-2xl font-semibold text-foreground tabular-nums leading-none">{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-1.5 truncate">{stat.label}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Feature cards — bank-statement 2x3 grid, flat icons no colored boxes */}
+      <section id="produkter" className="bg-background py-10 scroll-mt-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <h2 className="text-lg font-semibold text-foreground tracking-tight mb-4">{t("nav.products")}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 border border-border divide-y sm:divide-y-0 sm:divide-x md:divide-x divide-border">
+            {[
+              { icon: <Search className="w-4 h-4 text-foreground/70" />, title: t("feature.findHidden"), desc: t("feature.findHiddenDesc") },
+              { icon: <Brain className="w-4 h-4 text-foreground/70" />, title: t("feature.aiInsight"), desc: t("feature.aiInsightDesc") },
+              { icon: <Zap className="w-4 h-4 text-foreground/70" />, title: t("feature.stressTest"), desc: t("feature.stressTestDesc") },
+              { icon: <BarChart3 className="w-4 h-4 text-foreground/70" />, title: t("feature.compare"), desc: t("feature.compareDesc") },
+              { icon: <FileText className="w-4 h-4 text-foreground/70" />, title: t("feature.bankReport"), desc: t("feature.bankReportDesc") },
+              { icon: <PiggyBank className="w-4 h-4 text-foreground/70" />, title: t("feature.savings"), desc: t("feature.savingsDesc") },
+            ].map((f, i) => (
+              <div key={i} className={`p-4 ${i >= 3 ? "sm:border-t md:border-t border-border" : ""}`}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  {f.icon}
+                  <h3 className="text-sm font-semibold text-foreground tracking-tight">{f.title}</h3>
+                </div>
+                <p className="text-xs text-muted-foreground leading-snug">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials — bank-style flat row, no italic, no big quote marks */}
       {config.testimonials && config.testimonials.length > 0 && (
-        <section className="bg-background py-16 sm:py-12">
+        <section className="bg-muted/30 py-10 border-y border-border">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">{t("testimonials.title")}</p>
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mb-4">{t("testimonials.title")}</p>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 border border-border bg-background divide-y sm:divide-y-0 sm:divide-x divide-border">
               {config.testimonials.map((testimonial) => (
-                <motion.div key={testimonial.name} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  className="rounded-none border-l-2 border-l-primary/30 border border-border/40 pl-5 pr-5 py-5 bg-background">
-                  <p className="text-sm text-foreground leading-relaxed mb-3 italic">"{testimonial.quote}"</p>
-                  <p className="text-xs text-muted-foreground">— {testimonial.name}, {testimonial.location}</p>
-                </motion.div>
+                <div key={testimonial.name} className="p-4">
+                  <p className="text-sm text-foreground leading-snug mb-2">{testimonial.quote}</p>
+                  <p className="text-[11px] text-muted-foreground">— {testimonial.name}, {testimonial.location}</p>
+                </div>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Bottom CTA */}
-      <section className="bg-hero-navy py-10 sm:py-12">
-        <div className="max-w-lg mx-auto px-6 text-center">
-          <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">{t("bottomCta.title")}</h2>
-          <p className="text-white/60 text-sm mb-8">{t("bottomCta.subtitle")}</p>
-          <button onClick={onStart}
-            className="px-10 py-4 rounded-none bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
-            {t("hero.cta")} <ArrowRight className="w-4 h-4 inline ml-1.5" />
-          </button>
-          <p className="text-white/40 text-xs mt-5">{t("bottomCta.noLogin")}</p>
+      {/* Bottom CTA — bank-style left-aligned, no shadow */}
+      <section className="bg-hero-navy py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-md">
+            <h2 className="text-lg font-semibold text-white tracking-tight mb-1">{t("bottomCta.title")}</h2>
+            <p className="text-white/65 text-sm mb-4 leading-snug">{t("bottomCta.subtitle")}</p>
+            <button onClick={onStart}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-white text-hero-navy font-semibold text-sm hover:bg-white/90 transition-colors">
+              {t("hero.cta")} <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <p className="text-white/45 text-xs mt-3">{t("bottomCta.noLogin")}</p>
+          </div>
         </div>
       </section>
 
@@ -227,7 +232,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
             <div>
-              <span className="font-display font-black text-base text-foreground">{config.brandName}</span>
+              <span className="text-base font-semibold text-foreground tracking-tight">{config.brandName}</span>
               <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{t("footer.tagline")}</p>
             </div>
             <div>
