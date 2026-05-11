@@ -126,7 +126,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] p-5"
+              className="rounded-none border border-primary/15 bg-gradient-to-br from-primary/[0.06] to-primary/[0.02] p-5"
             >
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
@@ -158,7 +158,7 @@ export function AIWelcomeInsight({ profile, budget, onContinue }: Props) {
             >
               <button
                 onClick={onContinue}
-                className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 rounded-none bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
               >
                 {t("step.review.seeDashboard")} <ArrowRight className="w-4 h-4" />
               </button>

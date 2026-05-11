@@ -6,6 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { usePageMeta } from "@/hooks/usePageMeta";
 import { HeroSankey } from "./HeroSankey";
+import HeroStatBand from "./HeroStatBand";
 import { openCookieBanner } from "@/components/CookieBanner";
 import Logo from "@/components/shared/Logo";
 
@@ -129,14 +130,17 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               {t("hero.socialProof")}
             </p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5 }} className="hidden lg:block">
+          <div className="hidden lg:block">
             <HeroSankey />
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Trust badges */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="border-b border-border bg-background">
+      {/* Navy stat-band — bank-style anchor below hero */}
+      <HeroStatBand />
+
+      {/* Trust badges — slim strip after stat-band */}
+      <div className="border-b border-border bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10">
           {[
             { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: t("trust.danish") },
@@ -146,7 +150,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             <div key={b.text} className="flex items-center gap-2 text-sm sm:text-base text-muted-foreground">{b.icon}<span>{b.text}</span></div>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* How it works */}
       <section id="saadan-virker-det" className="bg-background py-10 sm:py-16 scroll-mt-16">

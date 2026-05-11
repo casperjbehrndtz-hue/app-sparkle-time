@@ -27,7 +27,7 @@ export function TransactionList({ transactions }: Props) {
   const sortedDates = [...grouped.keys()].sort().reverse();
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-none border border-border bg-card overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
         className="w-full px-4 py-3 flex items-center justify-between text-xs font-medium text-muted-foreground hover:bg-muted/20 transition-colors"

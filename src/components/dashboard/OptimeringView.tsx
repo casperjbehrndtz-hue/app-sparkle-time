@@ -33,7 +33,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
     <div className="space-y-4">
       {/* Hero */}
       <motion.div variants={fadeUp(0)} initial="hidden" animate="visible"
-        className="rounded-2xl p-6 border border-primary/20 bg-primary/[0.04]"
+        className="rounded-none p-6 border border-primary/20 bg-primary/[0.04]"
       >
         <p className="text-xs font-semibold tracking-widest uppercase text-primary/70 mb-1">{t("optimize.totalPotential")}</p>
         <div className="flex items-end gap-2">
@@ -48,7 +48,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
       {/* Empty state */}
       {optimizations.length === 0 && (
         <motion.div variants={fadeUp(1)} initial="hidden" animate="visible"
-          className="rounded-2xl border border-border bg-card p-8 text-center"
+          className="rounded-none border border-border bg-card p-8 text-center"
         >
           <CheckCircle2 className="w-10 h-10 text-primary/40 mx-auto mb-3" />
           <p className="font-semibold text-foreground mb-1">{t("optimize.lookingGood")}</p>
@@ -60,7 +60,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
       <div className="space-y-3">
         {optimizations.map((opt, i) => (
           <motion.div key={opt.rank} variants={fadeUp(i + 1)} initial="hidden" animate="visible"
-            className="rounded-2xl bg-card border border-border overflow-hidden"
+            className="rounded-none bg-card border border-border overflow-hidden"
           >
             <button onClick={() => setExpanded(expanded === i ? null : i)} className="w-full text-left p-4 flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -91,7 +91,7 @@ export function OptimeringView({ profile, budget, optimizations }: Props) {
       </div>
 
       {/* Benchmark */}
-      <motion.div variants={fadeUp(optimizations.length + 2)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+      <motion.div variants={fadeUp(optimizations.length + 2)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
         <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("optimize.dstBenchmark")}</p>
         {[
           { label: t("optimize.dkAverage"), amount: profile.householdType === "par" ? 12500 : 7200, isAvg: true },

@@ -14,7 +14,7 @@ interface Props {
 
 function ChartTooltipBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border/60 bg-background/95 backdrop-blur-sm px-4 py-3 shadow-xl shadow-black/8 text-xs">
+    <div className="rounded-none border border-border/60 bg-background/95 backdrop-blur-sm px-4 py-3 shadow-xl shadow-black/8 text-xs">
       {children}
     </div>
   );
@@ -24,7 +24,7 @@ export function InlineChartsSection({ profile: _profile, budget }: Props) {
   const locale = useLocale();
   const lc = locale.currencyLocale;
   return (
-    <div className="rounded-2xl border border-border/60 bg-background p-3 sm:p-5 shadow-sm">
+    <div className="rounded-none border border-border/60 bg-background p-3 sm:p-5 shadow-sm">
       <DisposableOverTimeInline budget={budget} lc={lc} />
     </div>
   );
@@ -59,7 +59,7 @@ function DisposableOverTimeInline({ budget, lc }: { budget: ComputedBudget; lc: 
           { label: t("charts.lowest"), value: lowest },
           { label: t("charts.highest"), value: highest },
         ].map((s) => (
-          <div key={s.label} className="text-center p-2.5 rounded-xl bg-muted/40 border border-border/50">
+          <div key={s.label} className="text-center p-2.5 rounded-none bg-muted/40 border border-border/50">
             <p className="text-[10px] text-muted-foreground mb-0.5">{s.label}</p>
             <p className="font-display font-bold text-xs sm:text-sm text-foreground">{formatKr(s.value, lc)} kr.</p>
           </div>

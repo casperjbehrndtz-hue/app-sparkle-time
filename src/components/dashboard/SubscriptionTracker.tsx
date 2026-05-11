@@ -95,7 +95,7 @@ export function SubscriptionTracker({ profile }: Props) {
     <div className="space-y-4">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl p-5 border border-border bg-card">
+        className="rounded-none p-5 border border-border bg-card">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-primary" />
@@ -122,7 +122,7 @@ export function SubscriptionTracker({ profile }: Props) {
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("subs.foundInBudget")}</p>
         {detected.map((sub, i) => (
           <motion.div key={sub.name} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-            className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
+            className="flex items-center justify-between p-3 rounded-none bg-card border border-border/60">
             <div className="flex items-center gap-3">
               <CategoryIcon name={sub.category === "streaming" ? "tv" : sub.category === "fitness" ? "dumbbell" : sub.category === "insurance" ? "shield" : "clipboard"} className="w-5 h-5 text-muted-foreground" />
               <span className="text-sm font-medium">{sub.name}</span>
@@ -137,7 +137,7 @@ export function SubscriptionTracker({ profile }: Props) {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("subs.addedManually")}</p>
           {customSubs.map((sub) => (
-            <div key={sub.id} className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/60">
+            <div key={sub.id} className="flex items-center justify-between p-3 rounded-none bg-card border border-border/60">
               <div className="flex items-center gap-3">
                 <span className="text-lg">pin</span>
                 <span className="text-sm font-medium">{sub.name}</span>
@@ -156,19 +156,19 @@ export function SubscriptionTracker({ profile }: Props) {
       {/* Add */}
       {showAdd ? (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-          className="rounded-xl border border-primary/20 p-4 space-y-3">
+          className="rounded-none border border-primary/20 p-4 space-y-3">
           <input placeholder={t("subs.namePlaceholder")} value={newName} onChange={(e) => setNewName(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            className="w-full px-3 py-2 rounded-none border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           <input placeholder={t("subs.pricePlaceholder")} type="number" value={newAmount} onChange={(e) => setNewAmount(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            className="w-full px-3 py-2 rounded-none border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
           <div className="flex gap-2">
-            <button onClick={addSub} className="flex-1 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">{t("subs.add")}</button>
-            <button onClick={() => setShowAdd(false)} className="flex-1 py-2 rounded-lg border border-border text-sm">{t("subs.cancel")}</button>
+            <button onClick={addSub} className="flex-1 py-2 rounded-none bg-primary text-primary-foreground text-sm font-semibold">{t("subs.add")}</button>
+            <button onClick={() => setShowAdd(false)} className="flex-1 py-2 rounded-none border border-border text-sm">{t("subs.cancel")}</button>
           </div>
         </motion.div>
       ) : (
         <button onClick={() => setShowAdd(true)}
-          className="w-full py-3 rounded-xl border border-dashed border-border hover:border-primary/30 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2">
+          className="w-full py-3 rounded-none border border-dashed border-border hover:border-primary/30 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-2">
           <Plus className="w-4 h-4" /> {t("subs.addSubscription")}
         </button>
       )}

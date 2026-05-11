@@ -48,7 +48,7 @@ function LazyFallback() {
   return (
     <div className="animate-pulse space-y-3 py-4">
       <div className="h-4 bg-muted rounded w-2/3" />
-      <div className="h-32 bg-muted rounded-xl" />
+      <div className="h-32 bg-muted rounded-none" />
       <div className="h-4 bg-muted rounded w-1/2" />
     </div>
   );
@@ -216,7 +216,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
   return (
     <div id="main-content" className="min-h-screen bg-background flex flex-col pb-safe">
-      <a href="#cockpit" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+      <a href="#cockpit" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-none focus:text-sm focus:font-semibold">
         {t("dash.skipToContent")}
       </a>
       <h1 className="sr-only">{t("dash.title")}</h1>
@@ -231,30 +231,30 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <DarkModeToggle />
             <button onClick={() => setShowEditSheet(true)}
               aria-label={t("dash.editInfo")}
-              className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-primary/5 font-semibold min-w-[44px] min-h-[44px]">
+              className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-none hover:bg-primary/5 font-semibold min-w-[44px] min-h-[44px]">
               <Pencil className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.editInfo")}</span>
             </button>
             <ShareBudgetDialog profile={profile} budget={budget} />
             <button onClick={() => setShowReport(true)}
               aria-label={t("dash.report")}
-              className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted min-w-[44px] min-h-[44px]">
+              className="flex items-center justify-center gap-1 sm:gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-none hover:bg-muted min-w-[44px] min-h-[44px]">
               <FileText className="w-3 h-3" /> {t("dash.report")}
             </button>
             <button onClick={() => setConfirmAction({ title: t("confirm.resetBudget"), description: t("confirm.resetBudget"), onConfirm: onReset })}
               aria-label={t("dash.startOver")}
-              className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-destructive/5 min-w-[44px] min-h-[44px]">
+              className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-none hover:bg-destructive/5 min-w-[44px] min-h-[44px]">
               <RotateCcw className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.reset")}</span>
             </button>
             {user ? (
               <button onClick={signOut}
                 aria-label={t("dash.logOut")}
-                className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted min-w-[44px] min-h-[44px]">
+                className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-none hover:bg-muted min-w-[44px] min-h-[44px]">
                 <LogOut className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logOut")}</span>
               </button>
             ) : (
               <Link to="/login"
                 aria-label={t("dash.logIn")}
-                className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-lg hover:bg-muted font-semibold min-w-[44px] min-h-[44px]">
+                className="flex items-center justify-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-1.5 sm:px-2.5 py-1.5 rounded-none hover:bg-muted font-semibold min-w-[44px] min-h-[44px]">
                 <LogIn className="w-3 h-3" /> <span className="hidden sm:inline">{t("dash.logIn")}</span>
               </Link>
             )}
@@ -276,7 +276,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
       {!user && (
         <div className="max-w-3xl mx-auto px-5 pt-4">
           <Link to="/login"
-            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/5 border border-primary/15 text-sm text-primary hover:bg-primary/10 transition-colors">
+            className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-none bg-primary/5 border border-primary/15 text-sm text-primary hover:bg-primary/10 transition-colors">
             <Cloud className="w-3.5 h-3.5" />
             <span>{t("dash.cloudSync")}</span>
           </Link>
@@ -299,7 +299,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             {/* ── Guided session entry ── */}
             <button
               onClick={() => setShowGuidedSession(true)}
-              className="w-full mt-2 py-3.5 rounded-2xl border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-center gap-2.5 group"
+              className="w-full mt-2 py-3.5 rounded-none border-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all flex items-center justify-center gap-2.5 group"
             >
               <Zap className="w-5 h-5 text-primary" />
               <div className="text-left">
@@ -337,7 +337,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           <div className="grid sm:grid-cols-2 gap-3">
             {profile.householdType === "par" && (
               <a href="https://parfinans.dk" target="_blank" rel="noopener noreferrer"
-                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                className="rounded-none border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
                 <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.parfinans.title")}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.parfinans.desc")}</p>
                 <span className="text-xs font-semibold text-primary">{t("crossSell.parfinans.cta")} →</span>
@@ -345,7 +345,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             )}
             {profile.hasChildren && profile.childrenAges.length > 0 && (
               <a href="https://boerneskat.dk" target="_blank" rel="noopener noreferrer"
-                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                className="rounded-none border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
                 <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.boerneskat.title")}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.boerneskat.desc")}</p>
                 <span className="text-xs font-semibold text-primary">{t("crossSell.boerneskat.cta")} →</span>
@@ -353,7 +353,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             )}
             {profile.hasChildren && profile.childrenAges.some(age => age <= 6) && (
               <a href="https://institutionsguiden.dk" target="_blank" rel="noopener noreferrer"
-                className="rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
+                className="rounded-none border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all block">
                 <h3 className="font-display font-bold text-sm text-foreground mb-1">{t("crossSell.institutionsguide.title")}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">{t("crossSell.institutionsguide.desc")}</p>
                 <span className="text-xs font-semibold text-primary">{t("crossSell.institutionsguide.cta")} →</span>
@@ -369,7 +369,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             <p className="text-sm text-muted-foreground mt-1">{t("section.advancedSub")}</p>
           </div>
 
-          <div className="rounded-2xl border border-border divide-y divide-border overflow-hidden">
+          <div className="rounded-none border border-border divide-y divide-border overflow-hidden">
             <AdvancedSection id="hvadvis-inner" title={t("tab.whatIf") + "?"} emoji="">
               <Suspense fallback={<LazyFallback />}>
                 <HvadHvisView profile={profile} budget={budget} health={health} />
@@ -422,7 +422,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl border border-primary/20 bg-primary/5 p-6 text-center"
+          className="rounded-none border border-primary/20 bg-primary/5 p-6 text-center"
         >
           <CalendarDays className="w-6 h-6 text-primary mx-auto mb-3" />
           <h3 className="font-display font-bold text-base text-foreground mb-1">{t("returnVisit.title")}</h3>
@@ -435,7 +435,7 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
               const end = new Date(next.getTime() + 15 * 60000).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
               window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t("dash.calendarTitle"))}&dates=${iso}/${end}&details=${encodeURIComponent(t("dash.calendarDesc"))}`, "_blank");
             }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-none bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
           >
             <CalendarDays className="w-4 h-4" />
             {t("returnVisit.cta")}

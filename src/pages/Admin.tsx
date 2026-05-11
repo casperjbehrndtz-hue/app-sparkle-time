@@ -122,7 +122,7 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl text-sm font-medium shadow-lg ${toast.type === "ok" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-none text-sm font-medium shadow-lg ${toast.type === "ok" ? "bg-green-500 text-white" : "bg-red-500 text-white"}`}>
           {toast.msg}
         </div>
       )}
@@ -171,7 +171,7 @@ export default function Admin() {
               {drafts.map((draft) => (
                 <div
                   key={draft.id}
-                  className={`rounded-2xl border p-4 cursor-pointer transition-all ${previewId === draft.id ? "border-primary/50 bg-primary/5" : "border-border bg-card hover:border-primary/20"}`}
+                  className={`rounded-none border p-4 cursor-pointer transition-all ${previewId === draft.id ? "border-primary/50 bg-primary/5" : "border-border bg-card hover:border-primary/20"}`}
                   onClick={() => setPreviewId(previewId === draft.id ? null : draft.id)}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -198,7 +198,7 @@ export default function Admin() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAction(draft.id, "approve"); }}
                       disabled={actionLoading === draft.id + "approve"}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-none bg-green-500 text-white text-sm font-medium hover:bg-green-600 transition-colors disabled:opacity-50"
                     >
                       {actionLoading === draft.id + "approve" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
                       {t("admin.approve")}
@@ -206,7 +206,7 @@ export default function Admin() {
                     <button
                       onClick={(e) => { e.stopPropagation(); handleAction(draft.id, "reject"); }}
                       disabled={actionLoading === draft.id + "reject"}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-border text-sm text-muted-foreground hover:bg-muted/50 transition-colors disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-none border border-border text-sm text-muted-foreground hover:bg-muted/50 transition-colors disabled:opacity-50"
                     >
                       {actionLoading === draft.id + "reject" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
                       {t("admin.reject")}
@@ -218,7 +218,7 @@ export default function Admin() {
 
             {/* Preview panel */}
             {previewing && (
-              <div className="rounded-2xl border border-border bg-card p-6 overflow-y-auto max-h-[80vh] sticky top-20">
+              <div className="rounded-none border border-border bg-card p-6 overflow-y-auto max-h-[80vh] sticky top-20">
                 <p className="text-xs text-muted-foreground mb-2">{previewing.read_time} {t("admin.readTime")}</p>
                 <h1 className="font-display font-black text-xl mb-6 leading-tight">{previewing.title}</h1>
                 <div className="prose-content space-y-0.5">

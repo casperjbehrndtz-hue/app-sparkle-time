@@ -62,7 +62,7 @@ const BatchConsentGallery = ({ open, files, onToggleFile, onAccept, onDecline }:
           {files.map((file, i) => {
             if (file.error) {
               return (
-                <div key={i} className="relative rounded-lg border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-3 flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
+                <div key={i} className="relative rounded-none border border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-3 flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
                   <XCircle className="w-5 h-5 text-red-400" />
                   <span className="text-[10px] text-red-500 text-center truncate w-full">{file.fileName}</span>
                   <span className="text-[10px] text-red-400">{file.error}</span>
@@ -76,7 +76,7 @@ const BatchConsentGallery = ({ open, files, onToggleFile, onAccept, onDecline }:
                 key={i}
                 type="button"
                 onClick={() => onToggleFile(i)}
-                className={`relative rounded-lg border-2 overflow-hidden transition-all group cursor-pointer ${
+                className={`relative rounded-none border-2 overflow-hidden transition-all group cursor-pointer ${
                   isIncluded
                     ? "border-primary ring-1 ring-primary/20"
                     : "border-border opacity-50 grayscale"
@@ -155,7 +155,7 @@ const BatchConsentGallery = ({ open, files, onToggleFile, onAccept, onDecline }:
 
           {detailsOpen && (
             <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-top-1 duration-200">
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Server className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da
@@ -163,7 +163,7 @@ const BatchConsentGallery = ({ open, files, onToggleFile, onAccept, onDecline }:
                     : "Images sent via secure TLS to Anthropic's Claude API in the US. Transfer based on EU SCCs, GDPR art. 46(2)(c)."}
                 </p>
               </div>
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Clock className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da
@@ -171,7 +171,7 @@ const BatchConsentGallery = ({ open, files, onToggleFile, onAccept, onDecline }:
                     : "Anthropic retains API input up to 7 days, then auto-deleted. NOT used for model training."}
                 </p>
               </div>
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Trash2 className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da

@@ -42,7 +42,7 @@ export function SkatCheck({ payslip }: Props) {
   const Icon = cfg.icon;
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-none border border-border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
         <Calculator className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm font-semibold">
@@ -52,7 +52,7 @@ export function SkatCheck({ payslip }: Props) {
 
       <div className="p-4 space-y-3">
         {/* Status badge */}
-        <div className={`flex items-start gap-3 p-3 rounded-lg border ${cfg.bg} ${cfg.border}`}>
+        <div className={`flex items-start gap-3 p-3 rounded-none border ${cfg.bg} ${cfg.border}`}>
           <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${cfg.color}`} />
           <div className="space-y-1">
             <p className={`text-sm font-semibold ${cfg.color}`}>
@@ -70,19 +70,19 @@ export function SkatCheck({ payslip }: Props) {
 
         {/* Key numbers */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="p-2.5 rounded-lg bg-muted/30">
+          <div className="p-2.5 rounded-none bg-muted/30">
             <p className="text-[10px] text-muted-foreground">
               {t("payslip.skat.effectiveRate")}
             </p>
             <p className="text-sm font-bold tabular-nums">{taxResult.effectiveTaxRate}%</p>
           </div>
-          <div className="p-2.5 rounded-lg bg-muted/30">
+          <div className="p-2.5 rounded-none bg-muted/30">
             <p className="text-[10px] text-muted-foreground">
               {t("payslip.skat.marginalRate")}
             </p>
             <p className="text-sm font-bold tabular-nums">{taxResult.marginalRate}%</p>
           </div>
-          <div className="p-2.5 rounded-lg bg-muted/30">
+          <div className="p-2.5 rounded-none bg-muted/30">
             <p className="text-[10px] text-muted-foreground">
               {t("payslip.skat.municipalTax")}
             </p>
@@ -93,7 +93,7 @@ export function SkatCheck({ payslip }: Props) {
               )}
             </p>
           </div>
-          <div className="p-2.5 rounded-lg bg-muted/30">
+          <div className="p-2.5 rounded-none bg-muted/30">
             <p className="text-[10px] text-muted-foreground">
               {t("payslip.skat.annualTotal")}
             </p>
@@ -103,7 +103,7 @@ export function SkatCheck({ payslip }: Props) {
 
         {/* Contextual CTA based on status */}
         {result.status !== "ok" && (
-          <div className="px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-[11px] text-primary">
+          <div className="px-3 py-2 rounded-none bg-primary/5 border border-primary/20 text-[11px] text-primary">
             {result.status === "owes"
               ? t("payslip.skat.ctaOwes")
               : t("payslip.skat.ctaRefund")}

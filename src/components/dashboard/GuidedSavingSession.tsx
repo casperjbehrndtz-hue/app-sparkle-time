@@ -162,7 +162,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
           <Lightbulb className="w-4 h-4 text-primary" />
           <span className="font-display font-bold text-sm">{t("guided.title")}</span>
         </div>
-        <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+        <button onClick={onClose} className="w-8 h-8 rounded-none flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -182,7 +182,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 <button
                   key={opt}
                   onClick={() => setGoalAmount(opt)}
-                  className={`py-3 rounded-xl text-sm font-bold transition-all ${
+                  className={`py-3 rounded-none text-sm font-bold transition-all ${
                     goalAmount === opt
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -193,7 +193,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
               ))}
             </div>
 
-            <div className="rounded-2xl bg-muted/50 p-4 text-left">
+            <div className="rounded-none bg-muted/50 p-4 text-left">
               <p className="text-xs text-muted-foreground">
                 {t("guided.currentDisposable").replace("{amount}", formatKr(budget.disposableIncome, lc))}
                 {" "}{t("guided.goalExtra").replace("{amount}", formatKr(goalAmount, lc))}{" "}
@@ -204,7 +204,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             <motion.button
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
               onClick={startSession}
-              className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+              className="w-full py-4 rounded-none bg-primary text-primary-foreground font-display font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
             >
               {t("guided.findGoal").replace("{amount}", `${formatKr(goalAmount, lc)} ${t("unit.krMonth")}`)} <ArrowRight className="w-4 h-4" />
             </motion.button>
@@ -247,14 +247,14 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                       <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <Lightbulb className="w-3.5 h-3.5 text-primary" />
                       </div>
-                      <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3 text-sm text-foreground max-w-[85%]">
+                      <div className="rounded-none rounded-tl-sm bg-muted px-4 py-3 text-sm text-foreground max-w-[85%]">
                         {msg.text}
                       </div>
                     </div>
                   )}
                   {msg.type === "accept" && (
                     <div className="flex justify-end">
-                      <div className="rounded-2xl rounded-tr-sm bg-primary/10 border border-primary/20 px-4 py-2.5 text-sm max-w-[85%] flex items-center gap-2">
+                      <div className="rounded-none rounded-tr-sm bg-primary/10 border border-primary/20 px-4 py-2.5 text-sm max-w-[85%] flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                         <span className="text-primary font-medium">{msg.text}</span>
                         <span className="text-primary/70 text-xs ml-auto">+{formatKr(msg.saving!, lc)} {t("currency")}</span>
@@ -263,7 +263,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                   )}
                   {msg.type === "skip" && (
                     <div className="flex justify-end">
-                      <div className="rounded-2xl rounded-tr-sm bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground max-w-[85%]">
+                      <div className="rounded-none rounded-tr-sm bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground max-w-[85%]">
                         {msg.text}
                       </div>
                     </div>
@@ -278,7 +278,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <Lightbulb className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="rounded-2xl rounded-tl-sm bg-muted px-4 py-3 flex gap-1 items-center">
+                <div className="rounded-none rounded-tl-sm bg-muted px-4 py-3 flex gap-1 items-center">
                   {[0, 1, 2].map(i => (
                     <motion.span key={i} className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
                       animate={{ opacity: [0.3, 1, 0.3] }}
@@ -297,7 +297,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
               animate={{ opacity: 1, y: 0 }}
               className="px-5 pb-6 max-w-lg mx-auto w-full"
             >
-              <div className="rounded-2xl border-2 border-primary/20 bg-primary/[0.03] p-4 mb-3">
+              <div className="rounded-none border-2 border-primary/20 bg-primary/[0.03] p-4 mb-3">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl">{suggestion.emoji}</span>
@@ -323,7 +323,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 {acceptedChanges.length > 0 && (
                   <button
                     onClick={handleUndo}
-                    className="py-3.5 px-3 rounded-xl border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center"
+                    className="py-3.5 px-3 rounded-none border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center"
                     title={t("guided.undo")}
                   >
                     <Undo2 className="w-4 h-4" />
@@ -331,14 +331,14 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
                 )}
                 <button
                   onClick={handleSkip}
-                  className="flex-1 py-3.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-3.5 rounded-none border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
                 >
                   <SkipForward className="w-4 h-4" /> {t("guided.skip")}
                 </button>
                 <motion.button
                   whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
                   onClick={handleAccept}
-                  className="flex-1 py-3.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/20 transition-all"
+                  className="flex-1 py-3.5 rounded-none bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary/20 transition-all"
                 >
                   <Check className="w-4 h-4" /> {t("guided.apply")}
                 </motion.button>
@@ -366,7 +366,7 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             </div>
 
             {/* Summary */}
-            <div className="rounded-2xl border border-border p-4 text-left space-y-2">
+            <div className="rounded-none border border-border p-4 text-left space-y-2">
               <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("guided.acceptedChanges")}</p>
               {acceptedChanges.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t("guided.noChanges")}</p>
@@ -392,14 +392,14 @@ export function GuidedSavingSession({ profile, budget, onClose, onProfileChange 
             <div className="space-y-2">
               <button
                 onClick={onClose}
-                className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base shadow-lg shadow-primary/20"
+                className="w-full py-4 rounded-none bg-primary text-primary-foreground font-display font-bold text-base shadow-lg shadow-primary/20"
               >
                 {t("guided.seeUpdated")}
               </button>
               {acceptedChanges.length > 0 && (
                 <button
                   onClick={handleUndo}
-                  className="w-full py-3 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-none border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center justify-center gap-2"
                 >
                   <Undo2 className="w-4 h-4" /> {t("guided.undoLast")}
                 </button>

@@ -186,7 +186,7 @@ export default function RedactionReview({
       {/* Canvas */}
       <div
         ref={containerRef}
-        className="relative rounded-xl border border-border overflow-hidden bg-muted/20 touch-none"
+        className="relative rounded-none border border-border overflow-hidden bg-muted/20 touch-none"
       >
         <canvas
           ref={canvasRef}
@@ -205,7 +205,7 @@ export default function RedactionReview({
           <button
             onClick={handleUndo}
             disabled={manualRects.length === 0}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-none text-xs text-muted-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Undo2 className="w-3 h-3" />
             {t("redaction.undo")}
@@ -213,7 +213,7 @@ export default function RedactionReview({
           <button
             onClick={handleClearManual}
             disabled={manualRects.length === 0}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-none text-xs text-muted-foreground hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <Trash2 className="w-3 h-3" />
             {t("redaction.clearMine")}
@@ -228,14 +228,14 @@ export default function RedactionReview({
       <div className="flex gap-2">
         <button
           onClick={onCancel}
-          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium text-muted-foreground border border-border hover:bg-muted transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-medium text-muted-foreground border border-border hover:bg-muted transition-colors"
         >
           <X className="w-3.5 h-3.5" />
           {t("redaction.cancel")}
         </button>
         <button
           onClick={() => onApprove(manualRects)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-colors"
         >
           <Check className="w-3.5 h-3.5" />
           {t("redaction.approve")}

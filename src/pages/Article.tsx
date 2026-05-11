@@ -571,10 +571,10 @@ export default function Article() {
           {renderContent(article.content)}
         </div>
 
-        <div className="mt-12 rounded-2xl bg-primary p-6 text-center">
+        <div className="mt-12 rounded-none bg-primary p-6 text-center">
           <h3 className="font-display font-bold text-lg text-primary-foreground mb-2">{t("article.ctaTitle")}</h3>
           <p className="text-primary-foreground/70 text-sm mb-4">{t("article.ctaSubtitle")}</p>
-          <Link to="/" className="inline-block px-6 py-3 rounded-xl bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
+          <Link to="/" className="inline-block px-6 py-3 rounded-none bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
             {t("article.ctaButton").replace("{brand}", config.brandName)}
           </Link>
         </div>

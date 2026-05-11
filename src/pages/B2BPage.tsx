@@ -90,14 +90,14 @@ export default function B2BPage() {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               to="/?demo=true"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-400 text-amber-950 font-semibold rounded-lg hover:bg-amber-300 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-400 text-amber-950 font-semibold rounded-none hover:bg-amber-300 transition-colors"
             >
               <Monitor className="h-5 w-5" />
               {t("b2b.liveDemo")}
             </Link>
             <a
               href="#kontakt"
-              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white font-semibold rounded-none hover:bg-white/10 transition-colors"
             >
               {t("b2b.contactUs")}
               <ArrowRight className="h-4 w-4" />
@@ -111,8 +111,8 @@ export default function B2BPage() {
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">{t("b2b.whyTitle")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-card rounded-2xl p-8 shadow-sm border">
-              <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-card rounded-none p-8 shadow-sm border">
+              <div className="h-12 w-12 bg-primary/10 rounded-none flex items-center justify-center mb-4">
                 <Palette className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-3">{t("b2b.whiteLabelReady")}</h3>
@@ -120,8 +120,8 @@ export default function B2BPage() {
                 {t("b2b.whiteLabelDesc")}
               </p>
             </div>
-            <div className="bg-card rounded-2xl p-8 shadow-sm border">
-              <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-card rounded-none p-8 shadow-sm border">
+              <div className="h-12 w-12 bg-primary/10 rounded-none flex items-center justify-center mb-4">
                 <Brain className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-3">{t("b2b.aiPowered")}</h3>
@@ -129,8 +129,8 @@ export default function B2BPage() {
                 {t("b2b.aiPoweredDesc")}
               </p>
             </div>
-            <div className="bg-card rounded-2xl p-8 shadow-sm border">
-              <div className="h-12 w-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+            <div className="bg-card rounded-none p-8 shadow-sm border">
+              <div className="h-12 w-12 bg-primary/10 rounded-none flex items-center justify-center mb-4">
                 <ShieldCheck className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-3">{t("b2b.privacyFirst")}</h3>
@@ -158,7 +158,7 @@ export default function B2BPage() {
               { title: t("b2b.feat.stress"), desc: t("b2b.feat.stressDesc") },
               { title: t("b2b.feat.neighbor"), desc: t("b2b.feat.neighborDesc") },
             ].map((f) => (
-              <div key={f.title} className="border rounded-xl p-6 hover:shadow-md transition-shadow">
+              <div key={f.title} className="border rounded-none p-6 hover:shadow-md transition-shadow">
                 <h3 className="font-semibold mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground">{f.desc}</p>
               </div>
@@ -177,21 +177,21 @@ export default function B2BPage() {
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/?demo=true&brand=nordea"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-[hsl(213,100%,30%)] text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-[hsl(213,100%,30%)] text-white font-semibold rounded-none hover:opacity-90 transition-opacity"
             >
               Nordea Demo
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/?demo=true&brand=danskebank"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-[hsl(195,100%,25%)] text-white font-semibold rounded-lg hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-[hsl(195,100%,25%)] text-white font-semibold rounded-none hover:opacity-90 transition-opacity"
             >
               Danske Bank Demo
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               to="/?demo=true"
-              className="inline-flex items-center gap-2 px-5 py-3 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary/5 transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-3 border-2 border-primary text-primary font-semibold rounded-none hover:bg-primary/5 transition-colors"
             >
               NemtBudget Demo
               <ArrowRight className="h-4 w-4" />
@@ -211,7 +211,7 @@ export default function B2BPage() {
             {pricingPlans.map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-8 border-2 ${
+                className={`rounded-none p-8 border-2 ${
                   plan.highlighted
                     ? "border-primary bg-primary/5 shadow-lg relative"
                     : "border-border bg-card"
@@ -238,7 +238,7 @@ export default function B2BPage() {
                 </ul>
                 <a
                   href="#kontakt"
-                  className={`block text-center py-2.5 rounded-lg font-semibold transition-colors ${
+                  className={`block text-center py-2.5 rounded-none font-semibold transition-colors ${
                     plan.highlighted
                       ? "bg-primary text-primary-foreground hover:opacity-90"
                       : "border border-primary text-primary hover:bg-primary/5"
@@ -257,19 +257,19 @@ export default function B2BPage() {
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold mb-8">{t("b2b.testimonialTitle")}</h2>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="bg-card border rounded-2xl p-8 text-left">
+            <div className="bg-card border rounded-none p-8 text-left">
               <p className="text-muted-foreground italic mb-4">
                 "NemtBudget har gjort det nemt for vores kunder at forstå deres økonomi. Integrationen tog under en uge."
               </p>
               <p className="text-sm font-semibold">— Finansiel rådgiver</p>
             </div>
-            <div className="bg-card border rounded-2xl p-8 text-left">
+            <div className="bg-card border rounded-none p-8 text-left">
               <p className="text-muted-foreground italic mb-4">
                 "Vi bruger NemtBudget som white-label løsning. Vores kunder elsker det enkle design og AI-rådgivningen."
               </p>
               <p className="text-sm font-semibold">— Digital produktchef</p>
             </div>
-            <div className="bg-card border rounded-2xl p-8 text-left">
+            <div className="bg-card border rounded-none p-8 text-left">
               <p className="text-muted-foreground italic mb-4">
                 "Endelig et dansk budgetværktøj der respekterer privatlivets fred. Ingen tracking, ingen kontooprettelse."
               </p>
@@ -288,7 +288,7 @@ export default function B2BPage() {
           </p>
 
           {submitted ? (
-            <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-2xl p-8 text-center">
+            <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-none p-8 text-center">
               <h3 className="text-xl font-semibold text-green-800 dark:text-green-300 mb-2">
                 {t("b2b.thankYou")}
               </h3>
@@ -307,7 +307,7 @@ export default function B2BPage() {
                     required
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
+                    className="w-full px-4 py-2.5 rounded-none border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
                     placeholder={t("b2b.placeholderName")}
                   />
                 </div>
@@ -319,7 +319,7 @@ export default function B2BPage() {
                     required
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
+                    className="w-full px-4 py-2.5 rounded-none border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
                     placeholder={t("b2b.placeholderCompany")}
                   />
                 </div>
@@ -332,7 +332,7 @@ export default function B2BPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
+                  className="w-full px-4 py-2.5 rounded-none border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition"
                   placeholder="din@virksomhed.dk"
                 />
               </div>
@@ -344,13 +344,13 @@ export default function B2BPage() {
                   required
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-lg border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition resize-y"
+                  className="w-full px-4 py-2.5 rounded-none border bg-background focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition resize-y"
                   placeholder={t("b2b.placeholderMessage")}
                 />
               </div>
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-none hover:opacity-90 transition-opacity"
               >
                 <Send className="h-4 w-4" />
                 {t("b2b.submit")}

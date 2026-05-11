@@ -404,7 +404,7 @@ export function SalaryTimeline({ payslips }: Props) {
 
   if (data.length < 2) {
     return (
-      <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-none border border-border bg-card p-6 text-center text-sm text-muted-foreground">
         {t("timeline.needMore")}
       </div>
     );
@@ -446,7 +446,7 @@ export function SalaryTimeline({ payslips }: Props) {
       )}
 
       {/* Main chart */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-muted-foreground" />
@@ -573,7 +573,7 @@ export function SalaryTimeline({ payslips }: Props) {
 
       {/* Change log */}
       {data.some((d) => d.changePct && Math.abs(d.changePct) >= 1) && (
-        <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+        <div className="rounded-none border border-border bg-card p-4 space-y-2">
           <p className="text-xs font-semibold text-foreground">{t("timeline.changes")}</p>
           {data
             .filter((d) => d.changePct && Math.abs(d.changePct) >= 1)
@@ -613,7 +613,7 @@ function StatCard({
   positive?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-3 text-center">
+    <div className="rounded-none border border-border bg-card p-3 text-center">
       <p className="text-[10px] text-muted-foreground mb-1">{label}</p>
       <p
         className={`text-base font-bold ${

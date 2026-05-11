@@ -150,7 +150,7 @@ export default function Lonudvikling() {
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+              className={`relative cursor-pointer border-2 border-dashed rounded-none p-8 text-center transition-all ${
                 dragOver
                   ? "border-primary bg-primary/5 scale-[1.02]"
                   : "border-border hover:border-primary/50 hover:bg-muted/30"
@@ -179,7 +179,7 @@ export default function Lonudvikling() {
             {/* Selected files preview */}
             {selectedFiles.length > 0 && (
               <div className="space-y-3">
-                <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+                <div className="rounded-none border border-border bg-card p-4 space-y-2">
                   <p className="text-xs font-semibold">
                     {selectedFiles.length} {t("timeline.filesSelected")}
                   </p>
@@ -207,7 +207,7 @@ export default function Lonudvikling() {
             )}
 
             {/* Privacy / security info */}
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
+            <div className="flex items-start gap-2 p-3 rounded-none bg-muted/50 border border-border/50">
               <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-[10px] text-muted-foreground leading-relaxed">
                 {t("timeline.privacy")}
@@ -230,7 +230,7 @@ export default function Lonudvikling() {
         {/* State: Processing */}
         {isProcessing && (
           <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-card p-6 text-center space-y-4">
+            <div className="rounded-none border border-border bg-card p-6 text-center space-y-4">
               <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
               <div>
                 <p className="text-sm font-medium">
@@ -247,7 +247,7 @@ export default function Lonudvikling() {
 
             {/* Results so far */}
             {results.length > 0 && (
-              <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+              <div className="rounded-none border border-border bg-card p-4 space-y-2">
                 {results.map((r, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs">
                     {r.payslip ? (
@@ -275,7 +275,7 @@ export default function Lonudvikling() {
         {isDone && (
           <div className="space-y-6">
             {/* Summary */}
-            <div className="rounded-xl border border-border bg-card p-4 text-center space-y-2">
+            <div className="rounded-none border border-border bg-card p-4 text-center space-y-2">
               <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
               <p className="text-sm font-medium">
                 {t("timeline.doneTitle").replace("{n}", String(successCount))}
@@ -288,7 +288,7 @@ export default function Lonudvikling() {
             </div>
 
             {/* Results list — sorted chronologically */}
-            <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <div className="rounded-none border border-border bg-card p-4 space-y-2">
               <p className="text-xs font-semibold mb-2">{t("timeline.resultList")}</p>
               {[...results]
                 .sort((a, b) => {

@@ -19,7 +19,7 @@ function DataJourney({ t }: { t: (key: string) => string }) {
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-4">
+      <div className="rounded-none border border-border/60 bg-muted/20 p-4 space-y-4">
         <div className="flex items-center gap-1.5">
           <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span className="text-xs font-semibold text-foreground">{t("pengetjek.journey.title")}</span>
@@ -174,7 +174,7 @@ export default function Pengetjek() {
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+              className={`relative cursor-pointer border-2 border-dashed rounded-none p-8 text-center transition-all ${
                 dragOver
                   ? "border-primary bg-primary/5 scale-[1.02]"
                   : "border-border hover:border-primary/50 hover:bg-muted/30"
@@ -201,7 +201,7 @@ export default function Pengetjek() {
 
             {/* Error */}
             {error && (
-              <div role="status" aria-live="assertive" className="p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center">
+              <div role="status" aria-live="assertive" className="p-3 rounded-none bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center">
                 <p className="text-xs text-red-700 dark:text-red-300">{t(error) !== error ? t(error) : error}</p>
                 <button
                   onClick={reset}
@@ -213,7 +213,7 @@ export default function Pengetjek() {
             )}
 
             {/* Privacy summary */}
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
+            <div className="flex items-start gap-2 p-3 rounded-none bg-muted/50 border border-border/50">
               <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-[10px] text-muted-foreground leading-relaxed">
                 {t("pengetjek.privacy.summary")}
@@ -262,12 +262,12 @@ export default function Pengetjek() {
             />
 
             {/* Cross-promote lønseddel for combo effect */}
-            <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
+            <div className="rounded-none border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
               <p className="text-xs font-semibold text-foreground">{t("pengetjek.crossPromo.title")}</p>
               <p className="text-[10px] text-muted-foreground leading-relaxed">{t("pengetjek.crossPromo.desc")}</p>
               <a
                 href="/lonseddel"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
               >
                 {t("pengetjek.crossPromo.cta")}
                 <ArrowRight className="w-3 h-3" />
@@ -276,7 +276,7 @@ export default function Pengetjek() {
 
             <button
               onClick={reset}
-              className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-none text-xs text-muted-foreground hover:bg-muted transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               {t("pengetjek.cta.retry")}

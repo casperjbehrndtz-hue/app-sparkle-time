@@ -190,7 +190,7 @@ export function SuiteGateModal({
               placeholder="din@email.dk"
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(null); }}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className="w-full pl-10 pr-4 py-3 rounded-none border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
               disabled={loading}
               autoFocus
             />

@@ -69,7 +69,7 @@ function AccordionCategory({ icon, label, total, unit, defaultOpen, children }: 
     prevTotal.current = total;
   }, [total]);
   return (
-    <div className="rounded-2xl border border-border/60 overflow-hidden">
+    <div className="rounded-none border border-border/60 overflow-hidden">
       <button type="button" onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-muted/30 transition-colors">
         <div className="flex items-center gap-2.5">
@@ -116,7 +116,7 @@ function CompactSlider({ label, value, onChange, min, max, step, icon, unit, mon
   useEffect(() => { if (!focused.current) setLocalValue(String(value)); }, [value]);
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   return (
-    <div className="rounded-2xl border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20">
+    <div className="rounded-none border border-border/60 bg-muted/20 px-4 py-3 transition-colors hover:border-primary/20">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <CategoryIcon name={icon} className="w-4 h-4 text-muted-foreground" />
@@ -327,12 +327,12 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                       <span className="text-xs text-muted-foreground w-14">{t("step.children.child")} {i + 1}</span>
                       <select value={String(age)}
                         onChange={(e) => { const na = [...childAgeInputs]; na[i] = Number(e.target.value); setChildAgeInputs(na); }}
-                        className="flex-1 bg-background border-2 border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        className="flex-1 bg-background border-2 border-border rounded-none px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20">
                         {Array.from({ length: 18 }, (_, j) => <option key={j} value={String(j)}>{j} {t("step.children.years")}</option>)}
                       </select>
                       {childAgeInputs.length > 1 && (
                         <button onClick={() => { const na = childAgeInputs.filter((_, idx) => idx !== i); setChildAgeInputs(na); }}
-                          className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce">
+                          className="w-10 h-10 rounded-none bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce">
                           <X className="w-4 h-4" />
                         </button>
                       )}
@@ -345,7 +345,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                     </button>
                   )}
                   {childAgeInputs.length > 0 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-none bg-primary/[0.04] border border-primary/10 p-4 space-y-1.5">
                       <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("step.children.benefitTitle")}</p>
                       {childAgeInputs.map((age, i) => {
                         const benefit = getChildBenefit(age);
@@ -396,7 +396,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-2xl border-2 border-dashed transition-colors p-5 text-center cursor-pointer ${
+                  className={`rounded-none border-2 border-dashed transition-colors p-5 text-center cursor-pointer ${
                     payslipDragOver
                       ? "border-primary bg-primary/5 scale-[1.02]"
                       : "border-border/60 hover:border-primary/30"
@@ -455,7 +455,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               )}
               {payslipOCR.result && (
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-                  className="rounded-2xl bg-primary/[0.04] border border-primary/20 p-4 flex items-center gap-3">
+                  className="rounded-none bg-primary/[0.04] border border-primary/20 p-4 flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-primary">{t("step.income.payslip.success")}</p>
@@ -483,23 +483,23 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("step.income.otherIncome")}</h3>
               {profile.additionalIncome.map((src, i) => (
-                <div key={i} className="rounded-xl border border-border p-3 space-y-2 mb-2">
+                <div key={i} className="rounded-none border border-border p-3 space-y-2 mb-2">
                   <div className="flex gap-2">
                     <input type="text" value={src.label} onChange={(e) => updateIncomeSource(i, { label: e.target.value })}
                       placeholder={t("step.income.placeholder")}
-                      className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
-                    <button onClick={() => removeIncomeSource(i)} className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0">
+                      className="flex-1 bg-background border border-border rounded-none px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
+                    <button onClick={() => removeIncomeSource(i)} className="w-10 h-10 rounded-none bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex gap-2">
-                    <div className="flex items-center gap-1 bg-muted rounded-lg px-3 py-2 flex-1">
+                    <div className="flex items-center gap-1 bg-muted rounded-none px-3 py-2 flex-1">
                       <input type="number" min={0} value={src.amount || ""} onChange={(e) => updateIncomeSource(i, { amount: Math.max(0, Number(e.target.value) || 0) })}
                         placeholder={t("step.income.amount")} className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-16" />
                       <span className="text-xs text-muted-foreground">{t("currency")}</span>
                     </div>
                     <select value={src.frequency} onChange={(e) => updateIncomeSource(i, { frequency: e.target.value as PaymentFrequency })}
-                      className="bg-background border border-border rounded-lg px-2 py-2 text-xs focus:outline-none">
+                      className="bg-background border border-border rounded-none px-2 py-2 text-xs focus:outline-none">
                       <option value="monthly">{t("freq.monthly")}</option>
                       <option value="quarterly">{t("freq.quarterly")}</option>
                       <option value="biannual">{t("freq.biannual")}</option>
@@ -512,7 +512,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 <Plus className="w-3.5 h-3.5" /> {t("step.income.addSource")}
               </button>
             </div>
-            <motion.div layout className="rounded-2xl bg-primary/5 border border-primary/20 p-5 text-center">
+            <motion.div layout className="rounded-none bg-primary/5 border border-primary/20 p-5 text-center">
               <span className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground">{t("step.income.total")}</span>
               <motion.div key={profile.income + (isPar ? profile.partnerIncome : 0) + totalAdditional}
                 initial={{ scale: 0.95 }} animate={{ scale: 1 }}
@@ -522,7 +522,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
             <AILiveComment profile={profile} step="income" />
             {(profile.income + (isPar ? profile.partnerIncome : 0)) < 1000 && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+              <div className="flex items-center gap-2 p-3 rounded-none bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
                 <Info className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <p className="text-xs text-amber-700 dark:text-amber-300">{t("step.income.minWarning")}</p>
               </div>
@@ -600,7 +600,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               <input type="text" inputMode="numeric" maxLength={4} value={profile.postalCode}
                 onChange={(e) => handlePostalChange(e.target.value)}
                 placeholder={t("step.housing.postalPlaceholder")}
-                className="w-full bg-background border-2 border-border rounded-2xl px-5 py-4 text-lg font-display font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30" />
+                className="w-full bg-background border-2 border-border rounded-none px-5 py-4 text-lg font-display font-bold text-center focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all placeholder:text-muted-foreground/30" />
               {profile.postalCode.length === 4 && (
                 postalName
                   ? <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-medium mt-2 text-center">{postalName}</motion.p>
@@ -625,18 +625,18 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={() => update({ interestRate: Math.max(0.5, profile.interestRate - 0.25) })} disabled={profile.interestRate <= 0.5}
-                      className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">−</button>
+                      className="w-11 h-11 rounded-none bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">−</button>
                     <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                       <div className="h-full rounded-full bg-primary/60 transition-all duration-200" style={{ width: `${((profile.interestRate - 0.5) / 7.5) * 100}%` }} />
                     </div>
                     <button type="button" onClick={() => update({ interestRate: Math.min(8, profile.interestRate + 0.25) })} disabled={profile.interestRate >= 8}
-                      className="w-11 h-11 rounded-xl bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">+</button>
+                      className="w-11 h-11 rounded-none bg-muted/60 hover:bg-muted active:scale-95 border border-border/40 flex items-center justify-center text-sm font-bold text-muted-foreground disabled:opacity-30 transition-all select-none shrink-0 tap-bounce">+</button>
                   </div>
                 </div>
               </div>
             )}
             {sourceNote && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
+              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-none bg-primary/[0.04] border border-primary/10 px-4 py-3">
                 <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">{sourceNote}{postalName ? ` (${postalName})` : ""}. {t("onboarding.adjustAmount")}</p>
               </motion.div>
@@ -659,7 +659,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
 
             {/* Smart defaults info banner */}
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-none bg-primary/[0.04] border border-primary/10 px-4 py-3">
               <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">{t("step.everyday.smartDefaults")}</p>
             </motion.div>
@@ -728,7 +728,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </motion.div>
 
             {/* Smart defaults info banner */}
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-2xl bg-primary/[0.04] border border-primary/10 px-4 py-3">
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2.5 rounded-none bg-primary/[0.04] border border-primary/10 px-4 py-3">
               <Lightbulb className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">{t("step.fixed.smartDefaults")}</p>
             </motion.div>
@@ -822,7 +822,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               {/* ── Egne udgifter ── */}
               <AccordionCategory icon="pen-line" label={t("step.expenses.custom")} total={customTotal} unit={unit}>
                 {profile.customExpenses.map((ce, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-2xl border border-primary/15 bg-primary/[0.02] px-4 py-2.5 mb-1.5">
+                  <div key={i} className="flex items-center justify-between rounded-none border border-primary/15 bg-primary/[0.02] px-4 py-2.5 mb-1.5">
                     <div>
                       <span className="text-sm font-medium">{ce.label}</span>
                       {ce.frequency && ce.frequency !== "monthly" && <span className="text-[11px] text-muted-foreground ml-1">({frequencyLabel(ce.frequency)})</span>}
@@ -830,25 +830,25 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">{formatKr(frequencyToMonthly(ce.amount, ce.frequency || "monthly"))} {t("perMonth")}</span>
                       <button onClick={() => update({ customExpenses: profile.customExpenses.filter((_, idx) => idx !== i) })}
-                        className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0"><X className="w-4 h-4" /></button>
+                        className="w-10 h-10 rounded-none bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground tap-bounce shrink-0"><X className="w-4 h-4" /></button>
                     </div>
                   </div>
                 ))}
                 <div className="flex gap-2">
                   <input type="text" value={customLabel} onChange={(e) => setCustomLabel(e.target.value)}
                     placeholder={t("step.expenses.customPlaceholder")}
-                    className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
+                    className="flex-1 bg-background border border-border rounded-none px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground/30" />
                   <input type="number" inputMode="numeric" min={0} value={customAmount || ""} onChange={(e) => setCustomAmount(Math.max(0, Number(e.target.value) || 0))}
-                    placeholder={t("currency")} className="w-20 bg-background border border-border rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none no-spin placeholder:text-muted-foreground/30" />
+                    placeholder={t("currency")} className="w-20 bg-background border border-border rounded-none px-3 py-2.5 text-sm font-medium focus:outline-none no-spin placeholder:text-muted-foreground/30" />
                   <select value={customFreq} onChange={(e) => setCustomFreq(e.target.value as PaymentFrequency)}
-                    className="bg-background border border-border rounded-xl px-1.5 py-2.5 text-xs focus:outline-none">
+                    className="bg-background border border-border rounded-none px-1.5 py-2.5 text-xs focus:outline-none">
                     <option value="monthly">{t("freq.monthlyShort")}</option>
                     <option value="quarterly">{t("freq.quarterShort")}</option>
                     <option value="biannual">{t("freq.halfYearShort")}</option>
                     <option value="annual">{t("freq.yearShort")}</option>
                   </select>
                   <button onClick={addCustom} disabled={!customLabel.trim() || customAmount <= 0}
-                    className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20"><Plus className="w-4 h-4" /></button>
+                    className="w-10 h-10 rounded-none bg-primary/10 text-primary flex items-center justify-center disabled:opacity-20"><Plus className="w-4 h-4" /></button>
                 </div>
               </AccordionCategory>
             </div>
@@ -876,7 +876,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             {/* ── Stort resultat ── */}
             <motion.div initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-              className="text-center py-12 rounded-3xl border-2 border-border relative overflow-hidden">
+              className="text-center py-12 rounded-none border-2 border-border relative overflow-hidden">
               <div className={`absolute inset-0 opacity-[0.04] ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`} />
               <motion.div
                 className={`absolute inset-0 opacity-0 ${isHealthy ? "bg-primary" : isWarning ? "bg-nemt-gold" : "bg-destructive"}`}
@@ -931,7 +931,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.9 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="rounded-2xl border border-border p-3 text-center"
+                  className="rounded-none border border-border p-3 text-center"
                 >
                   <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
                   <p className={`font-display font-bold text-sm tabular-nums ${s.color}`}>{s.value}</p>
@@ -961,7 +961,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
               };
               return (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
-                  className="rounded-2xl border border-border p-4 space-y-3">
+                  className="rounded-none border border-border p-4 space-y-3">
                   {/* Stacked bar */}
                   <div className="h-4 rounded-full overflow-hidden flex">
                     {sorted.map(([cat, amt]) => (
@@ -987,11 +987,11 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             {/* ── Udgiftsoversigt ── */}
             <div className="space-y-2">
               <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
+                <summary className="flex items-center justify-between cursor-pointer rounded-none border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                   <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.fixedExpenses")}</span>
                   <span className="text-xs tabular-nums">{formatKr(budget.fixedExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
                 </summary>
-                <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                <div className="mt-1 rounded-none border border-border divide-y divide-border overflow-hidden">
                   {budget.fixedExpenses.map((e, i) => (
                     <div key={i} className="px-4 py-2 flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{e.label}</span>
@@ -1001,11 +1001,11 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
                 </div>
               </details>
               <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer rounded-2xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
+                <summary className="flex items-center justify-between cursor-pointer rounded-none border border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                   <span className="flex items-center gap-2"><Info className="w-3.5 h-3.5" />{t("step.review.variableExpenses")}</span>
                   <span className="text-xs tabular-nums">{formatKr(budget.variableExpenses.reduce((s, e) => s + e.amount, 0))} {t("unit.currency")} &rsaquo;</span>
                 </summary>
-                <div className="mt-1 rounded-2xl border border-border divide-y divide-border overflow-hidden">
+                <div className="mt-1 rounded-none border border-border divide-y divide-border overflow-hidden">
                   {budget.variableExpenses.map((e, i) => (
                     <div key={i} className="px-4 py-2 flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{e.label}</span>
@@ -1031,7 +1031,7 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
             </label>
 
             {(profile.income + profile.partnerIncome) < 1000 && (
-              <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 p-3 text-sm">
+              <div className="rounded-none bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 p-3 text-sm">
                 {t("step.review.zeroIncomeWarning")}
               </div>
             )}
@@ -1051,11 +1051,11 @@ export function OnboardingFlow({ onComplete, initialProfile, onExit }: Props) {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50 px-5 py-3 safe-area-top">
         <div className="max-w-xl mx-auto flex items-center justify-between">
           {getStepIndex(step) > 0 ? (
-            <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
+            <button onClick={goBack} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-none tap-bounce">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
             </button>
           ) : onExit ? (
-            <button onClick={() => { clearOnboardingState(); onExit(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-lg tap-bounce">
+            <button onClick={() => { clearOnboardingState(); onExit(); }} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 px-2 py-2 rounded-none tap-bounce">
               <ChevronLeft className="w-4 h-4" /> {t("nav.back")}
             </button>
           ) : <div />}

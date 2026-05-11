@@ -161,7 +161,7 @@ export function BigChoice({ active, onClick, icon, label, sub }: {
       role="radio"
       aria-checked={active}
       aria-label={label}
-      className={`relative p-4 sm:p-6 rounded-2xl border-2 text-center transition-all duration-300 tap-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+      className={`relative p-4 sm:p-6 rounded-none border-2 text-center transition-all duration-300 tap-bounce focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
         active
           ? "border-primary bg-primary/5 shadow-lg shadow-primary/10"
           : "border-border hover:border-primary/30 hover:shadow-md"
@@ -239,7 +239,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           whileTap={{ scale: 0.88 }}
           onClick={() => nudge(-1)}
           disabled={value <= min}
-          className="w-12 h-12 rounded-xl bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
+          className="w-12 h-12 rounded-none bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
         >−</motion.button>
         <div className="flex items-baseline gap-2">
           <input
@@ -258,7 +258,7 @@ export function BigSlider({ value, onChange, label, min = 0, max = 100000, step 
           whileTap={{ scale: 0.88 }}
           onClick={() => nudge(1)}
           disabled={value >= max}
-          className="w-12 h-12 rounded-xl bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
+          className="w-12 h-12 rounded-none bg-muted/60 hover:bg-muted active:bg-primary/10 border border-border/40 flex items-center justify-center text-xl font-bold text-muted-foreground disabled:opacity-30 transition-all select-none tap-bounce"
         >+</motion.button>
       </div>
       {/* Slider */}
@@ -304,7 +304,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
   return (
     <motion.div
       layout
-      className={`rounded-2xl border-2 transition-colors duration-200 ${active ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-primary/15"}`}
+      className={`rounded-none border-2 transition-colors duration-200 ${active ? "border-primary/40 bg-primary/[0.03] shadow-sm" : "border-border hover:border-primary/15"}`}
     >
       <button onClick={() => { haptic(); onClick(); }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left tap-bounce">
         <motion.span
@@ -348,7 +348,7 @@ export function ToggleRow({ active, onClick, icon, label, sublabel, amount, onAm
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="px-4 pb-3 overflow-hidden"
           >
-            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2.5">
+            <div className="flex items-center gap-2 bg-muted rounded-none px-3 py-2.5">
               <input type="number" inputMode="numeric" value={amount} onChange={(e) => onAmountChange(Number(e.target.value) || 0)}
                 aria-label={label}
                 className="flex-1 bg-transparent text-sm font-semibold focus:outline-none no-spin w-24 min-h-[44px]" />

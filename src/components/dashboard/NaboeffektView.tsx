@@ -185,7 +185,7 @@ export function NaboeffektView({ profile, budget }: Props) {
 
       {/* Summary header */}
       <motion.div variants={fadeUp(0)} initial="hidden" animate="visible"
-        className="rounded-2xl border border-border bg-card p-5">
+        className="rounded-none border border-border bg-card p-5">
         <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
           {t("neighbor.comparedWith")}{profile.anonIndustry ? ` · ${profile.anonIndustry}` : ""} · {isPar ? t("neighbor.pair") : t("neighbor.single")}
         </p>
@@ -215,7 +215,7 @@ export function NaboeffektView({ profile, budget }: Props) {
       {/* Housing ratio alert */}
       {housingPct > BENCHMARKS.housing_pct && (
         <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible"
-          className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
+          className="rounded-none border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-center gap-3">
           <span className="text-xl"></span>
           <div className="flex-1">
             <p className="text-sm font-semibold">{t("neighbor.housingCost")} {housingPct}% {t("neighbor.ofIncome")}</p>
@@ -237,7 +237,7 @@ export function NaboeffektView({ profile, budget }: Props) {
 
           return (
             <motion.div key={card.label} variants={fadeUp(0.1 + i * 0.06)} initial="hidden" animate="visible"
-              className={`rounded-2xl border p-4 ${styles.bg}`}>
+              className={`rounded-none border p-4 ${styles.bg}`}>
               <div className="flex items-center gap-3">
                 <span className="w-8 flex items-center justify-center"><CategoryIcon name={card.icon} className="w-5 h-5 text-muted-foreground" /></span>
                 <div className="flex-1 min-w-0">

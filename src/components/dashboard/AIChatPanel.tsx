@@ -241,7 +241,7 @@ export function AIChatPanel({ profile, budget }: Props) {
             role="dialog"
             aria-label={t("dash.aiAdvisor")}
             onKeyDown={(e) => { if (e.key === "Escape") setIsOpen(false); }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-4rem)] rounded-2xl border border-border bg-background shadow-2xl shadow-black/10 flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-4rem)] rounded-none border border-border bg-background shadow-card shadow-black/10 flex flex-col overflow-hidden"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
               <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export function AIChatPanel({ profile, budget }: Props) {
 
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+                  <div className={`max-w-[85%] rounded-none px-4 py-3 text-sm ${
                     msg.role === "user"
                       ? "bg-primary text-primary-foreground rounded-br-md"
                       : "bg-muted/50 border border-border/50 rounded-bl-md"
@@ -286,7 +286,7 @@ export function AIChatPanel({ profile, budget }: Props) {
 
               {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex justify-start">
-                  <div className="bg-muted/50 border border-border/50 rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="bg-muted/50 border border-border/50 rounded-none rounded-bl-md px-4 py-3">
                     <Loader2 className="w-4 h-4 animate-spin text-primary" />
                   </div>
                 </div>
@@ -310,13 +310,13 @@ export function AIChatPanel({ profile, budget }: Props) {
 
             {isLimitReached ? (
               <div className="px-4 py-4 border-t border-border bg-muted/20">
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+                <div className="rounded-none border border-primary/20 bg-primary/5 p-4 text-center">
                   <Lock className="w-5 h-5 text-primary mx-auto mb-2" />
                   <p className="text-sm font-semibold text-foreground mb-1">{t("ai.usedFreeAnswers")}</p>
                   <p className="text-xs text-muted-foreground mb-3">{t("ai.limitReached")}</p>
                   <a
                     href="/login"
-                    className="inline-block px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all"
+                    className="inline-block px-4 py-2 rounded-none bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all"
                   >
                     {t("ai.createAccount")}
                   </a>
@@ -338,12 +338,12 @@ export function AIChatPanel({ profile, budget }: Props) {
                     placeholder={t("ai.placeholder")}
                     aria-label={t("ai.placeholder")}
                     disabled={isLoading}
-                    className="flex-1 bg-background border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 placeholder:text-muted-foreground/40 disabled:opacity-50"
+                    className="flex-1 bg-background border border-border rounded-none px-3 py-2.5 text-sm focus:outline-none focus:border-primary/40 placeholder:text-muted-foreground/40 disabled:opacity-50"
                   />
                   <button
                     type="submit"
                     disabled={!input.trim() || isLoading}
-                    className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 hover:brightness-110 transition-all flex-shrink-0"
+                    className="w-10 h-10 rounded-none bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 hover:brightness-110 transition-all flex-shrink-0"
                   >
                     <Send className="w-4 h-4" />
                   </button>

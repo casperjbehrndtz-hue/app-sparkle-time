@@ -324,7 +324,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
   return (
     <div className="space-y-4">
       {/* ── SECTION 1: Hero ── */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="p-5 text-center">
           <div className="flex items-center justify-end mb-3">
             <button
@@ -407,11 +407,11 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       {/* ── TEASER: Mini card preview ── */}
       {teaserUrl && (
         <div
-          className="rounded-xl border border-border bg-card overflow-hidden cursor-pointer group transition-all hover:border-[#FF4500]/40 hover:shadow-md"
+          className="rounded-none border border-border bg-card overflow-hidden cursor-pointer group transition-all hover:border-[#FF4500]/40 hover:shadow-md"
           onClick={() => shareSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
         >
           <div className="flex items-center gap-3 p-3">
-            <div className="w-20 h-14 rounded-lg overflow-hidden border border-border/50 shrink-0 bg-[#1a1d23]">
+            <div className="w-20 h-14 rounded-none overflow-hidden border border-border/50 shrink-0 bg-[#1a1d23]">
               <img src={teaserUrl} alt="" className="w-full h-full object-cover object-top" />
             </div>
             <div className="flex-1 min-w-0">
@@ -429,7 +429,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       )}
 
       {/* ── SECTION 2: Deduction breakdown ── */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30">
           <span className="text-sm font-semibold">{t("payslip.section.breakdown")}</span>
         </div>
@@ -510,14 +510,14 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       </div>
 
       {/* ── SECTION 3: Insights ── */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
           <Info className="w-3.5 h-3.5 text-primary" />
           <span className="text-sm font-semibold">{t("payslip.section.insights")}</span>
         </div>
         <div className="p-4 space-y-3">
           {/* Effective tax rate */}
-          <div className="rounded-lg bg-background/50 border border-border/30 p-3">
+          <div className="rounded-none bg-background/50 border border-border/30 p-3">
             <div className="flex items-center gap-1.5 mb-1.5 text-blue-600 dark:text-blue-400">
               <TrendingDown className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{t("payslip.insight.effectiveTax")}</span>
@@ -531,7 +531,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
           </div>
 
           {/* Pension health — use normalized values for atypical months */}
-          <div className="rounded-lg bg-background/50 border border-border/30 p-3">
+          <div className="rounded-none bg-background/50 border border-border/30 p-3">
             <div className={`flex items-center gap-1.5 mb-1.5 ${
               pensionHealthNormalized === "low" ? "text-amber-500" : pensionHealthNormalized === "good" ? "text-emerald-500" : "text-blue-600 dark:text-blue-400"
             }`}>
@@ -553,7 +553,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
           </div>
 
           {/* Annual projection — use normalized values for atypical months */}
-          <div className="rounded-lg bg-background/50 border border-border/30 p-3">
+          <div className="rounded-none bg-background/50 border border-border/30 p-3">
             <div className="flex items-center gap-1.5 mb-1.5 text-primary">
               <Calculator className="w-3.5 h-3.5" />
               <span className="text-xs font-semibold">{isAtypical ? t("payslip.insight.annualTitleNormal") : t("payslip.insight.annualTitle")}</span>
@@ -578,7 +578,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
       {/* ── SECTION 3.5: Hvad ser SKAT? ── */}
       {insights.amGrundlag < payslip.bruttolon && (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="rounded-none border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
             <FileText className="w-3.5 h-3.5 text-primary" />
             <span className="text-sm font-semibold">{t("payslip.section.skatView")}</span>
@@ -587,7 +587,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
             <p className="text-xs text-muted-foreground leading-relaxed">{t("payslip.skat.intro")}</p>
 
             {/* Waterfall flow */}
-            <div className="rounded-lg bg-background/50 border border-border/30 p-3">
+            <div className="rounded-none bg-background/50 border border-border/30 p-3">
               {/* Start: Bruttoløn */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -641,7 +641,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
             </div>
 
             {/* Annual comparison */}
-            <div className="rounded-lg bg-background/50 border border-border/30 p-3 space-y-1.5">
+            <div className="rounded-none bg-background/50 border border-border/30 p-3 space-y-1.5">
               <div className="flex items-center gap-1.5 mb-1">
                 <Calculator className="w-3 h-3 text-primary" />
                 <span className="text-xs font-semibold text-foreground">{t("payslip.skat.annual.title")}</span>
@@ -659,7 +659,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
             {/* Opsparede beløb (conditional) */}
             {insights.hasOpsparingsNote && (
-              <div className="rounded-lg bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200/30 dark:border-amber-800/30 p-3">
+              <div className="rounded-none bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200/30 dark:border-amber-800/30 p-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <AlertTriangle className="w-3 h-3 text-amber-500" />
                   <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">{t("payslip.skat.opsparing.title")}</span>
@@ -675,7 +675,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
       {/* ── Warnings ── */}
       {payslip.warnings.length > 0 && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+        <div className="flex items-start gap-2 p-3 rounded-none bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
           <div className="space-y-0.5">
             {payslip.warnings.map((w, i) => (
@@ -687,7 +687,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
       {/* ── SECTION 3.7: Hidden employer benefits ── */}
       {(payslip.pensionEmployer > 0 || (payslip.sundhedsforsikring && payslip.sundhedsforsikring > 0) || (payslip.fritvalgKonto && payslip.fritvalgKonto > 0)) && (
-        <div className="rounded-xl border border-border bg-card overflow-hidden">
+        <div className="rounded-none border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border bg-emerald-50/50 dark:bg-emerald-950/20 flex items-center gap-2">
             <Heart className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span className="text-sm font-semibold">{t("payslip.section.hiddenBenefits")}</span>
@@ -705,7 +705,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
                 <>
                   <div className="space-y-2">
                     {benefits.map((b, i) => (
-                      <div key={i} className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/10">
+                      <div key={i} className="flex items-center justify-between py-1.5 px-3 rounded-none bg-emerald-50/50 dark:bg-emerald-950/10">
                         <span className="text-xs text-foreground">{b.label}</span>
                         <div className="text-right">
                           <span className="text-xs font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">{fmtAbs(b.monthly)} {t("perMonth")}</span>
@@ -714,7 +714,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+                  <div className="flex items-center justify-between px-3 py-2 rounded-none bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
                     <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">{t("payslip.benefits.total")}</span>
                     <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">{fmtAbs(totalAnnual)} kr/år</span>
                   </div>
@@ -731,7 +731,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       )}
 
       {/* ── SECTION 4: Salary comparison ── */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
@@ -824,7 +824,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
       {/* Salary observation opt-in */}
       {payslip.anonIndustry && payslip.anonRegion && !isAtypical && (
-        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
+        <div className="flex items-center gap-3 p-3 rounded-none bg-muted/50 border border-border/50">
           <input
             type="checkbox"
             id="salary-consent"
@@ -840,7 +840,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
 
       {/* ── SECTION 5: Private info ── */}
       {(payslip.employerName || payslip.municipality) && (
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
+        <div className="flex items-start gap-2 p-3 rounded-none bg-muted/50 border border-border/50">
           <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
           <div>
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("payslip.privateInfo")}</p>
@@ -855,7 +855,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       )}
 
       {/* ── SECTION 6: Share to Reddit ── */}
-      <div ref={shareSectionRef} className="rounded-xl border border-border bg-card overflow-hidden">
+      <div ref={shareSectionRef} className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-[#FF4500]/10 to-transparent">
           <div className="flex items-center gap-2">
             <Image className="w-3.5 h-3.5 text-[#FF4500]" />
@@ -878,7 +878,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
           {/* Preview image */}
           {previewUrl && (
             <div className="space-y-2">
-              <div className="relative rounded-lg overflow-hidden border border-border bg-black/50">
+              <div className="relative rounded-none overflow-hidden border border-border bg-black/50">
                 <button
                   onClick={handleClosePreview}
                   className="absolute top-2 right-2 z-10 p-1 rounded-full bg-black/50 text-white/70 hover:text-white transition-colors"
@@ -890,7 +890,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
               <div className="flex gap-2">
                 <button
                   onClick={handleConfirmShare}
-                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-sm font-semibold transition-all ${
                     imageCopied
                       ? "bg-emerald-600 text-white"
                       : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -911,7 +911,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
             <button
               onClick={handleStep1}
               disabled={shareStep === "copying"}
-              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-none text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
             >
               {shareStep === "copying" ? (
                 <><div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />Genererer billede...</>
@@ -941,7 +941,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
             <button
               onClick={() => { handleConfirmShare(); handleStep2(); }}
               disabled={!previewBlob}
-              className={`flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 w-full px-4 py-3 rounded-none text-sm font-semibold transition-all ${
                 previewBlob
                   ? "bg-[#FF4500] text-white hover:bg-[#FF4500]/90 shadow-sm"
                   : "bg-muted text-muted-foreground/50 cursor-not-allowed"
@@ -962,12 +962,12 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       <SkatCheck payslip={payslip} />
 
       {/* Cross-promote jobskifte */}
-      <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
+      <div className="rounded-none border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
         <p className="text-xs font-semibold text-foreground">{t("payslip.crossPromoJob.title")}</p>
         <p className="text-[10px] text-muted-foreground leading-relaxed">{t("payslip.crossPromoJob.desc")}</p>
         <a
           href="/jobskifte"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
         >
           <ArrowLeftRight className="w-3 h-3" />
           {t("payslip.crossPromoJob.cta")}
@@ -975,7 +975,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       </div>
 
       {/* Cross-promote ParFinans with income data */}
-      <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
+      <div className="rounded-none border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
         <p className="text-xs font-semibold text-foreground">{t("payslip.crossParfinans.title")}</p>
         <p className="text-[10px] text-muted-foreground leading-relaxed">{t("payslip.crossParfinans.desc")}</p>
         <a
@@ -984,7 +984,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
           }&source=nemtbudget`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
         >
           {t("payslip.crossParfinans.cta")}
         </a>
@@ -1009,14 +1009,14 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
             setIsSaved(true);
             setArchiveRefreshKey(k => k + 1);
           }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-none border border-dashed border-primary/40 bg-primary/5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
         >
           <Download className="w-4 h-4" />
           {t("payslip.cta.save") || "Gem lønseddel til arkiv"}
         </button>
       )}
       {isSaved && (
-        <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/30 text-sm text-emerald-600 dark:text-emerald-400">
+        <div className="flex items-center justify-center gap-2 px-4 py-3 rounded-none border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/30 text-sm text-emerald-600 dark:text-emerald-400">
           <Check className="w-4 h-4" />
           {t("payslip.saved") || "Lønseddel gemt"}
         </div>
@@ -1029,7 +1029,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <button
           onClick={handleCopyText}
-          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold border border-border hover:bg-muted transition-colors"
+          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-semibold border border-border hover:bg-muted transition-colors"
         >
           {copied ? (
             <><Check className="w-3.5 h-3.5" />{t("share.copiedText")}</>
@@ -1039,7 +1039,7 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
         </button>
         <button
           onClick={handleCreateBudget}
-          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           {t("payslip.cta.budget")}
           <ArrowRight className="w-3.5 h-3.5" />
@@ -1047,12 +1047,12 @@ export function PayslipResult({ payslip, diagnostics, onCreateBudget }: Props) {
       </div>
 
       {/* Cross-promote pengetjek for the combo effect */}
-      <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
+      <div className="rounded-none border border-dashed border-primary/30 bg-primary/5 p-4 text-center space-y-2">
         <p className="text-xs font-semibold text-foreground">{t("payslip.crossPromo.title")}</p>
         <p className="text-[10px] text-muted-foreground leading-relaxed">{t("payslip.crossPromo.desc")}</p>
         <a
           href="/pengetjek"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
         >
           {t("payslip.crossPromo.cta")}
           <ArrowRight className="w-3 h-3" />

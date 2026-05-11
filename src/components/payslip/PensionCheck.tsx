@@ -53,7 +53,7 @@ export function PensionCheck({ payslip }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-none border border-border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
         <PiggyBank className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm font-semibold">
@@ -82,7 +82,7 @@ export function PensionCheck({ payslip }: Props) {
 
         {/* Age input */}
         {age === null ? (
-          <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30">
+          <div className="flex items-center gap-2 p-3 rounded-none bg-muted/30">
             <label className="text-xs text-muted-foreground shrink-0">
               {t("payslip.pension.yourAge")}
             </label>
@@ -106,7 +106,7 @@ export function PensionCheck({ payslip }: Props) {
         ) : projection && (
           <>
             {/* Health indicator */}
-            <div className={`p-3 rounded-lg ${healthColors[projection.health].bg}`}>
+            <div className={`p-3 rounded-none ${healthColors[projection.health].bg}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className={`text-xs font-semibold ${healthColors[projection.health].text}`}>
                   {t("payslip.pension.replacementRate")}: {projection.replacementRate}%
@@ -135,7 +135,7 @@ export function PensionCheck({ payslip }: Props) {
 
             {/* Projection numbers */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="p-2.5 rounded-lg bg-muted/30">
+              <div className="p-2.5 rounded-none bg-muted/30">
                 <p className="text-[10px] text-muted-foreground">
                   {t("payslip.pension.projectedAt").replace("{age}", String(68))}
                 </p>
@@ -143,7 +143,7 @@ export function PensionCheck({ payslip }: Props) {
                   {formatKr(projection.projectedTotal, lc)}
                 </p>
               </div>
-              <div className="p-2.5 rounded-lg bg-muted/30">
+              <div className="p-2.5 rounded-none bg-muted/30">
                 <p className="text-[10px] text-muted-foreground">
                   {t("payslip.pension.monthlyPayout")}
                 </p>
@@ -152,13 +152,13 @@ export function PensionCheck({ payslip }: Props) {
                 </p>
                 <p className="text-[9px] text-muted-foreground">{t("payslip.pension.over20years")}</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-muted/30">
+              <div className="p-2.5 rounded-none bg-muted/30">
                 <p className="text-[10px] text-muted-foreground">
                   {t("payslip.pension.yearsToRetirement")}
                 </p>
                 <p className="text-sm font-bold tabular-nums">{projection.yearsToRetirement}</p>
               </div>
-              <div className="p-2.5 rounded-lg bg-muted/30 flex items-center gap-1.5">
+              <div className="p-2.5 rounded-none bg-muted/30 flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
                 <div>
                   <p className="text-[10px] text-muted-foreground">
@@ -179,7 +179,7 @@ export function PensionCheck({ payslip }: Props) {
             href="https://www.borger.dk/pension-og-efterloen"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20 text-[11px] text-primary hover:bg-primary/10 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-none bg-primary/5 border border-primary/20 text-[11px] text-primary hover:bg-primary/10 transition-colors"
           >
             <ExternalLink className="w-3 h-3 shrink-0" />
             {projection.health === "red"

@@ -70,11 +70,11 @@ export function HvadHvisView({ profile, budget, health }: Props) {
             key={s.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-border bg-card p-4 space-y-3"
+            className="rounded-none border border-border bg-card p-4 space-y-3"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">{s.icon}</div>
+                <div className="p-2 rounded-none bg-primary/10 text-primary">{s.icon}</div>
                 <div>
                   <h4 className="text-sm font-semibold text-foreground">{s.title}</h4>
                   <p className="text-xs text-muted-foreground">{s.description}</p>
@@ -127,7 +127,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border-2 border-primary/20 bg-card p-5 space-y-4"
+          className="rounded-none border-2 border-primary/20 bg-card p-5 space-y-4"
         >
           <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("scenario.before")}</h3>
 
@@ -156,7 +156,7 @@ export function HvadHvisView({ profile, budget, health }: Props) {
           </div>
 
           {/* Delta summary */}
-          <div className={`flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold ${
+          <div className={`flex items-center justify-center gap-2 py-2 rounded-none text-sm font-semibold ${
             disposableDelta >= 0 ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
           }`}>
             {disposableDelta >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}

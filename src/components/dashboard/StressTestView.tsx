@@ -131,7 +131,7 @@ export function StressTestView({ profile, budget }: Props) {
     <div className="space-y-5">
       {/* Resilience Score */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className={`rounded-2xl p-5 ${resilienceBg} border border-border`}>
+        className={`rounded-none p-5 ${resilienceBg} border border-border`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <ShieldAlert className={`w-5 h-5 ${resilienceColor}`} />
@@ -145,7 +145,7 @@ export function StressTestView({ profile, budget }: Props) {
       </motion.div>
 
       {/* Scenario 1: Inflation */}
-      <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+      <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="rounded-none border border-border p-4 space-y-3">
         <div className="flex items-center gap-2">
           <TrendingDown className="w-4 h-4 text-amber-500" />
           <h3 className="text-sm font-bold">{t("stress.inflation")}</h3>
@@ -157,7 +157,7 @@ export function StressTestView({ profile, budget }: Props) {
           <input type="range" min={2} max={15} value={inflationRate} onChange={(e) => setInflationRate(+e.target.value)}
             className="flex-1 accent-amber-500 h-1.5" />
         </div>
-        <div className="flex justify-between items-center bg-muted/50 rounded-xl p-3">
+        <div className="flex justify-between items-center bg-muted/50 rounded-none p-3">
           <div>
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.newDisposable")}</span>
             <p className={`text-lg font-bold ${scenarios.inflation.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
@@ -173,7 +173,7 @@ export function StressTestView({ profile, budget }: Props) {
 
       {/* Scenario 2: Rate hike */}
       {(profile.housingType === "ejer" || (profile.housingType === "andel" && profile.mortgageAmount > 0)) && (
-        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible" className="rounded-none border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-orange-500" />
             <h3 className="text-sm font-bold">{t("stress.rateHike")}</h3>
@@ -185,7 +185,7 @@ export function StressTestView({ profile, budget }: Props) {
             <input type="range" min={0.5} max={5} step={0.5} value={rateHike} onChange={(e) => setRateHike(+e.target.value)}
               className="flex-1 accent-orange-500 h-1.5" />
           </div>
-          <div className="flex justify-between items-center bg-muted/50 rounded-xl p-3">
+          <div className="flex justify-between items-center bg-muted/50 rounded-none p-3">
             <div>
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.mortgageUp")}</span>
               <p className="text-lg font-bold text-red-500">+{formatKr(scenarios.rateHike.increase, locale.currencyLocale)} {t("perMonth")}</p>
@@ -201,7 +201,7 @@ export function StressTestView({ profile, budget }: Props) {
       )}
 
       {/* Scenario 3: Job loss */}
-      <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+      <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="rounded-none border border-border p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Briefcase className="w-4 h-4 text-red-500" />
           <h3 className="text-sm font-bold">{t("stress.jobLoss")}</h3>
@@ -214,13 +214,13 @@ export function StressTestView({ profile, budget }: Props) {
             className="flex-1 accent-red-500 h-1.5" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-muted/50 rounded-xl p-3">
+          <div className="bg-muted/50 rounded-none p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.withoutHelp")}</span>
             <p className={`text-lg font-bold ${scenarios.jobLoss.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
               {formatKr(scenarios.jobLoss.disposable, locale.currencyLocale)} {t("currency")}
             </p>
           </div>
-          <div className="bg-muted/50 rounded-xl p-3">
+          <div className="bg-muted/50 rounded-none p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.withDagpenge")}</span>
             <p className={`text-lg font-bold ${scenarios.jobLoss.withDagpenge < 0 ? "text-red-500" : "text-foreground"}`}>
               {formatKr(scenarios.jobLoss.withDagpenge, locale.currencyLocale)} {t("currency")}
@@ -228,7 +228,7 @@ export function StressTestView({ profile, budget }: Props) {
           </div>
         </div>
         {profile.bruttolon && profile.bruttolon > 0 && (
-          <div className="flex items-center gap-2 bg-blue-500/10 rounded-xl p-3">
+          <div className="flex items-center gap-2 bg-blue-500/10 rounded-none p-3">
             <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
             <p className="text-xs text-blue-600 dark:text-blue-400">
               {t("stress.personalDagpenge")}: <strong>{formatKr(scenarios.jobLoss.dagpenge, locale.currencyLocale)} {t("perMonth")}</strong>
@@ -236,7 +236,7 @@ export function StressTestView({ profile, budget }: Props) {
           </div>
         )}
         {scenarios.jobLoss.months !== null && (
-          <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
+          <div className="flex items-center gap-2 bg-red-500/10 rounded-none p-3">
             <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
             <p className="text-xs text-red-600 dark:text-red-400">
               {t("stress.survivalTime")}: <strong>{scenarios.jobLoss.months} {t("stress.months")}</strong> {t("stress.withSavings")}
@@ -246,7 +246,7 @@ export function StressTestView({ profile, budget }: Props) {
       </motion.div>
 
       {/* Scenario 4: Unexpected expense */}
-      <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+      <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible" className="rounded-none border border-border p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Wrench className="w-4 h-4 text-amber-600" />
           <h3 className="text-sm font-bold">{t("stress.unexpectedExpense")}</h3>
@@ -259,13 +259,13 @@ export function StressTestView({ profile, budget }: Props) {
             className="flex-1 accent-amber-600 h-1.5" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-muted/50 rounded-xl p-3">
+          <div className="bg-muted/50 rounded-none p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.bufferAfter")}</span>
             <p className={`text-lg font-bold ${scenarios.unexpectedExpense.bufferAfter < 0 ? "text-red-500" : "text-foreground"}`}>
               {formatKr(Math.max(0, scenarios.unexpectedExpense.bufferAfter), locale.currencyLocale)} {t("currency")}
             </p>
           </div>
-          <div className="bg-muted/50 rounded-xl p-3">
+          <div className="bg-muted/50 rounded-none p-3">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.recoveryTime")}</span>
             <p className="text-lg font-bold text-foreground">
               {scenarios.unexpectedExpense.recoveryMonths !== null
@@ -275,7 +275,7 @@ export function StressTestView({ profile, budget }: Props) {
           </div>
         </div>
         {scenarios.unexpectedExpense.bufferAfter < 0 && (
-          <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
+          <div className="flex items-center gap-2 bg-red-500/10 rounded-none p-3">
             <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
             <p className="text-xs text-red-600 dark:text-red-400">{t("stress.noBuffer")}</p>
           </div>
@@ -284,7 +284,7 @@ export function StressTestView({ profile, budget }: Props) {
 
       {/* Scenario 5: Barsel (parental leave) */}
       {scenarios.barsel.show && (
-        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border border-border p-4 space-y-3">
+        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="rounded-none border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
             <Baby className="w-4 h-4 text-purple-500" />
             <h3 className="text-sm font-bold">{t("stress.barsel")}</h3>
@@ -292,13 +292,13 @@ export function StressTestView({ profile, budget }: Props) {
           </div>
           <p className="text-xs text-muted-foreground">{t("stress.barselDesc")}</p>
           <div className="grid grid-cols-2 gap-2">
-            <div className="bg-muted/50 rounded-xl p-3">
+            <div className="bg-muted/50 rounded-none p-3">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.barselIncome")}</span>
               <p className="text-lg font-bold text-foreground">
                 {formatKr(scenarios.barsel.income, locale.currencyLocale)} {t("perMonth")}
               </p>
             </div>
-            <div className="bg-muted/50 rounded-xl p-3">
+            <div className="bg-muted/50 rounded-none p-3">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.barselDisposable")}</span>
               <p className={`text-lg font-bold ${scenarios.barsel.disposable < 0 ? "text-red-500" : "text-foreground"}`}>
                 {formatKr(scenarios.barsel.disposable, locale.currencyLocale)} {t("currency")}
@@ -306,7 +306,7 @@ export function StressTestView({ profile, budget }: Props) {
             </div>
           </div>
           {scenarios.barsel.disposable < 0 && (
-            <div className="flex items-center gap-2 bg-red-500/10 rounded-xl p-3">
+            <div className="flex items-center gap-2 bg-red-500/10 rounded-none p-3">
               <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
               <p className="text-xs text-red-600 dark:text-red-400">
                 {t("stress.survivalTime")}: <strong>
@@ -322,13 +322,13 @@ export function StressTestView({ profile, budget }: Props) {
 
       {/* Combined worst-case */}
       <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible"
-        className="rounded-2xl border-2 border-red-500/30 bg-red-500/5 p-4 space-y-3">
+        className="rounded-none border-2 border-red-500/30 bg-red-500/5 p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Heart className="w-4 h-4 text-red-500" />
           <h3 className="text-sm font-bold">{t("stress.worstCase")}</h3>
         </div>
         <p className="text-xs text-muted-foreground">{t("stress.worstCaseDesc")}</p>
-        <div className="flex justify-between items-center bg-background/50 rounded-xl p-3">
+        <div className="flex justify-between items-center bg-background/50 rounded-none p-3">
           <div>
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("stress.newDisposable")}</span>
             <p className={`text-2xl font-black ${scenarios.combined.disposable < 0 ? "text-red-500" : "text-foreground"}`}>

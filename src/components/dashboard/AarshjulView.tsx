@@ -148,7 +148,7 @@ export function AarshjulView({ profile, budget }: Props) {
     <div className="space-y-5">
       {/* Annual total */}
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl border border-border bg-muted/30 p-5">
+        className="rounded-none border border-border bg-muted/30 p-5">
         <div className="flex items-center gap-2 mb-2">
           <CalendarDays className="w-5 h-5 text-primary" />
           <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("wheel.annual")}</span>
@@ -159,7 +159,7 @@ export function AarshjulView({ profile, budget }: Props) {
 
       {/* Visual wheel (circular representation using CSS) */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.1 } }}
-        className="rounded-2xl border border-border p-4">
+        className="rounded-none border border-border p-4">
         <h3 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">{t("wheel.monthlyOverview")}</h3>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
           {monthlyTotals.map((total, i) => {
@@ -196,14 +196,14 @@ export function AarshjulView({ profile, budget }: Props) {
       {/* Upcoming warnings */}
       {upcoming.length > 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.2 } }}
-          className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+          className="rounded-none border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-500" />
             <h3 className="text-sm font-bold">{t("wheel.upcoming")}</h3>
           </div>
           {upcoming.map((ev, i) => (
             <motion.div key={i} custom={i} variants={fadeUp} initial="hidden" animate="visible"
-              className="flex items-center gap-3 bg-background/50 rounded-xl p-3">
+              className="flex items-center gap-3 bg-background/50 rounded-none p-3">
               <CategoryIcon name={ev.icon} className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{ev.label}</p>
@@ -228,7 +228,7 @@ export function AarshjulView({ profile, budget }: Props) {
           const isPast = i < currentMonth;
           return (
             <motion.div key={i} custom={i} variants={fadeUp} initial="hidden" animate="visible"
-              className={`rounded-xl border border-border p-3 ${isPast ? "opacity-50" : ""} ${i === currentMonth ? "ring-1 ring-primary" : ""}`}>
+              className={`rounded-none border border-border p-3 ${isPast ? "opacity-50" : ""} ${i === currentMonth ? "ring-1 ring-primary" : ""}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className={`text-xs font-bold ${i === currentMonth ? "text-primary" : "text-foreground"}`}>
                   {monthNames[i]}

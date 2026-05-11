@@ -169,7 +169,7 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
+      <div className="rounded-none border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border bg-muted/30">
           <h2 className="text-sm font-semibold">{t("payslip.verify.title")}</h2>
           <p className="text-xs text-muted-foreground mt-0.5">{t("payslip.verify.subtitle")}</p>
@@ -180,7 +180,7 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
           <>
             {/* Atypical month banner — friendly, not scary */}
             {activeDiagnostics.isAtypicalMonth && (
-              <div className="mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+              <div className="mx-4 mt-3 p-3 rounded-none border flex items-start gap-2 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
                 <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
@@ -198,7 +198,7 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
 
             {/* Confidence banner */}
             {!activeDiagnostics.isAtypicalMonth && (
-              <div className={`mx-4 mt-3 p-3 rounded-lg border flex items-start gap-2 ${
+              <div className={`mx-4 mt-3 p-3 rounded-none border flex items-start gap-2 ${
                 payslip.confidence === "high"
                   ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
                   : payslip.confidence === "medium"
@@ -237,7 +237,7 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
 
         {/* Sanity warnings */}
         {checks.length > 0 && (
-          <div className="mx-4 mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+          <div className="mx-4 mt-3 p-3 rounded-none bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
             <div className="flex items-start gap-2">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
               <div className="space-y-1">
@@ -385,13 +385,13 @@ export function PayslipVerification({ payslip, diagnostics: initialDiagnostics, 
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={onRetry}
-          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold border border-border hover:bg-muted transition-colors"
+          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-semibold border border-border hover:bg-muted transition-colors"
         >
           {t("payslip.verify.retry")}
         </button>
         <button
           onClick={handleConfirm}
-          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-none text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           <Check className="w-3.5 h-3.5" />
           {t("payslip.verify.confirm")}

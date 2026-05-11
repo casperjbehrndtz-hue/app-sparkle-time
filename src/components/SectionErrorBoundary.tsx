@@ -38,7 +38,7 @@ export class SectionErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       const t = getStaticT();
       return (
-        <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+        <div className="rounded-none border border-destructive/20 bg-destructive/5 p-6 text-center">
           <AlertTriangle className="w-6 h-6 text-destructive mx-auto mb-2" />
           <p className="text-sm font-medium text-destructive">
             {this.props.fallbackTitle ?? "Section"} {t("error.sectionFailed")}

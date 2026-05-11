@@ -124,9 +124,9 @@ export function FremadView({ profile, budget, health }: Props) {
     <div className="space-y-4">
 
       {/* Savings Projection */}
-      <motion.div variants={fadeUp(0)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+      <motion.div variants={fadeUp(0)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-none bg-primary/10 flex items-center justify-center">
             <TrendingUp className="w-3.5 h-3.5 text-primary" />
           </div>
           <div>
@@ -144,7 +144,7 @@ export function FremadView({ profile, budget, health }: Props) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: p.years * 0.05 + 0.1 }}
-              className="text-center p-3 rounded-xl bg-muted/50 border border-border"
+              className="text-center p-3 rounded-none bg-muted/50 border border-border"
             >
               <p className="text-[10px] text-muted-foreground mb-1">{p.years} {t("forward.years")}</p>
               <p className="font-display font-bold text-sm text-primary">{formatKr(p.amount, lc)}</p>
@@ -169,7 +169,7 @@ export function FremadView({ profile, budget, health }: Props) {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-lg bg-primary/5 border border-primary/15 p-3">
+        <div className="rounded-none bg-primary/5 border border-primary/15 p-3">
           <p className="text-xs text-muted-foreground">
             <>{formatKr(monthlySavings, lc)} {t("unit.krMonth")} {t("forward.projectionPrefix")} <span className="font-semibold text-primary">{formatKr(projections[2].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionMid")} <span className="font-semibold text-primary">{formatKr(projections[3].amount, lc)} {t("unit.currency")}</span> {t("forward.projectionSuffix")}</>
           </p>
@@ -178,9 +178,9 @@ export function FremadView({ profile, budget, health }: Props) {
 
       {/* Net Worth (for ejere) */}
       {profile.propertyValue > 0 && (
-        <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+        <motion.div variants={fadeUp(0.05)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-nemt-gold/10 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-none bg-nemt-gold/10 flex items-center justify-center">
               <TrendingUp className="w-3.5 h-3.5 text-nemt-gold" />
             </div>
             <div>
@@ -188,15 +188,15 @@ export function FremadView({ profile, budget, health }: Props) {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+            <div className="text-center p-3 rounded-none bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">{t("forward.propertyValue")}</p>
               <p className="font-display font-bold text-sm text-foreground">{formatKr(profile.propertyValue, lc)} {t("unit.currency")}</p>
             </div>
-            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+            <div className="text-center p-3 rounded-none bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">{t("forward.estDebt")}</p>
               <p className="font-display font-bold text-sm text-destructive">{formatKr(estimatedDebt, lc)} {t("unit.currency")}</p>
             </div>
-            <div className="text-center p-3 rounded-xl bg-muted/50 border border-border">
+            <div className="text-center p-3 rounded-none bg-muted/50 border border-border">
               <p className="text-[10px] text-muted-foreground mb-1">{t("forward.netWorth")}</p>
               <p className="font-display font-bold text-sm text-primary">{formatKr(netWorth, lc)} {t("unit.currency")}</p>
             </div>
@@ -208,9 +208,9 @@ export function FremadView({ profile, budget, health }: Props) {
       )}
 
       {/* Goals / Mål */}
-      <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+      <motion.div variants={fadeUp(0.1)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-nemt-gold/10 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-none bg-nemt-gold/10 flex items-center justify-center">
             <Target className="w-3.5 h-3.5 text-nemt-gold" />
           </div>
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">{t("forward.goalsProgress")}</p>
@@ -265,7 +265,7 @@ export function FremadView({ profile, budget, health }: Props) {
 
       {/* Rate simulator */}
       {mortgageBase > 0 && (
-        <motion.div variants={fadeUp(0.15)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+        <motion.div variants={fadeUp(0.15)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("forward.rateShockSim")}</p>
           <div className="flex items-center justify-between mb-4">
             <span className="font-display font-bold text-xl">{rentRate.toFixed(1)}%</span>
@@ -283,7 +283,7 @@ export function FremadView({ profile, budget, health }: Props) {
             <span>1%</span><span>{t("forward.currentLabel")} ~{(profile.interestRate || 5.0).toFixed(1)}%</span><span>10%</span>
           </div>
           {simulatedDisposable < 3000 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-xl bg-destructive/8 border border-destructive/30">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 p-3 rounded-none bg-destructive/8 border border-destructive/30">
               <p className="text-sm text-destructive font-semibold mb-1">{t("forward.vulnerableEconomy")}</p>
               <p className="text-xs text-muted-foreground mb-2">{t("forward.refinanceAdvice")}</p>
               <a href={config.ctaLinks.mortgage?.url || "https://parfinans.dk"} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-destructive underline">
@@ -295,7 +295,7 @@ export function FremadView({ profile, budget, health }: Props) {
       )}
 
       {/* Timeline */}
-      <motion.div variants={fadeUp(0.2)} initial="hidden" animate="visible" className="rounded-2xl bg-card border border-border p-5">
+      <motion.div variants={fadeUp(0.2)} initial="hidden" animate="visible" className="rounded-none bg-card border border-border p-5">
         <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-4">{t("forward.timeline")}</p>
         {events.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-6">{t("forward.noEvents")}</p>
@@ -306,7 +306,7 @@ export function FremadView({ profile, budget, health }: Props) {
               {events.map((event, i) => (
                 <motion.div key={i} variants={fadeUp(0.25 + i * 0.06)} initial="hidden" animate="visible" className="flex gap-4 pl-10 relative">
                   <div className="absolute left-2.5 top-1.5 w-3 h-3 rounded-full border-2 border-background bg-secondary" />
-                  <div className={`flex-1 rounded-xl border p-3 ${typeStyles[event.type]}`}>
+                  <div className={`flex-1 rounded-none border p-3 ${typeStyles[event.type]}`}>
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-xs font-semibold opacity-70 mb-0.5">{event.year}</p>

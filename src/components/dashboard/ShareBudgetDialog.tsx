@@ -92,7 +92,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
     <Dialog onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         <button
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
           title={t("share.title")}
         >
           <Share2 className="w-3.5 h-3.5" />
@@ -120,7 +120,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
                   min={16} max={99}
-                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-lg placeholder:text-muted-foreground/50"
+                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-none placeholder:text-muted-foreground/50"
                 />
               </div>
               <div className="relative">
@@ -131,7 +131,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                   value={job}
                   onChange={(e) => setJob(e.target.value)}
                   maxLength={30}
-                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-lg placeholder:text-muted-foreground/50"
+                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-none placeholder:text-muted-foreground/50"
                 />
               </div>
               <div className="relative">
@@ -142,7 +142,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   maxLength={20}
-                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-lg placeholder:text-muted-foreground/50"
+                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-none placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -157,7 +157,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   maxLength={150}
-                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-lg placeholder:text-muted-foreground/50"
+                  className="w-full pl-7 pr-2 py-1.5 text-xs bg-muted border border-border rounded-none placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -166,7 +166,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
           {/* ── Copy as text (Reddit-optimized) ── */}
           <button
             onClick={handleCopyText}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold border border-border hover:bg-muted transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-xs font-semibold border border-border hover:bg-muted transition-colors"
           >
             {copied === "text" ? (
               <><Check className="w-3.5 h-3.5" />{t("share.copiedText")}</>
@@ -180,7 +180,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               <Share2 className="w-3.5 h-3.5" />
               {generating ? t("share.generating") : t("share.generateLink")}
@@ -194,11 +194,11 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                   type="text"
                   readOnly
                   value={shareUrl}
-                  className="flex-1 px-3 py-2 text-xs bg-muted border border-border rounded-lg font-mono truncate"
+                  className="flex-1 px-3 py-2 text-xs bg-muted border border-border rounded-none font-mono truncate"
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-none text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   {copied === "link" ? (
                     <><Check className="w-3.5 h-3.5" />{t("share.copied")}</>
@@ -213,7 +213,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
                 href={generateRedditUrl(shareUrl, question.trim() || undefined)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-xs font-semibold bg-[#FF4500] text-white hover:bg-[#FF4500]/90 transition-colors"
+                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-none text-xs font-semibold bg-[#FF4500] text-white hover:bg-[#FF4500]/90 transition-colors"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 {t("share.reddit")}
@@ -226,7 +226,7 @@ export function ShareBudgetDialog({ profile, budget }: Props) {
           )}
 
           {/* Privacy note */}
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
+          <div className="flex items-start gap-2 p-3 rounded-none bg-muted/50 border border-border/50">
             <Shield className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
             <p className="text-[10px] text-muted-foreground leading-relaxed">
               {t("share.privacyNote")}

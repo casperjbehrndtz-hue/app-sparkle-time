@@ -109,7 +109,7 @@ export function EditableAmount({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setEditing(true)}
-            className={`group inline-flex items-center gap-1 rounded-lg px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer ${className}`}
+            className={`group inline-flex items-center gap-1 rounded-none px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer ${className}`}
             title={t("edit.clickToEdit")}
           >
             <span>{formatKr(value, localeCode)} {suffix}</span>
@@ -122,7 +122,7 @@ export function EditableAmount({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="fixed sm:absolute z-50 left-1/2 -translate-x-1/2 top-1/2 sm:top-full -translate-y-1/2 sm:translate-y-0 sm:mt-2 min-w-[16rem] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-background shadow-xl shadow-black/10 p-3 space-y-3"
+            className="fixed sm:absolute z-50 left-1/2 -translate-x-1/2 top-1/2 sm:top-full -translate-y-1/2 sm:translate-y-0 sm:mt-2 min-w-[16rem] max-w-[calc(100vw-2rem)] rounded-none border border-border bg-background shadow-xl shadow-black/10 p-3 space-y-3"
           >
             {/* Input */}
             <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export function EditableAmount({
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
                 onKeyDown={handleKeyDown}
-                className="flex-1 bg-muted/50 border border-border rounded-lg px-3 py-1.5 text-sm font-display font-bold text-foreground text-center focus:outline-none focus:ring-2 focus:ring-primary/30 no-spin"
+                className="flex-1 bg-muted/50 border border-border rounded-none px-3 py-1.5 text-sm font-display font-bold text-foreground text-center focus:outline-none focus:ring-2 focus:ring-primary/30 no-spin"
               />
               <span className="text-xs text-muted-foreground">{suffix}</span>
             </div>
@@ -162,13 +162,13 @@ export function EditableAmount({
             <div className="flex justify-end gap-1.5">
               <button
                 onClick={handleCancel}
-                className="px-3 py-1.5 rounded-lg text-xs text-muted-foreground hover:bg-muted transition-colors"
+                className="px-3 py-1.5 rounded-none text-xs text-muted-foreground hover:bg-muted transition-colors"
               >
                 <X className="w-3 h-3 inline mr-1" />{t("edit.cancel")}
               </button>
               <button
                 onClick={handleConfirm}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="px-3 py-1.5 rounded-none text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 <Check className="w-3 h-3 inline mr-1" />{t("edit.save")}
               </button>

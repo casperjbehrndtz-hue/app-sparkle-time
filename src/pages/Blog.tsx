@@ -146,7 +146,7 @@ export default function Blog() {
               placeholder={t("blog.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-10 pr-4 py-2.5 rounded-none border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
@@ -163,10 +163,10 @@ export default function Blog() {
             >
               <Link
                 to={`/guides/${article.slug}`}
-                className="block rounded-2xl border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all h-full"
+                className="block rounded-none border border-border/60 p-5 bg-card hover:shadow-md hover:border-primary/20 transition-all h-full"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <div className="w-8 h-8 rounded-none bg-primary/10 flex items-center justify-center text-primary">
                     {article.icon}
                   </div>
                   <span className="text-xs font-semibold text-primary/70 uppercase tracking-wider">{article.category}</span>
@@ -189,7 +189,7 @@ export default function Blog() {
         <div className="max-w-md mx-auto px-4 text-center">
           <h3 className="font-display font-bold text-xl text-primary-foreground mb-2">{t("blog.ctaTitle").replace("{brand}", config.brandName)}</h3>
           <p className="text-primary-foreground/60 text-sm mb-5">{t("blog.ctaSubtitle")}</p>
-          <Link to="/" className="inline-block px-6 py-3 rounded-xl bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
+          <Link to="/" className="inline-block px-6 py-3 rounded-none bg-background text-foreground font-semibold text-sm hover:bg-background/90 transition-colors">
             {t("blog.ctaButton")}
           </Link>
         </div>

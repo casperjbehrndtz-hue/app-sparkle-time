@@ -35,7 +35,7 @@ function NumberInput({ value, onChange, suffix = "kr.", min = 0, step = 500, lab
         step={step}
         aria-label={label}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-24 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40"
+        className="w-24 text-right bg-muted/50 border border-border rounded-none px-2 py-1 text-sm focus:outline-none focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40"
       />
       <span className="text-xs text-muted-foreground">{suffix}</span>
     </div>
@@ -127,13 +127,13 @@ function GdprSection() {
   return (
     <section>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("gdpr.section")}</h3>
-      <div className="rounded-xl border border-border/60 px-4 py-3 space-y-4">
+      <div className="rounded-none border border-border/60 px-4 py-3 space-y-4">
         <div>
           <p className="text-sm text-muted-foreground mb-2">{t("gdpr.exportDesc")}</p>
           <button
             onClick={handleExport}
             disabled={exporting}
-            className="w-full py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-muted/50 transition-colors disabled:opacity-50"
+            className="w-full py-2.5 rounded-none border border-border text-sm font-medium hover:bg-muted/50 transition-colors disabled:opacity-50"
           >
             {exporting ? t("gdpr.exporting") : t("gdpr.exportData")}
           </button>
@@ -143,7 +143,7 @@ function GdprSection() {
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="w-full py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+            className="w-full py-2.5 rounded-none bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
           >
             {deleting ? t("gdpr.deleting") : t("gdpr.deleteAccount")}
           </button>
@@ -183,12 +183,12 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Husstand & Indkomst ─────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.householdIncome")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               <Field label={t("profile.householdType")}>
                 <select
                   value={p.householdType}
                   onChange={(e) => set("householdType", e.target.value as BudgetProfile["householdType"])}
-                  className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
+                  className="bg-muted/50 border border-border rounded-none px-2 py-1 text-sm focus:outline-none"
                 >
                   <option value="solo">{t("profile.solo")}</option>
                   <option value="par">{t("profile.couple")}</option>
@@ -208,7 +208,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
                   value={p.postalCode}
                   maxLength={4}
                   onChange={(e) => set("postalCode", e.target.value)}
-                  className="w-20 text-right bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-primary/40"
+                  className="w-20 text-right bg-muted/50 border border-border rounded-none px-2 py-1 text-sm focus:outline-none focus:border-primary/40"
                 />
               </Field>
             </div>
@@ -217,12 +217,12 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Bolig ───────────────────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.housing")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               <Field label={t("profile.housingType")}>
                 <select
                   value={p.housingType}
                   onChange={(e) => set("housingType", e.target.value as BudgetProfile["housingType"])}
-                  className="bg-muted/50 border border-border rounded-lg px-2 py-1 text-sm focus:outline-none"
+                  className="bg-muted/50 border border-border rounded-none px-2 py-1 text-sm focus:outline-none"
                 >
                   <option value="leje">{t("profile.housingLeje")}</option>
                   <option value="ejer">{t("profile.housingEjer")}</option>
@@ -251,7 +251,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Forbrug ─────────────────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.spending")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               <Field label={t("profile.food")}>
                 <NumberInput value={p.foodAmount} onChange={(v) => set("foodAmount", v)} />
               </Field>
@@ -273,7 +273,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Transport ───────────────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.transport")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               <Field label={t("profile.hasCar")}>
                 <Toggle checked={p.hasCar} onChange={(v) => set("hasCar", v)} />
               </Field>
@@ -296,7 +296,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Abonnementer ────────────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.subscriptions")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               {([
                 [t("profile.netflix"), "hasNetflix"],
                 [t("profile.spotify"), "hasSpotify"],
@@ -316,7 +316,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
           {/* ── Lån & Opsparing ─────────────────────────────────────────── */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{t("profile.loansAndSavings")}</h3>
-            <div className="rounded-xl border border-border/60 px-4">
+            <div className="rounded-none border border-border/60 px-4">
               <Field label={t("profile.hasLoan")}>
                 <Toggle checked={p.hasLoan} onChange={(v) => set("hasLoan", v)} />
               </Field>
@@ -352,7 +352,7 @@ export function ProfileEditSheet({ open, onClose, profile, onSave }: Props) {
         <div className="fixed bottom-0 right-0 w-full sm:max-w-md px-6 py-4 bg-background border-t border-border">
           <button
             onClick={handleSave}
-            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all"
+            className="w-full py-3 rounded-none bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all"
           >
             {t("profile.saveChanges")}
           </button>

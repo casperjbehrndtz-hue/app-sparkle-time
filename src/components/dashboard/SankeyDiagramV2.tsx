@@ -295,7 +295,7 @@ function StackedBarView({ categories, income, disposable, lc, t, tc, privacyMode
 
   return (
     <div className="space-y-3">
-      <div className="h-6 rounded-xl overflow-hidden flex shadow-inner">
+      <div className="h-6 rounded-none overflow-hidden flex shadow-inner">
         {categories.map((cat, i) => {
           const pct = income > 0 ? (cat.total / income) * 100 : 0;
           return (
@@ -629,19 +629,19 @@ export function SankeyDiagramV2({ budget, profile }: Props) {
       {/* Toolbar */}
       <div className="flex items-center justify-end gap-1.5">
         <button onClick={() => setPrivacyMode(p => !p)} title={t("sankey.privacyTip")}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${privacyMode ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-none text-[10px] font-semibold transition-all ${privacyMode ? "bg-primary text-primary-foreground" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
           {privacyMode ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
           <span className="hidden sm:inline">{t("sankey.privacy")}</span>
         </button>
         {!isMobile && (
           <>
             <button onClick={() => handleExport("clipboard")} title={t("sankey.shareTip")}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${exported === "clipboard" ? "bg-emerald-500 text-white" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-none text-[10px] font-semibold transition-all ${exported === "clipboard" ? "bg-emerald-500 text-white" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
               {exported === "clipboard" ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
               <span className="hidden sm:inline">{exported === "clipboard" ? t("sankey.copied") : t("sankey.share")}</span>
             </button>
             <button onClick={() => handleExport("download")} title={t("sankey.exportTip")}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${exported === "download" ? "bg-emerald-500 text-white" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-none text-[10px] font-semibold transition-all ${exported === "download" ? "bg-emerald-500 text-white" : "bg-muted/50 text-muted-foreground hover:bg-muted border border-border/40"}`}>
               {exported === "download" ? <Check className="w-3 h-3" /> : <Download className="w-3 h-3" />}
               <span className="hidden sm:inline">{exported === "download" ? t("sankey.copied") : t("sankey.export")}</span>
             </button>
@@ -650,7 +650,7 @@ export function SankeyDiagramV2({ budget, profile }: Props) {
       </div>
 
       {/* Diagram */}
-      <div className="rounded-xl bg-card border border-border/40 p-3 sm:p-4" role="img" aria-label={t("a11y.sankeyTable")}>
+      <div className="rounded-none bg-card border border-border/40 p-3 sm:p-4" role="img" aria-label={t("a11y.sankeyTable")}>
         <SankeyView budget={budget} profile={profile} categories={categories} disposable={disposable} lc={lc} t={t} tc={tc} privacyMode={privacyMode} svgRef={svgRef} compact={isMobile} />
         <div className="sr-only" role="table" aria-label={t("a11y.sankeyTable")}>
           <div role="rowgroup">

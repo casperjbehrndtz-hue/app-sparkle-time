@@ -50,7 +50,7 @@ export function EmailCapture() {
 
   if (submitted) {
     return (
-      <div className="rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/30 p-4 flex items-center gap-3">
+      <div className="rounded-none border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-950/30 p-4 flex items-center gap-3">
         <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
         <p className="text-xs text-emerald-700 dark:text-emerald-400">
           {t("payslip.email.success")}
@@ -60,7 +60,7 @@ export function EmailCapture() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="rounded-none border border-border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
         <Bell className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm font-semibold">
@@ -81,12 +81,12 @@ export function EmailCapture() {
             placeholder={t("payslip.email.placeholder")}
             required
             disabled={loading}
-            className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm disabled:opacity-50"
+            className="flex-1 px-3 py-2 rounded-none border border-border bg-background text-sm disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+            className="px-4 py-2 rounded-none bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50 flex items-center gap-1.5"
           >
             {loading && <Loader2 className="w-3 h-3 animate-spin" />}
             {t("payslip.email.submit")}

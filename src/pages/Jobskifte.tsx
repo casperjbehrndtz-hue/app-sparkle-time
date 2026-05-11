@@ -60,7 +60,7 @@ function NumberInput({ label, value, onChange, suffix, min, max, step }: {
           min={min}
           max={max}
           step={step}
-          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm tabular-nums"
+          className="w-full px-3 py-2 rounded-none border border-border bg-background text-sm tabular-nums"
         />
         {suffix && <span className="text-xs text-muted-foreground shrink-0">{suffix}</span>}
       </div>
@@ -138,7 +138,7 @@ export default function Jobskifte() {
       <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Link to="/lonseddel" className="p-2 rounded-lg hover:bg-muted transition-colors">
+          <Link to="/lonseddel" className="p-2 rounded-none hover:bg-muted transition-colors">
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
@@ -154,7 +154,7 @@ export default function Jobskifte() {
         {/* Input sections */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Current job */}
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <div className="rounded-none border border-border bg-card p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-semibold">{t("jobskifte.currentJob")}</span>
@@ -205,7 +205,7 @@ export default function Jobskifte() {
           </div>
 
           {/* New offer */}
-          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-3">
+          <div className="rounded-none border border-primary/30 bg-primary/5 p-4 space-y-3">
             <div className="flex items-center gap-2">
               <ArrowLeftRight className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-primary">{t("jobskifte.newOffer")}</span>
@@ -253,7 +253,7 @@ export default function Jobskifte() {
 
         {/* Comparison result */}
         {comparison && (
-          <div className="rounded-xl border border-border bg-card overflow-hidden space-y-0">
+          <div className="rounded-none border border-border bg-card overflow-hidden space-y-0">
             {/* Verdict banner */}
             <div className={`p-4 text-center ${
               comparison.diff > 500 ? "bg-emerald-50 dark:bg-emerald-950/30" :
@@ -332,7 +332,7 @@ export default function Jobskifte() {
         )}
 
         {!canCompare && (
-          <div className="rounded-xl border border-dashed border-border p-6 text-center">
+          <div className="rounded-none border border-dashed border-border p-6 text-center">
             <ArrowLeftRight className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">
               {t("jobskifte.fillBothPrompt")}

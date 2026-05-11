@@ -99,7 +99,7 @@ export function CookieBanner() {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-[200] p-4"
           >
-            <div className="max-w-lg mx-auto bg-card border border-border rounded-xl shadow-lg p-4 space-y-3">
+            <div className="max-w-lg mx-auto bg-card border border-border rounded-none shadow-lg p-4 space-y-3">
               <p id="cookie-banner-text" className="text-sm text-foreground">
                 🍪 {t("cookie.text")}{" "}
                 <a href="/privatliv" className="text-primary underline underline-offset-2 hover:text-primary/80">
@@ -110,14 +110,14 @@ export function CookieBanner() {
                 <button
                   onClick={accept}
                   aria-label={t("cookie.acceptAnalytics")}
-                  className="flex-1 bg-primary text-primary-foreground text-sm font-medium py-2 rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  className="flex-1 bg-primary text-primary-foreground text-sm font-medium py-2 rounded-none hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   {t("cookie.accept")}
                 </button>
                 <button
                   onClick={decline}
                   aria-label={t("cookie.declineAnalytics")}
-                  className="flex-1 bg-muted text-muted-foreground text-sm font-medium py-2 rounded-lg hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex-1 bg-muted text-muted-foreground text-sm font-medium py-2 rounded-none hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {t("cookie.decline")}
                 </button>

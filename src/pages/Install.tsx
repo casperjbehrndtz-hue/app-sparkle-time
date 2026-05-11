@@ -52,7 +52,7 @@ const Install = () => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full text-center space-y-8"
       >
-        <div className="mx-auto w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+        <div className="mx-auto w-20 h-20 rounded-none bg-primary/10 flex items-center justify-center">
           {installed ? (
             <CheckCircle className="w-10 h-10 text-primary" />
           ) : (
@@ -74,20 +74,20 @@ const Install = () => {
         {installed ? (
           <button
             onClick={() => navigate("/")}
-            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
+            className="w-full py-3 rounded-none bg-primary text-primary-foreground font-semibold text-sm"
           >
             {t("install.goToApp")}
           </button>
         ) : deferredPrompt ? (
           <button
             onClick={handleInstall}
-            className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-none bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
             {t("install.installNow")}
           </button>
         ) : isIOS ? (
-          <div className="rounded-xl border border-border bg-card p-5 text-left space-y-3">
+          <div className="rounded-none border border-border bg-card p-5 text-left space-y-3">
             <p className="text-sm font-medium text-foreground">{t("install.iosTitle")}</p>
             <ol className="text-sm text-muted-foreground space-y-2">
               <li className="flex gap-2">
@@ -105,7 +105,7 @@ const Install = () => {
             </ol>
           </div>
         ) : (
-          <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground">
+          <div className="rounded-none border border-border bg-card p-5 text-sm text-muted-foreground">
             {t("install.openInBrowser")}
           </div>
         )}

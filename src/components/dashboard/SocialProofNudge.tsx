@@ -124,7 +124,7 @@ export function SocialProofNudge({ profile, budget, health, context = "cockpit" 
       {nudges.map((nudge, i) => (
         <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.1 }}
-          className={`flex items-center gap-2 rounded-xl px-3 py-2 text-xs ${
+          className={`flex items-center gap-2 rounded-none px-3 py-2 text-xs ${
             nudge.type === "positive" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
             : nudge.type === "warning" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
             : "bg-muted text-muted-foreground"

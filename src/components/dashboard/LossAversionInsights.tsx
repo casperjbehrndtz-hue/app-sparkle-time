@@ -185,7 +185,7 @@ export function LossAversionInsights({ profile, budget, health }: Props) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.08 }}
-          className={`rounded-2xl border p-4 ${insight.borderColor}`}
+          className={`rounded-none border p-4 ${insight.borderColor}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">

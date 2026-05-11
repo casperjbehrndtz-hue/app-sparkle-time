@@ -120,7 +120,7 @@ export function SharedBudgetBanner({ profile, budget, meta }: Props) {
 
         {/* Question */}
         {meta.question && (
-          <div className="flex items-start gap-2 bg-white/10 rounded-lg px-3 py-2">
+          <div className="flex items-start gap-2 bg-white/10 rounded-none px-3 py-2">
             <MessageCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/60" />
             <p className="text-sm font-medium leading-snug">{meta.question}</p>
           </div>

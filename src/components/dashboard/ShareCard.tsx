@@ -23,7 +23,7 @@ export function ShareCard({ health, totalIncome, totalExpenses }: Props) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-md mx-auto rounded-2xl border border-border overflow-hidden bg-card"
+      className="w-full max-w-md mx-auto rounded-none border border-border overflow-hidden bg-card"
     >
       <div className="p-6 space-y-4">
         {/* Header */}

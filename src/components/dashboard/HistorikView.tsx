@@ -52,7 +52,7 @@ export function HistorikView() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`flex-1 rounded-xl p-4 text-center space-y-1 ${
+          className={`flex-1 rounded-none p-4 text-center space-y-1 ${
             disposableDelta >= 0 ? "bg-primary/10" : "bg-destructive/10"
           }`}
         >
@@ -69,7 +69,7 @@ export function HistorikView() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className={`flex-1 rounded-xl p-4 text-center space-y-1 ${
+          className={`flex-1 rounded-none p-4 text-center space-y-1 ${
             scoreDelta >= 0 ? "bg-primary/10" : "bg-destructive/10"
           }`}
         >

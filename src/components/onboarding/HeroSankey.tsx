@@ -64,7 +64,7 @@ export function HeroSankey() {
   });
 
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] shadow-2xl shadow-black/20 p-4">
+    <div className="relative rounded-none overflow-hidden bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] shadow-card shadow-black/20 p-4">
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="xMidYMid meet">
         <defs>
           {grads.map(g => (

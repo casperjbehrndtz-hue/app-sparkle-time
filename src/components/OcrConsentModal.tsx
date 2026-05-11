@@ -65,7 +65,7 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
         {/* Redacted image preview — large and prominent */}
         {redactedPreview && (
           <div className="space-y-2">
-            <div className="relative rounded-lg border border-border overflow-hidden bg-muted/20">
+            <div className="relative rounded-none border border-border overflow-hidden bg-muted/20">
               <img
                 src={`data:image/jpeg;base64,${redactedPreview}`}
                 alt={da ? "Sløret billede der sendes" : "Redacted image to be sent"}
@@ -116,7 +116,7 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
 
           {detailsOpen && (
             <div className="space-y-2 pt-1 animate-in fade-in slide-in-from-top-1 duration-200">
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Server className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da
@@ -124,7 +124,7 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
                     : "Image sent via secure TLS to Anthropic's Claude API in the US. Transfer based on EU SCCs, GDPR art. 46(2)(c)."}
                 </p>
               </div>
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Clock className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da
@@ -132,7 +132,7 @@ const OcrConsentModal = ({ open, type, redactedPreview, cprCount = 0, accountCou
                     : "Anthropic retains API input up to 7 days, then auto-deleted. NOT used for model training."}
                 </p>
               </div>
-              <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/30 text-xs">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-none bg-muted/30 text-xs">
                 <Trash2 className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-muted-foreground leading-relaxed">
                   {da

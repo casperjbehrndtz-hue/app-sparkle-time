@@ -47,7 +47,7 @@ export function ParSplitView({ profile, budget }: Props) {
       <p className="text-sm text-muted-foreground">{t("couple.desc")}</p>
 
       {/* Model toggle */}
-      <div className="flex rounded-xl border border-border overflow-hidden">
+      <div className="flex rounded-none border border-border overflow-hidden">
         <button
           onClick={() => setModel("equal")}
           className={`flex-1 py-3 text-xs font-medium transition-colors ${
@@ -70,12 +70,12 @@ export function ParSplitView({ profile, budget }: Props) {
 
       {/* Income overview */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
+        <div className="rounded-none bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.yourIncome")}</p>
           <p className="text-lg font-bold text-foreground">{formatKr(profile.income, lc)} {t("unit.currency")}</p>
           <p className="text-xs text-muted-foreground">{Math.round(myShare * 100)}% af total</p>
         </div>
-        <div className="rounded-xl bg-card border border-border p-4 text-center space-y-1">
+        <div className="rounded-none bg-card border border-border p-4 text-center space-y-1">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("couple.partnerIncome")}</p>
           <p className="text-lg font-bold text-foreground">{formatKr(profile.partnerIncome, lc)} {t("unit.currency")}</p>
           <p className="text-xs text-muted-foreground">{Math.round(partnerShare * 100)}% af total</p>
@@ -87,7 +87,7 @@ export function ParSplitView({ profile, budget }: Props) {
         key={model}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-border bg-card p-5 space-y-4"
+        className="rounded-none border border-border bg-card p-5 space-y-4"
       >
         <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("couple.expenseDistribution")}</h3>
 
@@ -111,7 +111,7 @@ export function ParSplitView({ profile, budget }: Props) {
         </div>
 
         {/* Fairness indicator */}
-        <div className={`text-center py-2 rounded-lg text-xs font-medium ${
+        <div className={`text-center py-2 rounded-none text-xs font-medium ${
           Math.abs(fairnessDelta) < 500
             ? "bg-primary/10 text-primary"
             : "bg-accent text-accent-foreground"

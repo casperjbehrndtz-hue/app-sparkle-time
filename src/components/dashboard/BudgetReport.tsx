@@ -44,13 +44,13 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
                   navigator.share({ title: `${config.brandName} – ${t("report.title")}`, text: `Health Score: ${health.score}/100 | ${t("health.freedom")}: ${formatKr(health.truths.freeCashFlow, locale.currencyLocale)} ${t("perMonth")}`, url: window.location.href });
                 }
               }}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-lg hover:bg-muted"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-none hover:bg-muted"
             >
               <Share2 className="w-3.5 h-3.5" /> {t("report.share")}
             </button>
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-1.5 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-none hover:bg-primary/90 transition-colors"
             >
               <Printer className="w-3.5 h-3.5" /> {t("report.print")}
             </button>
@@ -67,7 +67,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         </div>
 
         {/* Health Score Hero */}
-        <div className="rounded-2xl border border-border p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="rounded-none border border-border p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           <div className="relative flex-shrink-0">
             <svg width="88" height="88" viewBox="0 0 88 88">
               <circle cx="44" cy="44" r={radius} fill="none" stroke="hsl(150, 8%, 91%)" strokeWidth="5" />
@@ -104,7 +104,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
         </div>
 
         {/* Expense Breakdown */}
-        <div className="rounded-xl border border-border overflow-hidden">
+        <div className="rounded-none border border-border overflow-hidden">
           <div className="px-5 py-3 bg-muted/30 flex items-center justify-between">
             <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground">{t("report.expenseBreakdown")}</h3>
             <span className="text-sm font-display font-bold text-destructive">{formatKr(budget.totalExpenses, locale.currencyLocale)} {t("currency")}</span>
@@ -133,7 +133,7 @@ export function BudgetReport({ profile, budget, health, onBack }: Props) {
 
         {/* Income breakdown for couples */}
         {isPar && (
-          <div className="rounded-xl border border-border p-5">
+          <div className="rounded-none border border-border p-5">
             <h3 className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">{t("report.incomeDist")}</h3>
             <div className="h-3 rounded-full overflow-hidden bg-muted flex mb-2">
               <div className="h-full bg-primary rounded-l-full" style={{ width: `${(profile.income / budget.totalIncome) * 100}%` }} />
@@ -168,7 +168,7 @@ function StatBox({ icon, label, value }: { icon: React.ReactNode; label: string;
 
 function MetricCard({ label, value, negative, good }: { label: string; value: string; negative?: boolean; good?: boolean }) {
   return (
-    <div className="rounded-xl border border-border p-4 text-center">
+    <div className="rounded-none border border-border p-4 text-center">
       <p className="text-[10px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">{label}</p>
       <span className={`font-display font-bold text-lg ${
         negative ? "text-destructive" : good !== undefined ? (good ? "text-primary" : "text-nemt-gold") : "text-foreground"

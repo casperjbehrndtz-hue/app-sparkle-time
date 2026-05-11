@@ -17,7 +17,7 @@ type Stats = {
 
 function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string | number; sub?: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-none border border-border bg-card p-5">
       <div className="flex items-center gap-2 mb-3 text-muted-foreground">{icon}<span className="text-xs font-semibold uppercase tracking-wider">{label}</span></div>
       <p className="text-3xl font-black text-foreground">{value}</p>
       {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
@@ -138,7 +138,7 @@ export default function Partner() {
         </div>
 
         {/* Daily activity chart */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-none border border-border bg-card p-6">
           <div className="flex items-center gap-2 mb-5">
             <Activity className="w-4 h-4 text-muted-foreground" />
             <h2 className="font-semibold text-sm">{t("partner.dailyActivity")}</h2>
@@ -164,7 +164,7 @@ export default function Partner() {
         </div>
 
         {/* Event breakdown */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-none border border-border bg-card p-6">
           <h2 className="font-semibold text-sm mb-4">{t("partner.memberUsage")}</h2>
           <div className="space-y-2">
             {stats?.topEvents.map(({ event, count }) => {
@@ -185,12 +185,12 @@ export default function Partner() {
         </div>
 
         {/* Embed code */}
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-none border border-border bg-card p-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-sm">{t("partner.embedTitle")}</h2>
             <span className="text-xs text-muted-foreground">{t("partner.embedSub")}</span>
           </div>
-          <pre className="bg-muted/50 rounded-xl p-4 text-xs overflow-x-auto text-muted-foreground leading-relaxed">{embedCode}</pre>
+          <pre className="bg-muted/50 rounded-none p-4 text-xs overflow-x-auto text-muted-foreground leading-relaxed">{embedCode}</pre>
           <button
             onClick={() => navigator.clipboard.writeText(embedCode)}
             className="mt-3 flex items-center gap-1.5 text-xs text-primary hover:underline"
