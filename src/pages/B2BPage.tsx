@@ -74,7 +74,7 @@ export default function B2BPage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[hsl(216,56%,15%)] via-[hsl(216,56%,22%)] to-[hsl(216,56%,30%)] text-white">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE4YzEuNjU3IDAgMy0xLjM0MyAzLTNzLTEuMzQzLTMtMy0zLTMgMS4zNDMtMyAzIDEuMzQzIDMgMyAzem0wIDM2YzEuNjU3IDAgMy0xLjM0MyAzLTNzLTEuMzQzLTMtMy0zLTMgMS4zNDMtMyAzIDEuMzQzIDMgMyAzek0wIDE4YzEuNjU3IDAgMy0xLjM0MyAzLTNTMS42NTcgMTIgMCAxMnMtMyAxLjM0My0zIDMgMS4zNDMgMyAzIDN6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50" />
-        <div className="max-w-6xl mx-auto px-4 py-20 sm:py-28 relative">
+        <div className="max-w-6xl mx-auto px-4 py-10 sm:py-12 relative">
           <div className="flex items-center gap-2 mb-6">
             <Building2 className="h-5 w-5 text-amber-400" />
             <span className="text-amber-400 font-medium text-sm tracking-wide uppercase">{t("b2b.heroTag")}</span>
@@ -107,7 +107,7 @@ export default function B2BPage() {
       </section>
 
       {/* USPs */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-10 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">{t("b2b.whyTitle")}</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -143,7 +143,7 @@ export default function B2BPage() {
       </section>
 
       {/* Feature showcase */}
-      <section className="py-20">
+      <section className="py-10">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.featureTitle")}</h2>
           <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
@@ -168,7 +168,7 @@ export default function B2BPage() {
       </section>
 
       {/* White-label demos */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-10 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">{t("b2b.brandTitle")}</h2>
           <p className="text-muted-foreground mb-10 max-w-xl mx-auto">
@@ -201,7 +201,7 @@ export default function B2BPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-20">
+      <section className="py-10">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.pricingTitle")}</h2>
           <p className="text-center text-muted-foreground mb-12">
@@ -280,7 +280,7 @@ export default function B2BPage() {
       </section>
 
       {/* Contact form */}
-      <section id="kontakt" className="py-20">
+      <section id="kontakt" className="py-10">
         <div className="max-w-2xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4">{t("b2b.contactTitle")}</h2>
           <p className="text-center text-muted-foreground mb-10">

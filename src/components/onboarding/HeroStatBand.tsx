@@ -15,31 +15,18 @@ const HeroStatBand = () => {
   ];
 
   return (
-    <section
-      aria-label={t("statBand.aria")}
-      className="bg-hero-navy text-white"
-    >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-14">
-        <div className="grid grid-cols-1 sm:grid-cols-3">
-          {items.map((item, i) => (
-            <div
-              key={item.label}
-              className={
-                i > 0
-                  ? "sm:pl-8 sm:border-l sm:border-white/15 pt-6 sm:pt-0 mt-6 sm:mt-0 border-t sm:border-t-0 border-white/10"
-                  : "sm:pr-8"
-              }
-            >
-              <p className="text-[11px] uppercase tracking-[0.18em] text-white/55 font-medium mb-3">
+    <section aria-label={t("statBand.aria")} className="bg-hero-navy text-white border-y border-white/10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-6">
+        <div className="grid grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.label} className="min-w-0">
+              <p className="text-[10px] uppercase tracking-widest text-white/55 font-medium mb-1 truncate">
                 {item.label}
               </p>
-              <p className="text-5xl sm:text-6xl font-semibold tracking-tight tabular-nums leading-none mb-3 relative inline-block">
+              <p className="text-xl sm:text-2xl font-semibold tracking-tight tabular-nums leading-none">
                 {item.value}
-                {item.emphasis && (
-                  <span aria-hidden="true" className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-nemt-gold" />
-                )}
               </p>
-              <p className="text-sm text-white/75 leading-relaxed max-w-[18rem]">
+              <p className="hidden sm:block text-xs text-white/65 leading-snug mt-1.5 truncate">
                 {item.desc}
               </p>
             </div>

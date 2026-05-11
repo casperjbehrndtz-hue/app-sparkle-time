@@ -10,8 +10,8 @@ export function AppFooter() {
 
   return (
     <footer className="border-t border-border bg-muted/30">
-      <div className="max-w-5xl mx-auto px-6 py-14 sm:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+      <div className="max-w-5xl mx-auto px-6 py-14 sm:py-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <Logo size="md" />

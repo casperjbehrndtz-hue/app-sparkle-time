@@ -131,7 +131,7 @@ export default function Blog() {
         </div>
       </header>
 
-      <section className="bg-muted/30 py-10 sm:py-16">
+      <section className="bg-muted/30 py-10 sm:py-10">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-display font-black text-2xl sm:text-3xl text-foreground mb-3">
             {t("blog.heroTitle")}

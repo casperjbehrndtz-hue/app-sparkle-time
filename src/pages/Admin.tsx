@@ -156,11 +156,11 @@ export default function Admin() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-10">
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : drafts.length === 0 ? (
-          <div className="text-center py-20">
+          <div className="text-center py-10">
             <CheckCircle className="w-10 h-10 text-green-500/40 mx-auto mb-3" />
             <p className="text-muted-foreground text-sm">{t("admin.emptyQueue")}</p>
           </div>

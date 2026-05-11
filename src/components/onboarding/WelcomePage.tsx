@@ -95,41 +95,41 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
         />
         {/* Lateral gradient: text side legible, sankey side shows more video */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, hsl(var(--hero-navy) / 0.85) 0%, hsl(var(--hero-navy) / 0.70) 50%, hsl(var(--hero-navy) / 0.45) 100%)" }} />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 lg:py-32 grid lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12 items-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0 relative z-10">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight text-white mb-4 sm:mb-5 text-balance">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-14 grid lg:grid-cols-[3fr_2fr] gap-6 lg:gap-5 items-center relative z-10">
+          <div className="min-w-0 relative z-10">
+            <h1 className="text-2xl sm:text-3xl lg:text-[2rem] font-semibold leading-[1.15] tracking-tight text-white mb-3 text-balance">
               {t("hero.title")}{" "}
               <span className="text-white">{t("hero.titleHighlight")}</span>
             </h1>
-            <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
-            <div className="flex flex-wrap items-center gap-3">
+            <p className="text-white/70 text-sm sm:text-base leading-snug mb-5 max-w-md">{t("hero.subtitle")}</p>
+            <div className="flex flex-wrap items-center gap-2">
               <button id="hero-cta" onClick={onStart}
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-none bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
-                {t("hero.cta")} <ArrowRight className="w-4 h-4" />
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors">
+                {t("hero.cta")} <ArrowRight className="w-3.5 h-3.5" />
               </button>
               {hasExistingProfile && onGoToApp && (
                 <button onClick={onGoToApp}
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-none border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
-                  {t("action.goToDashboard")} <ArrowRight className="w-4 h-4" />
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-white/25 text-white/85 text-sm font-semibold hover:bg-white/10 transition-colors">
+                  {t("action.goToDashboard")} <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-4">
+            <div className="flex flex-wrap items-center gap-2 mt-3">
               <a href="/lonseddel"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-colors border border-white/10">
                 <Upload className="w-3 h-3" />
                 {t("payslip.welcomeCta")}
               </a>
               <a href="/lonudvikling"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-colors border border-white/10">
                 <BarChart3 className="w-3 h-3" />
                 {t("timeline.title")}
               </a>
             </div>
-            <p className="text-white/40 text-xs mt-3">
+            <p className="text-white/40 text-xs mt-2">
               {t("hero.socialProof")}
             </p>
-          </motion.div>
+          </div>
           <div className="hidden lg:block">
             <HeroSankey />
           </div>
@@ -141,7 +141,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
 
       {/* Trust badges — slim strip after stat-band */}
       <div className="border-b border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-5">
           {[
             { icon: <Shield className="w-4 h-4 text-muted-foreground" />, text: t("trust.danish") },
             { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: t("trust.time") },
@@ -153,7 +153,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       </div>
 
       {/* How it works */}
-      <section id="saadan-virker-det" className="bg-background py-10 sm:py-16 scroll-mt-16">
+      <section id="saadan-virker-det" className="bg-background py-10 sm:py-10 scroll-mt-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-display font-bold text-xl sm:text-2xl md:text-3xl text-foreground mb-3">{t("howItWorks.title")}</h2>
           <p className="text-muted-foreground text-base mb-12 max-w-md mx-auto">{t("howItWorks.subtitle")}</p>
@@ -169,7 +169,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       </section>
 
       {/* Feature cards */}
-      <section id="produkter" className="bg-muted/30 py-16 sm:py-24 scroll-mt-16">
+      <section id="produkter" className="bg-muted/30 py-16 sm:py-12 scroll-mt-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
             {[
@@ -181,7 +181,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               { icon: <PiggyBank className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.savings"), desc: t("feature.savingsDesc") },
             ].map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-                className="rounded-none bg-background border border-border/60 p-6 sm:p-8 hover:border-border transition-colors">
+                className="rounded-none bg-background border border-border/60 p-6 sm:p-5 hover:border-border transition-colors">
                 <div className={`w-10 h-10 rounded-none flex items-center justify-center ${f.bg}`}>{f.icon}</div>
                 <h3 className="font-semibold text-base mt-3 mb-1.5 text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -193,7 +193,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
 
       {/* Testimonials */}
       {config.testimonials && config.testimonials.length > 0 && (
-        <section className="bg-background py-16 sm:py-24">
+        <section className="bg-background py-16 sm:py-12">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-8 text-center font-semibold">{t("testimonials.title")}</p>
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
@@ -210,7 +210,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
       )}
 
       {/* Bottom CTA */}
-      <section className="bg-hero-navy py-20 sm:py-28">
+      <section className="bg-hero-navy py-10 sm:py-12">
         <div className="max-w-lg mx-auto px-6 text-center">
           <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">{t("bottomCta.title")}</h2>
           <p className="text-white/60 text-sm mb-8">{t("bottomCta.subtitle")}</p>
