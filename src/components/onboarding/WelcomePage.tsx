@@ -59,7 +59,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
 
   return (
     <div id="main-content" className="min-h-screen flex flex-col bg-background">
-      <a href="#hero-cta" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold">
+      <a href="#hero-cta" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-none focus:text-sm focus:font-semibold">
         {t("dash.skipToContent")}
       </a>
       {/* Nav */}
@@ -71,7 +71,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             <button onClick={() => document.getElementById('saadan-virker-det')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:inline text-sm text-white/70 hover:text-white transition-colors cursor-pointer bg-transparent border-none">{t("nav.howItWorks")}</button>
             {lang !== "nb" && <LanguageToggle />}
             <button onClick={onStart}
-              className="px-4 sm:px-5 py-2 rounded-lg bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors">
+              className="px-4 sm:px-5 py-2 rounded-none bg-white text-hero-navy text-sm font-semibold hover:bg-white/90 transition-colors">
               {t("hero.cta")}
             </button>
           </div>
@@ -86,40 +86,41 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
           muted
           loop
           playsInline
-          preload="none"
+          preload="auto"
           poster="/hero-couple.webp"
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover opacity-20 pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
           src="/hero-video.mp4"
         />
-        <div className="absolute inset-0 bg-hero-navy/70" />
+        {/* Lateral gradient: text side legible, sankey side shows more video */}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, hsl(var(--hero-navy) / 0.85) 0%, hsl(var(--hero-navy) / 0.70) 50%, hsl(var(--hero-navy) / 0.45) 100%)" }} />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24 lg:py-32 grid lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12 items-center relative z-10">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="min-w-0 relative z-10">
-            <h1 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-white mb-4 sm:mb-5 text-balance">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight text-white mb-4 sm:mb-5 text-balance">
               {t("hero.title")}{" "}
               <span className="text-white">{t("hero.titleHighlight")}</span>
             </h1>
-            <p className="text-white/60 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
+            <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-6 sm:mb-8">{t("hero.subtitle")}</p>
             <div className="flex flex-wrap items-center gap-3">
               <button id="hero-cta" onClick={onStart}
-                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-none bg-white text-hero-navy text-sm font-bold hover:bg-white/90 transition-all shadow-lg shadow-black/20">
                 {t("hero.cta")} <ArrowRight className="w-4 h-4" />
               </button>
               {hasExistingProfile && onGoToApp && (
                 <button onClick={onGoToApp}
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-full border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
+                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-none border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-all">
                   {t("action.goToDashboard")} <ArrowRight className="w-4 h-4" />
                 </button>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-4">
               <a href="/lonseddel"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
                 <Upload className="w-3 h-3" />
                 {t("payslip.welcomeCta")}
               </a>
               <a href="/lonudvikling"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-none bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white/90 transition-all border border-white/10">
                 <BarChart3 className="w-3 h-3" />
                 {t("timeline.title")}
               </a>
@@ -176,8 +177,8 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
               { icon: <PiggyBank className="w-5 h-5 text-primary" />, bg: "bg-primary/10", title: t("feature.savings"), desc: t("feature.savingsDesc") },
             ].map((f, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-                className="rounded-xl bg-background border border-border/60 p-6 sm:p-8 hover:border-border transition-colors">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${f.bg}`}>{f.icon}</div>
+                className="rounded-none bg-background border border-border/60 p-6 sm:p-8 hover:border-border transition-colors">
+                <div className={`w-10 h-10 rounded-none flex items-center justify-center ${f.bg}`}>{f.icon}</div>
                 <h3 className="font-semibold text-base mt-3 mb-1.5 text-foreground">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </motion.div>
@@ -194,7 +195,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
               {config.testimonials.map((testimonial) => (
                 <motion.div key={testimonial.name} initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  className="rounded-xl border-l-2 border-l-primary/30 border border-border/40 pl-5 pr-5 py-5 bg-background">
+                  className="rounded-none border-l-2 border-l-primary/30 border border-border/40 pl-5 pr-5 py-5 bg-background">
                   <p className="text-sm text-foreground leading-relaxed mb-3 italic">"{testimonial.quote}"</p>
                   <p className="text-xs text-muted-foreground">— {testimonial.name}, {testimonial.location}</p>
                 </motion.div>
@@ -210,7 +211,7 @@ export function WelcomePage({ onStart, hasExistingProfile, onGoToApp }: Props) {
           <h2 className="font-display font-bold text-2xl md:text-3xl text-white mb-3">{t("bottomCta.title")}</h2>
           <p className="text-white/60 text-sm mb-8">{t("bottomCta.subtitle")}</p>
           <button onClick={onStart}
-            className="px-10 py-4 rounded-full bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
+            className="px-10 py-4 rounded-none bg-white text-hero-navy font-bold text-base hover:bg-white/90 transition-all shadow-xl shadow-black/20">
             {t("hero.cta")} <ArrowRight className="w-4 h-4 inline ml-1.5" />
           </button>
           <p className="text-white/40 text-xs mt-5">{t("bottomCta.noLogin")}</p>

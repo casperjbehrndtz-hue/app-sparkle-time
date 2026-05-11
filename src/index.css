@@ -32,7 +32,11 @@
     --input: 150 8% 91%;
     --ring: 216 56% 22%;
 
-    --radius: 0.75rem;
+    --radius: 0.25rem;
+
+    /* Subtle bank-style elevation. Not flat, not floating. */
+    --shadow-card: 0 1px 2px hsl(160 15% 10% / 0.05), 0 4px 12px hsl(160 15% 10% / 0.04);
+    --shadow-card-hover: 0 2px 4px hsl(160 15% 10% / 0.06), 0 8px 24px hsl(160 15% 10% / 0.06);
 
 /* Nemt tokens */
     --nemt-green: 152 69% 32%;
@@ -133,12 +137,14 @@
   }
 
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 16px;
     line-height: 1.6;
-    letter-spacing: -0.011em;
+    letter-spacing: -0.005em;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1;
+    font-variant-numeric: tabular-nums;
   }
 
   body {
@@ -146,8 +152,14 @@
   }
 
   h1, h2, h3, h4 {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  h1 {
     letter-spacing: -0.02em;
-    line-height: 1.2;
   }
 
   /* Smooth input focus transitions */
