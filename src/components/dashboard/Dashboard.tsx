@@ -31,6 +31,9 @@ import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SuiteNav } from "@/components/SuiteNav";
 import { AppFooter } from "@/components/AppFooter";
+import { SupportBanner } from "@/components/SupportBanner";
+import { DonorGate } from "@/components/DonorGate";
+import { ParfinansHandoffCard } from "@/components/ParfinansHandoffCard";
 import { calculateHealth, generateSmartSteps } from "@/lib/healthScore";
 import type { BudgetProfile, ComputedBudget, OptimizingAction } from "@/lib/types";
 
@@ -371,21 +374,27 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
 
           <div className="rounded-none border border-border divide-y divide-border overflow-hidden">
             <AdvancedSection id="hvadvis-inner" title={t("tab.whatIf") + "?"} emoji="">
-              <Suspense fallback={<LazyFallback />}>
-                <HvadHvisView profile={profile} budget={budget} health={health} />
-              </Suspense>
+              <DonorGate source="hvad_hvis" featureLabel={t("tab.whatIf")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <HvadHvisView profile={profile} budget={budget} health={health} />
+                </Suspense>
+              </DonorGate>
             </AdvancedSection>
 
             <AdvancedSection id="stresstest-inner" title={t("tab.stressTest")} emoji="">
-              <Suspense fallback={<LazyFallback />}>
-                <StressTestView profile={profile} budget={budget} />
-              </Suspense>
+              <DonorGate source="stress_test" featureLabel={t("tab.stressTest")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <StressTestView profile={profile} budget={budget} />
+                </Suspense>
+              </DonorGate>
             </AdvancedSection>
 
             <AdvancedSection id="aarshjul-inner" title={t("tab.calendar")} emoji="">
-              <Suspense fallback={<LazyFallback />}>
-                <AarshjulView profile={profile} budget={budget} />
-              </Suspense>
+              <DonorGate source="aarshjul" featureLabel={t("tab.calendar")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <AarshjulView profile={profile} budget={budget} />
+                </Suspense>
+              </DonorGate>
             </AdvancedSection>
 
             <AdvancedSection id="abonnementer-inner" title={t("dash.subscriptions")} emoji="">
@@ -395,22 +404,28 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
             </AdvancedSection>
 
             <AdvancedSection id="naboeffekt-inner" title={t("tab.compare")} emoji="">
-              <Suspense fallback={<LazyFallback />}>
-                <NaboeffektView profile={profile} budget={budget} />
-              </Suspense>
+              <DonorGate source="naboeffekt" featureLabel={t("tab.compare")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <NaboeffektView profile={profile} budget={budget} />
+                </Suspense>
+              </DonorGate>
             </AdvancedSection>
 
             <AdvancedSection id="historik-inner" title={t("tab.history")} emoji="">
-              <Suspense fallback={<LazyFallback />}>
-                <HistorikView />
-              </Suspense>
+              <DonorGate source="historik" featureLabel={t("tab.history")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <HistorikView />
+                </Suspense>
+              </DonorGate>
             </AdvancedSection>
 
             {profile.householdType === "par" && (
               <AdvancedSection id="parsplit-inner" title={t("tab.coupleSplit")} emoji="">
-                <Suspense fallback={<LazyFallback />}>
-                  <ParSplitView profile={profile} budget={budget} />
-                </Suspense>
+                <DonorGate source="parsplit" featureLabel={t("tab.coupleSplit")}>
+                  <Suspense fallback={<LazyFallback />}>
+                    <ParSplitView profile={profile} budget={budget} />
+                  </Suspense>
+                </DonorGate>
               </AdvancedSection>
             )}
           </div>
@@ -443,6 +458,8 @@ export function Dashboard({ profile, budget, optimizations, onReset, onProfileCh
         </motion.div>
       </main>
 
+      {!isEmbed && <ParfinansHandoffCard profile={profile} />}
+      {!isEmbed && <SupportBanner source="dashboard" />}
       {!isEmbed && <AppFooter />}
       <AIChatPanel profile={profile} budget={budget} />
       <ProfileEditSheet

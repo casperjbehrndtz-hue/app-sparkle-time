@@ -1635,4 +1635,63 @@ export const EN: Record<string, string> = {
   "timeline.currentNetto": "Current net",
   "timeline.period": "Period",
   "timeline.needMore": "Upload at least 2 payslips from different periods to see your salary development.",
+
+  // Donation banner (MobilePay)
+  "support.title": "Operations and development",
+  "support.subtitle": "NemtBudget is free and ad-free. Donations cover hosting, operations and new features.",
+  "support.hint": "You choose the amount in MobilePay.",
+  "support.cta": "Support with MobilePay",
+  "support.thanks": "Thanks for your support.",
+
+  // Donation modal (MobilePay)
+  "supportModal.title": "Support NemtBudget",
+  "supportModal.description": "Voluntary donation via MobilePay",
+  "supportModal.fullAccessTitle": "You have full access — free",
+  "supportModal.fullAccessSubtitle": "Budget, payslip, optimization and AI advice — no login or hidden fees.",
+  "supportModal.feature1": "Complete budget with health score and money flow",
+  "supportModal.feature2": "Payslip analysis and salary development",
+  "supportModal.feature3": "Optimization suggestions and savings",
+  "supportModal.feature4": "No ads, no surveillance tracking",
+  "supportModal.askTitle": "Help keep NemtBudget free?",
+  "supportModal.askSubtitle": "NemtBudget is run by one person with no investors. A voluntary donation — any size — helps keep the tool updated and free for everyone.",
+  "supportModal.donateButton": "Support with MobilePay",
+  "supportModal.skipButton": "No thanks, continue free",
+  "supportModal.thanksTitle": "Thank you!",
+  "supportModal.thanksSubtitle": "Your support makes a real difference. It helps keep NemtBudget free and up to date.",
+  "supportModal.getStarted": "Get started",
+
+  // Donor unlock (MobilePay 29 kr+ honor-system)
+  "donorUnlock.title": "Unlock donor features",
+  "donorUnlock.description": "Voluntary donation via MobilePay unlocks donor features",
+  "donorUnlock.headline": "Donor features",
+  "donorUnlock.subhead": "NemtBudget is free and run as a hobby project. Voluntary donations from 29 kr give you access to extra features as a thank-you.",
+  "donorUnlock.feature1": "AI advisor that remembers your situation",
+  "donorUnlock.feature2": "History and trends over time",
+  "donorUnlock.feature3": "Advanced scenarios (What-if, Neighbor effect, Stress test, Year wheel)",
+  "donorUnlock.feature4": "Couple-split and deep analyses",
+  "donorUnlock.askTitle": "Help keep NemtBudget running?",
+  "donorUnlock.askSubtitle": "Donate 29 kr or more via MobilePay. When you come back, confirm the donation and features unlock on this device.",
+  "donorUnlock.donateCta": "Donate with MobilePay",
+  "donorUnlock.skipCta": "No thanks, continue free",
+  "donorUnlock.awaitingTitle": "Thanks — awaiting your confirmation",
+  "donorUnlock.awaitingSubtitle": "MobilePay opened in a new tab. Once you've completed the donation, come back here and confirm — then donor features unlock on this device.",
+  "donorUnlock.confirmCta": "I've donated — unlock",
+  "donorUnlock.notYetCta": "Not yet — back",
+  "donorUnlock.thanksTitle": "Thank you!",
+  "donorUnlock.thanksSubtitle": "Donor features are now unlocked on this device. It makes a real difference for the hobby project.",
+  "donorUnlock.getStartedCta": "Get started",
+
+  // Donor gate (overlay on locked features)
+  "donorGate.lockedTitle": "Donor feature",
+  "donorGate.lockedSubtitle": "This feature is a thank-you for donors who have supported NemtBudget with 29 kr or more via MobilePay.",
+  "donorGate.unlockCta": "Unlock with donation",
+
+  // ParFinans cross-domain prefill
+  "prefill.fromParfinansSuccess": "Numbers imported from ParFinans",
+  "prefill.fromParfinansDesc": "We've carried over your incomes and housing. Click Edit profile if you want to adjust.",
+
+  // ParFinans handoff card (NemtBudget → ParFinans)
+  "parfinansHandoff.title": "See your couple finance in ParFinans",
+  "parfinansHandoff.subtitle": "We'll carry over your numbers — see fair split of shared expenses across 5 models with Danish tax for all 98 municipalities.",
+  "parfinansHandoff.cta": "Open ParFinans",
 };

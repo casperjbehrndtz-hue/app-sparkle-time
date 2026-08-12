@@ -44,9 +44,12 @@ const Index = () => {
     return null;
   });
   // "landing" = first visit, "home" = navigated from dashboard, null = app flow
-  // Skip landing if coming from Lonseddel/Pengetjek with prefill data
+  // Skip landing if coming from Lonseddel/Pengetjek (sessionStorage) or ParFinans (URL param)
   const [landingView, setLandingView] = useState<"landing" | "home" | null>(() => {
     if (sessionStorage.getItem("nb_payslip_prefill") || sessionStorage.getItem("nb_pengetjek_prefill")) {
+      return null;
+    }
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("prefill_parfinans")) {
       return null;
     }
     return "landing";
@@ -79,6 +82,85 @@ const Index = () => {
       });
     }
   }, [sharedParam, shareId]);
+
+  // Pre-fill from ParFinans cross-domain handoff (?prefill_parfinans=<base64>)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const encoded = params.get("prefill_parfinans");
+    if (!encoded) return;
+
+    try {
+      // URL-safe base64 decode
+      const padded = encoded.replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(escape(atob(padded + "=".repeat((4 - padded.length % 4) % 4))));
+      const payload = JSON.parse(json) as {
+        householdType?: "par" | "solo";
+        income?: number;
+        partnerIncome?: number;
+        housingType?: "lejer" | "ejer" | "andel";
+        hasMortgage?: boolean;
+        mortgageAmount?: number;
+        propertyValue?: number;
+        interestRate?: number;
+        hasChildren?: boolean;
+        childrenAges?: number[];
+        source?: string;
+        v?: number;
+      };
+
+      const validSources = ["parfinans", "parfinans_beregner", "parfinans_bolig"];
+      if (!payload.source || !validSources.includes(payload.source) || payload.v !== 1) return;
+
+      const defaultProfile: BudgetProfile = {
+        householdType: "par", income: 30000, partnerIncome: 25000, additionalIncome: [], postalCode: "",
+        housingType: "lejer", hasMortgage: false, rentAmount: 9000, mortgageAmount: 0, propertyValue: 0, interestRate: 4.0,
+        hasChildren: false, childrenAges: [],
+        hasNetflix: false, hasSpotify: false, hasHBO: false, hasViaplay: false,
+        hasAppleTV: false, hasDisney: false, hasAmazonPrime: false,
+        hasCar: false, carAmount: 3500, carLoan: 2000, carFuel: 1200, carInsurance: 5500, carTax: 3600, carService: 2500,
+        hasInternet: true,
+        hasInsurance: false, insuranceAmount: 0,
+        hasUnion: false, unionAmount: 500,
+        hasFitness: false, fitnessAmount: 349,
+        hasPet: false, petAmount: 800,
+        hasLoan: false, loanAmount: 1500,
+        hasSavings: false, savingsAmount: 3000,
+        foodAmount: 4000, leisureAmount: 1500, clothingAmount: 800, healthAmount: 350, restaurantAmount: 800,
+        customExpenses: [],
+      };
+
+      const merged: BudgetProfile = {
+        ...defaultProfile,
+        householdType: payload.householdType ?? "par",
+        income: typeof payload.income === "number" && payload.income > 0 ? payload.income : defaultProfile.income,
+        partnerIncome: typeof payload.partnerIncome === "number" && payload.partnerIncome > 0 ? payload.partnerIncome : defaultProfile.partnerIncome,
+        housingType: payload.housingType ?? defaultProfile.housingType,
+        hasMortgage: !!payload.hasMortgage,
+        mortgageAmount: typeof payload.mortgageAmount === "number" && payload.mortgageAmount > 0 ? payload.mortgageAmount : defaultProfile.mortgageAmount,
+        propertyValue: typeof payload.propertyValue === "number" ? payload.propertyValue : 0,
+        interestRate: typeof payload.interestRate === "number" && payload.interestRate > 0 ? payload.interestRate : 4,
+        hasChildren: !!payload.hasChildren,
+        childrenAges: Array.isArray(payload.childrenAges) ? payload.childrenAges.filter((n) => typeof n === "number") : [],
+      };
+
+      // Go straight to dashboard — data is valid and complete enough.
+      // User can refine in profile editor if needed.
+      setProfile(merged);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch { /* quota */ }
+      setLandingView(null);
+      toast.success(t("prefill.fromParfinansSuccess"), {
+        description: t("prefill.fromParfinansDesc"),
+        duration: 5000,
+      });
+
+      // Clean param from URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete("prefill_parfinans");
+      window.history.replaceState({}, document.title, url.pathname + url.search);
+    } catch (err) {
+      console.warn("[Index] Failed to decode prefill_parfinans:", err);
+    }
+  }, []);
 
   // Pre-fill from payslip and/or pengetjek (sessionStorage handoff)
   // Payslip provides: income, tax context, pension, industry/region

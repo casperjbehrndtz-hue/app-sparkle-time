@@ -1637,4 +1637,63 @@ export const DA: Record<string, string> = {
   "timeline.currentNetto": "Nuv. netto",
   "timeline.period": "Periode",
   "timeline.needMore": "Upload mindst 2 lønsedler fra forskellige perioder for at se din lønudvikling.",
+
+  // Donation banner (MobilePay)
+  "support.title": "Drift og udvikling",
+  "support.subtitle": "NemtBudget er gratis og uden reklamer. Donationer dækker drift, hosting og nye funktioner.",
+  "support.hint": "Beløbet vælger du selv i MobilePay.",
+  "support.cta": "Støt med MobilePay",
+  "support.thanks": "Tak for din støtte.",
+
+  // Donation modal (MobilePay)
+  "supportModal.title": "Støt NemtBudget",
+  "supportModal.description": "Frivillig donation via MobilePay",
+  "supportModal.fullAccessTitle": "Du har fuld adgang — gratis",
+  "supportModal.fullAccessSubtitle": "Budget, lønseddel, optimering og AI-rådgivning — uden login eller skjulte gebyrer.",
+  "supportModal.feature1": "Komplet budget med sundhedsscore og pengestrøm",
+  "supportModal.feature2": "Lønseddel-analyse og lønudvikling",
+  "supportModal.feature3": "Optimeringsforslag og besparelser",
+  "supportModal.feature4": "Ingen reklamer, ingen tracking-overvågning",
+  "supportModal.askTitle": "Vil du hjælpe med at holde NemtBudget gratis?",
+  "supportModal.askSubtitle": "NemtBudget drives af én person uden investorer. En frivillig donation — uanset størrelse — hjælper med at holde værktøjet opdateret og gratis for alle danskere.",
+  "supportModal.donateButton": "Støt med MobilePay",
+  "supportModal.skipButton": "Nej tak, fortsæt gratis",
+  "supportModal.thanksTitle": "Tusind tak!",
+  "supportModal.thanksSubtitle": "Din støtte gør en kæmpe forskel. Den hjælper med at holde NemtBudget gratis og opdateret.",
+  "supportModal.getStarted": "Kom i gang",
+
+  // Donor unlock (MobilePay 29 kr+ honor-system)
+  "donorUnlock.title": "Lås donor-funktioner op",
+  "donorUnlock.description": "Frivillig donation via MobilePay låser donor-funktioner op",
+  "donorUnlock.headline": "Donor-funktioner",
+  "donorUnlock.subhead": "NemtBudget er gratis og drives som hobby-projekt. Frivillige donationer fra 29 kr giver dig adgang til ekstra funktioner som tak.",
+  "donorUnlock.feature1": "AI-rådgiver der husker din situation",
+  "donorUnlock.feature2": "Historik og udvikling over tid",
+  "donorUnlock.feature3": "Avancerede scenarier (Hvad-hvis, Naboeffekt, Stresstest, Årshjul)",
+  "donorUnlock.feature4": "Parsplit og dybdegående analyser",
+  "donorUnlock.askTitle": "Vil du hjælpe med at holde NemtBudget i gang?",
+  "donorUnlock.askSubtitle": "Donér 29 kr eller mere via MobilePay. Når du kommer tilbage, bekræfter du donationen og funktionerne låses op på denne enhed.",
+  "donorUnlock.donateCta": "Donér med MobilePay",
+  "donorUnlock.skipCta": "Nej tak, fortsæt gratis",
+  "donorUnlock.awaitingTitle": "Tak — afventer din bekræftelse",
+  "donorUnlock.awaitingSubtitle": "MobilePay er åbnet i ny fane. Når du har gennemført donationen, kommer du tilbage hertil og bekræfter — så låses donor-funktionerne op på denne enhed.",
+  "donorUnlock.confirmCta": "Jeg har doneret — lås op",
+  "donorUnlock.notYetCta": "Ikke endnu — tilbage",
+  "donorUnlock.thanksTitle": "Tusind tak!",
+  "donorUnlock.thanksSubtitle": "Donor-funktionerne er nu låst op på denne enhed. Det gør en kæmpe forskel for hobby-projektet.",
+  "donorUnlock.getStartedCta": "Kom i gang",
+
+  // Donor gate (overlay on locked features)
+  "donorGate.lockedTitle": "Donor-funktion",
+  "donorGate.lockedSubtitle": "Denne funktion er en tak til donorer der har støttet NemtBudget med 29 kr eller mere via MobilePay.",
+  "donorGate.unlockCta": "Lås op med donation",
+
+  // ParFinans cross-domain prefill
+  "prefill.fromParfinansSuccess": "Tal importeret fra ParFinans",
+  "prefill.fromParfinansDesc": "Vi har overført jeres indtægter og bolig. Klik på Rediger profil hvis du vil justere.",
+
+  // ParFinans handoff card (NemtBudget → ParFinans)
+  "parfinansHandoff.title": "Se jeres parøkonomi i ParFinans",
+  "parfinansHandoff.subtitle": "Vi overfører jeres tal — så I kan se fair fordeling af fællesudgifter med 5 modeller og dansk skat for alle 98 kommuner.",
+  "parfinansHandoff.cta": "Åbn ParFinans",
 };

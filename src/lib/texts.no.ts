@@ -1638,4 +1638,63 @@ export const NO: Record<string, string> = {
   "gdpr.exportSuccess": "Dataene dine er lastet ned.",
   "gdpr.deleteSuccess": "Kontoen din er slettet.",
   "gdpr.error": "Det oppstod en feil. Prøv igjen.",
+
+  // Donation banner (MobilePay — Vipps would be Norwegian equivalent, but we use MobilePay for now)
+  "support.title": "Drift og utvikling",
+  "support.subtitle": "NemtBudget er gratis og uten reklame. Donasjoner dekker drift, hosting og nye funksjoner.",
+  "support.hint": "Beløpet velger du selv i MobilePay.",
+  "support.cta": "Støtt med MobilePay",
+  "support.thanks": "Takk for støtten.",
+
+  // Donation modal (MobilePay)
+  "supportModal.title": "Støtt NemtBudget",
+  "supportModal.description": "Frivillig donasjon via MobilePay",
+  "supportModal.fullAccessTitle": "Du har full tilgang — gratis",
+  "supportModal.fullAccessSubtitle": "Budsjett, lønnsslipp, optimering og AI-råd — uten innlogging eller skjulte gebyrer.",
+  "supportModal.feature1": "Komplett budsjett med helsescore og pengestrøm",
+  "supportModal.feature2": "Lønnsslipp-analyse og lønnsutvikling",
+  "supportModal.feature3": "Optimeringsforslag og besparelser",
+  "supportModal.feature4": "Ingen reklame, ingen sporing",
+  "supportModal.askTitle": "Vil du hjelpe oss med å holde NemtBudget gratis?",
+  "supportModal.askSubtitle": "NemtBudget drives av én person uten investorer. En frivillig donasjon — uansett størrelse — hjelper med å holde verktøyet oppdatert og gratis for alle.",
+  "supportModal.donateButton": "Støtt med MobilePay",
+  "supportModal.skipButton": "Nei takk, fortsett gratis",
+  "supportModal.thanksTitle": "Tusen takk!",
+  "supportModal.thanksSubtitle": "Støtten din gjør en stor forskjell. Den hjelper med å holde NemtBudget gratis og oppdatert.",
+  "supportModal.getStarted": "Kom i gang",
+
+  // Donor unlock (MobilePay 29 kr+ honor-system)
+  "donorUnlock.title": "Lås opp donor-funksjoner",
+  "donorUnlock.description": "Frivillig donasjon via MobilePay låser opp donor-funksjoner",
+  "donorUnlock.headline": "Donor-funksjoner",
+  "donorUnlock.subhead": "NemtBudget er gratis og drives som et hobbyprosjekt. Frivillige donasjoner fra 29 kr gir deg tilgang til ekstra funksjoner som takk.",
+  "donorUnlock.feature1": "AI-rådgiver som husker din situasjon",
+  "donorUnlock.feature2": "Historikk og utvikling over tid",
+  "donorUnlock.feature3": "Avanserte scenarioer (Hva-hvis, Naboeffekt, Stresstest, Årshjul)",
+  "donorUnlock.feature4": "Parsplitt og dybdeanalyser",
+  "donorUnlock.askTitle": "Vil du hjelpe oss med å holde NemtBudget i gang?",
+  "donorUnlock.askSubtitle": "Doner 29 kr eller mer via MobilePay. Når du kommer tilbake, bekrefter du donasjonen og funksjonene låses opp på denne enheten.",
+  "donorUnlock.donateCta": "Doner med MobilePay",
+  "donorUnlock.skipCta": "Nei takk, fortsett gratis",
+  "donorUnlock.awaitingTitle": "Takk — venter på din bekreftelse",
+  "donorUnlock.awaitingSubtitle": "MobilePay er åpnet i ny fane. Når du har gjennomført donasjonen, kommer du tilbake hit og bekrefter — så låses donor-funksjonene opp på denne enheten.",
+  "donorUnlock.confirmCta": "Jeg har donert — lås opp",
+  "donorUnlock.notYetCta": "Ikke ennå — tilbake",
+  "donorUnlock.thanksTitle": "Tusen takk!",
+  "donorUnlock.thanksSubtitle": "Donor-funksjonene er nå låst opp på denne enheten. Det gjør en stor forskjell for hobbyprosjektet.",
+  "donorUnlock.getStartedCta": "Kom i gang",
+
+  // Donor gate (overlay on locked features)
+  "donorGate.lockedTitle": "Donor-funksjon",
+  "donorGate.lockedSubtitle": "Denne funksjonen er en takk til donorer som har støttet NemtBudget med 29 kr eller mer via MobilePay.",
+  "donorGate.unlockCta": "Lås opp med donasjon",
+
+  // ParFinans cross-domain prefill
+  "prefill.fromParfinansSuccess": "Tall importert fra ParFinans",
+  "prefill.fromParfinansDesc": "Vi har overført inntekter og bolig. Klikk Rediger profil hvis du vil justere.",
+
+  // ParFinans handoff card (NemtBudget → ParFinans)
+  "parfinansHandoff.title": "Se parøkonomien i ParFinans",
+  "parfinansHandoff.subtitle": "Vi overfører tallene — slik kan dere se rettferdig fordeling av felles utgifter med 5 modeller og dansk skatt for alle 98 kommuner.",
+  "parfinansHandoff.cta": "Åpne ParFinans",
 };
