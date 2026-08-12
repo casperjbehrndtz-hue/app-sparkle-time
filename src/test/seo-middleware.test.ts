@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, afterEach, vi } from "vitest";
 import middleware from "../../middleware";
 
 /** Vitest kører fra projektroden, hvor public/ ligger. */
@@ -177,6 +177,75 @@ describe("Sitemap og middleware er enige", () => {
         false
       );
     }
+  });
+});
+
+describe("Guide-fetcheren spørger Supabase om kolonner der findes", () => {
+  /**
+   * Kolonnerne i articles-tabellen, aflæst live. PostgREST afviser HELE
+   * forespørgslen med 400 ved ét ukendt kolonnenavn, og fetcheren svarer da
+   * null. Resultatet var, at alle 30 guides blev serveret til Googlebot som
+   * "Guide — NemtBudget" uden artikeltekst, fordi select'et bad om updated_at,
+   * som ikke findes. Falder denne test, er guides på vej til at blive
+   * indholdsløse dubletter igen.
+   */
+  const KOLONNER = [
+    "id", "slug", "title", "excerpt", "category", "read_time",
+    "content", "icon_name", "status", "published_at", "created_at",
+    "keywords", "locale",
+  ];
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("beder kun om kolonner der findes i tabellen", async () => {
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "test-key");
+    const kaldteUrls: string[] = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      kaldteUrls.push(String(input));
+      return new Response("[]", { status: 200 });
+    });
+
+    await fetchAsBot("/guides/raadighedsbeloeb-beregning");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
+
+    expect(kaldteUrls, "guide-fetcheren blev slet ikke kaldt").toHaveLength(1);
+
+    const select = new URL(kaldteUrls[0]).searchParams.get("select") ?? "";
+    const ukendte = select.split(",").filter((k) => !KOLONNER.includes(k));
+
+    expect(
+      ukendte,
+      `select beder om ${ukendte.join(", ")}, som ikke findes i articles. ` +
+        `PostgREST svarer 400 på hele forespørgslen, og guiden bliver en tom fallback.`
+    ).toEqual([]);
+  });
+
+  it("serverer artiklens egen title og brødtekst når opslaget lykkes", async () => {
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "test-key");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          {
+            title: "Hvad er rådighedsbeløb?",
+            excerpt: "Sådan regner du det ud.",
+            content: "<p>Rådighedsbeløbet er det du har tilbage.</p>",
+            published_at: "2026-01-01",
+            keywords: "rådighedsbeløb",
+          },
+        ]),
+        { status: 200 }
+      )
+    );
+
+    const r = await fetchAsBot("/guides/raadighedsbeloeb-beregning");
+    vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "");
+
+    expect(r.status).toBe(200);
+    expect(r.isNoIndex, "en hentet guide skal kunne indekseres").toBe(false);
+    expect(r.title).toContain("Hvad er rådighedsbeløb?");
+    expect(r.body).toContain("Rådighedsbeløbet er det du har tilbage.");
   });
 });
 

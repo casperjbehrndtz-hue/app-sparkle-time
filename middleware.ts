@@ -1,14 +1,21 @@
 import { createMiddleware, createArticleFetcher, defaultMatcherConfig } from "./src/lib/dk-seo/middleware";
 
 // ── Article fetcher with Article schema + breadcrumbs ──
+// Kolonnerne skal findes i articles-tabellen. PostgREST svarer 400 på hele
+// forespørgslen ved ét ukendt kolonnenavn, og så faldt hver eneste guide
+// tilbage på den generiske fallback. Tabellen har created_at, ikke updated_at,
+// så alle 30 guides blev serveret til Googlebot som "Guide — NemtBudget" uden
+// artikeltekst. Tabellens kolonner: id, slug, title, excerpt, category,
+// read_time, content, icon_name, status, published_at, created_at, keywords,
+// locale.
 const fetchGuide = createArticleFetcher({
   table: "articles",
-  select: "title,excerpt,content,published_at,updated_at,keywords",
+  select: "title,excerpt,content,published_at,keywords",
   siteName: "NemtBudget",
   siteUrl: "https://nemtbudget.nu",
   urlPrefix: "/guides",
   parentLabel: "Guides",
-  fields: { excerpt: "excerpt", content: "content", publishedAt: "published_at", updatedAt: "updated_at", keyword: "keywords" },
+  fields: { excerpt: "excerpt", content: "content", publishedAt: "published_at", keyword: "keywords" },
 });
 
 // ── Middleware ──
