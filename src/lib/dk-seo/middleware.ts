@@ -190,6 +190,11 @@ export function createMiddleware(cfg: MiddlewareConfig) {
     skipPrefixes = [],
     ecosystemLinks = [],
     footerTagline,
+    notFound = {
+      title: `Siden findes ikke — ${cfg.siteName}`,
+      description: "Siden du leder efter findes ikke.",
+      noIndex: true,
+    },
   } = cfg;
 
   const allSkipPrefixes = [...DEFAULT_SKIP_PREFIXES, ...skipPrefixes];
@@ -242,14 +247,21 @@ export function createMiddleware(cfg: MiddlewareConfig) {
     return schemas.map((s) => `<script type="application/ld+json">\n  ${JSON.stringify(s, null, 2)}\n  </script>`).join("\n  ");
   }
 
-  async function getRouteMeta(pathname: string): Promise<RouteMeta> {
+  /**
+   * Returnerer null for stier vi ikke kender. Tidligere faldt ukendte stier
+   * tilbage på routes["/"] og pageContent["/"], så enhver URL på domænet
+   * svarede 200 med hele forsidens indhold og en canonical der pegede på sig
+   * selv. Det gjorde hver fejlstavet, udgået eller privat URL til en
+   * indekserbar dublet af forsiden.
+   */
+  async function getRouteMeta(pathname: string): Promise<RouteMeta | null> {
     const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
     const supabaseKey = process.env[supabaseKeyEnv] || "";
 
     for (const dr of dynamicRoutes) {
       if (path.startsWith(dr.prefix)) {
         const slug = path.slice(dr.prefix.length);
-        if (slug) {
+        if (slug && dr.fetch) {
           const dynamic = await dr.fetch(slug, supabaseUrl, supabaseKey);
           if (dynamic) return dynamic;
         }
@@ -257,8 +269,9 @@ export function createMiddleware(cfg: MiddlewareConfig) {
       }
     }
 
-    const meta = routes[path] || routes["/"];
-    return { ...meta, bodyContent: pageContent[path] || pageContent["/"] };
+    const meta = routes[path];
+    if (!meta) return null;
+    return { ...meta, bodyContent: pageContent[path] ?? meta.bodyContent };
   }
 
   // ── Build ecosystem links HTML ──
@@ -269,8 +282,7 @@ export function createMiddleware(cfg: MiddlewareConfig) {
       .join("")}\n      </ul>\n    </section>`;
   }
 
-  async function buildBotHTML(pathname: string): Promise<string> {
-    const meta = await getRouteMeta(pathname);
+  function buildBotHTML(meta: RouteMeta, pathname: string): string {
     const canonicalUrl = `${siteUrl}${pathname === "/" ? "" : pathname}`.split("?")[0];
     const ogTitle = meta.ogTitle || meta.title;
     const ogDesc = meta.ogDescription || meta.description;
@@ -296,7 +308,7 @@ export function createMiddleware(cfg: MiddlewareConfig) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(meta.title)}</title>
-  <meta name="description" content="${esc(meta.description)}" />
+  <meta name="description" content="${esc(meta.description)}" />${meta.noIndex ? `\n  <meta name="robots" content="noindex, follow" />` : ""}
   <link rel="canonical" href="${canonicalUrl}" />
   <link rel="alternate" hreflang="${lang}" href="${canonicalUrl}" />
   <link rel="alternate" hreflang="x-default" href="${canonicalUrl}" />
@@ -349,12 +361,15 @@ export function createMiddleware(cfg: MiddlewareConfig) {
     const isBot = BOT_REGEX.test(userAgent) || !userAgent || !userAgent.includes("Mozilla");
 
     if (isBot) {
-      const html = await buildBotHTML(pathname);
+      const meta = await getRouteMeta(pathname);
+      const html = buildBotHTML(meta ?? notFound, pathname);
       return new Response(html, {
-        status: 200,
+        status: meta ? 200 : 404,
         headers: {
           "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "s-maxage=3600, stale-while-revalidate=86400",
+          "Cache-Control": meta
+            ? "s-maxage=3600, stale-while-revalidate=86400"
+            : "no-store",
         },
       });
     }

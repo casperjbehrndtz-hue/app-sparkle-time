@@ -29,6 +29,8 @@ export interface RouteMeta {
   ogImage?: string;
   ogType?: string;
   bodyContent?: string;
+  /** Udsender <meta name="robots" content="noindex, follow"> for ruter der ikke må indekseres */
+  noIndex?: boolean;
   /** Override JSON-LD for this page (replaces default WebApplication) */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Breadcrumb trail for this page */
@@ -38,8 +40,8 @@ export interface RouteMeta {
 export interface DynamicRouteHandler {
   /** URL path prefix to match, e.g. "/guides/" or "/blog/" */
   prefix: string;
-  /** Fetch meta for the matched slug */
-  fetch: (slug: string, supabaseUrl: string, supabaseKey: string) => Promise<RouteMeta | null>;
+  /** Fetch meta for the matched slug. Udelades den, bruges fallback altid. */
+  fetch?: (slug: string, supabaseUrl: string, supabaseKey: string) => Promise<RouteMeta | null>;
   /** Fallback meta if fetch returns null */
   fallback: RouteMeta;
 }
@@ -85,6 +87,8 @@ export interface MiddlewareConfig extends SiteConfig {
   extraJsonLd?: Record<string, unknown>;
   /** Additional path prefixes to skip (beyond defaults like /_next, /api) */
   skipPrefixes?: string[];
+  /** Meta til 404-siden. Ukendte stier svarer 404 + noindex, aldrig forsidens indhold. */
+  notFound?: RouteMeta;
   /** Links to sister sites in the ecosystem */
   ecosystemLinks?: EcosystemLink[];
   /** Short tagline for footer */

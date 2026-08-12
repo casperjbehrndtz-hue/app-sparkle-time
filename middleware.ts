@@ -170,25 +170,44 @@ export default createMiddleware({
       title: "Installér NemtBudget — Gratis app til telefonen",
       description: "Installér NemtBudget som app på din telefon. Ingen App Store — bare tilføj til startskærm. Virker offline.",
     },
+    // Rigtig side i appen, linket fra forsiden og /lonseddel. Uden en rute her
+    // ville Googlebot få 404 på et internt link, når ukendte stier ikke længere
+    // serverer forsidens indhold.
+    "/lonudvikling": {
+      title: "Lønudvikling: se din løn over flere år | NemtBudget",
+      description: "Upload lønsedler fra flere år og få automatisk en graf over din lønudvikling. Se om din løn følger med inflationen.",
+      ogTitle: "Lønudvikling: se din løn over flere år",
+      ogDescription: "Upload lønsedler fra flere år og se din lønudvikling som graf.",
+      breadcrumbs: [
+        { name: "NemtBudget", url: "/" },
+        { name: "Lønudvikling", url: "/lonudvikling" },
+      ],
+    },
   },
 
   dynamicRoutes: [
     {
+      // Delte budgetter har samme meta for hvert share-id. De skal kunne åbnes
+      // og deles, men må ikke indekseres som lige så mange dubletter.
       prefix: "/s/",
-      fetch: async () => null,
       fallback: {
         title: "Delt budget — NemtBudget",
         description: "Se dette budget delt via NemtBudget. Beregn dit eget gratis.",
         ogTitle: "Se dette budget — NemtBudget",
         ogDescription: "Nogen har delt deres budget med dig. Beregn dit eget gratis på nemtbudget.nu.",
+        noIndex: true,
       },
     },
     {
       prefix: "/guides/",
       fetch: fetchGuide,
+      // noIndex, fordi fallbacken er identisk for alle slugs. Uden den blev hver
+      // guide-URL vi ikke kunne hente til en dublet af de øvrige. Rigtige guides
+      // hentes fra Supabase og får deres egen meta uden noindex.
       fallback: {
         title: "Guide — NemtBudget",
         description: "Læs denne guide om dansk privatøkonomi på NemtBudget.",
+        noIndex: true,
         breadcrumbs: [
           { name: "NemtBudget", url: "/" },
           { name: "Guides", url: "/guides" },
